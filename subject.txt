@@ -1,0 +1,117 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+DEFINITIONS OF A SERVER 
+
+Primary function of a web server : 
+	store
+	process
+	deliver web pages to clients
+
+A user agent (web browser) initiates communication by requesting a specific resource using HTTP
+The server responds with the content of that resource or an error message
+The resource is often typically a real file on the server’s secondary storage
+
+Full implementation of HTTP also includes ways of receiving content from clients (forms, uploading files)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+REQUIREMENTS
+
+Usage
+	./webserv 
+		-> use a default path
+	./webserv [configuration file]
+
+poll() 
+	-> use only 1 poll() (or equivalent) for all the I/O operations
+	-> must check read and write at the same time
+	-> never do a read or a write operation without going through poll()
+		!!!	Because you have to use non-blocking file descriptors, it is possible to use read/recv or write/send functions with no poll() and your server wouldn’t be blocking but it would consume more system resources. 
+		Thus, if you try to read/recv or write/send in any file descriptor without using poll() (or equivalent), your grade will be 0.
+
+	#include <poll.h>
+	provides applications with a mechanism for multiplexing input/output over a set of file descriptors
+	wait for some event on a file descriptor
+
+		poll() performs a similar task to select(2): it waits for one of
+		a set of file descriptors to become ready to perform I/O.  The
+		Linux-specific epoll(7) API performs a similar task, but offers
+		features beyond those found in poll().
+
+		The set of file descriptors to be monitored is specified in the
+		fds argument, which is an array of structures of the following
+		form:
+
+			struct pollfd {
+				int   fd;         /* file descriptor */
+				short events;     /* requested events */
+				short revents;    /* returned events */
+			};
+	https://man7.org/linux/man-pages/man2/poll.2.html
+
+write() <--> fcntl()
+	MacOS doesn’t implement write() the same way as Linux => allowed to use fcntl()
+	Must use file descriptors in non-blocking mode in order to get a behavior similar to Linux
+	Use fcntl() only as follows:
+		fcntl(fd, F_SETFL, O_NONBLOCK);
+
+Others
+	HTTP response status codes must be accurate
+	Have default error pages if none are provided
+	Can’t use fork for something else than CGI (like PHP, or Python, and so forth)
+	Be able to serve a fully static website
+	Clients must be able to upload files
+	GET, POST, and DELETE methods
+	Stress tests: must stay available at all cost
+	Be able to listen to multiple ports (configuration file)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+CONFIGURATION FILE
+
+!?! Get some inspiration from the ’server’ part of NGINX configuration file
+
+- Port and Host of each 'server'
+- server_names or not
+- first server for a host:port will be the default
+- default error pages
+- limit client body size.
+- setup routes
+	list of accepted HTTP methods for the route
+	HTTP redirection
+	define directory or a file from where the file should be searched
+	turn on or off directory listing
+	default file to answer if the request is a directory
+	make the route able to accept uploaded files and configure where they should be saved
+	execute CGI based on certain file extension (for example .php)
+	should work with only 1 CGI (php-CGI for exemple)
+
+??? CGI = Common Gateway Interface 
+	Interface utilisée par les serveurs HTTP
+	Au lieu d'envoyer le contenu d'un fichier (fichier HTML, image), le serveur HTTP exécute un programme, puis retourne le contenu généré
+	Une des caractéristiques de l'interface CGI est d'être indépendante de tout langage de programmation, du fait qu'elle utilise les flux standard et les variables d'environnement
+	Du point de vue du serveur HTTP, il est nécessaire de le configurer pour associer l'exécution du programme CGI à certaines URL. Par défaut, les serveurs se contentent généralement de retourner le contenu des fichiers. 
+
+							_____________
+							|			|
+							|  Gateway	|
+							|  program	|
+							|	  Ʌ	  	|
+							|	  |		|
+		web-user			|	  V		|
+		   |				|	 CGI	|
+		   |				|	  Ʌ		|
+		   |				|	  |		|
+		   V				|	  V		|
+		  HTTP ————————————>| 	SERVER	|
+							|			|
+		  					_____________
+
+	La common gateway interface (CGI) est une interface de serveurs Web qui permet un échange de données normalisé entre des applications 
+	et des serveurs externes. Elle fait partie des plus anciennes technologies d’interface de l’Internet et est encore fréquemment utilisée aujourd’hui. 
+	Avec les CGI (parfois traduit littéralement en français interface de passerelle commune), les pages HTML ne doivent pas être entièrement disponibles 
+	sur le serveur, mais sont générées dynamiquement dès qu’un utilisateur fait une demande appropriée via le site Web.
+
+	orsqu’un utilisateur saisit une entrée sur un site Web, ses données ne sont pas directement transmises au serveur, mais elles doivent d’abord être traitées. 
+	Ce traitement est effectué par un logiciel externe (ou un script CGI), et non directement par le serveur Web. Le programme transfère les données via l’interface CGI 
+	standardisée au serveur, qui peut alors afficher les informations nouvellement générées en HTML. 
+	Les programmes CGI sont généralement situés dans un dossier séparé sur le serveur Web.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
