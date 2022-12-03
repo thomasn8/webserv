@@ -12,6 +12,9 @@ The resource is often typically a real file on the server’s secondary storage
 
 Full implementation of HTTP also includes ways of receiving content from clients (forms, uploading files)
 
+!!! Please read the RFC and do some tests with telnet and NGINX before starting this project.
+	Even if you don’t have to implement all the RFC, reading it will help you develop the required features.
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 REQUIREMENTS
 
@@ -114,3 +117,58 @@ CONFIGURATION FILE
 	standardisée au serveur, qui peut alors afficher les informations nouvellement générées en HTML. 
 	Les programmes CGI sont généralement situés dans un dossier séparé sur le serveur Web.
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+REFERENCES ET DOCS
+
+basics:
+	https://stackoverflow.com/questions/2338775/how-do-i-write-a-web-server-in-c-c-on-linux
+		From top-down, you'll need to know about:					  Michele   |  Thomas
+			HTTP Protocol													x	|  x
+			TCP server - BSD socket programming								x	|  x
+			writing a basic Unix daemon (persistent service)				?	|  ?
+			process management (fork)										ok	|  ok
+			parsing text (read a configuration text file)					ok	|  ok
+			file handling (I/O)												ok	|  ok
+			debugging C / C++ programming									ok	|  ok
+		So you will have to learn about writing a basic Unix application, BSD socket programming for the TCP/IP network programming, and the HTTP protocol.
+
+projects with tuto:
+	https://github.com/Bima42/webserv
+		+ schemas general
+		+ configuration file details
+		+ resumé d'ensemble
+	https://github.com/cclaude42/webserv
+		+ references
+
+tutos
+	text:
+		https://medium.com/from-the-scratch/http-server-what-do-you-need-to-know-to-build-a-simple-http-server-from-scratch-d1ef8945e4fa
+		https://osasazamegbe.medium.com/showing-building-an-http-server-from-scratch-in-c-2da7c0db6cb7
+		https://trungams.github.io/2020-08-23-a-simple-http-server-from-scratch/
+		https://ncona.com/2019/04/building-a-simple-server-with-cpp/
+		https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm
+	video:
+		https://www.youtube.com/watch?v=Kc1kwm1WyVM
+		https://www.youtube.com/watch?v=YqEqjODUkWY
+		https://www.youtube.com/watch?v=YwHErWJIh6Y
+
+docs et autres:
+	http:
+		https://www.rfc-editor.org/rfc/rfc7230#section-3.3
+		https://www.rfc-editor.org/rfc/rfc7231#section-5
+		https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods
+		https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+		https://stackoverflow.com/questions/5757290/http-header-line-break-style
+		https://en.wikipedia.org/wiki/OSI_model#Layer_4:_Transport_layer
+	unix sockets:
+		https://www.linuxhowtos.org/C_C++/socket.htm
+		http://dwise1.net/pgm/sockets/blocking.html
+	json:
+		https://www.json.org/json-en.html
+	nginx server:
+		conf:
+			http://nginx.org/en/docs/beginners_guide.html
+			https://www.digitalocean.com/community/tutorials/nginx-location-directive
+			https://www.digitalocean.com/community/tools/nginx?domains.0.php.wordPressRules=true&global.app.lang=fr
+		CGI:
+			https://www.nginx.com/resources/wiki/start/topics/examples/phpfcgi/

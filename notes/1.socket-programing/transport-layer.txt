@@ -1,0 +1,39 @@
+OSI model
+Layer 4: Transport layer
+https://en.wikipedia.org/wiki/OSI_model#Layer_4:_Transport_layer
+
+The transport layer provides the functional and procedural means of transferring variable-length data sequences from a source host to a destination host from one application to another 
+across a network, while maintaining the quality-of-service functions. Transport protocols may be connection-oriented or connectionless.
+
+This may require breaking large protocol data units or long data streams into smaller chunks called "segments", since the network layer imposes a maximum packet size called 
+the maximum transmission unit (MTU), which depends on the maximum packet size imposed by all data link layers on the network path between the two hosts. The amount of data 
+in a data segment must be small enough to allow for a network-layer header and a transport-layer header. For example, for data being transferred across Ethernet, the MTU is 
+1500 bytes, the minimum size of a TCP header is 20 bytes, and the minimum size of an IPv4 header is 20 bytes, so the maximum segment size is 1500-(20+20) bytes, or 1460 bytes. 
+The process of dividing data into segments is called segmentation; it is an optional function of the transport layer. Some connection-oriented transport protocols, such as TCP 
+and the OSI connection-oriented transport protocol (COTP), perform segmentation and reassembly of segments on the receiving side; connectionless transport protocols, such as UDP 
+and the OSI connectionless transport protocol (CLTP), usually do not.
+
+The transport layer also controls the reliability of a given link between a source and destination host through flow control, error control, and acknowledgments of sequence and existence.
+Some protocols are state- and connection-oriented. This means that the transport layer can keep track of the segments and retransmit those that fail delivery through the acknowledgment 
+hand-shake system. The transport layer will also provide the acknowledgement of the successful data transmission and sends the next data if no errors occurred.
+
+Reliability, however, is not a strict requirement within the transport layer. Protocols like UDP, for example, are used in applications that are willing to accept some packet loss, 
+reordering, errors or duplication. Streaming media, real-time multiplayer games and voice over IP (VoIP) are examples of applications in which loss of packets is not usually 
+a fatal problem.
+
+The OSI connection-oriented transport protocol defines five classes of connection-mode transport protocols ranging from class 0 (which is also known as TP0 and provides the fewest features)
+to class 4 (TP4, designed for less reliable networks, similar to the Internet). Class 0 contains no error recovery and was designed for use on network layers that provide error-free connections. 
+Class 4 is closest to TCP, although TCP contains functions, such as the graceful close, which OSI assigns to the session layer. Also, all OSI TP connection-mode protocol classes provide 
+expedited data and preservation of record boundaries.
+
+An easy way to visualize the transport layer is to compare it with a post office, which deals with the dispatch and classification of mail and parcels sent. 
+A post office inspects only the outer envelope of mail to determine its delivery. Higher layers may have the equivalent of double envelopes, such as cryptographic 
+presentation services that can be read by the addressee only. Roughly speaking, tunnelling protocols operate at the transport layer, such as carrying non-IP 
+protocols such as IBM's SNA or Novell's IPX over an IP network, or end-to-end encryption with IPsec. While Generic Routing Encapsulation (GRE) might seem to be a 
+network-layer protocol, if the encapsulation of the payload takes place only at the endpoint, GRE becomes closer to a transport protocol that uses IP headers but 
+contains complete Layer 2 frames or Layer 3 packets to deliver to the endpoint. L2TP carries PPP frames inside transport segments.
+
+Although not developed under the OSI Reference Model and not strictly conforming to the OSI definition of the transport layer, the Transmission Control Protocol (TCP) and 
+the User Datagram Protocol (UDP) of the Internet Protocol Suite are commonly categorized as layer-4 protocols within OSI.
+
+Transport Layer Security (TLS) does not strictly fit inside the model either. It contains characteristics of the transport and presentation layers.
