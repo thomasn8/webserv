@@ -1,11 +1,16 @@
+TCP socket programming
+
+1. Implement the Transport Layer of HTTP which is TCP
+
 HTTP communication usually takes place over TCP/IP connections. The default port is TCP 80, but other ports can be used.
 All the famous HTTP servers like Apache Tomcat, NginX etc are implemented on top of TCP
 HTTP/1.1: from RFC 7230 to RFC 7235 to implement basic workings of HTTP
 
-1. Implement the Transport Layer of HTTP which is TCP
-	To implement TCP, we have to learn TCP socket programming		
-	A socket is the mechanism that most popular operating systems provide to give programs access to the network. It allows messages to be sent and received between applications (unrelated processes) on different networked machines.
-	The sockets mechanism has been created to be independent of any specific type of network. IP, however, is by far the most dominant network and the most popular use of sockets.
+To implement TCP, we have to learn TCP socket programming		
+A socket is the mechanism that most popular operating systems provide to give programs access to the network. 
+It allows messages to be sent and received between applications (unrelated processes) on different networked machines.
+The sockets mechanism has been created to be independent of any specific type of network. 
+IP, however, is by far the most dominant network and the most popular use of sockets.
 	
 	Functions needed:
 		socket()
@@ -22,6 +27,12 @@ HTTP/1.1: from RFC 7230 to RFC 7235 to implement basic workings of HTTP
 		1.3 On the server, wait for an incoming connection
 		1.4 Send and receive messages
 		1.5 Close the socket
+
+	References:
+		https://medium.com/from-the-scratch/http-server-what-do-you-need-to-know-to-build-a-simple-http-server-from-scratch-d1ef8945e4fa
+		https://www.linuxhowtos.org/C_C++/socket.htm
+		http://dwise1.net/pgm/sockets/blocking.html
+		https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 1.1 Create the socket
