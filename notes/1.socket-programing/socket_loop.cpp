@@ -1,7 +1,10 @@
 /*
 	Un modèle de programme de socket pour apprendre à gérer du http,
 	lire socket-programming.txt pour comprendre plus de détails
+	
+	c++ -Wall -Wextra -Werror -std=c++98  socket_loop.cpp -o socket_loop && ./socket_loop
 */
+
 #include <iostream>
 #include <cstring>
 #include <cstdio>

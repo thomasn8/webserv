@@ -1,6 +1,8 @@
 /*
 	Un modèle de programme de socket avec commentaires pour apprendre à gérer du http,
 	lire socket-programming.txt pour comprendre plus de détails
+
+	c++ -Wall -Wextra -Werror -std=c++98  socket.cpp -o socket && ./socket
 */
 
 #include <iostream>
@@ -99,28 +101,6 @@ int main()
 // #5
 	// close the client socket 
 	close(client_fd);
-
-// // ou #3, #4 et #5 en mode loop
-// 	while(1)
-// 	{
-// 		std::cout << std::endl << "+++++++ Waiting for new connection ++++++++" << std::endl << std::endl;
-// 		client_fd = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &address.sin_len);
-// 		if (client_fd < 0)
-// 		{
-// 			perror("accept failed");
-// 			exit(EXIT_FAILURE);
-// 		}
-	
-// 		char buffer[30000] = {0};
-// 		client_read = read(client_fd, buffer, 30000);
-// 		if (client_read < 0)
-// 			perror("No bytes are there to read");
-// 		std::cout << buffer << std::endl;
-// 		response = "Hello from the server";
-// 		write(client_fd, response.c_str(), response.length());
-// 		std::cout << "------------------Hello message sent-------------------" << std::endl;
-// 		close(client_fd);
-// 	}
 
 // END
 	return 0;
