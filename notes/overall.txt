@@ -8,9 +8,7 @@ Primary function of a web server :
 A user agent (web browser) initiates communication by requesting a specific resource using HTTP
 The server responds with the content of that resource or an error message
 The resource is often typically a real file on the server’s secondary storage
-
 Full implementation of HTTP also includes ways of receiving content from clients (forms, uploading files)
-
 !!! Please read the RFC and do some tests with telnet and NGINX before starting this project.
 	Even if you don’t have to implement all the RFC, reading it will help you develop the required features.
 

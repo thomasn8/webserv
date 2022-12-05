@@ -1,8 +1,9 @@
 /*
 	Un modèle de programme de socket pour apprendre à gérer du http,
 	lire socket-programming.txt pour comprendre plus de détails
-	
-	c++ -Wall -Wextra -Werror -std=c++98  socket_loop.cpp -o socket_loop && ./socket_loop
+
+	compilable avec "make" ou "make loop"
+	executable avec "make run"
 */
 
 #include <iostream>
@@ -21,7 +22,7 @@ int main()
 	long client_read;
     struct sockaddr_in address;
 	char buffer[30000] = {0};
-    std::string response = "Hello from the server";
+    std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 25\n\nHello from the server!";
 
 	server_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (server_fd < 0)

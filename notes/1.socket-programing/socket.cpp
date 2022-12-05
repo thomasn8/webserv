@@ -2,7 +2,8 @@
 	Un modèle de programme de socket avec commentaires pour apprendre à gérer du http,
 	lire socket-programming.txt pour comprendre plus de détails
 
-	c++ -Wall -Wextra -Werror -std=c++98  socket.cpp -o socket && ./socket
+	compilable avec "make server"
+	executable avec ./server
 */
 
 #include <iostream>
@@ -95,7 +96,7 @@ int main()
 	std::cout << std::endl << "client_read: " << std::endl << buffer;
 	
 	// write la réponse dans le fd du client
-	response = "Hello from the server";							// !!! IMPORTANT !!!
+	response = "Hello from the server";
 	write(client_fd, response.c_str(), response.length());
 
 // #5

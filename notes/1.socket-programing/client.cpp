@@ -1,6 +1,11 @@
-// Client side C/C++ program to demonstrate Socket programming
-// compile and run with:
-// c++ client.cpp -o client && ./client
+/*
+	Client side C/C++ program to demonstrate Socket programming
+
+	compilable avec "make client"
+	(lancer d'abord le server/server_loop)
+	executable avec ./client
+*/
+
 #include <stdio.h>
 #include <sys/socket.h>
 #include <stdlib.h>

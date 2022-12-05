@@ -1,0 +1,28 @@
+preparation de la (les) response(s) en fonction de la requete
+
+
+Cas d'exemple simple et simplifié:
+	Suppose, you have entered localhost:8080/info.html in the address bar.
+	In the server Terminal we get the following Request Headers:
+	GET /info.html HTTP/1.1
+
+	So, we just have to search for the info.html file in current directory
+	(as / specifies that it is looking in the root directory of the server. 
+	If it is like /messages/info.html then we have to look inside messages folder for info.html file).
+
+	There are many cases here to consider. Some of them are:
+		The file(web page) is present
+		The file(web page) is absent
+		The client doesn’t have permissions to access the file (web page).
+	And many more…..
+
+	1.	select appropriate status code from here
+	2.	if the file is present and the client has permissions to access it, then select appropriate Content-Type from here
+	3. 	open the file
+		read the data into a variable
+		Count the number of bytes read from the file (when you read a simple text file, use return value of the read function)
+		Set the Content-Length.
+	4.	then construct the Response Header
+	5.	add a newline at the end of Response Header
+		append the data to it which we have read from the file (if and only if the file is present and the client has permissions to access it)
+	6.	send the response header to the client
