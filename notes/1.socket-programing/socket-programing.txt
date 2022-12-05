@@ -2,16 +2,41 @@ TCP socket programming
 
 1. Implement the Transport Layer of HTTP which is TCP
 
-HTTP communication usually takes place over TCP/IP connections. The default port is TCP 80, but other ports can be used.
-All the famous HTTP servers like Apache Tomcat, NginX etc are implemented on top of TCP
-HTTP/1.1: from RFC 7230 to RFC 7235 to implement basic workings of HTTP
+	////////////////////////////////////////////////////
+	////////////////////////////////////////////////////
+	TODO:
+		1.1 Create the socket
+		1.2 Identify the socket
+		1.3 Listen and accept incoming connection on the server's socket
+		1.4 Send and receive messages
+		1.5 Close the socket
+	////////////////////////////////////////////////////
+	////////////////////////////////////////////////////
 
-To implement TCP, we have to learn TCP socket programming		
-A socket is the mechanism that most popular operating systems provide to give programs access to the network. 
-It allows messages to be sent and received between applications (unrelated processes) on different networked machines.
-The sockets mechanism has been created to be independent of any specific type of network. 
-IP, however, is by far the most dominant network and the most popular use of sockets.
-	
+	TCP/IP and HTTP
+		HTTP communication usually takes place over TCP/IP connections. The default port is TCP 80, but other ports can be used.
+		All the famous HTTP servers like Apache Tomcat, NginX etc are implemented on top of TCP
+		HTTP/1.1: from RFC 7230 to RFC 7235 to implement basic workings of HTTP
+		To implement TCP, we have to learn TCP socket programming	
+
+		A socket is the mechanism that most popular operating systems provide to give programs access to the network. 
+		It allows messages to be sent and received between applications (unrelated processes) on different networked machines.
+		The sockets mechanism has been created to be independent of any specific type of network. 
+		IP, however, is by far the most dominant network and the most popular use of sockets.
+
+	FILE DESCRIPTORS vs SOCKETS:
+		A file descriptor is simply a position in an array of pointers (File descriptor table)
+		and these pointers point to a file somewhere in memory.
+		Sockets are also indices(plural for index) into the same table but the pointer instead refers to a socket.
+		The file descriptor (as returned by open or socket) is an index into this table or pointer.
+		These pointer can then point to different structures depending on if it's a file or a socket.
+		Each process has its own "file" descriptor table.
+		
+		Socket is nothing but a file in UNIX operating system (even everything is treated as a file in UNIX Operating system)
+		Each time we create a socket an entry is made in the file descriptor table. 
+		The file descriptor acts as a indices(plural for index) of the array of file descriptor tables (located in kernel, which contains information about what action is to be taken i.e read, write, etc, 
+		and it contains pointers to the inode table of that particular file. Inode contains all the necessary deatils of a file.
+		
 	Socket-layer functions:
 		These functions are used by the user process to send or receive
 		packets and to do other socket operations.  For more information
@@ -64,24 +89,23 @@ IP, however, is by far the most dominant network and the most popular use of soc
 		API.
 			REF: https://man7.org/linux/man-pages/man7/socket.7.html
 
-	Todo:
-		1.1 Create the socket
-		1.2 Identify the socket
-		1.3 On the server, listen and accept incoming connection
-		1.4 Send and receive messages
-		1.5 Close the socket
-
 	References:
-		https://man7.org/linux/man-pages/man7/socket.7.html
-		https://man7.org/linux/man-pages/man2/socket.2.html
-		https://man7.org/linux/man-pages/man7/ip.7.html
-		https://medium.com/from-the-scratch/http-server-what-do-you-need-to-know-to-build-a-simple-http-server-from-scratch-d1ef8945e4fa
-		https://www.linuxhowtos.org/C_C++/socket.htm
-		http://dwise1.net/pgm/sockets/blocking.html
-		https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods
+		linux man pages:
+			https://man7.org/linux/man-pages/man7/socket.7.html
+			https://man7.org/linux/man-pages/man2/socket.2.html
+			https://man7.org/linux/man-pages/man7/ip.7.html
+		
+		tutos:
+			https://medium.com/from-the-scratch/http-server-what-do-you-need-to-know-to-build-a-simple-http-server-from-scratch-d1ef8945e4fa
+			https://www.linuxhowtos.org/C_C++/socket.htm
+			http://dwise1.net/pgm/sockets/blocking.html
+			https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
 1.1 Create the socket
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	Create an endpoint for communication and returns a file descriptor that refers to that endpoint.
 	The analogy of creating a socket is that of requesting a telephone line from the phone company.
 	A socket system call:
@@ -119,8 +143,11 @@ IP, however, is by far the most dominant network and the most popular use of soc
 		}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
 1.2 Identify the socket
-	When a socket is created with socket(2), it exists in a name space (address family) but has no address assigned to it.
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	When a socket is created with socket(), it exists in a name space (address family) but has no address assigned to it.
 	bind() assigns the address specified by addr to the socket referred to by the file descriptor sockfd.
 	This operation is called “assigning a name to a socket”
 	It is normally necessary to assign a local address using bind() before a SOCK_STREAM socket may receive connections 
@@ -178,8 +205,10 @@ IP, however, is by far the most dominant network and the most popular use of soc
 	Care should be taken when using this flag as it makes TCP less reliable.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-1.3 On the server, listen and accept incoming connexion
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+1.3 Listen and accept incoming connection on the server's socket
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	Before a client can connect to a server, the server should have a socket that is prepared to accept the connections.
 	The listen system call tells a socket that it should be capable of accepting incoming connections.
 	listen() marks the socket referred to by sockfd as a passive socket, that is, as a socket that will be used to accept incoming connection requests using accept().
@@ -196,7 +225,7 @@ IP, however, is by far the most dominant network and the most popular use of soc
 
 	The accept() system call is used with connection-based socket types (SOCK_STREAM, SOCK_SEQPACKET).
 	It extracts the first connection request on the queue of pending connections for the listening socket, sockfd, creates a new connected socket, and returns a new file descriptor referring to that socket.
-	The newly created socket is not in the listening state.  The original socket sockfd is unaffected by this call.
+	The newly created socket is not in the listening state. The original socket sockfd is unaffected by this call.
 
 	An accept system call:
 		int accept(int socket, struct sockaddr *restrict address, socklen_t *restrict address_len);
@@ -207,7 +236,7 @@ IP, however, is by far the most dominant network and the most popular use of soc
 		Return value: 		a file descriptor for the accepted socket or -1
 
 	The argument address is a pointer to a sockaddr structure. This structure is filled in with the address of the peer socket, as known to the communications layer.
-	When addr is NULL, nothing is filled in; in this case, addrlen is not used, and should also be NULL.
+	When address is NULL, nothing is filled in; in this case, address_len is not used, and should also be NULL.
 
 		If no pending connections are present on the queue, and the
 		socket is not marked as nonblocking, accept() blocks the caller
@@ -224,12 +253,41 @@ IP, however, is by far the most dominant network and the most popular use of soc
 			REF: https://man7.org/linux/man-pages/man2/accept.2.html
 
 {}	CODE LOOKS LIKE:
-	if (listen(server_fd, 3) < 0) 
-	{ 
-		perror(“In listen”); 
-		exit(EXIT_FAILURE); 
-	}if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
-	{
-		perror("In accept");            
-		exit(EXIT_FAILURE);        
-	}
+		if (listen(server_fd, 3) < 0) 
+		{ 
+			perror(“In listen”); 
+			exit(EXIT_FAILURE); 
+		}
+		if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
+		{
+			perror("In accept");            
+			exit(EXIT_FAILURE);        
+		}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+1.4 Send and receive messages
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	We finally have connected sockets between a client and a server!
+	The same read and write system calls that work on files also work on sockets.
+
+{}	CODE LOOKS LIKE:
+		char buffer[1024] = {0};int valread = read( new_socket , buffer, 1024); 
+		printf(“%s\n”,buffer );
+		if(valread < 0)
+		{ 
+			printf("No bytes are there to read");
+		}char *hello = "Hello from the server";//IMPORTANT! WE WILL GET TO IT
+		write(new_socket , hello , strlen(hello));
+
+	!!! The real working of HTTP server happens based on the content present in char *hello variable. 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+1.5 Close the socket
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	When we’re done communicating, close the client socket
+	Close system call:
+		close(new_socket);
