@@ -67,7 +67,7 @@ IP, however, is by far the most dominant network and the most popular use of soc
 	Todo:
 		1.1 Create the socket
 		1.2 Identify the socket
-		1.3 On the server, wait for an incoming connection
+		1.3 On the server, listen and accept incoming connection
 		1.4 Send and receive messages
 		1.5 Close the socket
 
@@ -178,4 +178,58 @@ IP, however, is by far the most dominant network and the most popular use of soc
 	Care should be taken when using this flag as it makes TCP less reliable.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-1.3 On the server, wait for an incoming connection
+1.3 On the server, listen and accept incoming connexion
+
+	Before a client can connect to a server, the server should have a socket that is prepared to accept the connections.
+	The listen system call tells a socket that it should be capable of accepting incoming connections.
+	listen() marks the socket referred to by sockfd as a passive socket, that is, as a socket that will be used to accept incoming connection requests using accept().
+
+	A listen system call:
+		int listen(int socket, int backlog);
+	where
+		socket: 			our server_fd socket, a file descriptor that refers to a socket of type SOCK_STREAM or SOCK_SEQPACKET
+		backlog:			the maximum number of pending connections that can be queued up before connections are refused
+		Return value: 		0 or -1
+
+	The original socket that was set up for listening is used only for accepting connections, not for exchanging data.
+	By default, socket operations are synchronous, or blocking, and accept will block until a connection is present on the queue.
+
+	The accept() system call is used with connection-based socket types (SOCK_STREAM, SOCK_SEQPACKET).
+	It extracts the first connection request on the queue of pending connections for the listening socket, sockfd, creates a new connected socket, and returns a new file descriptor referring to that socket.
+	The newly created socket is not in the listening state.  The original socket sockfd is unaffected by this call.
+
+	An accept system call:
+		int accept(int socket, struct sockaddr *restrict address, socklen_t *restrict address_len);
+	where
+		socket: 			the socket that was set for accepting connections with socket() and listen()
+		address:			the address structure that gets filed in with the address of the client that is doing the connect. This allows us to examine the address and port number of the connecting socket if we want to.
+		address_len:		sizeof(address)
+		Return value: 		a file descriptor for the accepted socket or -1
+
+	The argument address is a pointer to a sockaddr structure. This structure is filled in with the address of the peer socket, as known to the communications layer.
+	When addr is NULL, nothing is filled in; in this case, addrlen is not used, and should also be NULL.
+
+		If no pending connections are present on the queue, and the
+		socket is not marked as nonblocking, accept() blocks the caller
+		until a connection is present.  If the socket is marked
+		nonblocking and no pending connections are present on the queue,
+		accept() fails with the error EAGAIN or EWOULDBLOCK.
+
+		In order to be notified of incoming connections on a socket, you
+		can use select(2), poll(2), or epoll(7).  A readable event will
+		be delivered when a new connection is attempted and you may then
+		call accept() to get a socket for that connection.
+		Alternatively, you can set the socket to deliver SIGIO when
+		activity occurs on a socket;
+			REF: https://man7.org/linux/man-pages/man2/accept.2.html
+
+{}	CODE LOOKS LIKE:
+	if (listen(server_fd, 3) < 0) 
+	{ 
+		perror(“In listen”); 
+		exit(EXIT_FAILURE); 
+	}if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
+	{
+		perror("In accept");            
+		exit(EXIT_FAILURE);        
+	}

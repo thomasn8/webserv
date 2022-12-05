@@ -6,50 +6,48 @@
 int main()
 {
 // #1
-	// créer un point d'entrée pour la communication à venir
+	// crée un point d'entrée pour la communication à venir
 	int server_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (server_fd < 0)
 	{
-		perror("cannot create socket"); 
+		perror("socket failed"); 
 		return 1; 
 	}
 
 // #2
-	// assigner une adresse locale au socket pour la connexion à venir
+	// attribution d'une struct pour contenir notamment l'adresse ip et le port
+	// affiliation (bind) de cette struct au fd généré par socket() pour les connexions/communictions à venir
 	const int PORT = 8080;
 	struct sockaddr_in address;
 	memset(&address, 0, sizeof(address));
 	address.sin_family = AF_INET; 
-	address.sin_port = htons(PORT);						// htons converts a short integer (e.g. port) to a network representation 
-	address.sin_addr.s_addr = htonl(INADDR_ANY); 		// htonl converts a long integer (e.g. address) to a network representation
-	if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
+	address.sin_port = htons(PORT);					// htons converts a short integer (port) to a network representation 
+	address.sin_addr.s_addr = htonl(INADDR_ANY); 	// htonl converts a long integer (address) to a network representation
+	if (bind(server_fd, (struct sockaddr *) &address, sizeof(address)) < 0)
 	{ 
 		perror("bind failed"); 
 		return 1;
 	}
-	
 
+// #3
+	// prépare notre socket à accepter des connexions
+	#define LISTEN_BACKLOG 50
+	if (listen(server_fd, LISTEN_BACKLOG) < 0)
+	{
+		perror("listen failed");
+		return 1;
+	}
+	// accept incoming connections one at a time and create a new socket (fd) for the client, stored in the struct
+	int client_socket = accept(server_fd, (struct sockaddr *) &address, (socklen_t *) &address.sin_len);
+	if (client_socket < 0)
+	{
+		perror("accept failed");
+		return 1;    
+	}
 
+// #4
+// #5
 
-
-
-
-	// if (listen(sfd, LISTEN_BACKLOG) == -1)
-	// 	handle_error("listen");
-
-	// /* Now we can accept incoming connections one
-	// 	at a time using accept(2). */
-
-	// peer_addr_size = sizeof(peer_addr);
-	// cfd = accept(sfd, (struct sockaddr *) &peer_addr,
-	// 			&peer_addr_size);
-	// if (cfd == -1)
-	// 	handle_error("accept");
-
-	// /* Code to deal with incoming connection(s)... */
-
-	// /* When no longer required, the socket pathname, MY_SOCK_PATH
-	// 	should be deleted using unlink(2) or remove(3). */
 
 	return 0;
-}
+}	
