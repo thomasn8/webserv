@@ -1,0 +1,271 @@
+//////////////////////////////////////////////////
+/////// RFC 7230-35 introduction sections ///////
+////////////////////////////////////////////////
+
+Note: pour notre sujet, les RFC 30 - 31 ont l'air relevant. Peut-être un peu le 32 aussi. 
+Les suivants parlent de fonctionnalités qu'on doit pas forcément implémenter ou alors en bonus
+
+30_Message_Syntax_and_Routing.txt:	4986 lignes
+31_Semantics_and_Content.txt:		5658 lignes
+32_Conditional_Requests.txt:		1570 lignes
+33_Range_Requests.txt:				1402 lignes
+34_Caching.txt:						2410 lignes
+35_Authentication.txt:				1066 lignes
+
+
+
+
+
+
+
+
+
+///////////////////
+/////// 30 ///////
+/////////////////
+
+The Hypertext Transfer Protocol (HTTP) is a stateless application-
+level request/response protocol that uses extensible semantics and
+self-descriptive message payloads for flexible interaction with
+network-based hypertext information systems.  This document is the
+first in a series of documents that collectively form the HTTP/1.1
+specification:
+
+1.  "Message Syntax and Routing" (this document)
+
+2.  "Semantics and Content" [RFC7231]
+
+3.  "Conditional Requests" [RFC7232]
+
+4.  "Range Requests" [RFC7233]
+
+5.  "Caching" [RFC7234]
+
+6.  "Authentication" [RFC7235]
+
+This HTTP/1.1 specification obsoletes RFC 2616 and RFC 2145 (on HTTP
+versioning).  This specification also updates the use of CONNECT to
+establish a tunnel, previously defined in RFC 2817, and defines the
+"https" URI scheme that was described informally in RFC 2818.
+
+HTTP is a generic interface protocol for information systems.  It is
+designed to hide the details of how a service is implemented by
+presenting a uniform interface to clients that is independent of the
+types of resources provided.  Likewise, servers do not need to be
+aware of each client's purpose: an HTTP request can be considered in
+isolation rather than being associated with a specific type of client
+or a predetermined sequence of application steps.  The result is a
+protocol that can be used effectively in many different contexts and
+for which implementations can evolve independently over time.
+
+HTTP is also designed for use as an intermediation protocol for
+translating communication to and from non-HTTP information systems.
+HTTP proxies and gateways can provide access to alternative
+information services by translating their diverse protocols into a
+hypertext format that can be viewed and manipulated by clients in the
+same way as HTTP services.
+
+One consequence of this flexibility is that the protocol cannot be
+defined in terms of what occurs behind the interface.  Instead, we
+are limited to defining the syntax of communication, the intent of
+received communication, and the expected behavior of recipients.  If
+the communication is considered in isolation, then successful actions
+ought to be reflected in corresponding changes to the observable
+interface provided by servers.  However, since multiple clients might
+act in parallel and perhaps at cross-purposes, we cannot require that
+such changes be observable beyond the scope of a single response.
+
+This document describes the architectural elements that are used or
+referred to in HTTP, defines the "http" and "https" URI schemes,
+describes overall network operation and connection management, and
+defines HTTP message framing and forwarding requirements.  Our goal
+is to define all of the mechanisms necessary for HTTP message
+handling that are independent of message semantics, thereby defining
+the complete set of requirements for message parsers and message-
+forwarding intermediaries.
+
+
+
+
+
+
+
+
+
+///////////////////
+/////// 31 ///////
+/////////////////
+
+Each Hypertext Transfer Protocol (HTTP) message is either a request
+or a response.  A server listens on a connection for a request,
+parses each message received, interprets the message semantics in
+relation to the identified request target, and responds to that
+request with one or more response messages.  A client constructs
+request messages to communicate specific intentions, examines
+received responses to see if the intentions were carried out, and
+determines how to interpret the results.  This document defines
+HTTP/1.1 request and response semantics in terms of the architecture
+defined in [RFC7230].
+
+HTTP provides a uniform interface for interacting with a resource
+(Section 2), regardless of its type, nature, or implementation, via
+the manipulation and transfer of representations (Section 3).
+
+HTTP semantics include the intentions defined by each request method
+(Section 4), extensions to those semantics that might be described in
+request header fields (Section 5), the meaning of status codes to
+indicate a machine-readable response (Section 6), and the meaning of
+other control data and resource metadata that might be given in
+response header fields (Section 7).
+
+This document also defines representation metadata that describe how
+a payload is intended to be interpreted by a recipient, the request
+header fields that might influence content selection, and the various
+selection algorithms that are collectively referred to as "content
+negotiation" (Section 3.4).
+
+
+
+
+
+
+
+
+
+///////////////////
+/////// 32 ///////
+/////////////////
+
+Conditional requests are HTTP requests [RFC7231] that include one or
+more header fields indicating a precondition to be tested before
+applying the method semantics to the target resource.  This document
+defines the HTTP/1.1 conditional request mechanisms in terms of the
+architecture, syntax notation, and conformance criteria defined in
+[RFC7230].
+
+Conditional GET requests are the most efficient mechanism for HTTP
+cache updates [RFC7234].  Conditionals can also be applied to
+state-changing methods, such as PUT and DELETE, to prevent the "lost
+update" problem: one client accidentally overwriting the work of
+another client that has been acting in parallel.
+
+Conditional request preconditions are based on the state of the
+target resource as a whole (its current value set) or the state as
+observed in a previously obtained representation (one value in that
+set).  A resource might have multiple current representations, each
+with its own observable state.  The conditional request mechanisms
+assume that the mapping of requests to a "selected representation"
+(Section 3 of [RFC7231]) will be consistent over time if the server
+intends to take advantage of conditionals.  Regardless, if the
+mapping is inconsistent and the server is unable to select the
+appropriate representation, then no harm will result when the
+precondition evaluates to false.
+
+The conditional request preconditions defined by this specification
+(Section 3) are evaluated when applicable to the recipient
+(Section 5) according to their order of precedence (Section 6).
+
+
+
+
+
+
+
+
+
+///////////////////
+/////// 33 ///////
+/////////////////
+
+Hypertext Transfer Protocol (HTTP) clients often encounter
+interrupted data transfers as a result of canceled requests or
+dropped connections.  When a client has stored a partial
+representation, it is desirable to request the remainder of that
+representation in a subsequent request rather than transfer the
+entire representation.  Likewise, devices with limited local storage
+might benefit from being able to request only a subset of a larger
+representation, such as a single page of a very large document, or
+the dimensions of an embedded image.
+
+This document defines HTTP/1.1 range requests, partial responses, and
+the multipart/byteranges media type.  Range requests are an OPTIONAL
+feature of HTTP, designed so that recipients not implementing this
+feature (or not supporting it for the target resource) can respond as
+if it is a normal GET request without impacting interoperability.
+Partial responses are indicated by a distinct status code to not be
+mistaken for full responses by caches that might not implement the
+feature.
+
+Although the range request mechanism is designed to allow for
+extensible range types, this specification only defines requests for
+byte ranges.
+
+
+
+
+
+
+
+
+
+///////////////////
+/////// 34 ///////
+/////////////////
+
+HTTP is typically used for distributed information systems, where
+performance can be improved by the use of response caches.  This
+document defines aspects of HTTP/1.1 related to caching and reusing
+response messages.
+
+An HTTP cache is a local store of response messages and the subsystem
+that controls storage, retrieval, and deletion of messages in it.  A
+cache stores cacheable responses in order to reduce the response time
+and network bandwidth consumption on future, equivalent requests.
+Any client or server MAY employ a cache, though a cache cannot be
+used by a server that is acting as a tunnel.
+
+A shared cache is a cache that stores responses to be reused by more
+than one user; shared caches are usually (but not always) deployed as
+a part of an intermediary.  A private cache, in contrast, is
+dedicated to a single user; often, they are deployed as a component
+of a user agent.
+
+The goal of caching in HTTP/1.1 is to significantly improve
+performance by reusing a prior response message to satisfy a current
+request.  A stored response is considered "fresh", as defined in
+Section 4.2, if the response can be reused without "validation"
+(checking with the origin server to see if the cached response
+remains valid for this request).  A fresh response can therefore
+reduce both latency and network overhead each time it is reused.
+When a cached response is not fresh, it might still be reusable if it
+can be freshened by validation (Section 4.3) or if the origin is
+unavailable (Section 4.2.4).
+
+
+
+
+
+
+
+
+
+///////////////////
+/////// 35 ///////
+/////////////////
+
+HTTP provides a general framework for access control and
+authentication, via an extensible set of challenge-response
+authentication schemes, which can be used by a server to challenge a
+client request and by a client to provide authentication information.
+This document defines HTTP/1.1 authentication in terms of the
+architecture defined in "Hypertext Transfer Protocol (HTTP/1.1):
+Message Syntax and Routing" [RFC7230], including the general
+framework previously described in "HTTP Authentication: Basic and
+Digest Access Authentication" [RFC2617] and the related fields and
+status codes previously defined in "Hypertext Transfer Protocol --
+HTTP/1.1" [RFC2616].
+
+The IANA Authentication Scheme Registry (Section 5.1) lists
+registered authentication schemes and their corresponding
+specifications, including the "basic" and "digest" authentication
+schemes previously defined by RFC 2617.
