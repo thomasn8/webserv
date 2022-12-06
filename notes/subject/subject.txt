@@ -157,15 +157,17 @@ MICHELE
 THOMAS
 	Intro au sujet:
 		https://www.youtube.com/watch?v=VXmvM2QtuMU&list=WL&index=36&t=602s
+
+	Http:
+		https://developer.mozilla.org/en-US/docs/Web/HTTP
 		https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods
 
 	Tutos
 		text:
 			https://medium.com/from-the-scratch/http-server-what-do-you-need-to-know-to-build-a-simple-http-server-from-scratch-d1ef8945e4fa
-
-			https://osasazamegbe.medium.com/showing-building-an-http-server-from-scratch-in-c-2da7c0db6cb7
 			https://trungams.github.io/2020-08-23-a-simple-http-server-from-scratch/
-			https://ncona.com/2019/04/building-a-simple-server-with-cpp/
+			
+			https://osasazamegbe.medium.com/showing-building-an-http-server-from-scratch-in-c-2da7c0db6cb7
 			https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm
 		video:
 			tuto 1
@@ -193,15 +195,21 @@ THOMAS
 		https://www.lowtek.com/sockets/select.html
 		https://www.ibm.com/docs/en/i/7.2?topic=designs-example-nonblocking-io-select
 		http://dwise1.net/pgm/sockets/blocking.html
+		https://beej.us/guide/bgnet/html/#client-server-background
 
-	git projects:
+	Git projects:
 		https://github.com/Bima42/webserv
 		https://github.com/cclaude42/webserv
+		https://github.com/trungams/http-server
 
 	Autres ref:
 		https://github.com/cclaude42/webserv
 		https://stackoverflow.com/questions/5757290/http-header-line-break-style
 		https://www.json.org/json-en.html
+
+	Testers:
+		https://github.com/wg/wrk
+		https://ncona.com/2019/04/building-a-simple-server-with-cpp/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 BONUS

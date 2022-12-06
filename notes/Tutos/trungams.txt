@@ -1,0 +1,91 @@
+https://trungams.github.io/2020-08-23-a-simple-http-server-from-scratch/
+https://github.com/trungams/http-server
+Limites: utilise plusieurs threads et on est autoriser a n'utiliser qu'un seul process/threads
+
+OVERVIEW
+	Three steps: 
+		1 The client and server establish a TCP connection stream, 
+		2 the client sends HTTP request over TCP connection, 
+		3 and then the server processes that request and sends back a reply.
+	The second and third step can be repeated any number of times, until both client and server decide to close the underlying TCP connection
+
+	In terms of socket programming:
+		- Create a socket and listen for new connections.
+		- Accept incoming client connections.
+		- Receive messages, process them and sends some responses to the client. This is where HTTP message exchange happens.
+		- When one party wants to close the connection, it will do that by sending an EOF character and closing the socket file descriptor
+
+	What is an HTTP message? 
+	In a client-server setting, HTTP messages are the requests and responses objects exchanged between the two parties.
+	An HTTP client sends a HTTP request to an HTTP server, and the server will reply with an HTTP response. 
+	The messages must follow some format specified in the RFCs
+
+HTTP MESSAGES
+	HTTP message should consist of:
+		A start line
+			For an HTTP request, this line includes an HTTP method (GET, POST, HEAD, etc), a request target (URI), and a string that indicates the HTTP version (e.g HTTP/1.1).
+			For an HTTP response, the start line (or status line) will have the HTTP version that the server used, a status code, an optionally, a message describing the status code. 
+			The start line of a message should be terminated by a CRLF character: \r\n
+		Header fields
+			A list of key-value pairs that appear right after the start line and contain metadata about the HTTP connection and message. 
+			Each field should be on a single line and have the format field-name: field-value
+		Message body
+			An optional sequence of bytes.
+			The message body is often present in response messages from the server, and sometimes in requests sent by the client, depending on the HTTP method. 
+			An HTTP message body can have any format, as long as both client and server have no issue understanding it.
+
+	Exemples:
+		of HTTP request:
+			GET /hello.html HTTP/1.1
+			Host: 0.0.0.0
+			Accept-Language: en, vi
+
+		of HTTP response:
+			HTTP/1.1 200 OK
+			Server: Hello
+			Content-Length: 13
+			Content-Type: text/plain
+
+			Hello, world
+
+	Possible classes:
+		class HttpMessage
+		{
+			protected:
+				httpVersion;
+				headersFields;
+				messageBody;
+		};
+		class HttpRequest : public HttpMessage
+		{
+			private:
+				httpMethod;
+				uri;
+		};
+		class HttpResponse : public HttpMessage
+		{
+			private:
+				httpStatusCode;
+		};
+
+Handling concurrent connections
+	The recv() and write() system calls would block by default, unless the file descriptor is set to be non-blocking. 
+	
+	1 client
+		Busy waiting is fine as long as there is at most one communication stream happening at a time. 
+		If there is one client, then the sequence of actions is exactly the same as we have seen above. The server would wait for a request from the client, read the full request, return a response via the client socket, and repeat. 
+	> 1 client	
+		However, when there is more than one client, just a single recv() or write() call could block the whole program anytime, causing all the operations to stop until the call returns. 
+		This is obviously very bad for a web server application, where the ability to handle communications in parallel is expected. 
+	
+	Fortunately for us, there are some ways we can go about it:
+		Approch #1 (bad idea):
+			The first approach is quite intuitive. We create a new thread for each client connection: read/write calls are free to block since it will not affect other clients.
+			This approach is good if we have a few clients, and synchronization is not a huge concern (the state of one thread does not break other running threads). 
+			However, to scale up to 10,000 threads, one would have to be extremely careful about memory usage. Suppose that each new thread is given a 1MB stack, then 1024 threads already take up 1GB in memory. 
+			One can try to minimize the stack size so more threads can be spawned, but that will also impose a much stricter limit on the capacity of the threads.
+		Approch #2:
+			This leads us to the second approach, that is to set the sockets to non-blocking mode (or use asynchronous I/O), and then we’ll be able to handle multiple clients in a single thread by using multiple filedescriptors.
+			This seems to be more memory-friendly than the other approach. 
+			To deal with non-blocking I/O, usebepoll. This helps detect which file descriptor is available to perform a read or write on. The epoll_event struct provided allows to store data relevant to the read/write operations.
+			After implementing the epoll logic, the program can accept and process requests from multiple clients at the same time.
