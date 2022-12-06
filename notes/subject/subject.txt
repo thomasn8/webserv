@@ -1,0 +1,209 @@
+DEFINITIONS OF A SERVER 
+
+Primary function of a web server : 
+	store
+	process
+	deliver web pages to clients
+
+A user agent (web browser) initiates communication by requesting a specific resource using HTTP
+The server responds with the content of that resource or an error message
+The resource is often typically a real file on the server’s secondary storage
+Full implementation of HTTP also includes ways of receiving content from clients (forms, uploading files)
+!!! Please read the RFC and do some tests with telnet and NGINX before starting this project.
+	Even if you don’t have to implement all the RFC, reading it will help you develop the required features.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+REQUIREMENTS
+
+Usage
+	./webserv 
+		-> use a default configuration file
+	./webserv [configuration file]
+
+General
+	- A request to your server should never hang forever.
+	- Your server must be compatible with the web browser of your choice.
+	- We will consider that NGINX is HTTP 1.1 compliant and may be used to compare headers and answer behaviors.
+	- Your HTTP response status codes must be accurate.
+	- You server must have default error pages if none are provided.
+	- You can’t use fork for something else than CGI (like PHP, or Python, and so forth).
+	- You must be able to serve a fully static website.
+	- Clients must be able to upload files.
+	- You need at least GET, POST, and DELETE methods.
+	- Stress tests your server. It must stay available at all cost.
+	- Your server must be able to listen to multiple ports
+
+Non-blocking
+	server must never block and the client can be bounced (renvoyé) properly if necessary
+
+CGI
+	can’t use fork for something else than CGI
+
+poll() 
+	-> use only 1 poll() (or equivalent) for all the I/O operations
+	-> must check read and write at the same time
+	-> never do a read or a write operation without going through poll()
+		!!!	Because you have to use non-blocking file descriptors, it is possible to use read/recv or write/send functions with no poll()
+		Your server wouldn’t be blocking but it would consume more system resources. 
+		Thus, if you try to read/recv or write/send in any file descriptor without using poll() (or equivalent), your grade will be 0.
+	-> (don’t need to use poll() (or equivalent) before reading your configuration file)
+	-> use every macro and define like FD_SET, FD_CLR, FD_ISSET, FD_ZERO (understanding what and how they do it is very useful).
+	
+	#include <poll.h>
+	provides applications with a mechanism for multiplexing input/output over a set of file descriptors
+	wait for some event on a file descriptor
+		poll() performs a similar task to select(): it waits for one of a set of file descriptors to become ready to perform I/O. 
+		epoll() performs a similar task, but offers features beyond those found in poll()
+		The set of file descriptors to be monitored is specified in the fds argument, which is an array of structures of the following form:
+			struct pollfd {
+				int   fd;         /* file descriptor */
+				short events;     /* requested events */
+				short revents;    /* returned events */
+			};
+	https://man7.org/linux/man-pages/man2/poll.2.html
+
+write() <--> fcntl()
+	MacOS doesn’t implement write() the same way as Linux => allowed to use fcntl()
+	Must use file descriptors in non-blocking mode in order to get a behavior similar to Linux
+	Use fcntl() only as follows:
+		fcntl(fd, F_SETFL, O_NONBLOCK);
+
+	fcntl - manipulate file descriptor
+
+		File status flags
+		Each open file description has certain associated status flags,
+		initialized by open(2) and possibly modified by fcntl().
+		Duplicated file descriptors (made with dup(2), fcntl(F_DUPFD),
+		fork(2), etc.) refer to the same open file description, and thus
+		share the same file status flags.
+		The file status flags and their semantics are described in
+		open(2).
+
+		F_SETFL (int)
+				Set the file status flags to the value specified by arg.
+				File access mode (O_RDONLY, O_WRONLY, O_RDWR) and file
+				creation flags (i.e., O_CREAT, O_EXCL, O_NOCTTY, O_TRUNC)
+				in arg are ignored.  On Linux, this command can change
+				only the O_APPEND, O_ASYNC, O_DIRECT, O_NOATIME, and
+				O_NONBLOCK flags.  It is not possible to change the
+				O_DSYNC and O_SYNC flags; see BUGS, below.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+CONFIGURATION FILE
+
+!?! Get some inspiration from the ’server’ part of NGINX configuration file
+
+In the configuration file, you should be able to:
+	- Choose the port and host of each ’server’.
+	- Setup the server_names or not.
+	- The first server for a host:port will be the default for this host:port (that means it will answer to all the requests that don’t belong to an other server).
+	- Setup default error pages.
+	- Limit client body size.
+	- Setup routes with one or multiple of the following rules/configuration (routes wont be using regexp):
+		• Define a list of accepted HTTP methods for the route.
+		• Define a HTTP redirection.
+		• Define a directory or a file from where the file should be searched (for example, if url /kapouet is rooted to /tmp/www, url /kapouet/pouic/toto/pouet is /tmp/www/pouic/toto/pouet).
+		• Turn on or off directory listing.
+		• Set a default file to answer if the request is a directory.
+		• Execute CGI based on certain file extension (for example .php).
+		• Make the route able to accept uploaded files and configure where they should be saved.
+			∗ Do you wonder what a CGI is?
+			∗ Because you won’t call the CGI directly, use the full path as PATH_INFO.
+			∗ Just remember that, for chunked request, your server needs to unchunked it and the CGI will expect EOF as end of the body.
+			∗ Same things for the output of the CGI. If no content_length is returned from the CGI, EOF will mark the end of the returned data.
+			∗ Your program should call the CGI with the file requested as first argument.
+			∗ The CGI should be run in the correct directory for relative path file access.
+			∗ Your server should work with one CGI (php-CGI, Python, and so forth).
+
+You must provide some configuration files and default basic files to test and demonstrate every feature works during evaluation
+
+??? CGI = Common Gateway Interface 
+	Interface utilisée par les serveurs HTTP
+	Au lieu d'envoyer le contenu d'un fichier (fichier HTML, image), le serveur HTTP exécute un programme, puis retourne le contenu généré
+	Une des caractéristiques de l'interface CGI est d'être indépendante de tout langage de programmation, du fait qu'elle utilise les flux standard et les variables d'environnement
+	Du point de vue du serveur HTTP, il est nécessaire de le configurer pour associer l'exécution du programme CGI à certaines URL. Par défaut, les serveurs se contentent généralement de retourner le contenu des fichiers. 
+
+							_____________
+							|			|
+							|  Gateway	|
+							|  program	|
+							|	  Ʌ	  	|
+							|	  |		|
+		web-user			|	  V		|
+		   |				|	 CGI	|
+		   |				|	  Ʌ		|
+		   |				|	  |		|
+		   V				|	  V		|
+		  HTTP ————————————>| 	SERVER	|
+							|			|
+		  					_____________
+
+	La common gateway interface (CGI) est une interface de serveurs Web qui permet un échange de données normalisé entre des applications 
+	et des serveurs externes. Elle fait partie des plus anciennes technologies d’interface de l’Internet et est encore fréquemment utilisée aujourd’hui. 
+	Avec les CGI (parfois traduit littéralement en français interface de passerelle commune), les pages HTML ne doivent pas être entièrement disponibles 
+	sur le serveur, mais sont générées dynamiquement dès qu’un utilisateur fait une demande appropriée via le site Web.
+
+	orsqu’un utilisateur saisit une entrée sur un site Web, ses données ne sont pas directement transmises au serveur, mais elles doivent d’abord être traitées. 
+	Ce traitement est effectué par un logiciel externe (ou un script CGI), et non directement par le serveur Web. Le programme transfère les données via l’interface CGI 
+	standardisée au serveur, qui peut alors afficher les informations nouvellement générées en HTML. 
+	Les programmes CGI sont généralement situés dans un dossier séparé sur le serveur Web.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+REFERENCES ET DOCS
+
+MICHELE
+	...
+
+THOMAS
+	Intro au sujet:
+		https://www.youtube.com/watch?v=VXmvM2QtuMU&list=WL&index=36&t=602s
+		https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods
+
+	Tutos
+		text:
+			https://medium.com/from-the-scratch/http-server-what-do-you-need-to-know-to-build-a-simple-http-server-from-scratch-d1ef8945e4fa
+
+			https://osasazamegbe.medium.com/showing-building-an-http-server-from-scratch-in-c-2da7c0db6cb7
+			https://trungams.github.io/2020-08-23-a-simple-http-server-from-scratch/
+			https://ncona.com/2019/04/building-a-simple-server-with-cpp/
+			https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm
+		video:
+			tuto 1
+				p1 https://www.youtube.com/watch?v=Kc1kwm1WyVM
+				p2 https://www.youtube.com/watch?v=YqEqjODUkWY
+			tuto 2
+				p1 https://www.youtube.com/watch?v=YwHErWJIh6Y
+				p2 https://www.youtube.com/watch?v=pTIZ9YjE3Pw
+
+	Nginx server:
+		conf:
+			http://nginx.org/en/docs/beginners_guide.html
+			https://www.digitalocean.com/community/tutorials/nginx-location-directive
+			https://www.digitalocean.com/community/tools/nginx?domains.0.php.wordPressRules=true&global.app.lang=fr
+		CGI:
+			https://www.nginx.com/resources/wiki/start/topics/examples/phpfcgi/
+
+	CGI:
+		http://www.mnuwer.dbasedeveloper.co.uk/dlearn/web/session01.htm
+		http://www.wijata.com/cgi/cgispec.html#4.0
+		https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm
+
+	Non-blocking unix socket system:
+		https://www.linuxhowtos.org/C_C++/socket.htm
+		https://www.lowtek.com/sockets/select.html
+		https://www.ibm.com/docs/en/i/7.2?topic=designs-example-nonblocking-io-select
+		http://dwise1.net/pgm/sockets/blocking.html
+
+	git projects:
+		https://github.com/Bima42/webserv
+		https://github.com/cclaude42/webserv
+
+	Autres ref:
+		https://github.com/cclaude42/webserv
+		https://stackoverflow.com/questions/5757290/http-header-line-break-style
+		https://www.json.org/json-en.html
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+BONUS
+- Support cookies and session management (prepare quick examples).
+- Handle multiple CGI.

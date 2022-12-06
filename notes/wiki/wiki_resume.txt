@@ -1,0 +1,39 @@
+******** Hypertext Transfer Protocol ********
+HTTP functions as a request–response protocol in the client–server model
+A process, named web server, running on a computer hosting one or more websites may be the server
+The client submits an HTTP request message to the server
+The server returns a response message
+	- completion status information
+	- content in its message body
+In HTTP/1.0 a separate connection to the same server is made for every resource request
+In HTTP/1.1 instead a TCP connection can be reused to make multiple resource requests (i.e. of HTML pages, frames, images, scripts, stylesheets, etc.)
+
+******** Internet protocol suite ********
+Hypertext Transfer Protocol (HTTP) is an application layer protocol in the Internet protocol suite model
+The Internet protocol suite is commonly known as TCP/IP
+The foundational protocols in the suite are the Transmission Control Protocol (TCP), the User Datagram Protocol (UDP), and the Internet Protocol (IP)
+The Internet protocol suite provides end-to-end data communication specifying how data should be packetized, addressed, transmitted, routed, and received
+From lowest to highest, the layers are the link layer; the internet layer; the transport layer, handling host-to-host communication; and the application layer, providing process-to-process data exchange for applications
+
+******** Transmission Control Protocol ********
+TCP provides reliable, ordered, and error-checked delivery of a stream of octets (bytes) between applications running on hosts communicating via an IP network
+Part of the Transport Layer of the TCP/IP suite
+SSL/TLS often runs on top of TCP
+TCP is connection-oriented, and a connection between client and server is established before data can be sent. The server must be listening (passive open) for connection requests from clients before a connection is established
+Three-way handshake (active open), retransmission, and error detection adds to reliability but lengthens latency
+The User Datagram Protocol (UDP) instead, which provides a connectionless datagram service that prioritizes time over reliability
+
+******** Transport layer (OSI) ********
+Provides the functional and procedural means of transferring variable-length data sequences from a source host to a destination host from one application to another across a network
+May require breaking large protocol data units or long data streams into smaller chunks called "segments", since the network layer imposes a maximum packet size called the maximum transmission unit (MTU)
+In a data segment must be small enough to allow for a network-layer header and a transport-layer header
+For data being transferred across Ethernet, the MTU is 1500 bytes, the minimum size of a TCP header is 20 bytes, and the minimum size of an IPv4 header is 20 bytes, so the maximum segment size is 1500-(20+20) bytes, or 1460 bytes
+The process of dividing data into segments is called segmentation and it is an optional function of the transport layer
+Controls the reliability of a given link between a source and destination host through flow control, error control, and acknowledgments of sequence and existence
+Some protocols are state- and connection-oriented. This means that the transport layer can keep track of the segments and retransmit those that fail delivery through the acknowledgment hand-shake system. The transport layer will also provide the acknowledgement of the successful data transmission and sends the next data if no errors occurred. Reliability, however, is not a strict requirement within the transport layer
+Protocols like UDP, for example, are used in applications that are willing to accept some packet loss, reordering, errors or duplication. Streaming media, real-time multiplayer games and voice over IP (VoIP) are examples of applications in which loss of packets is not usually a fatal problem
+An easy way to visualize the transport layer is to compare it with a post office in the way a post office inspects only the outer envelope of mail to determine its delivery
+
+******** Application layer (OSI) ********
+An abstraction layer that specifies the shared communications protocols and interface methods used by hosts in a communications network
+Though the TCP/IP application layer does not describe specific rules or data formats that applications must consider when communicating, the original specification (in RFC 1123) does rely on and recommend the robustness principle for application design
