@@ -16,9 +16,9 @@ OVERVIEW
 		- When one party wants to close the connection, it will do that by sending an EOF character and closing the socket file descriptor
 
 	What is an HTTP message? 
-	In a client-server setting, HTTP messages are the requests and responses objects exchanged between the two parties.
-	An HTTP client sends a HTTP request to an HTTP server, and the server will reply with an HTTP response. 
-	The messages must follow some format specified in the RFCs
+		In a client-server setting, HTTP messages are the requests and responses objects exchanged between the two parties.
+		An HTTP client sends a HTTP request to an HTTP server, and the server will reply with an HTTP response. 
+		The messages must follow some format specified in the RFCs
 
 HTTP MESSAGES
 	HTTP message should consist of:

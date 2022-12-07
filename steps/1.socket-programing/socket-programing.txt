@@ -131,16 +131,6 @@ TCP socket programming
 		If a piece of data for which the peer protocol has buffer space cannot be successfully transmitted within a reasonable length of time, then the connection is considered to be dead. 
 		When SO_KEEPALIVE is enabled on the socket the protocol checks in a protocol-specific manner if the other end is still alive.  
 		A SIGPIPE signal is raised if a process sends or receives on a broken stream; this causes naive processes, which do not handle the signal, to exit.
-		
-{}	CODE LOOKS LIKE:
-		#include <sys/socket.h>
-		#include <netinet/in.h>
-		int server_fd;
-		if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) 
-		{
-			perror(“cannot create socket”); 
-			return 0; 
-		}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -182,24 +172,6 @@ TCP socket programming
 			The special address for this is 0.0.0.0, defined by the symbolic constant INADDR_ANY
 			When a process wants to receive new incoming packets or connections only one IP socket may be bound to any given local (address, port) pair 
 			When INADDR_ANY is specified in the bind call, the socket will be bound to all local interfaces.
-
-{}	CODE LOOKS LIKE:
-		... 
-		struct sockaddr_in address;
-		const int PORT = 8080;
-		memset((char *)&address, 0, sizeof(address)); 
-		address.sin_family = AF_INET; 
-		address.sin_addr.s_addr = htonl(INADDR_ANY); 
-		address.sin_port = htons(PORT); 
-		/* 
-			htonl converts a long integer (e.g. address) to a network representation
-			htons converts a short integer (e.g. port) to a network representation 
-		*/ 
-		if (bind(server_fd,(struct sockaddr *)&address,sizeof(address)) < 0) 
-		{ 
-			perror(“bind failed”); 
-			return 0; 
-		}
 
 	A TCP local socket address that has been bound is unavailable for some time after closing, unless the SO_REUSEADDR flag has been set.
 	Care should be taken when using this flag as it makes TCP less reliable.
@@ -252,18 +224,6 @@ TCP socket programming
 		activity occurs on a socket;
 			REF: https://man7.org/linux/man-pages/man2/accept.2.html
 
-{}	CODE LOOKS LIKE:
-		if (listen(server_fd, 3) < 0) 
-		{ 
-			perror(“In listen”); 
-			exit(EXIT_FAILURE); 
-		}
-		if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
-		{
-			perror("In accept");            
-			exit(EXIT_FAILURE);        
-		}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 1.4 Send and receive messages
@@ -271,17 +231,6 @@ TCP socket programming
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	We finally have connected sockets between a client and a server!
 	The same read and write system calls that work on files also work on sockets.
-
-{}	CODE LOOKS LIKE:
-		char buffer[1024] = {0};int valread = read( new_socket , buffer, 1024); 
-		printf(“%s\n”,buffer );
-		if(valread < 0)
-		{ 
-			printf("No bytes are there to read");
-		}char *hello = "Hello from the server";//IMPORTANT! WE WILL GET TO IT
-		write(new_socket , hello , strlen(hello));
-
-	!!! The real working of HTTP server happens based on the content present in char *hello variable. 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

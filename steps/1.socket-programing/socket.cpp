@@ -96,7 +96,7 @@ int main()
 	std::cout << std::endl << "client_read: " << std::endl << buffer;
 	
 	// write la réponse dans le fd du client
-	response = "Hello from the server";
+	response = "Hello from the server";									// !!! The real working of HTTP server happens based on the content present here
 	write(client_fd, response.c_str(), response.length());
 
 // #5
