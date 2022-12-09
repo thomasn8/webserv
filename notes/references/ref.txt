@@ -1,0 +1,59 @@
+MICHELE
+	...
+
+THOMAS
+	Intro au sujet:
+		https://www.youtube.com/watch?v=VXmvM2QtuMU&list=WL&index=36&t=602s
+
+	Http:
+		https://developer.mozilla.org/en-US/docs/Web/HTTP
+		https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods
+
+	Tutos
+		text:
+			https://medium.com/from-the-scratch/http-server-what-do-you-need-to-know-to-build-a-simple-http-server-from-scratch-d1ef8945e4fa
+			https://trungams.github.io/2020-08-23-a-simple-http-server-from-scratch/
+			
+			https://osasazamegbe.medium.com/showing-building-an-http-server-from-scratch-in-c-2da7c0db6cb7
+			https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm
+		video:
+			tuto 1
+				p1 https://www.youtube.com/watch?v=Kc1kwm1WyVM
+				p2 https://www.youtube.com/watch?v=YqEqjODUkWY
+			tuto 2
+				p1 https://www.youtube.com/watch?v=YwHErWJIh6Y
+				p2 https://www.youtube.com/watch?v=pTIZ9YjE3Pw
+
+	Nginx server:
+		conf:
+			http://nginx.org/en/docs/beginners_guide.html
+			https://www.digitalocean.com/community/tutorials/nginx-location-directive
+			https://www.digitalocean.com/community/tools/nginx?domains.0.php.wordPressRules=true&global.app.lang=fr
+		CGI:
+			https://www.nginx.com/resources/wiki/start/topics/examples/phpfcgi/
+
+	CGI:
+		http://www.mnuwer.dbasedeveloper.co.uk/dlearn/web/session01.htm
+		http://www.wijata.com/cgi/cgispec.html#4.0
+		https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm
+
+	Non-blocking unix socket system:
+		https://www.linuxhowtos.org/C_C++/socket.htm
+		https://www.lowtek.com/sockets/select.html
+		https://www.ibm.com/docs/en/i/7.2?topic=designs-example-nonblocking-io-select
+		http://dwise1.net/pgm/sockets/blocking.html
+		https://beej.us/guide/bgnet/html/#client-server-background
+
+	Git projects:
+		https://github.com/Bima42/webserv
+		https://github.com/cclaude42/webserv
+		https://github.com/trungams/http-server
+
+	Autres ref:
+		https://github.com/cclaude42/webserv
+		https://stackoverflow.com/questions/5757290/http-header-line-break-style
+		https://www.json.org/json-en.html
+
+	Testers:
+		https://github.com/wg/wrk
+		https://ncona.com/2019/04/building-a-simple-server-with-cpp/

@@ -1,0 +1,44 @@
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Connection_management_in_HTTP_1.x
+
+Connection management is a key topic in HTTP: opening and maintaining connections largely impacts the performance of Web sites and Web applications.
+In HTTP/1.x, there are several models: 
+	- short-lived connections
+	- persistent connections
+	- HTTP pipelining.
+HTTP mostly relies on TCP for its transport protocol, providing a connection between the client and the server.
+
+It's important to note that connection management in HTTP applies to the connection between two consecutive nodes, which is hop-by-hop and not end-to-end. 
+The model used in connections between a client and its first proxy may differ from the model between a proxy and the destination server (or any intermediate proxies). 
+The HTTP headers involved in defining the connection model, like Connection and Keep-Alive, are hop-by-hop headers with their values able to be changed by intermediary nodes.
+A related topic is the concept of HTTP connection upgrades, wherein an HTTP/1.1 connection is upgraded to a different protocol, such as TLS/1.0, WebSocket, or even HTTP/2 in cleartext: 
+	https://developer.mozilla.org/en-US/docs/Web/HTTP/Protocol_upgrade_mechanism
+
+HTTP 1.0 - short-lived connections
+	At the begining, HTTP used a single model to handle such connections. These connections were short-lived: a new one created each time a request needed sending, and closed once the answer had been received.
+	This simple model held an innate limitation on performance: opening each TCP connection is a resource-consuming operation. 
+	Several messages must be exchanged between the client and the server. Network latency and bandwidth affect performance when a request needs sending. 
+	Modern Web pages require many requests (a dozen or more) to serve the amount of information needed, proving this earlier model inefficient.
+	This model is the default model used in HTTP/1.0 (if there is no Connection header, or if its value is set to close). 
+	
+	In HTTP/1.1, this model is only used when the Connection header is sent with a value of close.
+	Note: Unless dealing with a very old system, which doesn't support a persistent connection, there is no compelling reason to use this model.
+	In HTTP/1.1, persistence is the default, and the header is no longer needed (but it is often added as a defensive measure against cases requiring a fallback to HTTP/1.0).
+
+HTTP 1.1
+	Two newer models were created in HTTP/1.1: 
+		- The persistent-connection model keeps connections opened between successive requests, reducing the time needed to open new connections.
+		- The HTTP pipelining model goes one step further, by sending several successive requests without even waiting for an answer, reducing much of the latency in the network.
+	
+	Persistent-connection (or keep-alive connection):
+		A persistent connection is one which remains open for a period of time, and can be reused for several requests, saving the need for a new TCP handshake, and utilizing TCP's performance enhancing capabilities. 
+		This connection will not stay open forever: idle connections are closed after some time (a server may use the Keep-Alive header to specify a minimum time the connection should be kept open).
+
+	HTTP pipelining:
+		Pipelining is the process to send successive requests, over the same persistent connection, without waiting for the answer. This avoids latency of the connection.
+		By default, HTTP requests are issued sequentially. The next request is only issued once the response to the current request has been received. 
+		As they are affected by network latencies and bandwidth limitations, this can result in significant delay before the next request is seen by the server.
+
+		Note: HTTP pipelining is not activated by default in modern browsers
+		Pipelining is complex to implement correctly: the size of the resource being transferred, the effective RTT that will be used, as well as the effective bandwidth, have a direct incidence on the improvement provided by the pipeline. 
+		Without knowing these, important messages may be delayed behind unimportant ones.
+		For these reasons, pipelining has been superseded by a better algorithm, multiplexing, that is used by HTTP/2.
