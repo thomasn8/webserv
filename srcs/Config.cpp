@@ -32,6 +32,22 @@ Config::~Config()
 {
 }
 
+std::ofstream & Config::getAccessStream() const
+{
+	// return _accessStream;
+	return & _accessStream;
+}
+
+std::ofstream & Config::getErrorStream() const
+{
+	// return _errorStream;
+	return & _errorStream;
+}
+
+// uint16_t Config::getPort() const;
+// uint32_t Config::getAddress() const;
+// size_type Config::getClientMaxBodySize() const;
+
 void Config::_createLogFile(const std::string accessFile, const std::string errorFile)
 {
 	std::string	file;
@@ -57,17 +73,3 @@ void Config::_createLogFile(const std::string accessFile, const std::string erro
 		exit(1);
 	}
 }
-
-std::ofstream & Config::getAccessStream() const
-{
-	return _accessStream;
-}
-
-std::ofstream & Config::getErrorStream() const
-{
-	return _errorStream;
-}
-
-// uint16_t Config::getPort() const;
-// uint32_t Config::getAddress() const;
-// size_type Config::getClientMaxBodySize() const;
