@@ -24,9 +24,6 @@ class Server
 		Server(Config const & config);
 		~Server();
 		
-		void startServer();
-		void stopServer();
-
 	private:
 		Server();
 

@@ -8,17 +8,12 @@ int main(int ac, char **av, char **env)
 		perror("Usage: ./webserv [configuration_file]");
 		exit(EXIT_FAILURE);
 	}
-
 	std::string configFile;
 	if (ac == 2)
 		configFile = av[1];
 	else
 		configFile = "../conf/default.conf";
 	Config config(configFile);
-	
 	Server server(config);
-	server.startServer();
-	server.stopServer();
-
 	return 0;
 }

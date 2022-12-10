@@ -1,5 +1,8 @@
 #include "Config.hpp"
 
+/* 
+	************ CONST/DESTR
+*/
 Config::Config(const std::string file) :
 _configFile(file), _configStream(),
 _accessFile(), _errorFile(),
@@ -12,14 +15,25 @@ _port(0), _address(INADDR_ANY), _clientMaxBodySize(0)
 		std::cerr << "Error while opening configuration file." << std::endl;
 		exit(1);
 	}
-	// parsing de _configStream
-	// ...
+	// std::string accessFile = "../conf/logs/access.log";
+	// std::string errorFile = "../conf/logs/error.log";
 	std::string accessFile;
 	std::string errorFile;
+	// parsing de _configStream
+	// ...
 
 	_createLogFile(accessFile, errorFile);
 }
 
+Config::~Config()
+{
+	_accessStream.close();
+	_errorStream.close();
+}
+
+/* 
+	************ DISABLED (private constructor)
+*/
 Config::Config() :
 _configFile(), _configStream(),
 _accessFile(), _errorFile(),
@@ -28,31 +42,42 @@ _port(0), _address(INADDR_ANY), _clientMaxBodySize(0)
 {
 }
 
-Config::~Config()
-{
-}
-
+/* 
+	************ GETTERS
+*/
 std::ofstream & Config::getAccessStream() const
 {
-	// return _accessStream;
-	return & _accessStream;
+	return _accessStream;
 }
 
 std::ofstream & Config::getErrorStream() const
 {
-	// return _errorStream;
-	return & _errorStream;
+	return _errorStream;
 }
 
-// uint16_t Config::getPort() const;
-// uint32_t Config::getAddress() const;
-// size_type Config::getClientMaxBodySize() const;
+uint16_t Config::getPort() const
+{
+	return _port;
+}
 
+uint32_t Config::getAddress() const
+{
+	return _address;
+}
+
+size_type Config::getClientMaxBodySize() const
+{
+	return _clientMaxBodySize;
+}
+
+/* 
+	************ OTHER
+*/
 void Config::_createLogFile(const std::string accessFile, const std::string errorFile)
 {
 	std::string	file;
 	if (accessFile.empty())
-		file = "logs/access.log";
+		file = "../conf/logs/access.log";
 	else
 		file = accessFile;
 	_accessStream.open(file.c_str(), std::ofstream::out | std::ofstream::app);
@@ -63,7 +88,7 @@ void Config::_createLogFile(const std::string accessFile, const std::string erro
 	}
 	file.clear();
 	if (errorFile.empty())
-		file = "logs/error.log";
+		file = "../conf/logs/error.log";
 	else
 		file = errorFile;
 	_errorStream.open(file.c_str(), std::ofstream::out | std::ofstream::app);
