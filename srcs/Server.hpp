@@ -18,21 +18,16 @@
 class Server
 {	
 	public:
-		typedef struct sockaddr_in t_sockaddr_in;
-		typedef unsigned long size_type;
-
-		Server(Config const & config);
+		Server(Config & config);
 		~Server();
 		
 	private:
-		Server();
-
-		Config const & _config;
+		Config & _config;
 
 		int _server_fd;
 		int _client_fd;
-		size_type _client_read;
-		t_sockaddr_in _address;
+		size_t _client_read;
+		struct sockaddr_in _address;
 		char *_buffer;
 		std::string _response;
 
