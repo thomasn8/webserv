@@ -1,3 +1,4 @@
+#include "Config.hpp"
 #include "Server.hpp"
 
 int main(int ac, char **av, char **env)
@@ -18,5 +19,6 @@ int main(int ac, char **av, char **env)
 	Server server(config);
 	server.startServer();
 	server.stopServer();
+
 	return 0;
 }

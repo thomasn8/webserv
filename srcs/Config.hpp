@@ -5,8 +5,6 @@
 #include <fstream>
 #include <netinet/in.h>
 
-#include "Log.hpp"
-
 class Config
 {	
 	public:
