@@ -4,7 +4,7 @@
 #include <iostream>
 #include <cstring>
 #include <string>
-#include <cstdio>
+// #include <cstdio>
 #include <unistd.h>
 #include <cstdlib>
 #include <sys/socket.h>
@@ -21,14 +21,16 @@ class Server
 		typedef struct sockaddr_in t_sockaddr_in;
 		typedef unsigned long size_type;
 
-		Server();
+		Server(Config const & config);
 		~Server();
-
-		void parse_config_file(std::string file);
-		void start_server();
+		
+		void startServer();
+		void stopServer();
 
 	private:
-		Config _config;
+		Server();
+
+		Config const & _config;
 
 		int _server_fd;
 		int _client_fd;
@@ -37,8 +39,8 @@ class Server
 		char *_buffer;
 		std::string _response;
 
-		void start_error(std::string message, int code);
-
+		void exitWithError(std::ostream & stream, const std::string message, int code) const;
+		std::ostream & log(std::ostream & stream, const std::string message) const;
 
 		// http classes ...
 
