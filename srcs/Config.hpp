@@ -8,7 +8,7 @@
 
 #define DEFAULT_IP "0.0.0.0" // default IP address that lets the operating system choose
 #define DEFAULT_PORT 80
-#define MBS 0
+#define MBS 0				// Client Max Body Size
 
 class Config
 {	

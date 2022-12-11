@@ -29,10 +29,19 @@ void parseConfig(std::string & configFile, Server & server, std::vector<Config> 
 		while (iss)
 		{
 			iss >> word;
-			std::cout << word << " ";
+			// if (word.find_first_of("#\n", 0, 2) != -1)
+			if (word.find_first_of("#", 0, 1) != -1)
+			{
+				word.clear();
+				break;
+			}
+			std::cout << "!";
+			// std::cout << word << "!";
+			// std::cout << word << " ";
+			std::cout << word;
 			word.clear();
 		}
-		std::cout << "\n";
+		// std::cout << std::endl;
 		iss.clear();
 		line.clear();
 	}
