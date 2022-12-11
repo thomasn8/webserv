@@ -5,7 +5,9 @@
 #include <fstream>
 #include <netinet/in.h>
 
-#define DEFAULT_PORT 8080
+#define DEFAULT_IP "0.0.0.0" // default IP address that lets the operating system choose
+#define DEFAULT_PORT 80
+#define MBS 0
 
 class Config
 {	
@@ -30,9 +32,12 @@ class Config
 		std::ofstream		_accessStream;
 		std::ofstream		_errorStream;
 
-		const uint16_t _port;
+		std::vector<std::string> _serverNames;
 		const uint32_t _address;
+		const uint16_t _port;
 		const size_t _clientMaxBodySize;
+
+		void _exitWithError(std::ostream & stream, const std::string message, int code) const;
 };
 
 #endif

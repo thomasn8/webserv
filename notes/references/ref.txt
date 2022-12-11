@@ -26,9 +26,11 @@ THOMAS
 
 	Nginx server:
 		conf:
+			https://www.plesk.com/blog/various/nginx-configuration-guide/
 			http://nginx.org/en/docs/beginners_guide.html
 			https://www.digitalocean.com/community/tutorials/nginx-location-directive
 			https://www.digitalocean.com/community/tools/nginx?domains.0.php.wordPressRules=true&global.app.lang=fr
+			https://www.linode.com/docs/guides/how-to-configure-nginx/
 		CGI:
 			https://www.nginx.com/resources/wiki/start/topics/examples/phpfcgi/
 

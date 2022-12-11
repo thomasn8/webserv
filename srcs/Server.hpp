@@ -4,7 +4,6 @@
 #include <iostream>
 #include <cstring>
 #include <string>
-// #include <cstdio>
 #include <unistd.h>
 #include <cstdlib>
 #include <sys/socket.h>
@@ -31,8 +30,8 @@ class Server
 		char *_buffer;
 		std::string _response;
 
-		void exitWithError(std::ostream & stream, const std::string message, int code) const;
-		std::ostream & log(std::ostream & stream, const std::string message) const;
+		void _exitWithError(std::ostream & stream, const std::string message, int code) const;
+		std::ostream & _log(std::ostream & stream, const std::string message) const;
 
 		// http classes ...
 
