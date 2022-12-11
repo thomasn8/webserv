@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <netinet/in.h>
+#include <vector>
 
 #define DEFAULT_IP "0.0.0.0" // default IP address that lets the operating system choose
 #define DEFAULT_PORT 80
@@ -12,7 +13,7 @@
 class Config
 {	
 	public:
-		Config(const std::string file);
+		Config();
 		~Config();
 
 		std::ofstream & getAccessStream();
@@ -23,9 +24,6 @@ class Config
 		size_t getClientMaxBodySize() const;
 
 	private:
-		const std::string	_configFile;
-		std::ifstream		_configStream;
-		
 		void _createLogFile(const std::string accessFile, const std::string errorFile);
 		const std::string	_accessFile;
 		const std::string	_errorFile;
@@ -38,6 +36,8 @@ class Config
 		const size_t _clientMaxBodySize;
 
 		void _exitWithError(std::ostream & stream, const std::string message, int code) const;
+		std::ostream & _log(std::ostream & stream, const std::string message) const;
+
 };
 
 #endif
