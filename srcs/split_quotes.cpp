@@ -24,15 +24,11 @@ static int	quotes(char a, char *quote)
 	return (1);
 }
 
-static int	words_count(const char *str, char c)
+static int	words_count(const char *str, char c, int *i_first_split)
 {
-	int		i;
-	int		limiter;
-	char	quote;
+	int		i=0, limiter=0, split=0;
+	char	quote='0';
 
-	i = 0;
-	limiter = 0;
-	quote = '0';
 	while (*str)
 	{
 		quotes(*str, &quote);
@@ -42,9 +38,16 @@ static int	words_count(const char *str, char c)
 			i++;
 		}
 		else if (*str == c && quote == '0')
+		{
+			split++;
 			limiter = 0;
+		}
 		str++;
+		if (split == 0)
+			(*i_first_split)++;
 	}
+	if (split == 0)
+		*i_first_split = -1;
 	return (i);
 }
 
@@ -77,24 +80,24 @@ static char	**words_split(char **tab, char const *s, char c)
 	return (tab);
 }
 
-char	**split_quotes(char const *s, char c)
+int split_quotes(char ***tab, char const *s, char c)
 {
-	char	**tab;
 	size_t	words;
+	int i_first_split = 0;
 
 	if (!s)
-		return (0);
-	words = words_count(s, c);
-	tab = (char **)malloc((words + 1) * sizeof(char *));
-	if (!tab)
-		return (0);
-	if (!(words_split(tab, s, c)))
+		return (-1);
+	words = words_count(s, c, &i_first_split);
+	*tab = (char **)malloc((words + 1) * sizeof(char *));
+	if (!*tab)
+		return (-1);
+	if (!(words_split(*tab, s, c)))
 	{
-		free(tab);
-		return (NULL);
+		free(*tab);
+		return (-1);
 	}
-	tab[words] = NULL;
-	return (tab);
+	(*tab)[words] = NULL;
+	return (i_first_split);
 }
 
 void	free_arr(char **arr)

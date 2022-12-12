@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-char **split_quotes(char const *s, char c);
+int split_quotes(char ***tab, char const *s, char c);
 void free_arr(char **arr);
 
 #endif
