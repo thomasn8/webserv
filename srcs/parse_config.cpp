@@ -57,22 +57,9 @@ void openFile(std::string & configFile, std::ifstream & configStream)
 void clearFile(std::string & buffer, std::ifstream & configStream)
 {
 	std::string line;
-	// int pos;
-	char	**str_split; 
+	char **str_split; 
 	while (configStream)
 	{
-		// std::getline(configStream, line);
-		// pos = line.find('#', 0);
-		// if (pos >= 0)
-		// 	line.erase(pos);
-		// str_split= split_quotes(line.c_str(), ';');
-		// for (int i = 0; str_split[i] != NULL; i++)
-		// {
-		// 	if (strcmp(str_split[i], ";") != 0)
-		// 		buffer += str_split[i];
-		// 	buffer += '\n';
-		// }
-
 		std::getline(configStream, line);
 		str_split = split_quotes(line.c_str(), ';');
 		line.clear();
