@@ -1,6 +1,7 @@
-SRCS		=	srcs/main.cpp		\
-			  	srcs/Server.cpp		\
-			  	srcs/Config.cpp		\
+SRCS		=	srcs/main.cpp			\
+				srcs/parse_config.cpp	\
+			  	srcs/Server.cpp			\
+			  	srcs/Config.cpp			\
 
 
 OBJS		= ${SRCS:.cpp=.o}
