@@ -174,8 +174,8 @@ void parseConfig(std::string & configFile, Server & server, std::vector<Config> 
 	bool first_word = true, server_block = false;
 	std::string	g_directives[2] = {"keepalive_timeout", "server"};
 	std::string	s_block[4] = {"server", "{", "server{", "}"};
-	std::string	s_directives[9] = {"listen", "server_name", "method", "root", "index", "access_log", "error_log", "error_page", "client_max_body_size"};
 	f_ptr functions[4] = {&check_open_server_block, &check_open_server_block_2, &check_open_server_block_3, &check_close_server_block};
+	std::string	s_directives[9] = {"listen", "server_name", "method", "root", "index", "access_log", "error_log", "error_page", "client_max_body_size"};
 	while (std::getline(iss_l, line))			// lecture ligne par ligne
 	{
 		if (isNotBlank(line) == true)
@@ -191,45 +191,72 @@ void parseConfig(std::string & configFile, Server & server, std::vector<Config> 
 				if (first_word == true)						// DIRECTIVE GENERAL
 				{
 					first_word = false;
-					if (word.compare(0, std::string::npos, "keepalive_timeout", word.length()) == EQUAL)		// KEEPALIVE_TIMEOUT
+					for (int i = 0; i < 4; i++)
 					{
-						std::cout << "1-" << word << "\n";
-						// modifier le server timeout
-					}
-					else if (word.compare(0, std::string::npos, "server", word.length()) == EQUAL)				// SERVER BLOCK OPEN
-					{
-						if (check_open_server_block(line, prevWord, &server_block, &server_count) == INVALID)
-							exitWithError(std::cerr, ERROR_MSG, line, 1);
-					}
-					else if (word.compare(0, std::string::npos, "{", word.length()) == EQUAL)					// SERVER BLOCK CLOSE
-					{
-						if (check_open_server_block_2(line, prevWord, &server_block, &server_count) == INVALID)
-							exitWithError(std::cerr, ERROR_MSG, line, 1);
-					}
-					else if (word.compare(0, std::string::npos, "server{", word.length()) == EQUAL)				// SERVER BLOCK OPEN
-					{
-						if (check_open_server_block_3(line, prevWord, &server_block, &server_count) == INVALID)
-							exitWithError(std::cerr, ERROR_MSG, line, 1);
-					}
-					else if (word.compare(0, std::string::npos, "}", word.length()) == EQUAL)					// SERVER BLOCK CLOSE
-					{
-						if (check_close_server_block(line, prevWord, &server_block, &server_count) == INVALID)
-							exitWithError(std::cerr, ERROR_MSG, line, 1);
-					}
-					else									// DIRECTIVE SERVER
-					{
-						std::cout << "1-" << word << "\n";
-						for (int i = 0; i < 9; i++)
+						if (word.compare(0, std::string::npos, s_block[i].c_str(), word.length()) == EQUAL)
 						{
-							if (word.compare(0, std::string::npos, s_directives[i].c_str(), word.length()) == EQUAL)
-							{
-								directive_index = i;
-								break;
-							}
+							if (functions[i](line, prevWord, &server_block, &server_count) == INVALID)
+								exitWithError(std::cerr, ERROR_MSG, line, 1);
+							if (i == 0)
+								iss_w >> word;
+							break;
 						}
-						if (directive_index == -1)
-							exitWithError(std::cerr, ERROR_MSG, line, 1);
 					}
+					for (int i = 0; i < 9; i++)
+					{
+						if (word.compare(0, std::string::npos, s_directives[i].c_str(), word.length()) == EQUAL)
+						{
+							directive_index = i;
+							std::cout << "1-" << word << "\n";
+						}
+						// else if (i == 8)
+						// 	exitWithError(std::cerr, ERROR_MSG, line, 1);
+					}
+					if (word.compare(0, std::string::npos, "keepalive_timeout", word.length()) == EQUAL)
+						std::cout << "1-" << word << "\n";
+					// exitWithError(std::cerr, ERROR_MSG, line, 1);
+
+					// first_word = false;
+					// if (word.compare(0, std::string::npos, "keepalive_timeout", word.length()) == EQUAL)		// KEEPALIVE_TIMEOUT
+					// {
+					// 	std::cout << "1-" << word << "\n";
+					// 	// modifier le server timeout
+					// }
+					// else if (word.compare(0, std::string::npos, "server", word.length()) == EQUAL)				// SERVER BLOCK OPEN
+					// {
+					// 	if (check_open_server_block(line, prevWord, &server_block, &server_count) == INVALID)
+					// 		exitWithError(std::cerr, ERROR_MSG, line, 1);
+					// 	iss_w >> word;
+					// }
+					// else if (word.compare(0, std::string::npos, "{", word.length()) == EQUAL)					// SERVER BLOCK CLOSE
+					// {
+					// 	if (check_open_server_block_2(line, prevWord, &server_block, &server_count) == INVALID)
+					// 		exitWithError(std::cerr, ERROR_MSG, line, 1);
+					// }
+					// else if (word.compare(0, std::string::npos, "server{", word.length()) == EQUAL)				// SERVER BLOCK OPEN
+					// {
+					// 	if (check_open_server_block_3(line, prevWord, &server_block, &server_count) == INVALID)
+					// 		exitWithError(std::cerr, ERROR_MSG, line, 1);
+					// }
+					// else if (word.compare(0, std::string::npos, "}", word.length()) == EQUAL)					// SERVER BLOCK CLOSE
+					// {
+					// 	if (check_close_server_block(line, prevWord, &server_block, &server_count) == INVALID)
+					// 		exitWithError(std::cerr, ERROR_MSG, line, 1);
+					// }
+					// else									// DIRECTIVE SERVER
+					// {
+					// 	std::cout << "1-" << word << "\n";
+					// 	for (int i = 0; i < 9; i++)
+					// 	{
+					// 		if (word.compare(0, std::string::npos, s_directives[i].c_str(), word.length()) == EQUAL)
+					// 		{
+					// 			directive_index = i;
+					// 			break;
+					// 		}
+					// 	}
+					// 	if (directive_index == -1)
+					// 		exitWithError(std::cerr, ERROR_MSG, line, 1);
+					// }
 				}
 				else										// ARGUMENT DE DIRECTIVE
 				{
