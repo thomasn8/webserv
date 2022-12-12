@@ -26,23 +26,23 @@ void parseConfig(std::string & configFile, Server & server, std::vector<Config> 
 		pos = line.find('#', 0);
 		if (pos >= 0)
 			line.erase(pos);
-		// FAIRE DES OPERATION SUR LES LINES ICI
+		// FAIRE DES OPERATION SUR LES LIGNES ICI
+		if (line.length())
+			std::cout << "[";
 		iss.str(line);
 		while (iss)					// lecture mot par mot
 		{
 			iss >> word;
-			// if (word.find('#', 0) != -1 || word.length() == 0)
-			// {
-			// 	word.clear();
-			// 	break;
-			// }
+			if (word.length() == 0)
+				break;
 			// FAIRE DES OPERATION SUR LES MOTS ICI
-			// std::cout << word << "-";
+			std::cout << word << " ";
 			word.clear();
 		}
 		iss.clear();
-		// FAIRE DES OPERATION SUR LES LINES ICI
-		std::cout << line << std::endl;
+		// FAIRE DES OPERATION SUR LES LIGNES ICI
+		if (line.length())
+			std::cout << "] inside: " << std::endl << "\"" << line << "\"" << std::endl << std::endl;
 		line.clear();
 	}
 	configStream.close();
