@@ -16,33 +16,33 @@ void parseConfig(std::string & configFile, Server & server, std::vector<Config> 
 	if (configStream.fail() == true)
 		exitWithError(std::cerr, "Error while opening configuration file\n", 1);
 	
-	// lecture line by line
 	std::string line;
 	std::istringstream iss;
 	std::string word;
-	while (configStream)
+	int pos;
+	while (configStream)			// lecture line by line
 	{
 		std::getline(configStream, line);
+		pos = line.find('#', 0);
+		if (pos >= 0)
+			line.erase(pos);
+		// FAIRE DES OPERATION SUR LES LINES ICI
 		iss.str(line);
-		
-		// lecture mot par mot
-		while (iss)
+		while (iss)					// lecture mot par mot
 		{
 			iss >> word;
-			// if (word.find_first_of("#\n", 0, 2) != -1)
-			if (word.find_first_of("#", 0, 1) != -1)
-			{
-				word.clear();
-				break;
-			}
-			std::cout << "!";
-			// std::cout << word << "!";
-			// std::cout << word << " ";
-			std::cout << word;
+			// if (word.find('#', 0) != -1 || word.length() == 0)
+			// {
+			// 	word.clear();
+			// 	break;
+			// }
+			// FAIRE DES OPERATION SUR LES MOTS ICI
+			// std::cout << word << "-";
 			word.clear();
 		}
-		// std::cout << std::endl;
 		iss.clear();
+		// FAIRE DES OPERATION SUR LES LINES ICI
+		std::cout << line << std::endl;
 		line.clear();
 	}
 	configStream.close();
