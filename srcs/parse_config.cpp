@@ -4,13 +4,30 @@
 # define VALID 0
 # define EQUAL 0
 
-void exitWithError(std::ostream & stream, const std::string message, int line_num, int code)
+void exitWithError(std::ostream & stream, const std::string message, const std::string line, int code)
 {
-	if (line_num == -1)
+	if (line.empty())
 		stream << message << std::endl;
 	else
-		stream << message << line_num << std::endl;
+	{
+		stream << message;
+		stream << line;
+		stream << std::endl;
+	}
 	exit(code);
+}
+
+bool isNotBlank(std::string line)
+{
+	std::string::iterator it = line.begin();
+	std::string::iterator ite = line.end();
+	while (it != ite)
+	{
+		if (!isblank(*it))
+			return true;
+		it++;
+	}
+	return false;
 }
 
 int check_open_server_block(std::string line, bool *server_block)
@@ -49,9 +66,9 @@ void openFile(std::string & configFile, std::ifstream & configStream)
 {
 	configStream.open(configFile, std::ifstream::in);
 	if (configStream.fail() == true)
-		exitWithError(std::cerr, "Error while opening configuration file", -1 ,1);
+		exitWithError(std::cerr, "Error while opening configuration file", "" ,1);
 	if (configStream.peek() == EOF)
-		exitWithError(std::cerr, "Error: configuration file invalid: empty file", -1, 1);
+		exitWithError(std::cerr, "Error: configuration file invalid: empty file", "", 1);
 }
 
 void clearFile(std::string & buffer, std::ifstream & configStream)
@@ -86,14 +103,6 @@ void clearFile(std::string & buffer, std::ifstream & configStream)
 		nocomment.clear();
 	}
 	free(line_splitted);
-	std::cout << buffer ;
-}
-
-std::string get_next_line(std::string buffer)
-{
-	std::string line;
-	// ...code here
-	return line;
 }
 
 void parseConfig(std::string & configFile, Server & server, std::vector<Config> & configs)
@@ -108,156 +117,68 @@ void parseConfig(std::string & configFile, Server & server, std::vector<Config> 
 	clearFile(buffer, configStream);
 
 	// lecture du buffer, ligne par ligne, mot par mot
-	// std::string line, word;
-	// std::istringstream iss_l(buffer), iss_w;
-	// int line_num = 0, server_count = 0, directive_index = -1;
-	// bool first_word = true, server_block = false;
-	// std::string	g_directives[2] = {"keepalive_timeout", "server"};
-	// std::string	s_directives[9] = {"listen", "server_name", "method", "root", "index", "access_log", "error_log", "error_page", "client_max_body_size"};
+	std::string line, word;
+	std::istringstream iss_l(buffer), iss_w;
+	int server_count = 0, directive_index = -1;
+	bool first_word = true, server_block = false;
+	std::string	g_directives[2] = {"keepalive_timeout", "server"};
+	std::string	s_directives[9] = {"listen", "server_name", "method", "root", "index", "access_log", "error_log", "error_page", "client_max_body_size"};
 	
-	// while (std::getline(iss_l, line))	// lecture ligne par ligne
-	// {
-	// 	std::cout << line << "\n";
-	// 	line_num++;
-	// 	iss_w.str(line);
-	// 	while (iss_w)					// lecture mot par mot
-	// 	{
-	// 		iss_w >> word;
-	// 		if (word.length() == 0)
-	// 			break;
-	// 		// std::cout << word << " ";
-	// 		// if (first_word == true)				// DIRECTIVE
-	// 		// {
-	// 		// 	first_word = false;
-	// 		// 	if (word.compare(0, std::string::npos, "keepalive_timeout", word.length()) == EQUAL)		// KEEPALIVE_TIMEOUT
-	// 		// 	{
-	// 		// 		// modifier le server timeout
-	// 		// 	}
-	// 		// 	else if (word.compare(0, std::string::npos, "server", word.length()) == EQUAL)				// SERVER BLOCK OPEN
-	// 		// 	{
-	// 		// 		if (check_open_server_block(line, &server_block) == INVALID)
-	// 		// 			exitWithError(std::cerr, "1.Error: configuration file invalid: line ", line_num, 1);
-	// 		// 		server_count++;
-	// 		// 	}
-	// 		// 	else if (word.compare(0, std::string::npos, "}", word.length()) == EQUAL)					// SERVER BLOCK CLOSE
-	// 		// 	{
-	// 		// 		if (check_close_server_block(line, &server_block) == INVALID)
-	// 		// 			exitWithError(std::cerr, "1.Error: configuration file invalid: line ", line_num, 1);
-	// 		// 	}
-	// 		// 	else							// SERVER DIRECTIVE
-	// 		// 	{
-	// 		// 		for (int i = 0; i < 9; i++)
-	// 		// 		{
-	// 		// 			if (word.compare(0, std::string::npos, s_directives[i].c_str(), word.length()) == EQUAL)
-	// 		// 			{
-	// 		// 				directive_index = i;
-	// 		// 				break;
-	// 		// 			}
-	// 		// 		}
-	// 		// 		if (directive_index == -1)
-	// 		// 			exitWithError(std::cerr, "2.Error: configuration file invalid: line ", line_num, 1);
-	// 		// 	}
-	// 		// }
-	// 		// else								// ARGUMENT DE DIRECTIVE
-	// 		// {
+	while (std::getline(iss_l, line))	// lecture ligne par ligne
+	{
+		if (isNotBlank(line) == true)
+		{
+			iss_w.str(line);
+			std::cout << line << std::endl;
+			while (iss_w)				// lecture mot par mot
+			{
+				iss_w >> word;
+				if (word.length() == 0)
+					break;
+				// std::cout << word << " ";
+				if (first_word == true)				// DIRECTIVE
+				{
+					first_word = false;
+					if (word.compare(0, std::string::npos, "keepalive_timeout", word.length()) == EQUAL)		// KEEPALIVE_TIMEOUT
+					{
+						// modifier le server timeout
+					}
+					else if (word.compare(0, std::string::npos, "server", word.length()) == EQUAL)				// SERVER BLOCK OPEN
+					{
+						if (check_open_server_block(line, &server_block) == INVALID)
+							exitWithError(std::cerr, "Error: configuration file invalid:\n", line, 1);
+						server_count++;
+					}
+					else if (word.compare(0, std::string::npos, "}", word.length()) == EQUAL)					// SERVER BLOCK CLOSE
+					{
+						if (check_close_server_block(line, &server_block) == INVALID)
+							exitWithError(std::cerr, "Error: configuration file invalid:\n", line, 1);
+					}
+					else							// SERVER DIRECTIVE
+					{
+						for (int i = 0; i < 9; i++)
+						{
+							if (word.compare(0, std::string::npos, s_directives[i].c_str(), word.length()) == EQUAL)
+							{
+								directive_index = i;
+								break;
+							}
+						}
+						if (directive_index == -1)
+							exitWithError(std::cerr, "Error: configuration file invalid:\n", line, 1);
+					}
+				}
+				else								// ARGUMENT DE DIRECTIVE
+				{
 
-	// 		// }
-	// 		word.clear();
-	// 	}
-	// 	iss_w.clear();
-	// 	line.clear();
-	// 	first_word = true;
-	// 	directive_index = -1;
-	// }
+				}
+				word.clear();
+			}
+			iss_w.clear();
+			first_word = true;
+			directive_index = -1;
+		}
+		line.clear();
+	}
 	configStream.close();
 }
-
-
-// void parseConfig(std::string & configFile, Server & server, std::vector<Config> & configs)
-// {
-// 	// ouverture du fichier
-// 	std::ifstream configStream;
-// 	openFile(configFile, configStream);
-
-// 	// premiere passe sur le fichier en remplacant tous les ';' pas entre guillemets par des '\n'
-// 	// et pour enlever les commentaires '#...'
-// 	std::string buffer;
-// 	clearFile(buffer, configStream);
-
-// 	// lecture du buffer, ligne par ligne, mot par mot
-// 	std::string line, word;
-// 	std::istringstream iss;
-// 	int pos, line_num = 0;
-// 	bool first_word = true;
-// 	bool server_block = false;
-// 	int server_count = 0;
-// 	int directive_index = -1;
-// 	std::string	g_directives[2] = {"keepalive_timeout", "server"};
-// 	std::string	s_directives[9] = {"listen", "server_name", "method", "root", "index", "access_log", "error_log", "error_page", "client_max_body_size"};
-// 	line = get_next_line(buffer);
-// 	while (!line.empty())			// lecture line by line
-// 	{
-// 		line_num++;
-// 		iss.str(line);
-// 		while (iss)					// lecture mot par mot
-// 		{
-// 			iss >> word;
-// 			if (word.length() == 0)
-// 				break;
-// 			std::cout << word << " ";
-// 			if (first_word == true)				// DIRECTIVE
-// 			{
-// 				first_word = false;
-// 				if (word.compare(0, std::string::npos, "keepalive_timeout", word.length()) == EQUAL)		// KEEPALIVE_TIMEOUT
-// 				{
-// 					// modifier le server timeout
-// 				}
-// 				else if (word.compare(0, std::string::npos, "server", word.length()) == EQUAL)				// SERVER BLOCK OPEN
-// 				{
-// 					if (check_open_server_block(line, &server_block) == INVALID)
-// 						exitWithError(std::cerr, "1.Error: configuration file invalid: line ", line_num, 1);
-// 					server_count++;
-// 				}
-// 				else if (word.compare(0, std::string::npos, "}", word.length()) == EQUAL)					// SERVER BLOCK CLOSE
-// 				{
-// 					if (check_close_server_block(line, &server_block) == INVALID)
-// 						exitWithError(std::cerr, "1.Error: configuration file invalid: line ", line_num, 1);
-// 				}
-// 				else							// SERVER DIRECTIVE
-// 				{
-// 					for (int i = 0; i < 9; i++)
-// 					{
-// 						if (word.compare(0, std::string::npos, s_directives[i].c_str(), word.length()) == EQUAL)
-// 						{
-// 							directive_index = i;
-// 							break;
-// 						}
-// 					}
-// 					if (directive_index == -1)
-// 						exitWithError(std::cerr, "2.Error: configuration file invalid: line ", line_num, 1);
-// 				}
-// 			}
-// 			else								// ARGUMENT DE DIRECTIVE
-// 			{
-
-// 			}
-// 			word.clear();
-// 		}
-// 		iss.clear();
-// 		line.clear();
-// 		line = get_next_line(buffer);
-// 		first_word = true;
-// 		directive_index = -1;
-// 	}
-// 	configStream.close();
-
-// 	// std::string accessFile;
-// 	// std::string errorFile;
-
-// 	// _serverNames[0] = ...;
-// 	// if (_serverNames[0]  == "localhost")
-// 	// 	_serverNames[0]  == "127.0.0.1";
-// 	// _address = ntohl(_serverNames[0] .c_str());
-// 	// if (_adress == -1)
-// 	// 	_exitWithError(std::cerr, "Error: Invalid IPv4 address\n", 1);	
-// }
