@@ -1,4 +1,5 @@
 SRCS		=	srcs/main.cpp			\
+				srcs/split_quotes.cpp	\
 				srcs/parse_config.cpp	\
 			  	srcs/Server.cpp			\
 			  	srcs/Config.cpp			\

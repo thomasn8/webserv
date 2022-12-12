@@ -45,42 +45,93 @@ int check_close_server_block(std::string line, bool *server_block)
 	return VALID;
 }
 
+void openFile(std::string & configFile, std::ifstream & configStream)
+{
+	configStream.open(configFile, std::ifstream::in);
+	if (configStream.fail() == true)
+		exitWithError(std::cerr, "Error while opening configuration file", -1 ,1);
+	if (configStream.peek() == EOF)
+		exitWithError(std::cerr, "Error: configuration file invalid: empty file", -1, 1);
+}
+
+void clearFile(std::string & buffer, std::ifstream & configStream)
+{
+	std::string line;
+	// int pos;
+	char	**str_split; 
+	while (configStream)
+	{
+		// std::getline(configStream, line);
+		// pos = line.find('#', 0);
+		// if (pos >= 0)
+		// 	line.erase(pos);
+		// str_split= split_quotes(line.c_str(), ';');
+		// for (int i = 0; str_split[i] != NULL; i++)
+		// {
+		// 	if (strcmp(str_split[i], ";") != 0)
+		// 		buffer += str_split[i];
+		// 	buffer += '\n';
+		// }
+
+		std::getline(configStream, line);
+		str_split = split_quotes(line.c_str(), ';');
+		line.clear();
+		for (int i = 0; str_split[i] != NULL; i++)
+		{
+			if (strcmp(str_split[i], ";") != 0)
+				line += str_split[i];
+			line += '\n';
+		}		
+		free_arr(str_split);
+		str_split = NULL;
+		str_split = split_quotes(line.c_str(), '#');
+		if (str_split[0] != NULL && *str_split[0])
+			buffer += str_split[0];
+		buffer += '\n';
+		free_arr(str_split);
+		str_split = NULL;
+	}
+}
+
+std::string get_next_line(std::string buffer)
+{
+	std::string line;
+	// ...code here
+	return line;
+}
+
 void parseConfig(std::string & configFile, Server & server, std::vector<Config> & configs)
 {
 	// ouverture du fichier
 	std::ifstream configStream;
-	configStream.open(configFile, std::ifstream::in);
-	if (configStream.fail() == true)
-		exitWithError(std::cerr, "Error while opening configuration file", -1 ,1);
+	openFile(configFile, configStream);
 
 	// premiere passe sur le fichier en remplacant tous les ';' pas entre guillemets par des '\n'
-	
+	// et pour enlever les commentaires '#...'
+	std::string buffer;
+	clearFile(buffer, configStream);
+
+	// lecture du buffer, ligne par ligne, mot par mot
 	std::string line, word;
 	std::istringstream iss;
 	int pos, line_num = 0;
-
 	bool first_word = true;
 	bool server_block = false;
 	int server_count = 0;
 	int directive_index = -1;
 	std::string	g_directives[2] = {"keepalive_timeout", "server"};
 	std::string	s_directives[9] = {"listen", "server_name", "method", "root", "index", "access_log", "error_log", "error_page", "client_max_body_size"};
-	if (configStream.peek() == EOF)
-		exitWithError(std::cerr, "Error: configuration file invalid: empty file", -1, 1);
-	while (configStream)			// lecture line by line
+	line = get_next_line(buffer);
+	while (!line.empty())			// lecture line by line
 	{
-		std::getline(configStream, line);
 		line_num++;
-		pos = line.find('#', 0);
-		if (pos >= 0)
-			line.erase(pos);
 		iss.str(line);
 		while (iss)					// lecture mot par mot
 		{
 			iss >> word;
 			if (word.length() == 0)
 				break;
-	std::cout << word << " ";
+			std::cout << word << " ";
 			if (first_word == true)				// DIRECTIVE
 			{
 				first_word = false;
@@ -121,6 +172,7 @@ void parseConfig(std::string & configFile, Server & server, std::vector<Config> 
 		}
 		iss.clear();
 		line.clear();
+		line = get_next_line(buffer);
 		first_word = true;
 		directive_index = -1;
 	}
