@@ -16,9 +16,8 @@ void parseConfig(std::string & configFile, Server & server, std::vector<Config> 
 	if (configStream.fail() == true)
 		exitWithError(std::cerr, "Error while opening configuration file\n", 1);
 	
-	std::string line;
+	std::string line, word;
 	std::istringstream iss;
-	std::string word;
 	int pos;
 	while (configStream)			// lecture line by line
 	{
@@ -27,8 +26,8 @@ void parseConfig(std::string & configFile, Server & server, std::vector<Config> 
 		if (pos >= 0)
 			line.erase(pos);
 		// FAIRE DES OPERATION SUR LES LIGNES ICI
-		if (line.length())
-			std::cout << "[";
+		// if (line.length())
+		// 	std::cout << "[";
 		iss.str(line);
 		while (iss)					// lecture mot par mot
 		{
@@ -41,8 +40,8 @@ void parseConfig(std::string & configFile, Server & server, std::vector<Config> 
 		}
 		iss.clear();
 		// FAIRE DES OPERATION SUR LES LIGNES ICI
-		if (line.length())
-			std::cout << "] inside: " << std::endl << "\"" << line << "\"" << std::endl << std::endl;
+		// if (line.length())
+		// 	std::cout << "] inside: " << std::endl << "\"" << line << "\"" << std::endl << std::endl;
 		line.clear();
 	}
 	configStream.close();
