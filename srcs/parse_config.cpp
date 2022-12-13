@@ -108,6 +108,7 @@ int open_location_block(std::string & line, std::string & prevWord, bool *locati
 		if (*it == '{')
 			*location_context = true;
 	}
+	std::cout << "TEST1" << "\n";
 	return VALID;
 }
 
@@ -126,27 +127,6 @@ int open_location_block_2(std::string & line, std::string & prevWord, bool *loca
 		return INVALID;
 	}
 	std::string::iterator it(&line[pos]);
-	std::string::iterator ite = line.end();
-	while (++it != ite)
-	{
-		if (!isblank(*it))
-			return INVALID;
-	}
-	*location_context = true;
-	return VALID;
-}
-
-int open_location_block_3(std::string & line, std::string & prevWord, bool *location_context, int *location_count)
-{
-	(void) prevWord;
-	(void) location_count;
-	if (*location_context == true)
-	{
-		line = ERROR_SERVER_BLOCK;
-		return INVALID;
-	}
-	int pos = line.find("location{");
-	std::string::iterator it(&line[pos + 8]);
 	std::string::iterator ite = line.end();
 	while (++it != ite)
 	{
@@ -192,9 +172,9 @@ void parseConfig(std::string & configFile, Server & server)
 	int server_count = 0, location_count = 0, server_directive_index = -1, location_directive_index = -1;
 	bool first_word = true, server_context = false, location_context = false, compare = false;
 	f_ptr f_server_block[] = {&open_server_block, &open_server_block_2, &open_server_block_3, &close_server_block};
-	f_ptr f_location_block[] = {&open_location_block, &open_location_block_2, &open_location_block_3, &close_location_block};
+	f_ptr f_location_block[] = {&open_location_block, &open_location_block_2, &close_location_block};
 	std::string	server_block[] = {"server", "{", "server{", "}", ""};
-	std::string location_block[] = {"location", "{", "location{", "}", ""};
+	std::string location_block[] = {"location", "{", "}", ""};
 	std::string	server_directives[] = {"listen", "server_name", "root", "index", "error_page", "client_max_body_size", ""};
 	std::string	location_directives[] = {"root", "index", "methods", "autoindex", "redirection", "uploads_dir", "redirect", "cgi_bin", ""};
 	int s_b = tabLength(server_block);
@@ -217,7 +197,10 @@ void parseConfig(std::string & configFile, Server & server)
 					if (word.compare(0, std::string::npos, server_block[i].c_str(), word.length()) == EQUAL)
 					{
 						if (f_server_block[i](line, prevWord, &server_context, &server_count) == INVALID)
+						{
+							std::cout << "TEST2: " << location_context  <<  "\n";
 							exitWithError(std::cerr, ERROR_MSG, line, 1);
+						}
 						if (i == 0)
 							iss_w >> word;
 						compare = true;
@@ -261,7 +244,7 @@ void parseConfig(std::string & configFile, Server & server)
 			}
 			else
 			{
-				std::cout << "	" << word << "\n";	// ARGUMENT POUR LA DIRECTIVE (SERVER OU CONFIG, selon)
+				std::cout << "	" << word << "\n";	// ARGUMENT POUR LA DIRECTIVE (SERVER OU LOCATION, selon)
 			}
 			prevWord = line;
 			word.clear();
