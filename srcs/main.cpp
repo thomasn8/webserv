@@ -14,16 +14,9 @@ int main(int ac, char **av, char **env)
 		configFile = av[1];
 	else
 		configFile = "conf/default.conf";
-
 	std::vector<Config> configs;
 	Server server(configs);
-	
-	// tout en parsant le fichier de config
 	parseConfig(configFile, server, configs);
-		// checker la validite
-		// ignorer
-		// allouer les servers block dans des OBJ config stoker dans un vector
-	
 	// starter le server avec les configs enregistrees
 	return 0;
 }
