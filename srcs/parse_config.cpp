@@ -6,6 +6,14 @@ static void exitWithError(std::ostream & stream, const std::string message, cons
 	exit(code);
 }
 
+std::string TrimFunction(std::string str)
+{
+	const char* typeOfWhitespaces = "\t\n\r\f\v";
+	str.erase(str.find_last_not_of(typeOfWhitespaces) + 1);
+	str.erase(0,str.find_first_not_of(typeOfWhitespaces));
+	return str;
+}
+
 int tabLength(std::string *tab)
 {
 	int i = 0;
@@ -105,21 +113,19 @@ int open_location_block(std::string & line, std::string & prevWord, bool *locati
 	{
 		if (!isblank(*it) && (*it) != '{')
 			return INVALID;
-		if (*it == '{')
-			*location_context = true;
 	}
-	std::cout << "TEST1" << "\n";
+	*location_context = true;
 	return VALID;
 }
 
 int open_location_block_2(std::string & line, std::string & prevWord, bool *location_context, int *location_count)
 {
 	(void) location_count;
-	if (*location_context == true)
-	{
-		line = ERROR_SERVER_BLOCK;
-		return INVALID;
-	}
+	// if (*location_context == true)
+	// {
+	// 	line = ERROR_SERVER_BLOCK;
+	// 	return INVALID;
+	// }
 	int pos = line.find("{");
 	if (prevWord.compare(0, std::string::npos, "location", prevWord.length()) != EQUAL)
 	{
@@ -133,7 +139,7 @@ int open_location_block_2(std::string & line, std::string & prevWord, bool *loca
 		if (!isblank(*it))
 			return INVALID;
 	}
-	*location_context = true;
+	// *location_context = true;
 	return VALID;
 }
 
@@ -152,7 +158,6 @@ int close_location_block(std::string & line, std::string & prevWord, bool *locat
 	}
 	*location_context = false;
 	(*location_count)++;	// DETERMINE LE NOMBRE D'OBJET CONFIG A AJOUTER AU SERVER
-	std::cout << "\n";
 	return VALID;
 }
 
@@ -197,10 +202,7 @@ void parseConfig(std::string & configFile, Server & server)
 					if (word.compare(0, std::string::npos, server_block[i].c_str(), word.length()) == EQUAL)
 					{
 						if (f_server_block[i](line, prevWord, &server_context, &server_count) == INVALID)
-						{
-							std::cout << "TEST2: " << location_context  <<  "\n";
 							exitWithError(std::cerr, ERROR_MSG, line, 1);
-						}
 						if (i == 0)
 							iss_w >> word;
 						compare = true;
@@ -246,7 +248,7 @@ void parseConfig(std::string & configFile, Server & server)
 			{
 				std::cout << "	" << word << "\n";	// ARGUMENT POUR LA DIRECTIVE (SERVER OU LOCATION, selon)
 			}
-			prevWord = line;
+			prevWord = word;
 			word.clear();
 		}
 		iss_w.clear();
