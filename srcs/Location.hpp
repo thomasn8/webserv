@@ -9,6 +9,9 @@
 # define DEFAULT_INDEX "index.html"
 # define DEFAULT_CGI_PATH "cgi/"
 # define DEFAULT_CGI_EXT "php"
+# define GET 4
+# define POST 2
+# define DELETE 1
 
 class Location
 {	
@@ -24,17 +27,17 @@ class Location
 		int _prefixCount;
 
 		std::string _root;
-		const std::vector<std::string> & _indexFiles;
+		std::vector<std::string> _indexFiles;
 		bool _autoindex;
 
-		int _methods;	// Get=4 + Post=2 + Delete=1
+		int _methods;
 		std::string _uploadsDir;		
 
 		// array[old_url, new_url, statusCode]
-		const std::vector< old_new_status_tab >  _redirections;
+		std::vector< old_new_status_tab > _redirections;
 
-		const std::string _cgiBinPath;
-		const std::string _cgiExtension;
+		std::string _cgiBinPath;
+		std::string _cgiExtension;
 };
 
 #endif

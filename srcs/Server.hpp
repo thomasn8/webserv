@@ -12,9 +12,9 @@
 
 #include "Config.hpp"
 
-#define LISTEN_BACKLOG 50
-#define KEEPALIVE 65
-#define LOG_PATH "conf/logs/access.log"
+# define LISTEN_BACKLOG 50
+# define KEEPALIVE 65
+# define LOG_PATH "logs/access.log"
 
 class Server
 {	
@@ -24,8 +24,7 @@ class Server
 		~Server();
 		
 	private:
-		const std::vector<Config> & _configs;
-		int _keepalive_timeout;
+		std::vector<Config> _configs;
 
 		// int _server_fd;
 		// int _client_fd;

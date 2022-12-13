@@ -112,7 +112,7 @@ void parseConfig(std::string & configFile, Server & server)
 	std::string	s_block[] = {"server", "{", "server{", "}", ""};
 	std::string	s_directives[] = {"listen", "server_name", "root", "index", "error_page", "client_max_body_size", ""};
 	// std::string l_block[] = {"location", "{", "location{", "}", ""};
-	// std::string	l_directives[] = {"root", "index", "methods", "autoindex", "redirection", "uploadsDir", "redirect", ""};
+	// std::string	l_directives[] = {"root", "index", "methods", "autoindex", "redirection", "uploads_dir", "redirect", "cgi_bin", ""};
 	// int g_d = tabLength(g_directives);
 	int s_b = tabLength(s_block);
 	int s_d = tabLength(s_directives);

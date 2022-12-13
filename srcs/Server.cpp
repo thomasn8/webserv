@@ -4,7 +4,7 @@
 	************ CONST/DESTR
 */
 Server::Server() :
-_configs(std::vector<Config>()), _keepalive_timeout(KEEPALIVE),
+_configs(std::vector<Config>()),
 // _server_fd(), _client_fd(), _client_read(), 
 // _address(), _buffer(), _response(),
 _accessFile(std::string(LOG_PATH)), _accessStream()

@@ -18,6 +18,6 @@ int main(int ac, char **av, char **env)
 	parseConfig(configFile, server);
 	
 	// starter le server
-	
+
 	return 0;
 }

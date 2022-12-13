@@ -8,13 +8,12 @@
 
 #include "Location.hpp"
 
-#define DEFAULT_IP "0.0.0.0" // default IP address that lets the operating system choose
-#define DEFAULT_PORT 80
-#define MBS 0				// Client Max Body Size
-
+# define DEFAULT_IP "0.0.0.0" // default IP address that lets the operating system choose
+# define DEFAULT_PORT 80
 # define DEFAULT_SERVERNAME "localhost"
 # define DEFAULT_ROOT "www/html/"
 # define DEFAULT_INDEX "index.html"
+# define MBS 0				// Client Max Body Size
 # define DEFAULT_CGI_PATH "cgi/"
 # define DEFAULT_CGI_EXT "php"
 
@@ -34,15 +33,15 @@ class Config
 	private:
 		uint32_t _address;
 		uint16_t _port;
-		const std::vector<std::string> & _serverNames;
+		std::vector<std::string> _serverNames;
 
 		std::string	_root;
-		const std::vector<std::string> & _indexFiles;
+		std::vector<std::string> _indexFiles;
 		size_t _clientMaxBodySize;
 		
-		const std::vector< error_page_pair > & _errorPages;
+		std::vector< error_page_pair > _errorPages;
 
-		const std::vector<Location> & _locations;
+		std::vector<Location> _locations;
 };
 
 #endif
