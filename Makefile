@@ -1,7 +1,7 @@
 SRCS		=	srcs/main.cpp			\
 				srcs/split_quotes.cpp	\
 				srcs/parse_config.cpp	\
-				srcs/parse_config_2.cpp	\
+				srcs/parse_config_context.cpp	\
 			  	srcs/Server.cpp			\
 			  	srcs/Config.cpp			\
 			  	srcs/Location.cpp		\

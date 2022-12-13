@@ -1,10 +1,10 @@
 #include "parse_config.hpp"
 
-int open_server_block(std::string & line, std::string & prevWord, bool *server_block, int *server_count)
+int open_server_block(std::string & line, std::string & prevWord, bool *server_context, int *server_count)
 {
 	(void) prevWord;
 	(void) server_count;
-	if (*server_block == true)
+	if (*server_context == true)
 	{
 		line = ERROR_SERVER_BLOCK;
 		return INVALID;
@@ -17,15 +17,15 @@ int open_server_block(std::string & line, std::string & prevWord, bool *server_b
 		if (!isblank(*it) && (*it) != '{')
 			return INVALID;
 		if (*it == '{')
-			*server_block = true;
+			*server_context = true;
 	}
 	return VALID;
 }
 
-int open_server_block_2(std::string & line, std::string & prevWord, bool *server_block, int *server_count)
+int open_server_block_2(std::string & line, std::string & prevWord, bool *server_context, int *server_count)
 {
 	(void) server_count;
-	if (*server_block == true)
+	if (*server_context == true)
 	{
 		line = ERROR_SERVER_BLOCK;
 		return INVALID;
@@ -43,15 +43,15 @@ int open_server_block_2(std::string & line, std::string & prevWord, bool *server
 		if (!isblank(*it))
 			return INVALID;
 	}
-	*server_block = true;
+	*server_context = true;
 	return VALID;
 }
 
-int open_server_block_3(std::string & line, std::string & prevWord, bool *server_block, int *server_count)
+int open_server_block_3(std::string & line, std::string & prevWord, bool *server_context, int *server_count)
 {
 	(void) prevWord;
 	(void) server_count;
-	if (*server_block == true)
+	if (*server_context == true)
 	{
 		line = ERROR_SERVER_BLOCK;
 		return INVALID;
@@ -64,6 +64,6 @@ int open_server_block_3(std::string & line, std::string & prevWord, bool *server
 		if (!isblank(*it))
 			return INVALID;
 	}
-	*server_block = true;
+	*server_context = true;
 	return VALID;
 }

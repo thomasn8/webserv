@@ -2,10 +2,7 @@
 
 static void exitWithError(std::ostream & stream, const std::string message, const std::string line, int code)
 {
-	if (line.empty())
-		stream << message << std::endl;
-	else
-		stream << message << line << std::endl;
+	stream << message << line << std::endl;
 	exit(code);
 }
 
@@ -73,10 +70,10 @@ static void cleanConfig(std::string & buffer, std::ifstream & configStream)
 	free(line_splitted);
 }
 
-int close_server_block(std::string & line, std::string & prevWord, bool *server_block, int *server_count)
+int close_server_block(std::string & line, std::string & prevWord, bool *server_context, int *server_count)
 {
 	(void) prevWord;
-	if (*server_block == false)
+	if (*server_context == false)
 		return INVALID;
 	int pos = line.find("}");
 	std::string::iterator it(&line[pos]);
@@ -86,8 +83,95 @@ int close_server_block(std::string & line, std::string & prevWord, bool *server_
 		if (!isblank(*it))
 			return INVALID;
 	}
-	*server_block = false;
+	*server_context = false;
 	(*server_count)++;	// DETERMINE LE NOMBRE D'OBJET CONFIG A AJOUTER AU SERVER
+	std::cout << "\n";
+	return VALID;
+}
+
+int open_location_block(std::string & line, std::string & prevWord, bool *location_context, int *location_count)
+{
+	(void) prevWord;
+	(void) location_count;
+	if (*location_context == true)
+	{
+		line = ERROR_SERVER_BLOCK;
+		return INVALID;
+	}
+	int pos = line.find("location");
+	std::string::iterator it(&line[pos + 7]);
+	std::string::iterator ite = line.end();
+	while (++it != ite)
+	{
+		if (!isblank(*it) && (*it) != '{')
+			return INVALID;
+		if (*it == '{')
+			*location_context = true;
+	}
+	return VALID;
+}
+
+int open_location_block_2(std::string & line, std::string & prevWord, bool *location_context, int *location_count)
+{
+	(void) location_count;
+	if (*location_context == true)
+	{
+		line = ERROR_SERVER_BLOCK;
+		return INVALID;
+	}
+	int pos = line.find("{");
+	if (prevWord.compare(0, std::string::npos, "location", prevWord.length()) != EQUAL)
+	{
+		line = prevWord;
+		return INVALID;
+	}
+	std::string::iterator it(&line[pos]);
+	std::string::iterator ite = line.end();
+	while (++it != ite)
+	{
+		if (!isblank(*it))
+			return INVALID;
+	}
+	*location_context = true;
+	return VALID;
+}
+
+int open_location_block_3(std::string & line, std::string & prevWord, bool *location_context, int *location_count)
+{
+	(void) prevWord;
+	(void) location_count;
+	if (*location_context == true)
+	{
+		line = ERROR_SERVER_BLOCK;
+		return INVALID;
+	}
+	int pos = line.find("location{");
+	std::string::iterator it(&line[pos + 8]);
+	std::string::iterator ite = line.end();
+	while (++it != ite)
+	{
+		if (!isblank(*it))
+			return INVALID;
+	}
+	*location_context = true;
+	return VALID;
+}
+
+int close_location_block(std::string & line, std::string & prevWord, bool *location_context, int *location_count)
+{
+	(void) prevWord;
+	if (*location_context == false)
+		return INVALID;
+	int pos = line.find("}");
+	std::string::iterator it(&line[pos]);
+	std::string::iterator ite = line.end();
+	while (++it != ite)
+	{
+		if (!isblank(*it))
+			return INVALID;
+	}
+	*location_context = false;
+	(*location_count)++;	// DETERMINE LE NOMBRE D'OBJET CONFIG A AJOUTER AU SERVER
 	std::cout << "\n";
 	return VALID;
 }
@@ -105,19 +189,18 @@ void parseConfig(std::string & configFile, Server & server)
 	// lecture et tri du buffer, ligne par ligne, mot par mot (variable word pour renseigner la config)
 	std::string line, prevWord, word;
 	std::istringstream iss_l(buffer), iss_w;
-	int server_count = 0, directive_index = -1;
-	bool first_word = true, server_block = false, compare = false;
-	f_ptr functions[] = {&open_server_block, &open_server_block_2, &open_server_block_3, &close_server_block};
-	// std::string	g_directives[] = {"keepalive_timeout", "server"};
-	std::string	s_block[] = {"server", "{", "server{", "}", ""};
-	std::string	s_directives[] = {"listen", "server_name", "root", "index", "error_page", "client_max_body_size", ""};
-	// std::string l_block[] = {"location", "{", "location{", "}", ""};
-	// std::string	l_directives[] = {"root", "index", "methods", "autoindex", "redirection", "uploads_dir", "redirect", "cgi_bin", ""};
-	// int g_d = tabLength(g_directives);
-	int s_b = tabLength(s_block);
-	int s_d = tabLength(s_directives);
-	// int l_b = tabLength(l_block);
-	// int l_d = tabLength(l_directives);
+	int server_count = 0, location_count = 0, server_directive_index = -1, location_directive_index = -1;
+	bool first_word = true, server_context = false, location_context = false, compare = false;
+	f_ptr f_server_block[] = {&open_server_block, &open_server_block_2, &open_server_block_3, &close_server_block};
+	f_ptr f_location_block[] = {&open_location_block, &open_location_block_2, &open_location_block_3, &close_location_block};
+	std::string	server_block[] = {"server", "{", "server{", "}", ""};
+	std::string location_block[] = {"location", "{", "location{", "}", ""};
+	std::string	server_directives[] = {"listen", "server_name", "root", "index", "error_page", "client_max_body_size", ""};
+	std::string	location_directives[] = {"root", "index", "methods", "autoindex", "redirection", "uploads_dir", "redirect", "cgi_bin", ""};
+	int s_b = tabLength(server_block);
+	int l_b = tabLength(location_block);
+	int s_d = tabLength(server_directives);
+	int l_d = tabLength(location_directives);
 	while (std::getline(iss_l, line))				// lecture ligne par ligne
 	{
 		iss_w.str(line);
@@ -131,9 +214,20 @@ void parseConfig(std::string & configFile, Server & server)
 				first_word = false;					
 				for (int i = 0; compare == false && i < s_b; i++)
 				{
-					if (word.compare(0, std::string::npos, s_block[i].c_str(), word.length()) == EQUAL)
+					if (word.compare(0, std::string::npos, server_block[i].c_str(), word.length()) == EQUAL)
 					{
-						if (functions[i](line, prevWord, &server_block, &server_count) == INVALID)
+						if (f_server_block[i](line, prevWord, &server_context, &server_count) == INVALID)
+							exitWithError(std::cerr, ERROR_MSG, line, 1);
+						if (i == 0)
+							iss_w >> word;
+						compare = true;
+					}
+				}					
+				for (int i = 0; compare == false && i < l_b; i++)
+				{
+					if (word.compare(0, std::string::npos, location_block[i].c_str(), word.length()) == EQUAL)
+					{
+						if (f_location_block[i](line, prevWord, &location_context, &location_count) == INVALID)
 							exitWithError(std::cerr, ERROR_MSG, line, 1);
 						if (i == 0)
 							iss_w >> word;
@@ -142,20 +236,37 @@ void parseConfig(std::string & configFile, Server & server)
 				}					
 				for (int i = 0; compare == false && i < s_d; i++)
 				{
-					if (word.compare(0, std::string::npos, s_directives[i].c_str(), word.length()) == EQUAL)
+					if (server_context == false)
+					{	
+						std::cout << "TEST"<< "\n";
+						exitWithError(std::cerr, ERROR_MSG, line, 1);
+					}
+					if (word.compare(0, std::string::npos, server_directives[i].c_str(), word.length()) == EQUAL)
 					{
-						directive_index = i;
-						std::cout << "DIRECTIVE: " << word << "\n";	// DIRECTIVE A AJOUTER DANS LES OBJETS CONFIGS
+						server_directive_index = i;
+						std::cout << "S_DIRECTIVE: " << word << "\n";	// DIRECTIVE A AJOUTER DANS LES OBJETS CONFIGS
 						compare = true;
 					}
 				}
-				if (compare == false && word.compare(0, std::string::npos, "keepalive_timeout", word.length()) == EQUAL)
+				for (int i = 0; compare == false && i < l_d; i++)
 				{
-					std::cout << "DIRECTIVE: " << word << "\n";	// DIRECTIVE A AJOUTER DANS L'OBJET SERVER
-					compare = true;
+					if (server_context == false || location_context == false)
+					{	
+						std::cout << "TEST"<< "\n";
+						exitWithError(std::cerr, ERROR_MSG, line, 1);
+					}
+					if (word.compare(0, std::string::npos, location_directives[i].c_str(), word.length()) == EQUAL)
+					{
+						location_directive_index = i;
+						std::cout << "L_DIRECTIVE: " << word << "\n";	// DIRECTIVE A AJOUTER DANS LES OBJETS CONFIGS
+						compare = true;
+					}
 				}
 				if (compare == false)
+				{
+					std::cout << "TEST"<< "\n";	
 					exitWithError(std::cerr, ERROR_MSG, line, 1);
+				}
 			}
 			else
 			{
@@ -167,9 +278,10 @@ void parseConfig(std::string & configFile, Server & server)
 		iss_w.clear();
 		first_word = true;
 		compare = false;
-		directive_index = -1;
+		server_directive_index = -1;
+		location_directive_index = -1;
 	}
-	if (server_block == true)
+	if (server_context == true || location_context == true)
 		exitWithError(std::cerr, ERROR_MSG, ERROR_SERVER_BLOCK, 1);
 	configStream.close();
 }
