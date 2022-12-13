@@ -1,3 +1,9 @@
+Asynchronous <--> non-blocking:
+In computer programming, synchronous and asynchronous models are essential. The terms offer a clue about what each programming model does and the differences between them. Synchronous tasks happen in order — you must finish task one before moving on to the next. Asynchronous tasks can be executed in any order, or even simultaneously. 
+Asynchronous programming, conversely, is a multithreaded model that’s most applicable to networking and communications. Asynchronous is a non-blocking architecture, which means it doesn’t block further execution while one or more operations are in progress.
+With asynchronous programming, multiple related operations can run concurrently without waiting for other tasks to complete. During asynchronous communication, parties receive and process messages when it’s convenient or possible to do so, rather than responding immediately upon receipt.
+Texting is an asynchronous communication method. One person can send a text message and the recipient can respond at their leisure. In the meantime, the sender may do other things while waiting for a response.
+
 TCP socket programming
 
 1. Implement the Transport Layer of HTTP which is TCP

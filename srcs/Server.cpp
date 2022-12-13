@@ -7,8 +7,7 @@ Server::Server(std::vector<Config> & configs) :
 _configs(configs), _keepalive_timeout(KEEPALIVE),
 // _server_fd(), _client_fd(), _client_read(), 
 // _address(), _buffer(), _response(),
-_accessFile(), _errorFile(),
-_accessStream(), _errorStream()
+_accessFile(), _errorFile()
 {
 	// log files par defaut pour tous les servers 
 	// (dans tous les cas, regrouper les logs de tous les servers ici)
@@ -71,9 +70,6 @@ void Server::_createLogFile()
 	_accessStream.open("conf/logs/access.log", std::ofstream::out | std::ofstream::app);
 	if (_accessStream.fail() == true)
 		_exitWithError(std::cerr, "Error while creating access log file\n", 1);
-	_errorStream.open("conf/logs/error.log", std::ofstream::out | std::ofstream::app);
-	if (_errorStream.fail() == true)
-		_exitWithError(std::cerr, "Error while creating error log file\n", 1);
 }
 
 void Server::_exitWithError(std::ostream & stream, const std::string message, int code) const

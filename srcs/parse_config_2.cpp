@@ -1,6 +1,6 @@
 #include "parse_config.hpp"
 
-int check_open_server_block(std::string & line, std::string & prevWord, bool *server_block, int *server_count)
+int open_server_block(std::string & line, std::string & prevWord, bool *server_block, int *server_count)
 {
 	(void) prevWord;
 	(void) server_count;
@@ -22,7 +22,7 @@ int check_open_server_block(std::string & line, std::string & prevWord, bool *se
 	return VALID;
 }
 
-int check_open_server_block_2(std::string & line, std::string & prevWord, bool *server_block, int *server_count)
+int open_server_block_2(std::string & line, std::string & prevWord, bool *server_block, int *server_count)
 {
 	(void) server_count;
 	if (*server_block == true)
@@ -47,7 +47,7 @@ int check_open_server_block_2(std::string & line, std::string & prevWord, bool *
 	return VALID;
 }
 
-int check_open_server_block_3(std::string & line, std::string & prevWord, bool *server_block, int *server_count)
+int open_server_block_3(std::string & line, std::string & prevWord, bool *server_block, int *server_count)
 {
 	(void) prevWord;
 	(void) server_count;

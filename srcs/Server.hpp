@@ -34,9 +34,7 @@ class Server
 
 		void _createLogFile();
 		const std::string	_accessFile;
-		const std::string	_errorFile;
 		std::ofstream		_accessStream;
-		std::ofstream		_errorStream;
 
 		void _exitWithError(std::ostream & stream, const std::string message, int code) const;
 		std::ostream & _log(std::ostream & stream, const std::string message) const;

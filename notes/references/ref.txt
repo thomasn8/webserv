@@ -31,6 +31,7 @@ THOMAS
 			https://www.digitalocean.com/community/tutorials/nginx-location-directive
 			https://www.digitalocean.com/community/tools/nginx?domains.0.php.wordPressRules=true&global.app.lang=fr
 			https://www.linode.com/docs/guides/how-to-configure-nginx/
+			https://www.keycdn.com/support/nginx-directory-index
 		CGI:
 			https://www.nginx.com/resources/wiki/start/topics/examples/phpfcgi/
 
@@ -59,3 +60,6 @@ THOMAS
 	Testers:
 		https://github.com/wg/wrk
 		https://ncona.com/2019/04/building-a-simple-server-with-cpp/
+
+	Parsing:
+		https://www.udacity.com/blog/2021/05/how-to-read-from-a-file-in-cpp.html

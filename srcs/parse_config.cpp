@@ -65,7 +65,7 @@ static void cleanConfig(std::string & buffer, std::ifstream & configStream)
 	free(line_splitted);
 }
 
-int check_close_server_block(std::string & line, std::string & prevWord, bool *server_block, int *server_count)
+int close_server_block(std::string & line, std::string & prevWord, bool *server_block, int *server_count)
 {
 	(void) prevWord;
 	if (*server_block == false)
@@ -99,9 +99,9 @@ void parseConfig(std::string & configFile, Server & server, std::vector<Config> 
 	std::istringstream iss_l(buffer), iss_w;
 	int server_count = 0, directive_index = -1;
 	bool first_word = true, server_block = false, compare = false;
-	f_ptr functions[] = {&check_open_server_block, &check_open_server_block_2, &check_open_server_block_3, &check_close_server_block};
+	f_ptr functions[] = {&open_server_block, &open_server_block_2, &open_server_block_3, &close_server_block};
 	std::string	s_block[] = {"server", "{", "server{", "}"};
-	std::string	s_directives[] = {"listen", "server_name", "method", "root", "index", "access_log", "error_log", "error_page", "client_max_body_size"};
+	std::string	s_directives[] = {"listen", "server_name", "methods", "root", "index", "access_log", "error_log", "error_page", "client_max_body_size"};
 	std::string	g_directives[] = {"keepalive_timeout", "server"};
 	while (std::getline(iss_l, line))				// lecture ligne par ligne
 	{
