@@ -109,11 +109,11 @@ int open_location_block(std::string & line, std::string & prevWord, bool *locati
 	int pos = line.find("location");
 	std::string::iterator it(&line[pos + 7]);
 	std::string::iterator ite = line.end();
-	while (++it != ite)
-	{
-		if (!isblank(*it) && (*it) != '{')
-			return INVALID;
-	}
+	// while (++it != ite)
+	// {
+	// 	if (!isblank(*it) && (*it) != '{')
+	// 		return INVALID;
+	// }
 	*location_context = true;
 	return VALID;
 }
@@ -127,11 +127,11 @@ int open_location_block_2(std::string & line, std::string & prevWord, bool *loca
 	// 	return INVALID;
 	// }
 	int pos = line.find("{");
-	if (prevWord.compare(0, std::string::npos, "location", prevWord.length()) != EQUAL)
-	{
-		line = prevWord;
-		return INVALID;
-	}
+	// if (prevWord.compare(0, std::string::npos, "location", prevWord.length()) != EQUAL)
+	// {
+	// 	line = prevWord;
+	// 	return INVALID;
+	// }
 	std::string::iterator it(&line[pos]);
 	std::string::iterator ite = line.end();
 	while (++it != ite)
