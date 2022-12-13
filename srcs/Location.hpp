@@ -31,10 +31,10 @@ class Location
 		std::string _uploadsDir;		
 
 		// array[old_url, new_url, statusCode]
-		 std::vector< old_new_status_tab >  _redirections;
+		const std::vector< old_new_status_tab >  _redirections;
 
-		std::string _cgiBinPath;
-		std::string _cgiExtension;
+		const std::string _cgiBinPath;
+		const std::string _cgiExtension;
 };
 
 #endif

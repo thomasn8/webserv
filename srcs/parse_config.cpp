@@ -9,6 +9,14 @@ static void exitWithError(std::ostream & stream, const std::string message, cons
 	exit(code);
 }
 
+int tabLength(std::string *tab)
+{
+	int i = 0;
+	while (!tab[i].empty())
+		i++;
+	return i;
+}
+
 static bool isNotBlank(std::string line)
 {
 	std::string::iterator it = line.begin();
@@ -100,9 +108,16 @@ void parseConfig(std::string & configFile, Server & server)
 	int server_count = 0, directive_index = -1;
 	bool first_word = true, server_block = false, compare = false;
 	f_ptr functions[] = {&open_server_block, &open_server_block_2, &open_server_block_3, &close_server_block};
-	std::string	s_block[] = {"server", "{", "server{", "}"};
-	std::string	s_directives[] = {"listen", "server_name", "methods", "root", "index", "access_log", "error_log", "error_page", "client_max_body_size"};
-	std::string	g_directives[] = {"keepalive_timeout", "server"};
+	// std::string	g_directives[] = {"keepalive_timeout", "server"};
+	std::string	s_block[] = {"server", "{", "server{", "}", ""};
+	std::string	s_directives[] = {"listen", "server_name", "root", "index", "error_page", "client_max_body_size", ""};
+	// std::string l_block[] = {"location", "{", "location{", "}", ""};
+	// std::string	l_directives[] = {"root", "index", "methods", "autoindex", "redirection", "uploadsDir", "redirect", ""};
+	// int g_d = tabLength(g_directives);
+	int s_b = tabLength(s_block);
+	int s_d = tabLength(s_directives);
+	// int l_b = tabLength(l_block);
+	// int l_d = tabLength(l_directives);
 	while (std::getline(iss_l, line))				// lecture ligne par ligne
 	{
 		iss_w.str(line);
@@ -114,7 +129,7 @@ void parseConfig(std::string & configFile, Server & server)
 			if (first_word == true)
 			{
 				first_word = false;					
-				for (int i = 0; compare == false && i < 4; i++)
+				for (int i = 0; compare == false && i < s_b; i++)
 				{
 					if (word.compare(0, std::string::npos, s_block[i].c_str(), word.length()) == EQUAL)
 					{
@@ -125,7 +140,7 @@ void parseConfig(std::string & configFile, Server & server)
 						compare = true;
 					}
 				}					
-				for (int i = 0; compare == false && i < 9; i++)
+				for (int i = 0; compare == false && i < s_d; i++)
 				{
 					if (word.compare(0, std::string::npos, s_directives[i].c_str(), word.length()) == EQUAL)
 					{

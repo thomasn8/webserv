@@ -43,9 +43,6 @@ class Config
 		const std::vector< error_page_pair > & _errorPages;
 
 		const std::vector<Location> & _locations;
-
-		const std::string _cgiBinPath;
-		const std::string _cgiExtension;
 };
 
 #endif
