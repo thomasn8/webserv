@@ -1,6 +1,6 @@
 #include "parse_config.hpp"
 
-void exitWithError(std::ostream & stream, const std::string message, const std::string line, int code)
+static void exitWithError(std::ostream & stream, const std::string message, const std::string line, int code)
 {
 	if (line.empty())
 		stream << message << std::endl;
@@ -9,7 +9,7 @@ void exitWithError(std::ostream & stream, const std::string message, const std::
 	exit(code);
 }
 
-bool isNotBlank(std::string line)
+static bool isNotBlank(std::string line)
 {
 	std::string::iterator it = line.begin();
 	std::string::iterator ite = line.end();
@@ -22,7 +22,7 @@ bool isNotBlank(std::string line)
 	return false;
 }
 
-void openFile(std::string & configFile, std::ifstream & configStream)
+static void openFile(std::string & configFile, std::ifstream & configStream)
 {
 	configStream.open(configFile, std::ifstream::in);
 	if (configStream.fail() == true)
@@ -31,7 +31,7 @@ void openFile(std::string & configFile, std::ifstream & configStream)
 		exitWithError(std::cerr, "Error: configuration file invalid: empty file", "", 1);
 }
 
-void cleanConfig(std::string & buffer, std::ifstream & configStream)
+static void cleanConfig(std::string & buffer, std::ifstream & configStream)
 {
 	std::string line, nocomment;
 	char ***line_splitted = (char ***)malloc(sizeof(char ***));
@@ -63,6 +63,25 @@ void cleanConfig(std::string & buffer, std::ifstream & configStream)
 		nocomment.clear();
 	}
 	free(line_splitted);
+}
+
+int check_close_server_block(std::string & line, std::string & prevWord, bool *server_block, int *server_count)
+{
+	(void) prevWord;
+	if (*server_block == false)
+		return INVALID;
+	int pos = line.find("}");
+	std::string::iterator it(&line[pos]);
+	std::string::iterator ite = line.end();
+	while (++it != ite)
+	{
+		if (!isblank(*it))
+			return INVALID;
+	}
+	*server_block = false;
+	(*server_count)++;	// DETERMINE LE NOMBRE D'OBJET CONFIG A AJOUTER AU SERVER
+	std::cout << "\n";
+	return VALID;
 }
 
 void parseConfig(std::string & configFile, Server & server, std::vector<Config> & configs)

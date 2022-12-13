@@ -67,22 +67,3 @@ int check_open_server_block_3(std::string & line, std::string & prevWord, bool *
 	*server_block = true;
 	return VALID;
 }
-
-int check_close_server_block(std::string & line, std::string & prevWord, bool *server_block, int *server_count)
-{
-	(void) prevWord;
-	if (*server_block == false)
-		return INVALID;
-	int pos = line.find("}");
-	std::string::iterator it(&line[pos]);
-	std::string::iterator ite = line.end();
-	while (++it != ite)
-	{
-		if (!isblank(*it))
-			return INVALID;
-	}
-	*server_block = false;
-	(*server_count)++;	// DETERMINE LE NOMBRE D'OBJET CONFIG A AJOUTER AU SERVER
-	std::cout << "\n";
-	return VALID;
-}
