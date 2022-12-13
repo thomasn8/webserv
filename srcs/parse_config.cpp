@@ -212,7 +212,7 @@ void parseConfig(std::string & configFile, Server & server)
 			if (first_word == true)
 			{
 				first_word = false;					
-				for (int i = 0; compare == false && i < s_b; i++)
+				for (int i = 0; compare == false && location_context == false && i < s_b; i++)
 				{
 					if (word.compare(0, std::string::npos, server_block[i].c_str(), word.length()) == EQUAL)
 					{
@@ -234,13 +234,10 @@ void parseConfig(std::string & configFile, Server & server)
 						compare = true;
 					}
 				}					
-				for (int i = 0; compare == false && i < s_d; i++)
+				for (int i = 0; compare == false && location_context == false && i < s_d; i++)
 				{
 					if (server_context == false)
-					{	
-						std::cout << "TEST"<< "\n";
 						exitWithError(std::cerr, ERROR_MSG, line, 1);
-					}
 					if (word.compare(0, std::string::npos, server_directives[i].c_str(), word.length()) == EQUAL)
 					{
 						server_directive_index = i;
@@ -248,13 +245,10 @@ void parseConfig(std::string & configFile, Server & server)
 						compare = true;
 					}
 				}
-				for (int i = 0; compare == false && i < l_d; i++)
+				for (int i = 0; compare == false &&  i < l_d; i++)
 				{
 					if (server_context == false || location_context == false)
-					{	
-						std::cout << "TEST"<< "\n";
 						exitWithError(std::cerr, ERROR_MSG, line, 1);
-					}
 					if (word.compare(0, std::string::npos, location_directives[i].c_str(), word.length()) == EQUAL)
 					{
 						location_directive_index = i;
@@ -263,10 +257,7 @@ void parseConfig(std::string & configFile, Server & server)
 					}
 				}
 				if (compare == false)
-				{
-					std::cout << "TEST"<< "\n";	
 					exitWithError(std::cerr, ERROR_MSG, line, 1);
-				}
 			}
 			else
 			{
