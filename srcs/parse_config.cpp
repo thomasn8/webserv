@@ -154,6 +154,7 @@ int check_close_server_block(std::string & line, std::string & prevWord, bool *s
 	}
 	*server_block = false;
 	(*server_count)++;
+	std::cout << "\n";
 	return VALID;
 }
 
@@ -188,10 +189,9 @@ void parseConfig(std::string & configFile, Server & server, std::vector<Config> 
 				if (word.length() == 0)
 					break;
 				// std::cout << word << " ";
-				if (first_word == true)						// DIRECTIVE GENERAL
+				if (first_word == true)
 				{
-					first_word = false;
-					
+					first_word = false;					
 					for (int i = 0; compare == false && i < 4; i++)
 					{
 						if (word.compare(0, std::string::npos, s_block[i].c_str(), word.length()) == EQUAL)
@@ -202,29 +202,29 @@ void parseConfig(std::string & configFile, Server & server, std::vector<Config> 
 								iss_w >> word;
 							compare = true;
 						}
-					}
-					
+					}					
 					for (int i = 0; compare == false && i < 9; i++)
 					{
 						if (word.compare(0, std::string::npos, s_directives[i].c_str(), word.length()) == EQUAL)
 						{
 							directive_index = i;
-							std::cout << "1-" << word << "\n";
+							std::cout << "DIRECTIVE: " << word << "\n";
 							compare = true;
 						}
 					}
-					
 					if (compare == false && word.compare(0, std::string::npos, "keepalive_timeout", word.length()) == EQUAL)
-						std::cout << "1-" << word << "\n";
-					
+					{
+						std::cout << "DIRECTIVE: " << word << "\n";
+						compare = true;
+					}
 					if (compare == false)
 						exitWithError(std::cerr, ERROR_MSG, line, 1);
 				}
-				else										// ARGUMENT DE DIRECTIVE
+				else
 				{
-					std::cout << "2-" << word << "\n";
+					std::cout << "	" << word << "\n";
 				}
-				prevWord.clear();
+				// prevWord.clear();
 				prevWord = line;
 				word.clear();
 			}
@@ -233,9 +233,7 @@ void parseConfig(std::string & configFile, Server & server, std::vector<Config> 
 			compare = false;
 			directive_index = -1;
 		}
-		// prevWord.clear();
-		// prevWord = line;
-		line.clear();
+		// line.clear();
 	}
 	configStream.close();
 	if (server_block == true)
