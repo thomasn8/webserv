@@ -99,6 +99,7 @@ int close_server_block(std::string & line, bool *server_context, int *server_cou
 int open_location_block(std::string & line, int *location_context, int *location_count)
 {
 	(void) location_count;
+	int prefix = 0;
 	if (*location_context == true)
 	{
 		line = ERROR_LOCATION_BLOCK;
@@ -107,19 +108,29 @@ int open_location_block(std::string & line, int *location_context, int *location
 	int pos = line.find("location");
 	std::string::iterator it(&line[pos + 7]);
 	std::string::iterator ite = line.end();
-	// while (++it != ite)
-	// {
-	// 	if (!isblank(*it) && (*it) != '{')
-	// 		return INVALID;
-	// }
-	*location_context = 1;
+	while (++it != ite)
+	{
+		// checker qu il y ait 1 seul prefix !!! A UTILISER POUR ENREGISTRER DANS L'OBJET LOCATION
+			// type:  /path
+			// type:  .php
+		if (prefix > 1)
+			return INVALID;
+		if (prefix == 1 && (*it) == '{')
+			*location_context = 2;
+
+		// if (!isblank(*it) && (*it) != '{')
+		// 	return INVALID;
+		
+	}
+	if (*location_context != 2)
+		*location_context = 1;
 	return VALID;
 }
 
 int open_location_block_2(std::string & line, int *location_context, int *location_count)
 {
 	(void) location_count;
-	if (*location_context == 2)
+	if (*location_context == 0)
 	{
 		line = ERROR_LOCATION_BLOCK;
 		return INVALID;
@@ -138,7 +149,7 @@ int open_location_block_2(std::string & line, int *location_context, int *locati
 
 int close_location_block(std::string & line, int *location_context, int *location_count)
 {
-	if (*location_context == false)
+	if (*location_context == 0)
 		return INVALID;
 	int pos = line.find("}");
 	std::string::iterator it(&line[pos]);
