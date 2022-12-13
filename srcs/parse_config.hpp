@@ -16,7 +16,7 @@
 # define ERROR_MSG "Error: configuration file invalid:\n"
 # define ERROR_SERVER_BLOCK "server{} directive error"
 
-void parseConfig(std::string & configFile, Server & server, std::vector<Config> & configs);
+void parseConfig(std::string & configFile, Server & server);
 
 typedef	int (*f_ptr)(std::string & line, std::string & prevWord, bool *server_block, int *server_count);
 int open_server_block(std::string & line, std::string & prevWord, bool *server_block, int *server_count);

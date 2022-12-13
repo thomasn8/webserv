@@ -3,35 +3,23 @@
 /* 
 	************ CONST/DESTR
 */
-Config::Config() :
-_accessFile(), _errorFile(),
-_accessStream(), _errorStream(),
-_serverNames(1, DEFAULT_IP), _address(INADDR_ANY), 
-_port(DEFAULT_PORT), _clientMaxBodySize(MBS)
+Config::Config() : 
+_address(INADDR_ANY), _port(DEFAULT_PORT),  
+_serverNames(std::vector<std::string>(1, std::string(DEFAULT_SERVERNAME))),
+_root(std::string(DEFAULT_ROOT)), _indexFiles(std::vector<std::string>(1, std::string(DEFAULT_INDEX))), 
+_clientMaxBodySize(MBS), _cgiBinPath(std::string(DEFAULT_CGI_PATH)), _cgiExtension(std::string(DEFAULT_CGI_EXT)),
+_errorPages(std::vector< error_page_pair >()),
+_locations(std::vector<Location>())
 {
 	// si specifier dans config, creer des log files specifiques dedie pour le server en question
 	// _createLogFile(accessFile, errorFile);
 }
 
-Config::~Config()
-{
-	_accessStream.close();
-	_errorStream.close();
-}
+Config::~Config() {}
 
 /* 
 	************ GETTERS
 */
-std::ofstream & Config::getAccessStream()
-{
-	return _accessStream;
-}
-
-std::ofstream & Config::getErrorStream()
-{
-	return _errorStream;
-}
-
 uint16_t Config::getPort() const
 {
 	return _port;
@@ -50,14 +38,3 @@ size_t Config::getClientMaxBodySize() const
 /* 
 	************ OTHER
 */
-void Config::_exitWithError(std::ostream & stream, const std::string message, int code) const
-{
-	_log(stream, message);
-	exit(code);
-}
-
-std::ostream & Config::_log(std::ostream & stream, const std::string message) const
-{
-	stream << message;
-	return stream;
-}

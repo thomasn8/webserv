@@ -84,7 +84,7 @@ int close_server_block(std::string & line, std::string & prevWord, bool *server_
 	return VALID;
 }
 
-void parseConfig(std::string & configFile, Server & server, std::vector<Config> & configs)
+void parseConfig(std::string & configFile, Server & server)
 {
 	// ouverture du fichier
 	std::ifstream configStream;

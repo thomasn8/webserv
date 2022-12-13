@@ -3,15 +3,13 @@
 /* 
 	************ CONST/DESTR
 */
-Server::Server(std::vector<Config> & configs) :
-_configs(configs), _keepalive_timeout(KEEPALIVE),
+Server::Server() :
+_configs(std::vector<Config>()), _keepalive_timeout(KEEPALIVE),
 // _server_fd(), _client_fd(), _client_read(), 
 // _address(), _buffer(), _response(),
-_accessFile(), _errorFile()
+_accessFile(std::string(LOG_PATH)), _accessStream()
 {
-	// log files par defaut pour tous les servers 
-	// (dans tous les cas, regrouper les logs de tous les servers ici)
-	// _createLogFile();
+	_createLogFile(_accessFile, _accessStream);
 	
 	
 	
@@ -65,10 +63,10 @@ Server::~Server()
 /* 
 	************ OTHER
 */
-void Server::_createLogFile()
+void Server::_createLogFile(std::string const & filename, std::ofstream & stream)
 {
-	_accessStream.open("conf/logs/access.log", std::ofstream::out | std::ofstream::app);
-	if (_accessStream.fail() == true)
+	stream.open(filename, std::ofstream::out | std::ofstream::app);
+	if (stream.fail() == true)
 		_exitWithError(std::cerr, "Error while creating access log file\n", 1);
 }
 

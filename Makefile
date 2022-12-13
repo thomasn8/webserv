@@ -4,6 +4,7 @@ SRCS		=	srcs/main.cpp			\
 				srcs/parse_config_2.cpp	\
 			  	srcs/Server.cpp			\
 			  	srcs/Config.cpp			\
+			  	srcs/Location.cpp		\
 
 
 OBJS		= ${SRCS:.cpp=.o}
