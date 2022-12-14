@@ -1,32 +1,5 @@
 #include "parse_config.hpp"
 
-static void exitWithError(std::ostream & stream, const std::string message, const std::string line, int code)
-{
-	stream << message << line << std::endl;
-	exit(code);
-}
-
-int tabLength(std::string *tab)
-{
-	int i = 0;
-	while (!tab[i].empty())
-		i++;
-	return i;
-}
-
-static bool isNotBlank(std::string line)
-{
-	std::string::iterator it = line.begin();
-	std::string::iterator ite = line.end();
-	while (it != ite)
-	{
-		if (!isblank(*it))
-			return true;
-		it++;
-	}
-	return false;
-}
-
 static void openFile(std::string & configFile, std::ifstream & configStream)
 {
 	configStream.open(configFile, std::ifstream::in);
@@ -70,92 +43,6 @@ static void cleanConfig(std::string & buffer, std::ifstream & configStream)
 	}
 }
 
-int close_server_block(std::string & line, bool *server_context, int *server_count)
-{
-	if (*server_context == false)
-		return INVALID;
-	int pos = line.find("}");
-	std::string::iterator it(&line[pos]);
-	std::string::iterator ite = line.end();
-	while (++it != ite)
-	{
-		if (!isblank(*it))
-			return INVALID;
-	}
-	*server_context = false;
-	(*server_count)++;	// DETERMINE LE NOMBRE D'OBJET CONFIG A AJOUTER AU SERVER
-	std::cout << "\n";
-	return VALID;
-}
-
-int open_location_block(std::string & line, int *location_context, int *location_count)
-{
-	(void) location_count;
-	int prefix = 0;
-	if (*location_context == true)
-	{
-		line = ERROR_LOCATION_BLOCK;
-		return INVALID;
-	}
-	int pos = line.find("location");
-	std::string::iterator it(&line[pos + 7]);
-	std::string::iterator ite = line.end();
-	while (++it != ite)
-	{
-		// checker qu il y ait 1 seul prefix !!! A UTILISER POUR ENREGISTRER DANS L'OBJET LOCATION
-			// type:  /path
-			// type:  .php
-		if (prefix > 1)
-			return INVALID;
-		if (prefix == 1 && (*it) == '{')
-			*location_context = 2;
-
-		// if (!isblank(*it) && (*it) != '{')
-		// 	return INVALID;
-		
-	}
-	if (*location_context != 2)
-		*location_context = 1;
-	return VALID;
-}
-
-int open_location_block_2(std::string & line, int *location_context, int *location_count)
-{
-	(void) location_count;
-	if (*location_context == 0)
-	{
-		line = ERROR_LOCATION_BLOCK;
-		return INVALID;
-	}
-	int pos = line.find("{");
-	std::string::iterator it(&line[pos]);
-	std::string::iterator ite = line.end();
-	while (++it != ite)
-	{
-		if (!isblank(*it))
-			return INVALID;
-	}
-	*location_context = 2;
-	return VALID;
-}
-
-int close_location_block(std::string & line, int *location_context, int *location_count)
-{
-	if (*location_context == 0)
-		return INVALID;
-	int pos = line.find("}");
-	std::string::iterator it(&line[pos]);
-	std::string::iterator ite = line.end();
-	while (++it != ite)
-	{
-		if (!isblank(*it))
-			return INVALID;
-	}
-	*location_context = 0;
-	(*location_count)++;	// DETERMINE LE NOMBRE D'OBJET CONFIG A AJOUTER AU SERVER
-	return VALID;
-}
-
 void parseConfig(std::string & configFile, Server & server)
 {
 	// ouverture du fichier
@@ -167,7 +54,7 @@ void parseConfig(std::string & configFile, Server & server)
 	cleanConfig(buffer, configStream);
 
 	// lecture et tri du buffer, ligne par ligne, mot par mot (variable word pour renseigner la config)
-	std::string line, word;
+	std::string line, word, prefix;
 	std::istringstream iss_l(buffer), iss_w;
 	int server_count = 0, location_count = 0, server_directive_index = -1, location_context = 0, location_directive_index = -1;
 	bool first_word = true, server_context = false, compare = false;
@@ -207,10 +94,13 @@ void parseConfig(std::string & configFile, Server & server)
 				{
 					if (word.compare(0, std::string::npos, location_block[i].c_str(), word.length()) == EQUAL)
 					{
-						if (f_location_block[i](line, &location_context, &location_count) == INVALID)
+						if (f_location_block[i](line, prefix, &location_context, &location_count) == INVALID)
 							exitWithError(std::cerr, ERROR_MSG, line, 1);
 						if (i == 0)
+						{
 							iss_w >> word;
+							std::cout << "L_PREFIX: " << prefix << "\n";
+						}
 						compare = true;
 					}
 				}					
@@ -244,6 +134,7 @@ void parseConfig(std::string & configFile, Server & server)
 				std::cout << "	" << word << "\n";	// ARGUMENT POUR LA DIRECTIVE (SERVER OU LOCATION, selon)
 			}
 			word.clear();
+			prefix.clear();
 		}
 		iss_w.clear();
 		first_word = true;

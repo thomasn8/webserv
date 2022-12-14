@@ -24,7 +24,7 @@ class Location
 
 	private:
 		std::string _prefix;	//   /images/
-		int _prefixCount;
+		int _prefixLevelCount;
 
 		std::string _root;
 		std::vector<std::string> _indexFiles;
