@@ -15,11 +15,8 @@ int main(int ac, char **av, char **env)
 	else
 		configFile = "conf/default.conf";
 	Server server;
-	std::cerr << "Configs in server: "<< server.getConfigs().size() << std::endl;
 	parseConfig(configFile, server);
-	std::cerr << "Configs in server: "<< server.getConfigs().size() << std::endl;
-	std::cerr << "Configs in server: "<< &server.getConfigs()[0] << std::endl;
-	std::cerr << "Configs in server: "<< &server.getConfigs()[1] << std::endl;
+
 	// starter le server
 
 	return 0;

@@ -3,33 +3,35 @@
 /* 
 	************ CONST/DESTR
 */
-Config::Config() : 
+Config::Config() :
+_locations(std::vector<Location>()),
 _address(INADDR_ANY), _port(DEFAULT_PORT),  
 _serverNames(std::vector<std::string>(1, std::string(DEFAULT_SERVERNAME))),
 _root(std::string(DEFAULT_ROOT)), 
 _indexFiles(std::vector<std::string>(1, std::string(DEFAULT_INDEX))), 
 _clientMaxBodySize(MBS),
-_errorPages(std::vector< error_page_pair >()),
-_locations(std::vector<Location>()) {std::cerr << this << ": configs created\n"; }
+_errorPages(std::vector< error_page_pair >()) 
+{}
 
 Config::Config(const Config & src) :
+_locations(std::vector<Location>()),
 _address(INADDR_ANY), _port(DEFAULT_PORT),  
 _serverNames(std::vector<std::string>(1, std::string(DEFAULT_SERVERNAME))),
 _root(std::string(DEFAULT_ROOT)), 
 _indexFiles(std::vector<std::string>(1, std::string(DEFAULT_INDEX))), 
 _clientMaxBodySize(MBS),
-_errorPages(std::vector< error_page_pair >()),
-_locations(std::vector<Location>())
-{
-(void) src;
-std::cerr << this << ": configs copied\n";
-}
+_errorPages(std::vector< error_page_pair >())
+{ (void) src;}
 
-Config::~Config() { std::cerr << this << ": configs destroyed\n"; }
+Config::~Config() {}
 
 /* 
 	************ GETTERS
 */
+std::vector<Location> & Config::getLocations() { return _locations; }
+void Config::addLocation() {_locations.push_back(Location()); }
+
 uint16_t Config::getPort() const { return _port; }
 uint32_t Config::getAddress() const { return _address; }
 size_t Config::getClientMaxBodySize() const { return _clientMaxBodySize; }
+

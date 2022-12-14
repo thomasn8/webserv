@@ -19,7 +19,9 @@
 
 
 class Config
-{	
+{
+	// friend class Server;
+
 	public:
 		typedef std::pair<int, std::string> error_page_pair;
 
@@ -31,7 +33,12 @@ class Config
 		uint32_t getAddress() const;
 		size_t getClientMaxBodySize() const;
 
+		std::vector<Location> & getLocations();
+		void addLocation();
+
 	private:
+		std::vector<Location> _locations;
+
 		uint32_t _address;
 		uint16_t _port;
 		std::vector<std::string> _serverNames;
@@ -42,7 +49,6 @@ class Config
 		
 		std::vector< error_page_pair > _errorPages;
 
-		std::vector<Location> _locations;
 };
 
 #endif

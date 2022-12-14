@@ -93,7 +93,7 @@ void parseConfig(std::string & configFile, Server & server)
 						compare = true;
 						if (server_context == true)
 						{
-							// std::cerr << "Add a config\n";
+							std::cerr << "Add a config\n";
 							server.addConfig();
 						}
 					}
@@ -111,6 +111,11 @@ void parseConfig(std::string & configFile, Server & server)
 							std::cout << "L_PREFIX: " << prefix << "\n";	// A AJOUTER DANS LES OBJETS LOCATION (si format extension, utiliser aussi pour modifier la variable _cgiExtension)
 						}
 						compare = true;
+						if (location_context == 2)
+						{
+							std::cerr << "Add a location\n";
+							server.getConfigs().back().addLocation();
+						}
 					}
 				}
 				// DETECTE LES DIRECTIVES DE SERVER

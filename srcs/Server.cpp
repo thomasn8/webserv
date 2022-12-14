@@ -62,7 +62,7 @@ Server::~Server()
 /* 
 	************ GETTERS/SETTERS
 */
-std::vector<Config> const & Server::getConfigs() const { return _configs; }
+std::vector<Config> & Server::getConfigs() { return _configs; }
 void Server::addConfig() { _configs.push_back(Config()); }
 
 /* 

@@ -15,11 +15,13 @@
 
 class Location
 {	
-	
+	// friend class Config;
+
 	public:
 		typedef std::array<std::string, 3> old_new_status_tab;
 
 		Location();
+		Location(const Location & src);
 		~Location();
 
 	private:

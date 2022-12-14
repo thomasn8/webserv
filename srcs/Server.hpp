@@ -22,7 +22,7 @@ class Server
 		Server();
 		~Server();
 
-		std::vector<Config> const & getConfigs() const;
+		std::vector<Config> & getConfigs();
 		void addConfig();
 		
 	private:
