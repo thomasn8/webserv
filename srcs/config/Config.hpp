@@ -13,7 +13,7 @@
 # define DEFAULT_SERVERNAME "localhost"
 # define DEFAULT_ROOT "www/html/"
 # define DEFAULT_INDEX "index.html"
-# define MBS 0				// Client Max Body Size
+# define MBS 0 // Client Max Body Size
 # define DEFAULT_CGI_PATH "cgi/"
 # define DEFAULT_CGI_EXT "php"
 

@@ -103,7 +103,7 @@ void parseConfig(std::string & configFile, Server & server)
 						if (i == 0)
 						{
 							iss_w >> word;
-							std::cout << "L_PREFIX: " << prefix << "\n";	// A AJOUTER DANS LES OBJETS LOCATION
+							std::cout << "L_PREFIX: " << prefix << "\n";	// A AJOUTER DANS LES OBJETS LOCATION (si format extension, utiliser aussi pour modifier la variable _cgiExtension)
 						}
 						compare = true;
 					}
