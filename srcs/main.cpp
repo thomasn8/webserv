@@ -1,5 +1,5 @@
-#include "parse_config.hpp"
-#include "Config.hpp"
+#include "config/parse_config.hpp"
+#include "config/Config.hpp"
 #include "Server.hpp"
 
 int main(int ac, char **av, char **env)

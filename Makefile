@@ -1,10 +1,9 @@
-SRCS		=	srcs/main.cpp			\
-				srcs/split_quotes.cpp	\
-				srcs/parse_config.cpp	\
-				srcs/parse_config_context.cpp	\
-			  	srcs/Server.cpp			\
-			  	srcs/Config.cpp			\
-			  	srcs/Location.cpp		\
+SRCS		=	srcs/main.cpp							\
+			  	srcs/Server.cpp							\
+				srcs/config/parse_config.cpp			\
+				srcs/config/parse_config_context.cpp	\
+			  	srcs/config/Config.cpp					\
+			  	srcs/config/Location.cpp				\
 
 
 OBJS		= ${SRCS:.cpp=.o}

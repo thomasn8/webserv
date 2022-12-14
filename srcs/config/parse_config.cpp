@@ -6,14 +6,6 @@ static void exitWithError(std::ostream & stream, const std::string message, cons
 	exit(code);
 }
 
-std::string TrimFunction(std::string str)
-{
-	const char* typeOfWhitespaces = "\t\n\r\f\v";
-	str.erase(str.find_last_not_of(typeOfWhitespaces) + 1);
-	str.erase(0,str.find_first_not_of(typeOfWhitespaces));
-	return str;
-}
-
 int tabLength(std::string *tab)
 {
 	int i = 0;
@@ -66,53 +58,17 @@ static void cleanConfig(std::string & buffer, std::ifstream & configStream)
 				line.erase(pos);
 			pos = line.find_first_of(token, pos);
 		}
+		pos = 0;
 		if (isNotBlank(line))
 		{
 			buffer += line;
 			if (line.back() != '\n')
 				buffer += '\n';
 		}
-		pos = 0;
 		if (configStream.peek() == EOF)
 			break;
 	}
 }
-
-// static void cleanConfig(std::string & buffer, std::ifstream & configStream)
-// {
-// 	std::string line, nocomment;
-// 	char ***line_splitted = (char ***)malloc(sizeof(char ***));
-// 	int i_first_split;
-// 	while (configStream)
-// 	{
-// 		std::getline(configStream, line);
-// 		// inserer nes newlines apres les { et avant les }
-// 		// utiliser line.find et line.insert 
-// 		split_quotes(line_splitted, line.c_str(), ';');
-// 		line.clear();
-// 		for (int i = 0; (*line_splitted)[i] != NULL; i++)
-// 		{
-// 			if (strcmp((*line_splitted)[i], ";") != 0)
-// 				line += (*line_splitted)[i];
-// 			line += '\n';
-// 		}		
-// 		free_arr((*line_splitted));
-// 		(*line_splitted) = NULL;
-// 		i_first_split = split_quotes(line_splitted, line.c_str(), '#');
-// 		if ((*line_splitted)[0] != NULL && *(*line_splitted)[0])
-// 		{
-// 			nocomment = (*line_splitted)[0];
-// 			if (i_first_split > -1)
-// 				nocomment.erase(i_first_split, std::string::npos);
-// 			buffer += nocomment;
-// 			buffer += '\n';
-// 		}
-// 		free_arr((*line_splitted));
-// 		(*line_splitted) = NULL;
-// 		nocomment.clear();
-// 	}
-// 	free(line_splitted);
-// }
 
 int close_server_block(std::string & line, bool *server_context, int *server_count)
 {
@@ -215,9 +171,9 @@ void parseConfig(std::string & configFile, Server & server)
 	std::istringstream iss_l(buffer), iss_w;
 	int server_count = 0, location_count = 0, server_directive_index = -1, location_context = 0, location_directive_index = -1;
 	bool first_word = true, server_context = false, compare = false;
-	f_ptr_s f_server_block[] = {&open_server_block, &open_server_block_2, &open_server_block_3, &close_server_block};
+	f_ptr_s f_server_block[] = {&open_server_block, &open_server_block_2, &close_server_block};
 	f_ptr_l f_location_block[] = {&open_location_block, &open_location_block_2, &close_location_block};
-	std::string	server_block[] = {"server", "{", "server{", "}", ""};
+	std::string	server_block[] = {"server", "{", "}", ""};
 	std::string location_block[] = {"location", "{", "}", ""};
 	std::string	server_directives[] = {"listen", "server_name", "root", "index", "error_page", "client_max_body_size", ""};
 	std::string	location_directives[] = {"root", "index", "methods", "autoindex", "redirection", "uploads_dir", "redirect", "cgi_bin", ""};

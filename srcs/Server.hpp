@@ -10,7 +10,7 @@
 #include <netinet/in.h>
 #include <vector>
 
-#include "Config.hpp"
+#include "config/Config.hpp"
 
 # define LISTEN_BACKLOG 50
 # define KEEPALIVE 65
