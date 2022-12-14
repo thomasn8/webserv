@@ -91,6 +91,11 @@ void parseConfig(std::string & configFile, Server & server)
 						if (i == 0)
 							iss_w >> word;
 						compare = true;
+						if (server_context == true)
+						{
+							// std::cerr << "Add a config\n";
+							server.addConfig();
+						}
 					}
 				}
 				// DETECTE LES BLOCK LOCATION			

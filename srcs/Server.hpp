@@ -20,8 +20,10 @@ class Server
 {	
 	public:
 		Server();
-		Server(std::vector<Config> & configs);
 		~Server();
+
+		std::vector<Config> const & getConfigs() const;
+		void addConfig();
 		
 	private:
 		std::vector<Config> _configs;

@@ -12,7 +12,6 @@ _accessFile(std::string(LOG_PATH)), _accessStream()
 	_createLogFile(_accessFile, _accessStream);
 	
 	
-	
 	// lancement du server
 	// _server_fd = socket(AF_INET, SOCK_STREAM, 0);
 	// if (_server_fd < 0)
@@ -59,6 +58,12 @@ Server::~Server()
 	// close(_server_fd);
 	// free(_buffer);
 }
+
+/* 
+	************ GETTERS/SETTERS
+*/
+std::vector<Config> const & Server::getConfigs() const { return _configs; }
+void Server::addConfig() { _configs.push_back(Config()); }
 
 /* 
 	************ OTHER

@@ -10,9 +10,9 @@ _root(std::string(DEFAULT_ROOT)),
 _indexFiles(std::vector<std::string>(1, std::string(DEFAULT_INDEX))), 
 _clientMaxBodySize(MBS),
 _errorPages(std::vector< error_page_pair >()),
-_locations(std::vector<Location>()) {}
+_locations(std::vector<Location>()) {std::cerr << this << ": configs created\n"; }
 
-Config::~Config() {}
+Config::~Config() { std::cerr << this << ": configs destroyed\n"; }
 
 /* 
 	************ GETTERS
