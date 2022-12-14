@@ -46,37 +46,73 @@ static void openFile(std::string & configFile, std::ifstream & configStream)
 
 static void cleanConfig(std::string & buffer, std::ifstream & configStream)
 {
-	std::string line, nocomment;
-	char ***line_splitted = (char ***)malloc(sizeof(char ***));
-	int i_first_split;
+	std::string line;
+	const char *token = "{};#";
+	int pos = 0;
 	while (configStream)
 	{
 		std::getline(configStream, line);
-		split_quotes(line_splitted, line.c_str(), ';');
-		line.clear();
-		for (int i = 0; (*line_splitted)[i] != NULL; i++)
+		pos = line.find_first_of(token, pos);
+		while (pos != -1)
 		{
-			if (strcmp((*line_splitted)[i], ";") != 0)
-				line += (*line_splitted)[i];
-			line += '\n';
-		}		
-		free_arr((*line_splitted));
-		(*line_splitted) = NULL;
-		i_first_split = split_quotes(line_splitted, line.c_str(), '#');
-		if ((*line_splitted)[0] != NULL && *(*line_splitted)[0])
-		{
-			nocomment = (*line_splitted)[0];
-			if (i_first_split > -1)
-				nocomment.erase(i_first_split, std::string::npos);
-			buffer += nocomment;
-			buffer += '\n';
+			if (line[pos] == '{' || line[pos] == '}')
+			{
+				line.insert(pos++, "\n");
+				line.insert(pos++ + 1, "\n");
+			}
+			else if (line[pos] == ';')
+				line.replace(pos, 1, "\n");
+			else if (line[pos] == '#')
+				line.erase(pos);
+			pos = line.find_first_of(token, pos);
 		}
-		free_arr((*line_splitted));
-		(*line_splitted) = NULL;
-		nocomment.clear();
+		if (isNotBlank(line))
+		{
+			buffer += line;
+			if (line.back() != '\n')
+				buffer += '\n';
+		}
+		pos = 0;
+		if (configStream.peek() == EOF)
+			break;
 	}
-	free(line_splitted);
 }
+
+// static void cleanConfig(std::string & buffer, std::ifstream & configStream)
+// {
+// 	std::string line, nocomment;
+// 	char ***line_splitted = (char ***)malloc(sizeof(char ***));
+// 	int i_first_split;
+// 	while (configStream)
+// 	{
+// 		std::getline(configStream, line);
+// 		// inserer nes newlines apres les { et avant les }
+// 		// utiliser line.find et line.insert 
+// 		split_quotes(line_splitted, line.c_str(), ';');
+// 		line.clear();
+// 		for (int i = 0; (*line_splitted)[i] != NULL; i++)
+// 		{
+// 			if (strcmp((*line_splitted)[i], ";") != 0)
+// 				line += (*line_splitted)[i];
+// 			line += '\n';
+// 		}		
+// 		free_arr((*line_splitted));
+// 		(*line_splitted) = NULL;
+// 		i_first_split = split_quotes(line_splitted, line.c_str(), '#');
+// 		if ((*line_splitted)[0] != NULL && *(*line_splitted)[0])
+// 		{
+// 			nocomment = (*line_splitted)[0];
+// 			if (i_first_split > -1)
+// 				nocomment.erase(i_first_split, std::string::npos);
+// 			buffer += nocomment;
+// 			buffer += '\n';
+// 		}
+// 		free_arr((*line_splitted));
+// 		(*line_splitted) = NULL;
+// 		nocomment.clear();
+// 	}
+// 	free(line_splitted);
+// }
 
 int close_server_block(std::string & line, bool *server_context, int *server_count)
 {
