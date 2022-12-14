@@ -69,6 +69,8 @@ void parseConfig(std::string & configFile, Server & server)
 	int l_b = tabLength(location_block);
 	int s_d = tabLength(server_directives);
 	int l_d = tabLength(location_directives);
+	server.logTime();
+	server.log(" CONFIGURATION\n");
 	while (std::getline(iss_l, line))				// lecture du buffer, ligne par ligne
 	{
 		iss_w.str(line);
@@ -93,8 +95,8 @@ void parseConfig(std::string & configFile, Server & server)
 						compare = true;
 						if (server_context == true)
 						{
-							std::cerr << "Add a config\n";
 							server.addConfig();
+							server.log("\nAdd a SERVER config\n");
 						}
 					}
 				}
@@ -106,15 +108,15 @@ void parseConfig(std::string & configFile, Server & server)
 						if (f_location_block[i](line, prefix, &location_context, &location_count) == INVALID)
 							exitWithError(std::cerr, ERROR_MSG, line, 1);
 						if (i == 0)
-						{
 							iss_w >> word;
-							std::cout << "L_PREFIX: " << prefix << "\n";	// A AJOUTER DANS LES OBJETS LOCATION (si format extension, utiliser aussi pour modifier la variable _cgiExtension)
-						}
 						compare = true;
 						if (location_context == 2)
 						{
-							std::cerr << "Add a location\n";
-							server.getConfigs().back().addLocation();
+							server.getLastConfig().addLocation();
+							server.log("	Add a location: ");
+							server.getLastConfig().getLastLocation().addPrefix(prefix);
+							server.log(prefix);
+							server.log("\n");
 						}
 					}
 				}
@@ -126,7 +128,12 @@ void parseConfig(std::string & configFile, Server & server)
 					if (word.compare(0, std::string::npos, server_directives[i].c_str(), word.length()) == EQUAL)
 					{
 						server_directive_index = i;
-						std::cout << "S_DIRECTIVE: " << word << "\n";		// A AJOUTER DANS LES OBJETS CONFIGS
+						// std::cout << "S_DIRECTIVE: " << word << "\n";		// A AJOUTER DANS LES OBJETS CONFIGS
+						server.log("	S_DIRECTIVE: ");
+						// server.log(std::to_string(i));
+						// server.log(": ");
+						server.log(word);
+						server.log("\n");
 						compare = true;
 					}
 				}
@@ -138,7 +145,12 @@ void parseConfig(std::string & configFile, Server & server)
 					if (word.compare(0, std::string::npos, location_directives[i].c_str(), word.length()) == EQUAL)
 					{
 						location_directive_index = i;
-						std::cout << "L_DIRECTIVE: " << word << "\n";		// A AJOUTER DANS LES OBJETS CONFIGS
+						// std::cout << "L_DIRECTIVE: " << word << "\n";		// A AJOUTER DANS LES OBJETS CONFIGS
+						server.log("		L_DIRECTIVE: ");
+						// server.log(std::to_string(i));
+						// server.log(": ");
+						server.log(word);
+						server.log("\n");
 						compare = true;
 					}
 				}
@@ -148,10 +160,20 @@ void parseConfig(std::string & configFile, Server & server)
 			// DETECTE LES ARGUMENTS DE DIRECTIVES
 			else
 			{
-				std::cout << "	" << word << "\n";							// ARGUMENT POUR LA DIRECTIVE (SERVER OU LOCATION, selon)
+				// std::cout << "	" << word << "\n";							// ARGUMENT POUR LA DIRECTIVE (SERVER OU LOCATION, selon)
+				server.log("		");
+				if (location_context != false)
+					server.log("		");
+				server.log(word);
+				// server.log("(");
+				// if (location_context == false)
+				// 	server.log(std::to_string(server_directive_index));
+				// else
+				// 	server.log(std::to_string(location_directive_index));
+				// server.log(")");
+				server.log("\n");
 			}
 			word.clear();
-			prefix.clear();
 		}
 		iss_w.clear();
 		first_word = true;

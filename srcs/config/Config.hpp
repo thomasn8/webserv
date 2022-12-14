@@ -20,8 +20,6 @@
 
 class Config
 {
-	// friend class Server;
-
 	public:
 		typedef std::pair<int, std::string> error_page_pair;
 
@@ -34,6 +32,8 @@ class Config
 		size_t getClientMaxBodySize() const;
 
 		std::vector<Location> & getLocations();
+		Location & getLastLocation();
+
 		void addLocation();
 
 	private:

@@ -14,15 +14,15 @@
 # define DELETE 1
 
 class Location
-{	
-	// friend class Config;
-
+{
 	public:
 		typedef std::array<std::string, 3> old_new_status_tab;
 
 		Location();
 		Location(const Location & src);
 		~Location();
+
+		void addPrefix(std::string prefix);
 
 	private:
 		std::string _prefix;	//   /images/

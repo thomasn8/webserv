@@ -63,6 +63,9 @@ Server::~Server()
 	************ GETTERS/SETTERS
 */
 std::vector<Config> & Server::getConfigs() { return _configs; }
+Config & Server::getLastConfig() { return getConfigs().back(); }
+std::ofstream & Server::getAccessStream() { return _accessStream; }
+
 void Server::addConfig() { _configs.push_back(Config()); }
 
 /* 
@@ -75,14 +78,29 @@ void Server::_createLogFile(std::string const & filename, std::ofstream & stream
 		_exitWithError(std::cerr, "Error while creating access log file\n", 1);
 }
 
+void Server::log(const std::string message)
+{
+	_accessStream << message;
+}
+
+void Server::logTime()
+{
+	time_t     now = time(0);
+    struct tm  tstruct;
+    char       buf[80];
+    tstruct = *localtime(&now);
+    strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
+	_accessStream << buf;
+}
+
 void Server::_exitWithError(std::ostream & stream, const std::string message, int code) const
 {
-	_log(stream, message);
+	std::cerr << message;
+	exit(code);
+}
+void Server::_logExit(std::string message, int code)
+{
+	log(message);
 	exit(code);
 }
 
-std::ostream & Server::_log(std::ostream & stream, const std::string message) const
-{
-	stream << message;
-	return stream;
-}

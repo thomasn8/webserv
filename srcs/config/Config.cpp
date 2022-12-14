@@ -29,6 +29,8 @@ Config::~Config() {}
 	************ GETTERS
 */
 std::vector<Location> & Config::getLocations() { return _locations; }
+Location & Config::getLastLocation() { return getLocations().back(); }
+
 void Config::addLocation() {_locations.push_back(Location()); }
 
 uint16_t Config::getPort() const { return _port; }

@@ -53,7 +53,6 @@ int close_server_block(std::string & line, bool *server_context, int *server_cou
 	}
 	*server_context = false;
 	(*server_count)++;	// DETERMINE LE NOMBRE D'OBJET CONFIG A AJOUTER AU SERVER
-	std::cout << "\n";
 	return VALID;
 }
 

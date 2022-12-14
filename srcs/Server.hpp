@@ -9,6 +9,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <vector>
+#include <time.h>
+
 
 #include "config/Config.hpp"
 
@@ -23,7 +25,14 @@ class Server
 		~Server();
 
 		std::vector<Config> & getConfigs();
+		std::vector<Config> & getLocations();
+		Config & getLastConfig();
+		std::ofstream & getAccessStream();
+		
 		void addConfig();
+
+		void log(const std::string message);
+		void logTime();
 		
 	private:
 		std::vector<Config> _configs;
@@ -39,8 +48,8 @@ class Server
 		const std::string & _accessFile;
 		std::ofstream _accessStream;
 
-		void _exitWithError(std::ostream & stream, const std::string message, int code) const;
-		std::ostream & _log(std::ostream & stream, const std::string message) const;
+		void _exitWithError(std::ostream & stream, std::string message, int code) const;
+		void _logExit(const std::string message, int code);
 };
 
 #endif
