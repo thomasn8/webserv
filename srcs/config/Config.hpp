@@ -24,6 +24,7 @@ class Config
 		typedef std::pair<int, std::string> error_page_pair;
 
 		Config();
+		Config(const Config & src);
 		~Config();
 
 		uint16_t getPort() const;
