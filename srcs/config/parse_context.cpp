@@ -111,6 +111,6 @@ int close_location_block(std::string & line, std::string & prefix, int *location
 			return INVALID;
 	}
 	*location_context = 0;
-	(*location_count)++;	// DETERMINE LE NOMBRE D'OBJET LOCATION A AJOUTER A CON
+	(*location_count)++;	// DETERMINE LE NOMBRE D'OBJET LOCATION A AJOUTER A CONFIG
 	return VALID;
 }

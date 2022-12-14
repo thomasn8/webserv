@@ -9,6 +9,9 @@ static void openFile(std::string & configFile, std::ifstream & configStream)
 		exitWithError(std::cerr, "Error: configuration file invalid: empty file", "", 1);
 }
 
+/* premiere passe sur le fichier pour supporter les tokens: {};#
+ajoute des '\n' autour des brackets, remplace les ';' par des '\n' et enleve les commentaires '# ...'
+!!! ne prend pas en charge les guillemets */
 static void cleanConfig(std::string & buffer, std::ifstream & configStream)
 {
 	std::string line;
@@ -45,15 +48,13 @@ static void cleanConfig(std::string & buffer, std::ifstream & configStream)
 
 void parseConfig(std::string & configFile, Server & server)
 {
-	// ouverture du fichier
 	std::ifstream configStream;
 	openFile(configFile, configStream);
-
-	// premiere passe sur le fichier: remplacant les ';'  par des '\n' et enleve les commentaires '# ...'
 	std::string buffer;
 	cleanConfig(buffer, configStream);
 
-	// lecture et tri du buffer, ligne par ligne, mot par mot (variable word pour renseigner la config)
+	// lecture et tri du buffer: 
+	// variables word et prefix utilisees pour remplir les objets Config et Location
 	std::string line, word, prefix;
 	std::istringstream iss_l(buffer), iss_w;
 	int server_count = 0, location_count = 0, server_directive_index = -1, location_context = 0, location_directive_index = -1;
@@ -68,17 +69,19 @@ void parseConfig(std::string & configFile, Server & server)
 	int l_b = tabLength(location_block);
 	int s_d = tabLength(server_directives);
 	int l_d = tabLength(location_directives);
-	while (std::getline(iss_l, line))				// lecture ligne par ligne
+	while (std::getline(iss_l, line))				// lecture du buffer, ligne par ligne
 	{
 		iss_w.str(line);
-		while (isNotBlank(line) == true && iss_w)	// lecture mot par mot
+		while (isNotBlank(line) == true && iss_w)	// lecture de la ligne, mot par mot
 		{
 			iss_w >> word;
 			if (word.length() == 0)
 				break;
+			// DETECTE LES CONTEXTES (= BLOCK) ET LEURS DIRECTIVES
 			if (first_word == true)
 			{
-				first_word = false;					
+				first_word = false;
+				// DETECTE LES BLOCK SERVER
 				for (int i = 0; compare == false && location_context == false && i < s_b; i++)
 				{
 					if (word.compare(0, std::string::npos, server_block[i].c_str(), word.length()) == EQUAL)
@@ -89,7 +92,8 @@ void parseConfig(std::string & configFile, Server & server)
 							iss_w >> word;
 						compare = true;
 					}
-				}					
+				}
+				// DETECTE LES BLOCK LOCATION			
 				for (int i = 0; compare == false && i < l_b; i++)
 				{
 					if (word.compare(0, std::string::npos, location_block[i].c_str(), word.length()) == EQUAL)
@@ -99,11 +103,12 @@ void parseConfig(std::string & configFile, Server & server)
 						if (i == 0)
 						{
 							iss_w >> word;
-							std::cout << "L_PREFIX: " << prefix << "\n";
+							std::cout << "L_PREFIX: " << prefix << "\n";	// A AJOUTER DANS LES OBJETS LOCATION
 						}
 						compare = true;
 					}
-				}					
+				}
+				// DETECTE LES DIRECTIVES DE SERVER
 				for (int i = 0; compare == false && location_context == false && i < s_d; i++)
 				{
 					if (server_context == false)
@@ -111,10 +116,11 @@ void parseConfig(std::string & configFile, Server & server)
 					if (word.compare(0, std::string::npos, server_directives[i].c_str(), word.length()) == EQUAL)
 					{
 						server_directive_index = i;
-						std::cout << "S_DIRECTIVE: " << word << "\n";	// DIRECTIVE A AJOUTER DANS LES OBJETS CONFIGS
+						std::cout << "S_DIRECTIVE: " << word << "\n";		// A AJOUTER DANS LES OBJETS CONFIGS
 						compare = true;
 					}
 				}
+				// DETECTE LES DIRECTIVES DE LOCATION
 				for (int i = 0; compare == false &&  i < l_d; i++)
 				{
 					if (server_context == false || location_context != 2)
@@ -122,16 +128,17 @@ void parseConfig(std::string & configFile, Server & server)
 					if (word.compare(0, std::string::npos, location_directives[i].c_str(), word.length()) == EQUAL)
 					{
 						location_directive_index = i;
-						std::cout << "L_DIRECTIVE: " << word << "\n";	// DIRECTIVE A AJOUTER DANS LES OBJETS CONFIGS
+						std::cout << "L_DIRECTIVE: " << word << "\n";		// A AJOUTER DANS LES OBJETS CONFIGS
 						compare = true;
 					}
 				}
 				if (compare == false)
 					exitWithError(std::cerr, ERROR_MSG, line, 1);
 			}
+			// DETECTE LES ARGUMENTS DE DIRECTIVES
 			else
 			{
-				std::cout << "	" << word << "\n";	// ARGUMENT POUR LA DIRECTIVE (SERVER OU LOCATION, selon)
+				std::cout << "	" << word << "\n";							// ARGUMENT POUR LA DIRECTIVE (SERVER OU LOCATION, selon)
 			}
 			word.clear();
 			prefix.clear();
