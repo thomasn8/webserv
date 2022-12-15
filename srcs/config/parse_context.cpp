@@ -68,8 +68,8 @@ int open_location_block(std::string & line, std::string & prefix, int *location_
 	int pos = line.find("location");
 	if (!isblank(line[pos + 8]))
 		return INVALID;
-	prefix = TrimFunction(line.substr(pos + 8));
-	if (prefixSyntax(prefix) == false)
+	prefix = trim_function(line.substr(pos + 8));
+	if (prefix_syntax(prefix) == false)
 		return INVALID;
 	*location_context = 1;
 	return VALID;

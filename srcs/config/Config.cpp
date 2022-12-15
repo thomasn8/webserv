@@ -29,17 +29,17 @@ Config::~Config() {}
 	************ GETTERS/SETTERS
 */
 // parse config
-std::vector<Location> & Config::getLocations() { return _locations; }
-Location & Config::getLastLocation() { return getLocations().back(); }
-void Config::addLocation() {_locations.push_back(Location()); }
-void Config::addDirective(int directiveIndex, std::string value)
+std::vector<Location> & Config::get_locations() { return _locations; }
+Location & Config::get_last_location() { return get_locations().back(); }
+void Config::add_location() {_locations.push_back(Location()); }
+void Config::add_directive(int directiveIndex, std::string value)
 {
 	// switch case (utiliser les MACROS)
 		// avec setter pour chaque directive
 }
 
 // sockets
-uint16_t Config::getPort() const { return _port; }
-uint32_t Config::getAddress() const { return _address; }
-size_t Config::getClientMaxBodySize() const { return _clientMaxBodySize; }
+uint16_t Config::get_port() const { return _port; }
+uint32_t Config::get_address() const { return _address; }
+size_t Config::get_client_max_body_size() const { return _clientMaxBodySize; }
 // ...

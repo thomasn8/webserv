@@ -25,12 +25,12 @@ Location::~Location() {}
 	************ GETTERS/SETTERS
 */
 // parse config
-void Location::addDirective(int directiveIndex, std::string value)
+void Location::add_directive(int directiveIndex, std::string value)
 {
 	// switch case (utiliser les MACROS)
 		// avec setter pour chaque directive
 }
-void Location::addPrefix(std::string prefix)
+void Location::add_prefix(std::string prefix)
 {
 	_prefix = prefix;
 	if (prefix[0] == '.')

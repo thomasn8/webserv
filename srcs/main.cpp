@@ -15,7 +15,7 @@ int main(int ac, char **av, char **env)
 	else
 		configFile = "conf/default.conf";
 	Server server;
-	parseConfig(configFile, server);
+	parse_config(configFile, server);
 
 	// starter le server
 

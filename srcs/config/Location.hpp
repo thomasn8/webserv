@@ -36,8 +36,8 @@ class Location
 		
 		// GETTERS/SETTERS
 		// parse config
-		void addDirective(int directiveIndex, std::string value);
-		void addPrefix(std::string prefix);
+		void add_directive(int directiveIndex, std::string value);
+		void add_prefix(std::string prefix);
 		// sockets
 		// ...
 

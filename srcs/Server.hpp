@@ -26,13 +26,13 @@ class Server
 
 		// GETTERS/SETTERS
 		// parse config
-		std::vector<Config> & getConfigs();
-		Config & getLastConfig();
-		void addConfig();
+		std::vector<Config> & get_configs();
+		Config & get_last_config();
+		void add_config();
 		// sockets
 
 		// LOG
-		std::string getTime();
+		std::string get_time();
 		template <typename T>
 		void log(T message) { _accessStream << message; }
 		template<typename T, typename... Args>
@@ -51,11 +51,11 @@ class Server
 		// std::string _response;
 
 		// LOG
-		void _createLogFile(std::string const & filename, std::ofstream & stream);
+		void _create_log_file(std::string const & filename, std::ofstream & stream);
 		const std::string & _accessFile;
 		std::ofstream _accessStream;
-		void _exitWithError(std::ostream & stream, std::string message, int code) const;
-		void _logExit(const std::string message, int code);
+		void _exit_with_error(std::ostream & stream, std::string message, int code) const;
+		void _log_exit(const std::string message, int code);
 };
 
 #endif

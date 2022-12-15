@@ -38,14 +38,14 @@ class Config
 
 		// GETTERS/SETTERS
 		// parse config
-		std::vector<Location> & getLocations();
-		Location & getLastLocation();
-		void addLocation();
-		void addDirective(int directiveIndex, std::string value);
+		std::vector<Location> & get_locations();
+		Location & get_last_location();
+		void add_location();
+		void add_directive(int directiveIndex, std::string value);
 		// sockets
-		uint16_t getPort() const;
-		uint32_t getAddress() const;
-		size_t getClientMaxBodySize() const;
+		uint16_t get_port() const;
+		uint32_t get_address() const;
+		size_t get_client_max_body_size() const;
 
 
 	private:

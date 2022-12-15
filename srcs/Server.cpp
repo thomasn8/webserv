@@ -9,28 +9,28 @@ _configs(std::vector<Config>()),
 // _address(), _buffer(), _response(),
 _accessFile(std::string(LOG_PATH)), _accessStream()
 {
-	_createLogFile(_accessFile, _accessStream);
+	_create_log_file(_accessFile, _accessStream);
 	
 	
 	// lancement du server
 	// _server_fd = socket(AF_INET, SOCK_STREAM, 0);
 	// if (_server_fd < 0)
-	// 	_exitWithError(_config.getErrorStream(), "socket failed\n", EXIT_FAILURE);
+	// 	_exit_with_error(_config.getErrorStream(), "socket failed\n", EXIT_FAILURE);
 	
-	// _buffer = (char *)calloc(1, _config.getClientMaxBodySize());
+	// _buffer = (char *)calloc(1, _config.get_client_max_body_size());
 	// if (_buffer == NULL)
-	// 	_exitWithError(_config.getErrorStream(), "buffer alloc error\n", EXIT_FAILURE);
+	// 	_exit_with_error(_config.getErrorStream(), "buffer alloc error\n", EXIT_FAILURE);
 
 	// memset(_address.sin_zero, 0, sizeof(_address.sin_zero));
 	// _address.sin_family = AF_INET;
-	// _address.sin_addr.s_addr = htonl(_config.getAddress());
-	// _address.sin_port = htons(_config.getPort());
+	// _address.sin_addr.s_addr = htonl(_config.get_address());
+	// _address.sin_port = htons(_config.get_port());
 	// _address.sin_len = sizeof(_address);
 	
 	// if (bind(_server_fd, (struct sockaddr *) &_address, sizeof(_address)) < 0)
-	// 	_exitWithError(_config.getErrorStream(), "bind failed\n", EXIT_FAILURE);
+	// 	_exit_with_error(_config.getErrorStream(), "bind failed\n", EXIT_FAILURE);
 	// if (listen(_server_fd, LISTEN_BACKLOG) < 0)
-	// 	_exitWithError(_config.getErrorStream(), "listen failed\n", EXIT_FAILURE);
+	// 	_exit_with_error(_config.getErrorStream(), "listen failed\n", EXIT_FAILURE);
     // _response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 25\n\nHello from the server!";
 
 
@@ -63,9 +63,9 @@ Server::~Server()
 	************ GETTERS/SETTERS
 */
 // parsing config
-std::vector<Config> & Server::getConfigs() { return _configs; }
-Config & Server::getLastConfig() { return getConfigs().back(); }
-void Server::addConfig() { _configs.push_back(Config()); }
+std::vector<Config> & Server::get_configs() { return _configs; }
+Config & Server::get_last_config() { return get_configs().back(); }
+void Server::add_config() { _configs.push_back(Config()); }
 
 // sockets
 // ...
@@ -78,14 +78,14 @@ void Server::addConfig() { _configs.push_back(Config()); }
 /* 
 	************ LOG
 */
-void Server::_createLogFile(std::string const & filename, std::ofstream & stream)
+void Server::_create_log_file(std::string const & filename, std::ofstream & stream)
 {
 	stream.open(filename, std::ofstream::out | std::ofstream::app);
 	if (stream.fail() == true)
-		_exitWithError(std::cerr, "Error while creating access log file\n", 1);
+		_exit_with_error(std::cerr, "Error while creating access log file\n", 1);
 }
 
-std::string Server::getTime()
+std::string Server::get_time()
 {
 	time_t     now = time(0);
     struct tm  tstruct;
@@ -95,13 +95,13 @@ std::string Server::getTime()
 	return std::string(buf);
 }
 
-void Server::_exitWithError(std::ostream & stream, const std::string message, int code) const
+void Server::_exit_with_error(std::ostream & stream, const std::string message, int code) const
 {
 	std::cerr << message;
 	exit(code);
 }
 
-void Server::_logExit(std::string message, int code)
+void Server::_log_exit(std::string message, int code)
 {
 	log(message);
 	exit(code);

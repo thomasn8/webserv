@@ -20,7 +20,7 @@ typedef	int (*f_ptr_s)(std::string & line, bool *x_block, int *x_count);
 typedef	int (*f_ptr_l)(std::string & line, std::string & prefix, int *x_block, int *x_count);
 
 // parse_config
-void parseConfig(std::string & configFile, Server & server);
+void parse_config(std::string & configFile, Server & server);
 
 // parse_context
 int open_server_block(std::string & line, bool *server_context, int *server_count);
@@ -31,11 +31,11 @@ int open_location_block_2(std::string & line, std::string & prefix, int *locatio
 int close_location_block(std::string & line, std::string & prefix, int *location_context, int *location_count);
 
 // utils
-void exitWithError(std::ostream & stream, const std::string message, const std::string line, int code);
-int tabLength(std::string *tab);
-std::string TrimFunction(std::string str);
-bool isNotBlank(std::string line);
-bool isNotAlphaNum(std::string line);
-bool prefixSyntax(std::string prefix);
+void exit_with_error(std::ostream & stream, const std::string message, const std::string line, int code);
+int tab_length(std::string *tab);
+std::string trim_function(std::string str);
+bool is_not_blank(std::string line);
+bool is_not_alpha_num(std::string line);
+bool prefix_syntax(std::string prefix);
 
 #endif
