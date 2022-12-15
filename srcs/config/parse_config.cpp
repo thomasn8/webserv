@@ -69,9 +69,7 @@ void parseConfig(std::string & configFile, Server & server)
 	int l_b = tabLength(location_block);
 	int s_d = tabLength(server_directives);
 	int l_d = tabLength(location_directives);
-	server.logTime();
-	server.log(" CONFIGURATION\n");
-	// server.func2( {"CONFIGURATION", "123123" } ) ;
+	server.log(server.getTime(), " CONFIGURATION\n");
 	while (std::getline(iss_l, line))				// lecture du buffer, ligne par ligne
 	{
 		iss_w.str(line);

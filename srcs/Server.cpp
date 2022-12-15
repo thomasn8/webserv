@@ -84,14 +84,14 @@ void Server::_createLogFile(std::string const & filename, std::ofstream & stream
 		_exitWithError(std::cerr, "Error while creating access log file\n", 1);
 }
 
-void Server::logTime()
+std::string Server::getTime()
 {
 	time_t     now = time(0);
     struct tm  tstruct;
-    char       buf[80];
+    char       buf[80] = {0};
     tstruct = *localtime(&now);
     strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
-	_accessStream << buf;
+	return std::string(buf);
 }
 
 void Server::_exitWithError(std::ostream & stream, const std::string message, int code) const

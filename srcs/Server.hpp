@@ -35,7 +35,7 @@ class Server
 		// ...
 
 		// LOG
-		void logTime();
+		std::string getTime();
 		template <typename T>
 		void log(T message)
 		{
