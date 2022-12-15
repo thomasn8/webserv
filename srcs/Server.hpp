@@ -11,6 +11,8 @@
 #include <vector>
 #include <time.h>
 
+#include <initializer_list>
+#include <cstdarg>
 
 #include "config/Config.hpp"
 
@@ -33,9 +35,19 @@ class Server
 		// ...
 
 		// LOG
-		void log(const std::string message);
 		void logTime();
-		
+		template <typename T>
+		void log(T message)
+		{
+			_accessStream << message ;
+		}
+		template<typename T, typename... Args>
+		void log(T message, Args... args) // recursive variadic function
+		{
+			_accessStream << message ;
+			log(args...) ;
+		}
+
 	private:
 		std::vector<Config> _configs;
 

@@ -71,6 +71,7 @@ void parseConfig(std::string & configFile, Server & server)
 	int l_d = tabLength(location_directives);
 	server.logTime();
 	server.log(" CONFIGURATION\n");
+	// server.func2( {"CONFIGURATION", "123123" } ) ;
 	while (std::getline(iss_l, line))				// lecture du buffer, ligne par ligne
 	{
 		iss_w.str(line);
@@ -113,10 +114,11 @@ void parseConfig(std::string & configFile, Server & server)
 						if (location_context == 2)
 						{
 							server.getLastConfig().addLocation();
-							server.log("	Add a location: ");
+							// server.log("	Add a location: ");
 							server.getLastConfig().getLastLocation().addPrefix(prefix);
-							server.log(prefix);
-							server.log("\n");
+							// server.log(prefix);
+							// server.log("\n");
+							server.log("	Add a location: ", prefix, "\n");
 						}
 					}
 				}
@@ -129,11 +131,12 @@ void parseConfig(std::string & configFile, Server & server)
 					{
 						server_directive_index = i;
 						// std::cout << "S_DIRECTIVE: " << word << "\n";		// A AJOUTER DANS LES OBJETS CONFIGS
-						server.log("	S_DIRECTIVE: ");
+						// server.log("	S_DIRECTIVE: ");
 						// server.log(std::to_string(i));
 						// server.log(": ");
-						server.log(word);
-						server.log("\n");
+						// server.log(word);
+						// server.log("\n");
+						server.log("	S_DIRECTIVE: ", word, "\n");
 						compare = true;
 					}
 				}
@@ -146,11 +149,12 @@ void parseConfig(std::string & configFile, Server & server)
 					{
 						location_directive_index = i;
 						// std::cout << "L_DIRECTIVE: " << word << "\n";		// A AJOUTER DANS LES OBJETS CONFIGS
-						server.log("		L_DIRECTIVE: ");
+						// server.log("		L_DIRECTIVE: ");
 						// server.log(std::to_string(i));
 						// server.log(": ");
-						server.log(word);
-						server.log("\n");
+						// server.log(word);
+						// server.log("\n");
+						server.log("	L_DIRECTIVE: ", word, "\n");
 						compare = true;
 					}
 				}
@@ -161,17 +165,22 @@ void parseConfig(std::string & configFile, Server & server)
 			else
 			{
 				// std::cout << "	" << word << "\n";							// ARGUMENT POUR LA DIRECTIVE (SERVER OU LOCATION, selon)
-				server.log("		");
-				if (location_context != false)
-					server.log("		");
-				server.log(word);
+				// server.log("		");
+				// if (location_context != false)
+				// 	server.log("		");
+				// server.log(word);
 				// server.log("(");
 				// if (location_context == false)
 				// 	server.log(std::to_string(server_directive_index));
 				// else
 				// 	server.log(std::to_string(location_directive_index));
 				// server.log(")");
-				server.log("\n");
+				// server.log("\n");
+
+				if (location_context != false)
+					server.log("		", "		", word, "\n");
+				else
+					server.log("		", word, "\n");
 			}
 			word.clear();
 		}

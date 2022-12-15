@@ -1,4 +1,4 @@
-2022-12-15 00:45:39 CONFIGURATION
+2022-12-15 11:54:16 CONFIGURATION
 
 Add a SERVER config
 	S_DIRECTIVE: listen
@@ -21,25 +21,25 @@ Add a SERVER config
 		504
 		/50x.html
 	Add a location: /images/
-		L_DIRECTIVE: root
+	L_DIRECTIVE: root
 				www/images
-		L_DIRECTIVE: index
+	L_DIRECTIVE: index
 				index.html
-		L_DIRECTIVE: methods
+	L_DIRECTIVE: methods
 				GET
-		L_DIRECTIVE: autoindex
+	L_DIRECTIVE: autoindex
 				on
 	Add a location: /uploads/
-		L_DIRECTIVE: root
+	L_DIRECTIVE: root
 				www/uploads
-		L_DIRECTIVE: methods
+	L_DIRECTIVE: methods
 				GET
 				POST
 				DELETE
 	Add a location: *.php
-		L_DIRECTIVE: root
+	L_DIRECTIVE: root
 				www/php
-		L_DIRECTIVE: methods
+	L_DIRECTIVE: methods
 				GET
 				POST
 				DELETE

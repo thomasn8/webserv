@@ -84,11 +84,6 @@ void Server::_createLogFile(std::string const & filename, std::ofstream & stream
 		_exitWithError(std::cerr, "Error while creating access log file\n", 1);
 }
 
-void Server::log(const std::string message)
-{
-	_accessStream << message;
-}
-
 void Server::logTime()
 {
 	time_t     now = time(0);
