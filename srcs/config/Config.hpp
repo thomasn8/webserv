@@ -2,8 +2,10 @@
 # define CONFIG_HPP
 
 #include <iostream>
+#include <string>
 #include <fstream>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <vector>
 
 #include "Location.hpp"
@@ -42,6 +44,12 @@ class Config
 		Location & get_last_location();
 		void add_location();
 		void add_directive(int directiveIndex, std::string value);
+		void set_address_port(std::string & value);
+		void set_servername(std::string & value);
+		void set_root(std::string & value);
+		void set_index(std::string & value);
+		void set_error_page(std::string & value);
+		void set_client_max_body_size(std::string & value);
 		// sockets
 		uint16_t get_port() const;
 		uint32_t get_address() const;
@@ -60,7 +68,6 @@ class Config
 		size_t _clientMaxBodySize;
 		
 		std::vector< error_page_pair > _errorPages;
-
 };
 
 #endif

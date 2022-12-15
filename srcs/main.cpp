@@ -17,6 +17,10 @@ int main(int ac, char **av, char **env)
 	Server server;
 	parse_config(configFile, server);
 
+	// TESTER LE PARSE 
+		// checker les Config object si bien remplis
+	// ...
+
 	// starter le server
 	return 0;
 }

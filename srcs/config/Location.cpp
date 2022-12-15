@@ -30,6 +30,7 @@ void Location::add_directive(int directiveIndex, std::string value)
 	// switch case (utiliser les MACROS)
 		// avec setter pour chaque directive
 }
+
 void Location::add_prefix(std::string prefix)
 {
 	_prefix = prefix;

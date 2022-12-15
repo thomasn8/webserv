@@ -1,8 +1,8 @@
 SRCS		=	srcs/main.cpp							\
-			  	srcs/Server.cpp							\
 				srcs/config/parse_config.cpp			\
 				srcs/config/parse_context.cpp			\
 				srcs/config/utils.cpp					\
+			  	srcs/Server.cpp							\
 			  	srcs/config/Config.cpp					\
 			  	srcs/config/Location.cpp				\
 

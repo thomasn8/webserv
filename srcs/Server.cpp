@@ -65,7 +65,9 @@ Server::~Server()
 */
 // parsing config
 std::vector<Config> & Server::get_configs() { return _configs; }
+
 Config & Server::get_last_config() { return get_configs().back(); }
+
 void Server::add_config() { _configs.push_back(Config()); }
 
 // sockets
