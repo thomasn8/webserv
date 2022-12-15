@@ -67,10 +67,11 @@ std::vector<Config> & Server::getConfigs() { return _configs; }
 Config & Server::getLastConfig() { return getConfigs().back(); }
 void Server::addConfig() { _configs.push_back(Config()); }
 
+// sockets
 // ...
 
 /* 
-	************ SOCKETS MANAGE
+	************ SOCKETS
 */
 // ...
 
@@ -99,6 +100,7 @@ void Server::_exitWithError(std::ostream & stream, const std::string message, in
 	std::cerr << message;
 	exit(code);
 }
+
 void Server::_logExit(std::string message, int code)
 {
 	log(message);

@@ -8,11 +8,8 @@
 #include <cstdlib>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <vector>
 #include <time.h>
-
-#include <initializer_list>
-#include <cstdarg>
+#include <vector>
 
 #include "config/Config.hpp"
 
@@ -32,26 +29,20 @@ class Server
 		std::vector<Config> & getConfigs();
 		Config & getLastConfig();
 		void addConfig();
-		// ...
+		// sockets
 
 		// LOG
 		std::string getTime();
 		template <typename T>
-		void log(T message)
-		{
-			_accessStream << message ;
-		}
+		void log(T message) { _accessStream << message; }
 		template<typename T, typename... Args>
 		void log(T message, Args... args) // recursive variadic function
-		{
-			_accessStream << message ;
-			log(args...) ;
-		}
+		{ _accessStream << message; log(args...); }
 
 	private:
 		std::vector<Config> _configs;
 
-		// SOCKETS MANAGE
+		// SOCKETS
 		// int _server_fd;
 		// int _client_fd;
 		// size_t _client_read;

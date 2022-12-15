@@ -5,6 +5,7 @@
 #include <vector>
 #include <array>
 
+// INITIALIZATION
 # define DEFAULT_ROOT "www/html/"
 # define DEFAULT_INDEX "index.html"
 # define DEFAULT_CGI_PATH "cgi/"
@@ -12,6 +13,16 @@
 # define GET 4
 # define POST 2
 # define DELETE 1
+
+// DIRECTIVE INDEX
+# define L_ROOT 0
+# define L_INDEX 1
+# define L_METHODS 2
+# define L_AUTOINDEX 3
+# define L_REDIRECTION 4
+# define L_UPLOADS_DIR 5
+# define L_REDIRECT 6
+# define L_CGI_BIN 7
 
 class Location
 {
@@ -25,7 +36,9 @@ class Location
 		
 		// GETTERS/SETTERS
 		// parse config
+		void addDirective(int directiveIndex, std::string value);
 		void addPrefix(std::string prefix);
+		// sockets
 		// ...
 
 	private:
