@@ -55,6 +55,7 @@ _accessFile(std::string(LOG_PATH)), _accessStream()
 
 Server::~Server()
 {
+	_accessStream.close();
 	// close(_server_fd);
 	// free(_buffer);
 }
@@ -78,11 +79,17 @@ void Server::add_config() { _configs.push_back(Config()); }
 /* 
 	************ LOG
 */
+void Server::_exit_cerr_msg(const std::string message, int code) const
+{
+	std::cerr << message;
+	exit(code);
+}
+
 void Server::_create_log_file(std::string const & filename, std::ofstream & stream)
 {
 	stream.open(filename, std::ofstream::out | std::ofstream::app);
 	if (stream.fail() == true)
-		_exit_with_error(std::cerr, "Error while creating access log file\n", 1);
+		_exit_cerr_msg("Error while creating access log file\n", 1);
 }
 
 std::string Server::get_time()
@@ -93,16 +100,4 @@ std::string Server::get_time()
     tstruct = *localtime(&now);
     strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
 	return std::string(buf);
-}
-
-void Server::_exit_with_error(std::ostream & stream, const std::string message, int code) const
-{
-	std::cerr << message;
-	exit(code);
-}
-
-void Server::_log_exit(std::string message, int code)
-{
-	log(message);
-	exit(code);
 }

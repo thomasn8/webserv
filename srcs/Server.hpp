@@ -33,11 +33,16 @@ class Server
 
 		// LOG
 		std::string get_time();
+	
 		template <typename T>
 		void log(T message) { _accessStream << message; }
+		
 		template<typename T, typename... Args>
-		void log(T message, Args... args) // recursive variadic function
-		{ _accessStream << message; log(args...); }
+		void log(T message, Args... args)
+		{ 
+			_accessStream << message;
+			log(args...);
+		}
 
 	private:
 		std::vector<Config> _configs;
@@ -54,8 +59,7 @@ class Server
 		void _create_log_file(std::string const & filename, std::ofstream & stream);
 		const std::string & _accessFile;
 		std::ofstream _accessStream;
-		void _exit_with_error(std::ostream & stream, std::string message, int code) const;
-		void _log_exit(const std::string message, int code);
+		void _exit_cerr_msg(std::string message, int code) const;
 };
 
 #endif

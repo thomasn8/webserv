@@ -1,12 +1,12 @@
 #include "parse_config.hpp"
 
-void exit_with_error(std::ostream & stream, const std::string message, const std::string line, int code)
+void p_exit_cerr_msg(const std::string message, const std::string line, int code)
 {
-	stream << message << line << std::endl;
+	std::cerr << message << line << std::endl;
 	exit(code);
 }
 
-int tab_length(std::string *tab)
+int p_tablen(std::string *tab)
 {
 	int i = 0;
 	while (!tab[i].empty())
@@ -14,7 +14,7 @@ int tab_length(std::string *tab)
 	return i;
 }
 
-std::string trim_function(std::string str)
+std::string p_trim_sides(std::string str)
 {
 	const char* typeOfWhitespaces = " \t\n\r\f\v";
 	str.erase(str.find_last_not_of(typeOfWhitespaces) + 1);
@@ -22,7 +22,7 @@ std::string trim_function(std::string str)
 	return str;
 }
 
-bool is_not_blank(std::string line)
+bool p_isnotblank(std::string line)
 {
 	std::string::iterator it = line.begin();
 	std::string::iterator ite = line.end();
@@ -35,7 +35,7 @@ bool is_not_blank(std::string line)
 	return false;
 }
 
-bool is_not_alpha_num(std::string line)
+bool p_isnotalphanum(std::string line)
 {
 	std::string::iterator it = line.begin();
 	std::string::iterator ite = line.end();
@@ -48,7 +48,7 @@ bool is_not_alpha_num(std::string line)
 	return false;
 }
 
-bool prefix_syntax(std::string prefix)
+bool p_prefix_syntax(std::string prefix)
 {
 	// check debut du prefix: commence par / OU par . OU *.
 	if (!(prefix[0] == '/' || prefix[0] == '.' || (prefix[0] == '*' && prefix[1] == '.')))
@@ -59,11 +59,11 @@ bool prefix_syntax(std::string prefix)
 		prefix.erase(0,1);
 	else if ((prefix[0] == '*' && prefix[1] == '.'))
 		prefix.erase(0,2);
-	if (prefix[0] != '/' && is_not_alpha_num(prefix))
+	if (prefix[0] != '/' && p_isnotalphanum(prefix))
 		return false;
 	
 	// 1 seul mot (donc pas de whitespace, puisque prefix a deja ete trime)
-	if (!is_not_blank(prefix))
+	if (!p_isnotblank(prefix))
 		return false;
 	return true;
 }

@@ -31,11 +31,11 @@ int open_location_block_2(std::string & line, std::string & prefix, int *locatio
 int close_location_block(std::string & line, std::string & prefix, int *location_context, int *location_count);
 
 // utils
-void exit_with_error(std::ostream & stream, const std::string message, const std::string line, int code);
-int tab_length(std::string *tab);
-std::string trim_function(std::string str);
-bool is_not_blank(std::string line);
-bool is_not_alpha_num(std::string line);
-bool prefix_syntax(std::string prefix);
+void p_exit_cerr_msg(const std::string message, const std::string line, int code);
+int p_tablen(std::string *tab);
+std::string p_trim_sides(std::string str);
+bool p_isnotblank(std::string line);
+bool p_isnotalphanum(std::string line);
+bool p_prefix_syntax(std::string prefix);
 
 #endif

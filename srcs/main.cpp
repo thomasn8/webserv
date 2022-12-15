@@ -18,6 +18,5 @@ int main(int ac, char **av, char **env)
 	parse_config(configFile, server);
 
 	// starter le server
-
 	return 0;
 }
