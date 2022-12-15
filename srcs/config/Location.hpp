@@ -18,11 +18,15 @@ class Location
 	public:
 		typedef std::array<std::string, 3> old_new_status_tab;
 
+		// CONST/DESTR
 		Location();
 		Location(const Location & src);
 		~Location();
-
+		
+		// GETTERS/SETTERS
+		// parse config
 		void addPrefix(std::string prefix);
+		// ...
 
 	private:
 		std::string _prefix;	//   /images/

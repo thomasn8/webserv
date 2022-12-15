@@ -21,22 +21,25 @@
 class Server
 {	
 	public:
+		// CONST/DESTR
 		Server();
 		~Server();
 
+		// GETTERS/SETTERS
+		// parse config
 		std::vector<Config> & getConfigs();
-		std::vector<Config> & getLocations();
 		Config & getLastConfig();
-		std::ofstream & getAccessStream();
-		
 		void addConfig();
+		// ...
 
+		// LOG
 		void log(const std::string message);
 		void logTime();
 		
 	private:
 		std::vector<Config> _configs;
 
+		// SOCKETS MANAGE
 		// int _server_fd;
 		// int _client_fd;
 		// size_t _client_read;
@@ -44,10 +47,10 @@ class Server
 		// char *_buffer;
 		// std::string _response;
 
+		// LOG
 		void _createLogFile(std::string const & filename, std::ofstream & stream);
 		const std::string & _accessFile;
 		std::ofstream _accessStream;
-
 		void _exitWithError(std::ostream & stream, std::string message, int code) const;
 		void _logExit(const std::string message, int code);
 };

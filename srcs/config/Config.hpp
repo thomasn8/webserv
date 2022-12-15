@@ -23,18 +23,21 @@ class Config
 	public:
 		typedef std::pair<int, std::string> error_page_pair;
 
+		// CONST/DESTR
 		Config();
 		Config(const Config & src);
 		~Config();
 
+		// GETTERS/SETTERS
+		// parse config
+		std::vector<Location> & getLocations();
+		Location & getLastLocation();
+		void addLocation();
+		// ...
 		uint16_t getPort() const;
 		uint32_t getAddress() const;
 		size_t getClientMaxBodySize() const;
 
-		std::vector<Location> & getLocations();
-		Location & getLastLocation();
-
-		void addLocation();
 
 	private:
 		std::vector<Location> _locations;

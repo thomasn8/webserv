@@ -62,14 +62,20 @@ Server::~Server()
 /* 
 	************ GETTERS/SETTERS
 */
+// parsing config
 std::vector<Config> & Server::getConfigs() { return _configs; }
 Config & Server::getLastConfig() { return getConfigs().back(); }
-std::ofstream & Server::getAccessStream() { return _accessStream; }
-
 void Server::addConfig() { _configs.push_back(Config()); }
 
+// ...
+
 /* 
-	************ OTHER
+	************ SOCKETS MANAGE
+*/
+// ...
+
+/* 
+	************ LOG
 */
 void Server::_createLogFile(std::string const & filename, std::ofstream & stream)
 {
@@ -103,4 +109,3 @@ void Server::_logExit(std::string message, int code)
 	log(message);
 	exit(code);
 }
-

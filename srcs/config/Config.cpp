@@ -26,14 +26,14 @@ _errorPages(std::vector< error_page_pair >())
 Config::~Config() {}
 
 /* 
-	************ GETTERS
+	************ GETTERS/SETTERS
 */
+// pour parsing config
 std::vector<Location> & Config::getLocations() { return _locations; }
 Location & Config::getLastLocation() { return getLocations().back(); }
-
 void Config::addLocation() {_locations.push_back(Location()); }
 
+// ...
 uint16_t Config::getPort() const { return _port; }
 uint32_t Config::getAddress() const { return _address; }
 size_t Config::getClientMaxBodySize() const { return _clientMaxBodySize; }
-

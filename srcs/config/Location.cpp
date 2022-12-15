@@ -24,7 +24,7 @@ Location::~Location() {}
 /* 
 	************ GETTERS/SETTERS
 */
-
+// parse config
 void Location::addPrefix(std::string prefix)
 {
 	_prefix = prefix;
@@ -33,3 +33,5 @@ void Location::addPrefix(std::string prefix)
 	else if (prefix[0] == '*')
 		_cgiExtension = prefix.substr(2);
 }
+
+// ...

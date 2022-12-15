@@ -52,7 +52,7 @@ int close_server_block(std::string & line, bool *server_context, int *server_cou
 			return INVALID;
 	}
 	*server_context = false;
-	(*server_count)++;	// DETERMINE LE NOMBRE D'OBJET CONFIG A AJOUTER AU SERVER
+	(*server_count)++;
 	return VALID;
 }
 
@@ -110,6 +110,6 @@ int close_location_block(std::string & line, std::string & prefix, int *location
 			return INVALID;
 	}
 	*location_context = 0;
-	(*location_count)++;	// DETERMINE LE NOMBRE D'OBJET LOCATION A AJOUTER A CONFIG
+	(*location_count)++;
 	return VALID;
 }
