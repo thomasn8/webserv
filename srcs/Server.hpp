@@ -9,7 +9,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <time.h>
-#include <list>
+#include <deque>
 #include <vector>
 
 #include "config/Config.hpp"
@@ -26,7 +26,7 @@ class Server
 		~Server();
 
 		// GETTERS/SETTERS
-		std::list<Config> & get_configs();
+		std::deque<Config> & get_configs();
 		Config & get_last_config();
 		void add_config();
 
@@ -47,7 +47,7 @@ class Server
 		}
 
 	private:
-		std::list<Config> _configs;
+		std::deque<Config> _configs;
 
 		// SOCKETS
 		// int _server_fd;

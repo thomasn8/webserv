@@ -7,7 +7,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <vector>
-#include <list>
+#include <deque>
 
 #include "Location.hpp"
 
@@ -40,7 +40,7 @@ class Config
 		~Config();
 
 		// GETTERS/SETTERS
-		std::list<Location> & get_locations();
+		std::deque<Location> & get_locations();
 		Location & get_last_location();
 		void add_location();
 		void add_directive(int directiveIndex, std::string value);
@@ -61,7 +61,7 @@ class Config
 		size_t get_client_max_body_size() const;
 
 	private:
-		std::list<Location> _locations;
+		std::deque<Location> _locations;
 
 		uint32_t _address;
 		uint16_t _port;

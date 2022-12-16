@@ -4,7 +4,7 @@
 	************ CONST/DESTR
 */
 Config::Config() :
-_locations(std::list<Location>()),
+_locations(std::deque<Location>()),
 _address(INADDR_ANY), _port(DEFAULT_PORT),  
 _serverNames(std::vector<std::string>(1, std::string(DEFAULT_SERVERNAME))),
 _defaultServerNames(true),
@@ -16,7 +16,7 @@ _errorPages(std::vector< error_page_pair >())
 {}
 
 Config::Config(const Config & src) :
-_locations(std::list<Location>()),
+_locations(std::deque<Location>()),
 _address(INADDR_ANY), _port(DEFAULT_PORT),  
 _serverNames(std::vector<std::string>(1, std::string(DEFAULT_SERVERNAME))),
 _defaultServerNames(true),
@@ -32,7 +32,7 @@ Config::~Config() {}
 /* 
 	************ GETTERS/SETTERS
 */
-std::list<Location> & Config::get_locations() { return _locations; }
+std::deque<Location> & Config::get_locations() { return _locations; }
 
 Location & Config::get_last_location() { return get_locations().back(); }
 

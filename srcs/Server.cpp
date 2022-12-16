@@ -4,7 +4,7 @@
 	************ CONST/DESTR
 */
 Server::Server() :
-_configs(std::list<Config>()),
+_configs(std::deque<Config>()),
 // _server_fd(), _client_fd(), _client_read(), 
 // _address(), _buffer(), _response(),
 _accessFile(std::string(LOG_PATH)), _accessStream()
@@ -63,7 +63,7 @@ Server::~Server()
 /* 
 	************ GETTERS/SETTERS
 */
-std::list<Config> & Server::get_configs() { return _configs; }
+std::deque<Config> & Server::get_configs() { return _configs; }
 
 Config & Server::get_last_config() { return get_configs().back(); }
 
@@ -103,8 +103,8 @@ std::string Server::get_time()
 void Server::cout_config_info()
 {
 	std::cout << "Nombre de server: " << get_configs().size() << std::endl;
-	std::list<Config>::iterator it = get_configs().begin();
-	std::list<Config>::iterator ite = get_configs().end();
+	std::deque<Config>::iterator it = get_configs().begin();
+	std::deque<Config>::iterator ite = get_configs().end();
 	int i = 0;
 	for (; it != ite; it++)
 	{
