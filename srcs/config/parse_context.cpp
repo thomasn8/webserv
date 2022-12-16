@@ -60,7 +60,7 @@ int open_location_block(std::string & line, std::string & prefix, int *location_
 {
 	(void) location_count;
 	int prefix_count = 0;
-	if (*location_context == true)
+	if (*location_context == 1 || *location_context == 2)
 	{
 		line = ERROR_LOCATION_BLOCK;
 		return INVALID;

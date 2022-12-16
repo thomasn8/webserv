@@ -85,7 +85,6 @@ void Config::set_address_port(std::string & value)
 				port = std::stoi(after);
 			}
 			catch (const std::invalid_argument &ia) {
-				std::cerr << "invalid port number: " << ia.what() << std::endl;
 			}
 			_port = htons(port);
 		}
@@ -106,7 +105,6 @@ void Config::set_address_port(std::string & value)
 				port = std::stoi(value);
 			}
 			catch (const std::invalid_argument &ia) {
-				std::cerr << "invalid port number: " << ia.what() << std::endl;
 			}
 			_port = htons(port);
 		}

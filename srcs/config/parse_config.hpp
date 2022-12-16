@@ -13,6 +13,7 @@
 # define INVALID 1
 # define VALID 0
 # define EQUAL 0
+# define BRACKET_CLOSED 0
 # define ERROR_MSG "Error: configuration file invalid:\n"
 # define ERROR_SERVER_BLOCK "server{} directive error"
 # define ERROR_LOCATION_BLOCK "location{} directive error"

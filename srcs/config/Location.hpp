@@ -2,7 +2,7 @@
 # define LOCATION_HPP
 
 #include <iostream>
-#include <vector>
+#include <sstream>
 #include <list>
 #include <unistd.h>
 
@@ -46,16 +46,16 @@ class Location
 		void set_method(std::string & value);
 		void set_autoindex(std::string & value);
 		void set_index(std::string & value);
-		void set_redirection(std::string & value);
+		void set_redirection(std::string & line);
 		void set_uploadsdir(std::string & value);
 		void set_cgiBinPath(std::string & value);
 		std::string get_prefix() const;
 		std::string get_root() const;
-		std::vector<std::string> & get_methods();
+		std::list<std::string> & get_methods();
 		bool get_autoindex() const;
 		std::string get_index() const;
 		std::string get_uploadsdir() const;
-		// ...
+		std::list<Trio> get_redirections();
 		std::string get_cgiBinPath() const;
 
 	private:
@@ -63,7 +63,7 @@ class Location
 		int _prefixLevelCount;
 
 		std::string _root;
-		std::vector<std::string> _methods;
+		std::list<std::string> _methods;
 		bool _defaultMethods;
 		
 		bool _autoindex;

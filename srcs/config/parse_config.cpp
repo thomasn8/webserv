@@ -159,7 +159,10 @@ void parse_config(std::string & configFile, Server & server)
 				}
 				else
 				{
-					server.get_last_config().get_last_location().add_directive(location_directive_index, word);
+					if (location_directive_index != I_REDIRECTION_L)
+						server.get_last_config().get_last_location().add_directive(location_directive_index, word);
+					else
+						server.get_last_config().get_last_location().add_directive(location_directive_index, line);
 					server.log("			", word, "\n");
 				}
 			}
@@ -171,6 +174,8 @@ void parse_config(std::string & configFile, Server & server)
 		server_directive_index = -1;
 		location_directive_index = -1;
 	}
-	if (server_context == true || location_context == true)
+	if (location_context != BRACKET_CLOSED)
+		p_exit_cerr_msg(ERROR_MSG, ERROR_LOCATION_BLOCK, 1);
+	if (server_context != BRACKET_CLOSED)
 		p_exit_cerr_msg(ERROR_MSG, ERROR_SERVER_BLOCK, 1);
 }

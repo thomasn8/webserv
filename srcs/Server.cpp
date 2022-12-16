@@ -134,14 +134,16 @@ void Server::cout_config_info()
 		{	
 			std::cout << "	" << "Location - " << (*it2).get_prefix() << std::endl;
 			std::cout << "		" << "root: " << (*it2).get_root() << std::endl;
-			for (int j = 0; j < (*it2).get_methods().size(); j++)
-				std::cout << "		" << "method: " << (*it2).get_methods()[j] << std::endl;
+			// for (int j = 0; j < (*it2).get_methods().size(); j++)
+			// 	std::cout << "		" << "method: " << (*it2).get_methods()[j] << std::endl;
 			if ((*it2).get_autoindex() == true)
 				std::cout << "		" << "autoindex: " << "on" << std::endl;
 			else
 				std::cout << "		" << "autoindex: " << "off" << std::endl;
 			std::cout << "		" << "index: " << (*it2).get_index() << std::endl;
 			std::cout << "		" << "uploads_dir: " << (*it2).get_uploadsdir() << std::endl;
+			// for (int j = 0; j < (*it2).get_methods().size(); j++)
+			// 	std::cout << "		" << "method: " << (*it2).get_methods()[j] << std::endl;
 			std::cout << "		" << "cgi: " << (*it2).get_cgiBinPath() << std::endl;
 		}
 	}

@@ -9,7 +9,7 @@ _prefixLevelCount(),
 _root(std::string(DEFAULT_ROOT)),
 _autoindex(false), 
 _index(std::string(DEFAULT_INDEX)),
-_methods(std::vector<std::string>(1, std::string(GET))),
+_methods(std::list<std::string>(1, std::string(GET))),
 _defaultMethods(true),
 _uploadsDir(),
 _redirections(std::list<Trio>()),
@@ -23,7 +23,7 @@ _prefixLevelCount(),
 _root(std::string(DEFAULT_ROOT)),
 _autoindex(false), 
 _index(std::string(DEFAULT_INDEX)),
-_methods(std::vector<std::string>(1, std::string(GET))),
+_methods(std::list<std::string>(1, std::string(GET))),
 _defaultMethods(true),
 _uploadsDir(),
 _redirections(std::list<Trio>()),
@@ -120,35 +120,40 @@ void Location::set_uploadsdir(std::string & value)
 	_uploadsDir = value;
 }
 
-void Location::set_redirection(std::string & value)
+void Location::set_redirection(std::string & line)
 {
-	if (value.empty())
+	static std::string prev;
+	if (line.empty())
 		return;
-	
+	if (prev == line)
+		return;
 
-	// Trio last = _redirections.back();
-	// // checker si valeur est un str ou un code
-	// try {
-	// 	int code = std::stoi(value);
-	// }
-	// catch (const std::invalid_argument &ia) {
-	// 	// on est sur un str
-
-	// 	// si dernier tab a:
-	// 	// rien
-	// 	// 1 str
-	// 	// 1 str 1 code
-	// 	// 2 str
-	// 	// 2 str 1 code
-	// }
-	// // on est sur un code
-
-	// // si dernier tab a:
-	// // rien
-	// // 1 str
-	// // 1 str 1 code
-	// // 2 str
-	// // 2 str 1 code
+	Trio newTrio;
+	std::istringstream iss(line);
+	std::string word;
+	int code = -1;
+	iss >> word;
+	while (iss)
+	{
+		if (iss.peek() == EOF)
+			break;
+		iss >> word;
+		try {
+			code = std::stoi(word);
+			if (code > -1)
+				newTrio.third = code;
+		}
+		catch (const std::invalid_argument &ia) {
+			if (newTrio.first.empty())
+				newTrio.first = word;
+			else
+				newTrio.second = word;
+		}
+		// std::cerr << word << " ";
+	}
+	// std::cerr << std::endl;
+	prev = line;
+	_redirections.push_back(newTrio);
 }
 
 void Location::set_cgiBinPath(std::string & value)
@@ -162,7 +167,7 @@ std::string Location::get_prefix() const { return _prefix; }
 
 std::string Location::get_root() const { return _root; }
 
-std::vector<std::string> & Location::get_methods() { return _methods; }
+std::list<std::string> & Location::get_methods() { return _methods; }
 
 bool Location::get_autoindex() const { return _autoindex; }
 
@@ -171,6 +176,8 @@ std::string Location::get_index() const { return _index; }
 std::string Location::get_uploadsdir() const { return _uploadsDir; }
 
 std::string Location::get_cgiBinPath() const { return _cgiBinPath; }
+
+std::list<Trio> Location::get_redirections() { return _redirections; }
 
 std::string Location::_webserv_bin_path() const
 {
