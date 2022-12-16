@@ -67,3 +67,23 @@ bool p_prefix_syntax(std::string prefix)
 		return false;
 	return true;
 }
+
+bool p_error_page_syntax(std::string line, std::string word)
+{
+	return true;
+}
+
+bool p_method_syntax(std::string word)
+{
+	return true;
+}
+
+// line doit avoir soit
+// 2 str + 1 code
+// 2 str
+// 1 str + 1 code
+// le code peut etre a n'importe quelle position
+bool p_redirect_syntax(std::string line, std::string word)
+{
+	return true;
+}

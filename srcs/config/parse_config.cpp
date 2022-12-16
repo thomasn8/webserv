@@ -124,6 +124,8 @@ void parse_config(std::string & configFile, Server & server)
 					if (word.compare(0, std::string::npos, g_server_directives[i].c_str(), word.length()) == EQUAL)
 					{
 						server_directive_index = i;
+						if (location_directive_index == I_ERROR_PAGE_C && p_error_page_syntax(line, word) == false)
+							p_exit_cerr_msg(ERROR_MSG, line, 1);
 						server.log("	S_DIRECTIVE: ", word, "\n");
 						compare = true;
 					}
@@ -136,6 +138,10 @@ void parse_config(std::string & configFile, Server & server)
 					if (word.compare(0, std::string::npos, g_location_directives[i].c_str(), word.length()) == EQUAL)
 					{
 						location_directive_index = i;
+						if (location_directive_index == I_METHODS_L && p_method_syntax(word) == false)
+							p_exit_cerr_msg(ERROR_MSG, line, 1);
+						else if (location_directive_index == I_REDIRECTION_L && p_redirect_syntax(line, word) == false)
+							p_exit_cerr_msg(ERROR_MSG, line, 1);
 						server.log("		L_DIRECTIVE: ", word, "\n");
 						compare = true;
 					}

@@ -1,4 +1,5 @@
 SRCS		=	srcs/main.cpp							\
+				srcs/config/Trio.cpp							\
 				srcs/config/parse_config.cpp			\
 				srcs/config/parse_context.cpp			\
 				srcs/config/utils.cpp					\

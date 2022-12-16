@@ -3,20 +3,24 @@
 
 #include <iostream>
 #include <vector>
-#include <array>
+#include <list>
+#include <unistd.h>
+
+#include "Trio.hpp"
 
 // INITIALIZATION
 # define DEFAULT_ROOT "www/html/"
 # define DEFAULT_INDEX "index.html"
-# define DEFAULT_CGI_PATH "cgi/"
+# define DEFAULT_CGI_PATH "cgi_tester"
 # define DEFAULT_CGI_EXT "php"
 # define GET "GET"
 # define POST "POST"
 # define DELETE "DELETE"
+# define DEFAULT_REDIRECT_CODE 301
 
 // DIRECTIVE INDEX
 // (pour en rajouter/modifier: modifier le tableau + definir une macro pour l'index + modifier le switch-case dans add_directive() et creer les getter/setter)
-const std::string	g_location_directives[] = {"root", "methods", "autoindex", "index", "uploads_dir", "redirect", "cgi_bin", ""};
+const std::string	g_location_directives[] = {"root", "method", "autoindex", "index", "uploads_dir", "redirect", "cgi_bin", ""};
 # define I_ROOT_L 0
 # define I_METHODS_L 1
 # define I_AUTOINDEX_L 2
@@ -30,8 +34,6 @@ class Location
 	// friend class Server;
 	// friend class Config;
 	public:
-		typedef std::array<std::string, 3> old_new_status_tab; // array[old_url, new_url, statusCode]
-
 		// CONST/DESTR
 		Location();
 		Location(const Location & src);
@@ -45,13 +47,16 @@ class Location
 		void set_autoindex(std::string & value);
 		void set_index(std::string & value);
 		void set_redirection(std::string & value);
-		void set_uploaddir(std::string & value);
+		void set_uploadsdir(std::string & value);
 		void set_cgiBinPath(std::string & value);
 		std::string get_prefix() const;
 		std::string get_root() const;
 		std::vector<std::string> & get_methods();
 		bool get_autoindex() const;
 		std::string get_index() const;
+		std::string get_uploadsdir() const;
+		// ...
+		std::string get_cgiBinPath() const;
 
 	private:
 		std::string _prefix;
@@ -65,9 +70,10 @@ class Location
 		std::string _index;
 		std::string _uploadsDir;
 
-		std::vector< old_new_status_tab > _redirections;
+		std::list<Trio> _redirections;
 
 		std::string _cgiBinPath;
+		std::string _webserv_bin_path() const;
 		std::string _cgiExtension;
 };
 

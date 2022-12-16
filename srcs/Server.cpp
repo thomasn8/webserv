@@ -141,6 +141,8 @@ void Server::cout_config_info()
 			else
 				std::cout << "		" << "autoindex: " << "off" << std::endl;
 			std::cout << "		" << "index: " << (*it2).get_index() << std::endl;
+			std::cout << "		" << "uploads_dir: " << (*it2).get_uploadsdir() << std::endl;
+			std::cout << "		" << "cgi: " << (*it2).get_cgiBinPath() << std::endl;
 		}
 	}
 }

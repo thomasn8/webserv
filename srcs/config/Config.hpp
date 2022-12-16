@@ -18,8 +18,6 @@
 # define DEFAULT_ROOT "www/html/"
 # define DEFAULT_INDEX "index.html"
 # define MBS 0 // Client Max Body Size
-# define DEFAULT_CGI_PATH "cgi/"
-# define DEFAULT_CGI_EXT "php"
 
 // DIRECTIVE INDEX
 // (pour en rajouter/modifier: modifier le tableau + definir une macro pour l'index + modifier le switch-case dans add_directive() et creer les getter/setter)

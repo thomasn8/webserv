@@ -1,7 +1,8 @@
-2022-12-16 14:12:15 CONFIGURATION
+2022-12-16 17:30:17 CONFIGURATION
 
 Add a SERVER config
 	S_DIRECTIVE: listen
+		caca
 		127.0.0.1:8080
 	S_DIRECTIVE: server_name
 		localhost
@@ -27,21 +28,30 @@ Add a SERVER config
 			index.html
 		L_DIRECTIVE: autoindex
 			on
-		L_DIRECTIVE: methods
+		L_DIRECTIVE: method
 			GET
-	Add a location: /uploads/
-		L_DIRECTIVE: root
-			www/uploads
-		L_DIRECTIVE: methods
+		L_DIRECTIVE: method
 			GET
-			POST
-			DELETE
+			CACA
 	Add a location: *.php
 		L_DIRECTIVE: root
 			www/php
-		L_DIRECTIVE: methods
+		L_DIRECTIVE: method
 			GET
 			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
 	S_DIRECTIVE: client_max_body_size
 		200M
 
@@ -56,11 +66,11 @@ Add a SERVER config
 	S_DIRECTIVE: index
 		index.html
 		index.php
-2022-12-16 14:21:50 CONFIGURATION
+2022-12-16 17:30:47 CONFIGURATION
 
 Add a SERVER config
 	S_DIRECTIVE: listen
-		127.0.0.1:8080
+		caca
 	S_DIRECTIVE: server_name
 		localhost
 		mon-site.com
@@ -85,15 +95,30 @@ Add a SERVER config
 			index.html
 		L_DIRECTIVE: autoindex
 			on
-		L_DIRECTIVE: methods
+		L_DIRECTIVE: method
 			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
 	Add a location: *.php
 		L_DIRECTIVE: root
 			www/php
-		L_DIRECTIVE: methods
+		L_DIRECTIVE: method
 			GET
 			POST
 		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
 	S_DIRECTIVE: client_max_body_size
 		200M
 
@@ -108,11 +133,11 @@ Add a SERVER config
 	S_DIRECTIVE: index
 		index.html
 		index.php
-2022-12-16 14:33:20 CONFIGURATION
+2022-12-16 18:21:12 CONFIGURATION
 
 Add a SERVER config
 	S_DIRECTIVE: listen
-		127.0.0.1:8080
+		caca
 	S_DIRECTIVE: server_name
 		localhost
 		mon-site.com
@@ -137,15 +162,33 @@ Add a SERVER config
 			index.html
 		L_DIRECTIVE: autoindex
 			on
-		L_DIRECTIVE: methods
+		L_DIRECTIVE: method
 			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
 	Add a location: *.php
 		L_DIRECTIVE: root
 			www/php
-		L_DIRECTIVE: methods
+		L_DIRECTIVE: method
 			GET
 			POST
 		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
 	S_DIRECTIVE: client_max_body_size
 		200M
 
@@ -160,11 +203,11 @@ Add a SERVER config
 	S_DIRECTIVE: index
 		index.html
 		index.php
-2022-12-16 14:35:45 CONFIGURATION
+2022-12-16 18:22:48 CONFIGURATION
 
 Add a SERVER config
 	S_DIRECTIVE: listen
-		127.0.0.1:8080
+		caca
 	S_DIRECTIVE: server_name
 		localhost
 		mon-site.com
@@ -189,67 +232,33 @@ Add a SERVER config
 			index.html
 		L_DIRECTIVE: autoindex
 			on
-		L_DIRECTIVE: methods
+		L_DIRECTIVE: method
 			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
 	Add a location: *.php
 		L_DIRECTIVE: root
 			www/php
-		L_DIRECTIVE: methods
+		L_DIRECTIVE: method
 			GET
 			POST
 		L_DIRECTIVE: uploads_dir
-	S_DIRECTIVE: client_max_body_size
-		200M
-
-Add a SERVER config
-	S_DIRECTIVE: listen
-		127.0.0.1:9000
-	S_DIRECTIVE: server_name
-		localhost
-		test.com
-	S_DIRECTIVE: root
-		www/html/test
-	S_DIRECTIVE: index
-		index.html
-		index.php
-2022-12-16 14:38:31 CONFIGURATION
-
-Add a SERVER config
-	S_DIRECTIVE: listen
-		127.0.0.1:8080
-	S_DIRECTIVE: server_name
-		localhost
-		mon-site.com
-	S_DIRECTIVE: root
-		www/html
-	S_DIRECTIVE: index
-		index.html
-		index.php
-	S_DIRECTIVE: error_page
-		404
-		/not_found.html
-	S_DIRECTIVE: error_page
-		500
-		502
-		503
-		504
-		/50x.html
-	Add a location: /images/
-		L_DIRECTIVE: root
-			www/images
-		L_DIRECTIVE: index
-			index.html
-		L_DIRECTIVE: autoindex
-			on
-		L_DIRECTIVE: methods
-			GET
-	Add a location: *.php
-		L_DIRECTIVE: root
-			www/php
-		L_DIRECTIVE: methods
-			GET
-			POST
-		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
 	S_DIRECTIVE: client_max_body_size
 		200M
 
