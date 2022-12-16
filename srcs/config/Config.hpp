@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <vector>
+#include <list>
 
 #include "Location.hpp"
 
@@ -39,8 +40,7 @@ class Config
 		~Config();
 
 		// GETTERS/SETTERS
-		// parse config
-		std::vector<Location> & get_locations();
+		std::list<Location> & get_locations();
 		Location & get_last_location();
 		void add_location();
 		void add_directive(int directiveIndex, std::string value);
@@ -50,21 +50,27 @@ class Config
 		void set_index(std::string & value);
 		void set_error_page(std::string & value);
 		void set_client_max_body_size(std::string & value);
-		// sockets
 		uint16_t get_port() const;
 		uint32_t get_address() const;
+		std::string get_servername() const;
+		std::vector<std::string> & get_servernames();
+		std::string get_root() const;
+		std::string get_index() const;
+		std::vector<std::string> & get_indexes();
+		std::vector<error_page_pair> & get_errorpages();
 		size_t get_client_max_body_size() const;
 
-
 	private:
-		std::vector<Location> _locations;
+		std::list<Location> _locations;
 
 		uint32_t _address;
 		uint16_t _port;
 		std::vector<std::string> _serverNames;
+		bool _defaultServerNames;
 
 		std::string	_root;
 		std::vector<std::string> _indexFiles;
+		bool _defaultIndex;
 		size_t _clientMaxBodySize;
 		
 		std::vector< error_page_pair > _errorPages;

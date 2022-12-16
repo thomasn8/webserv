@@ -4,7 +4,7 @@
 	************ CONST/DESTR
 */
 Server::Server() :
-_configs(std::vector<Config>()),
+_configs(std::list<Config>()),
 // _server_fd(), _client_fd(), _client_read(), 
 // _address(), _buffer(), _response(),
 _accessFile(std::string(LOG_PATH)), _accessStream()
@@ -63,35 +63,31 @@ Server::~Server()
 /* 
 	************ GETTERS/SETTERS
 */
-// parsing config
-std::vector<Config> & Server::get_configs() { return _configs; }
+std::list<Config> & Server::get_configs() { return _configs; }
 
 Config & Server::get_last_config() { return get_configs().back(); }
 
 void Server::add_config() { _configs.push_back(Config()); }
 
-// sockets
-// ...
-
 /* 
 	************ SOCKETS
 */
-// ...
+
 
 /* 
 	************ LOG
 */
-void Server::_exit_cerr_msg(const std::string message, int code) const
-{
-	std::cerr << message;
-	exit(code);
-}
-
 void Server::_create_log_file(std::string const & filename, std::ofstream & stream)
 {
 	stream.open(filename, std::ofstream::out | std::ofstream::app);
 	if (stream.fail() == true)
 		_exit_cerr_msg("Error while creating access log file\n", 1);
+}
+
+void Server::_exit_cerr_msg(const std::string message, int code) const
+{
+	std::cerr << message;
+	exit(code);
 }
 
 std::string Server::get_time()
@@ -102,4 +98,33 @@ std::string Server::get_time()
     tstruct = *localtime(&now);
     strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
 	return std::string(buf);
+}
+
+void Server::cout_config_info()
+{
+	std::cout << "Nombre de server: " << get_configs().size() << std::endl;
+	std::list<Config>::iterator it = get_configs().begin();
+	std::list<Config>::iterator ite = get_configs().end();
+	int i = 0;
+	for (; it != ite; it++)
+	{
+		i++;
+		std::cout << "SERVER #" << i << std::endl;
+		std::cout << "	" << "port: " << ntohs((*it).get_port()) << std::endl;
+		std::cout << "	" << "address: " << ntohl((*it).get_address()) << std::endl;
+		for (int j = 0; j < (*it).get_servernames().size(); j++)
+			std::cout << "	" << "index: " << (*it).get_servernames()[j] << std::endl;
+		std::cout << "	" << "root: " << (*it).get_root() << std::endl;
+		for (int j = 0; j < (*it).get_indexes().size(); j++)
+			std::cout << "	" << "index: " << (*it).get_indexes()[j] << std::endl;
+		for (int j = 0; j < (*it).get_errorpages().size(); j++)
+		{
+			std::cout << "	" << "errorpage: ";
+			std::cout << (*it).get_errorpages()[j].first;
+			std::cout << ": ";
+			std::cout << (*it).get_errorpages()[j].second;
+			std::cout << std::endl;
+		}
+		std::cout << "	" << "client_mbs: " << (*it).get_client_max_body_size() << std::endl;
+	}
 }

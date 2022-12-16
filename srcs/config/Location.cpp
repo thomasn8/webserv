@@ -24,7 +24,6 @@ Location::~Location() {}
 /* 
 	************ GETTERS/SETTERS
 */
-// parse config
 void Location::add_directive(int directiveIndex, std::string value)
 {
 	// switch case (utiliser les MACROS)
@@ -39,6 +38,3 @@ void Location::add_prefix(std::string prefix)
 	else if (prefix[0] == '*')
 		_cgiExtension = prefix.substr(2);
 }
-
-// sockets
-// ...

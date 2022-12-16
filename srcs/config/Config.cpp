@@ -4,32 +4,35 @@
 	************ CONST/DESTR
 */
 Config::Config() :
-_locations(std::vector<Location>()),
+_locations(std::list<Location>()),
 _address(INADDR_ANY), _port(DEFAULT_PORT),  
 _serverNames(std::vector<std::string>(1, std::string(DEFAULT_SERVERNAME))),
-_root(std::string(DEFAULT_ROOT)), 
-_indexFiles(std::vector<std::string>(1, std::string(DEFAULT_INDEX))), 
+_defaultServerNames(true),
+_root(std::string(DEFAULT_ROOT)),
+_indexFiles(std::vector<std::string>(1, std::string(DEFAULT_INDEX))),
+_defaultIndex(true),
 _clientMaxBodySize(MBS),
-_errorPages(std::vector< error_page_pair >()) 
+_errorPages(std::vector< error_page_pair >())
 {}
 
 Config::Config(const Config & src) :
-_locations(std::vector<Location>()),
+_locations(std::list<Location>()),
 _address(INADDR_ANY), _port(DEFAULT_PORT),  
 _serverNames(std::vector<std::string>(1, std::string(DEFAULT_SERVERNAME))),
-_root(std::string(DEFAULT_ROOT)), 
-_indexFiles(std::vector<std::string>(1, std::string(DEFAULT_INDEX))), 
+_defaultServerNames(true),
+_root(std::string(DEFAULT_ROOT)),
+_indexFiles(std::vector<std::string>(1, std::string(DEFAULT_INDEX))),
+_defaultIndex(true),
 _clientMaxBodySize(MBS),
 _errorPages(std::vector< error_page_pair >())
-{ (void) src;}
+{ (void) src; }
 
 Config::~Config() {}
 
 /* 
 	************ GETTERS/SETTERS
 */
-// parse config
-std::vector<Location> & Config::get_locations() { return _locations; }
+std::list<Location> & Config::get_locations() { return _locations; }
 
 Location & Config::get_last_location() { return get_locations().back(); }
 
@@ -114,7 +117,14 @@ void Config::set_servername(std::string & value)
 {
 	if (value.empty())
 		return;
-	_serverNames.push_back(value);
+	if (_defaultServerNames == true)
+	{
+		_serverNames.pop_back();
+		_serverNames.push_back(value);
+		_defaultServerNames = false;
+	}
+	else
+		_serverNames.push_back(value);
 }
 
 void Config::set_root(std::string & value)
@@ -128,7 +138,14 @@ void Config::set_index(std::string & value)
 {
 	if (value.empty())
 		return;
-	_indexFiles.push_back(value);
+	if (_defaultIndex == true)
+	{
+		_indexFiles.pop_back();
+		_indexFiles.push_back(value);
+		_defaultIndex = false;
+	}
+	else
+		_indexFiles.push_back(value);
 }
 
 void Config::set_error_page(std::string & value)
@@ -162,11 +179,20 @@ void Config::set_client_max_body_size(std::string & value)
 	_clientMaxBodySize = std::stoi(value);
 }
 
-// sockets
 uint16_t Config::get_port() const { return _port; }
 
 uint32_t Config::get_address() const { return _address; }
 
+std::string Config::get_servername() const { return _serverNames.front(); }
+
+std::vector<std::string> & Config::get_servernames() { return _serverNames; }
+
+std::string Config::get_root() const { return _root; }
+
+std::string Config::get_index() const { return _indexFiles.front(); }
+
+std::vector<std::string> & Config::get_indexes() { return _indexFiles; }
+
 size_t Config::get_client_max_body_size() const { return _clientMaxBodySize; }
 
-// ...
+std::vector<Config::error_page_pair> & Config::get_errorpages() { return _errorPages; }

@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <time.h>
+#include <list>
 #include <vector>
 
 #include "config/Config.hpp"
@@ -25,14 +26,15 @@ class Server
 		~Server();
 
 		// GETTERS/SETTERS
-		// parse config
-		std::vector<Config> & get_configs();
+		std::list<Config> & get_configs();
 		Config & get_last_config();
 		void add_config();
-		// sockets
+
+		// SOCKETS
 
 		// LOG
 		std::string get_time();
+		void cout_config_info();
 	
 		template <typename T>
 		void log(T message) { _accessStream << message; }
@@ -45,7 +47,7 @@ class Server
 		}
 
 	private:
-		std::vector<Config> _configs;
+		std::list<Config> _configs;
 
 		// SOCKETS
 		// int _server_fd;

@@ -16,10 +16,7 @@ int main(int ac, char **av, char **env)
 		configFile = "conf/default.conf";
 	Server server;
 	parse_config(configFile, server);
-
-	// TESTER LE PARSE 
-		// checker les Config object si bien remplis
-	// ...
+	server.cout_config_info();
 
 	// starter le server
 	return 0;
