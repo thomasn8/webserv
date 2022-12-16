@@ -15,6 +15,7 @@
 # define DELETE "DELETE"
 
 // DIRECTIVE INDEX
+// (pour en rajouter/modifier: modifier le tableau + definir une macro pour l'index + modifier le switch-case dans add_directive() et creer les getter/setter)
 const std::string	g_location_directives[] = {"root", "methods", "autoindex", "index", "uploads_dir", "redirect", "cgi_bin", ""};
 # define I_ROOT_L 0
 # define I_METHODS_L 1

@@ -22,6 +22,7 @@
 # define DEFAULT_CGI_EXT "php"
 
 // DIRECTIVE INDEX
+// (pour en rajouter/modifier: modifier le tableau + definir une macro pour l'index + modifier le switch-case dans add_directive() et creer les getter/setter)
 const std::string	g_server_directives[] = {"listen", "server_name", "root", "index", "error_page", "client_max_body_size", ""};
 # define I_LISTEN_C 0
 # define I_SERVER_NAME_C 1
