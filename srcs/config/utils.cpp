@@ -6,7 +6,7 @@ void p_exit_cerr_msg(const std::string message, const std::string line, int code
 	exit(code);
 }
 
-int p_tablen(std::string *tab)
+int p_tablen(const std::string *tab)
 {
 	int i = 0;
 	while (!tab[i].empty())

@@ -105,6 +105,8 @@ void Server::cout_config_info()
 	std::cout << "Nombre de server: " << get_configs().size() << std::endl;
 	std::deque<Config>::iterator it = get_configs().begin();
 	std::deque<Config>::iterator ite = get_configs().end();
+	std::deque<Location>::iterator it2;
+	std::deque<Location>::iterator it2e;
 	int i = 0;
 	for (; it != ite; it++)
 	{
@@ -126,5 +128,19 @@ void Server::cout_config_info()
 			std::cout << std::endl;
 		}
 		std::cout << "	" << "client_mbs: " << (*it).get_client_max_body_size() << std::endl;
+		it2 = (*it).get_locations().begin();
+		it2e = (*it).get_locations().end();
+		for (; it2 != it2e; it2++)
+		{	
+			std::cout << "	" << "Location - " << (*it2).get_prefix() << std::endl;
+			std::cout << "		" << "root: " << (*it2).get_root() << std::endl;
+			for (int j = 0; j < (*it2).get_methods().size(); j++)
+				std::cout << "		" << "method: " << (*it2).get_methods()[j] << std::endl;
+			if ((*it2).get_autoindex() == true)
+				std::cout << "		" << "autoindex: " << "on" << std::endl;
+			else
+				std::cout << "		" << "autoindex: " << "off" << std::endl;
+			std::cout << "		" << "index: " << (*it2).get_index() << std::endl;
+		}
 	}
 }

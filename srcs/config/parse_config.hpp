@@ -8,6 +8,7 @@
 
 #include "../Server.hpp"
 #include "Config.hpp"
+#include "Location.hpp"
 
 # define INVALID 1
 # define VALID 0
@@ -32,7 +33,7 @@ int close_location_block(std::string & line, std::string & prefix, int *location
 
 // utils
 void p_exit_cerr_msg(const std::string message, const std::string line, int code);
-int p_tablen(std::string *tab);
+int p_tablen(const std::string *tab);
 std::string p_trim_sides(std::string str);
 bool p_isnotblank(std::string line);
 bool p_isnotalphanum(std::string line);

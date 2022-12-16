@@ -62,14 +62,12 @@ void parse_config(std::string & configFile, Server & server)
 	bool first_word = true, server_context = false, compare = false;
 	f_ptr_s f_server_block[] = {&open_server_block, &open_server_block_2, &close_server_block};
 	f_ptr_l f_location_block[] = {&open_location_block, &open_location_block_2, &close_location_block};
-	std::string	server_block[] = {"server", "{", "}", ""};
-	std::string location_block[] = {"location", "{", "}", ""};
-	std::string	server_directives[] = {"listen", "server_name", "root", "index", "error_page", "client_max_body_size", ""};
-	std::string	location_directives[] = {"root", "index", "methods", "autoindex", "redirection", "uploads_dir", "redirect", "cgi_bin", ""};
+	const std::string	server_block[] = {"server", "{", "}", ""};
+	const std::string 	location_block[] = {"location", "{", "}", ""};
 	int s_b = p_tablen(server_block);
 	int l_b = p_tablen(location_block);
-	int s_d = p_tablen(server_directives);
-	int l_d = p_tablen(location_directives);
+	int s_d = p_tablen(g_server_directives);
+	int l_d = p_tablen(g_location_directives);
 	server.log(server.get_time(), " CONFIGURATION\n");
 	while (std::getline(iss_l, line))				// lecture du buffer, ligne par ligne
 	{
@@ -113,7 +111,7 @@ void parse_config(std::string & configFile, Server & server)
 						if (location_context == 2)
 						{
 							server.get_last_config().add_location();
-							server.get_last_config().get_last_location().add_prefix(prefix);
+							server.get_last_config().get_last_location().set_prefix(prefix);
 							server.log("	Add a location: ", prefix, "\n");
 						}
 					}
@@ -123,7 +121,7 @@ void parse_config(std::string & configFile, Server & server)
 				{
 					if (server_context == false)
 						p_exit_cerr_msg(ERROR_MSG, line, 1);
-					if (word.compare(0, std::string::npos, server_directives[i].c_str(), word.length()) == EQUAL)
+					if (word.compare(0, std::string::npos, g_server_directives[i].c_str(), word.length()) == EQUAL)
 					{
 						server_directive_index = i;
 						server.log("	S_DIRECTIVE: ", word, "\n");
@@ -135,7 +133,7 @@ void parse_config(std::string & configFile, Server & server)
 				{
 					if (server_context == false || location_context != 2)
 						p_exit_cerr_msg(ERROR_MSG, line, 1);
-					if (word.compare(0, std::string::npos, location_directives[i].c_str(), word.length()) == EQUAL)
+					if (word.compare(0, std::string::npos, g_location_directives[i].c_str(), word.length()) == EQUAL)
 					{
 						location_directive_index = i;
 						server.log("		L_DIRECTIVE: ", word, "\n");

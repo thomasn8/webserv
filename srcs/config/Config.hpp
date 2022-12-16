@@ -22,12 +22,13 @@
 # define DEFAULT_CGI_EXT "php"
 
 // DIRECTIVE INDEX
-# define C_LISTEN 0
-# define C_SERVER_NAME 1
-# define C_ROOT 2
-# define C_INDEX 3
-# define C_ERROR_PAGE 4
-# define C_CLIENT_MAX_BODY_SIZE 5
+const std::string	g_server_directives[] = {"listen", "server_name", "root", "index", "error_page", "client_max_body_size", ""};
+# define I_LISTEN_C 0
+# define I_SERVER_NAME_C 1
+# define I_ROOT_C 2
+# define I_INDEX_C 3
+# define I_ERROR_PAGE_C 4
+# define I_CLIENT_MAX_BODY_SIZE_C 5
 
 class Config
 {

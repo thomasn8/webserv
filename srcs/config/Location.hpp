@@ -10,24 +10,26 @@
 # define DEFAULT_INDEX "index.html"
 # define DEFAULT_CGI_PATH "cgi/"
 # define DEFAULT_CGI_EXT "php"
-# define GET 4
-# define POST 2
-# define DELETE 1
+# define GET "GET"
+# define POST "POST"
+# define DELETE "DELETE"
 
 // DIRECTIVE INDEX
-# define L_ROOT 0
-# define L_INDEX 1
-# define L_METHODS 2
-# define L_AUTOINDEX 3
-# define L_REDIRECTION 4
-# define L_UPLOADS_DIR 5
-# define L_REDIRECT 6
-# define L_CGI_BIN 7
+const std::string	g_location_directives[] = {"root", "methods", "autoindex", "index", "uploads_dir", "redirect", "cgi_bin", ""};
+# define I_ROOT_L 0
+# define I_METHODS_L 1
+# define I_AUTOINDEX_L 2
+# define I_INDEX_L 3
+# define I_UPLOADS_DIR_L 4
+# define I_REDIRECTION_L 5
+# define I_CGI_BIN_L 6
 
 class Location
 {
+	// friend class Server;
+	// friend class Config;
 	public:
-		typedef std::array<std::string, 3> old_new_status_tab;
+		typedef std::array<std::string, 3> old_new_status_tab; // array[old_url, new_url, statusCode]
 
 		// CONST/DESTR
 		Location();
@@ -35,24 +37,33 @@ class Location
 		~Location();
 		
 		// GETTERS/SETTERS
-		// parse config
 		void add_directive(int directiveIndex, std::string value);
-		void add_prefix(std::string prefix);
-		// sockets
-		// ...
+		void set_prefix(std::string value);
+		void set_root(std::string & value);
+		void set_method(std::string & value);
+		void set_autoindex(std::string & value);
+		void set_index(std::string & value);
+		void set_redirection(std::string & value);
+		void set_uploaddir(std::string & value);
+		void set_cgiBinPath(std::string & value);
+		std::string get_prefix() const;
+		std::string get_root() const;
+		std::vector<std::string> & get_methods();
+		bool get_autoindex() const;
+		std::string get_index() const;
 
 	private:
-		std::string _prefix;	//   /images/
+		std::string _prefix;
 		int _prefixLevelCount;
 
 		std::string _root;
-		std::vector<std::string> _indexFiles;
+		std::vector<std::string> _methods;
+		bool _defaultMethods;
+		
 		bool _autoindex;
+		std::string _index;
+		std::string _uploadsDir;
 
-		int _methods;
-		std::string _uploadsDir;		
-
-		// array[old_url, new_url, statusCode]
 		std::vector< old_new_status_tab > _redirections;
 
 		std::string _cgiBinPath;

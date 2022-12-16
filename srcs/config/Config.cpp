@@ -42,22 +42,22 @@ void Config::add_directive(int directiveIndex, std::string value)
 {
 	switch (directiveIndex) 
 	{
-		case C_LISTEN:
+		case I_LISTEN_C:
 			set_address_port(value);
 			break;
-		case C_SERVER_NAME:
+		case I_SERVER_NAME_C:
 			set_servername(value);
 			break;
-		case C_ROOT:
+		case I_ROOT_C:
 			set_root(value);
 			break;
-		case C_INDEX:
+		case I_INDEX_C:
 			set_index(value);
 			break;
-		case C_ERROR_PAGE:
+		case I_ERROR_PAGE_C:
 			set_error_page(value);
 			break;
-		case C_CLIENT_MAX_BODY_SIZE:
+		case I_CLIENT_MAX_BODY_SIZE_C:
 			set_client_max_body_size(value);
 			break;
 	}
