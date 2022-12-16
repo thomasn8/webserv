@@ -80,3 +80,1639 @@ Add a SERVER config
 		L_DIRECTIVE: method
 			GET
 			CACA
+2022-12-16 19:41:30 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: root
+		www/html/test
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+2022-12-16 19:41:42 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: root
+		www/html/test
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+2022-12-16 19:41:52 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: root
+		www/html/test
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+2022-12-16 19:43:28 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: root
+		www/html/test
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+2022-12-16 19:51:28 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: root
+		www/html/test
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+2022-12-16 19:52:12 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: root
+		www/html/test
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			DELETE
+2022-12-16 19:54:14 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: root
+		www/html/test
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+			DELETE
+2022-12-16 19:57:01 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: 2022-12-16 19:57:45 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: 2022-12-16 19:57:57 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: 2022-12-16 19:58:23 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: 2022-12-16 19:59:12 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: 2022-12-16 20:00:55 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: root
+		www/html/test
+	S_DIRECTIVE: index
+		index.html
+		index.php
+2022-12-16 20:02:22 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: 2022-12-16 20:03:31 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: 2022-12-16 20:03:39 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: 2022-12-16 20:05:08 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: 2022-12-16 20:05:35 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: 2022-12-16 20:07:04 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: root
+		www/html/test
+	S_DIRECTIVE: index
+		index.html
+		index.php
+2022-12-16 20:09:15 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: root
+		www/html/test
+	S_DIRECTIVE: index
+		index.html
+		index.php
+2022-12-16 20:10:40 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: 2022-12-16 20:11:06 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: root
+		www/html/test
+	S_DIRECTIVE: index
+		index.html
+		index.php
+2022-12-16 20:11:46 CONFIGURATION
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		caca
+	S_DIRECTIVE: server_name
+		localhost
+		mon-site.com
+	S_DIRECTIVE: root
+		www/html
+	S_DIRECTIVE: index
+		index.html
+		index.php
+	S_DIRECTIVE: error_page
+		404
+		/not_found.html
+	S_DIRECTIVE: error_page
+		500
+		502
+		503
+		504
+		/50x.html
+	Add a location: /images/
+		L_DIRECTIVE: root
+			www/images
+		L_DIRECTIVE: index
+			index.html
+		L_DIRECTIVE: autoindex
+			on
+		L_DIRECTIVE: method
+			GET
+		L_DIRECTIVE: method
+			GET
+			CACA
+	Add a location: *.php
+		L_DIRECTIVE: root
+			www/php
+		L_DIRECTIVE: method
+			GET
+			POST
+		L_DIRECTIVE: uploads_dir
+			/uploads
+		L_DIRECTIVE: redirect
+			test1.php
+			500
+		L_DIRECTIVE: redirect
+			test1.php
+			test2.php
+		L_DIRECTIVE: redirect
+			test2.php
+			helloworld.php
+			301
+		L_DIRECTIVE: redirect
+			test3.php
+			/helloworld3.php
+			302
+	S_DIRECTIVE: client_max_body_size
+		200M
+
+Add a SERVER config
+	S_DIRECTIVE: listen
+		127.0.0.1:9000
+	S_DIRECTIVE: server_name
+		localhost
+		test.com
+	S_DIRECTIVE: root
+		www/html/test
+	S_DIRECTIVE: index
+		index.html
+		index.php

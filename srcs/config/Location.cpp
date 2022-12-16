@@ -93,7 +93,15 @@ void Location::set_method(std::string & value)
 		_defaultMethods = false;
 	}
 	else
+	{
+		std::list<std::string>::iterator it = _methods.begin();
+		for(; it !=_methods.end(); it++)
+		{
+			if (*it == value)
+				return;
+		}
 		_methods.push_back(value);
+	}
 }
 
 void Location::set_autoindex(std::string & value)
@@ -149,11 +157,12 @@ void Location::set_redirection(std::string & line)
 			else
 				newTrio.second = word;
 		}
-		// std::cerr << word << " ";
+		std::cerr << word << " ";
 	}
-	// std::cerr << std::endl;
+	std::cerr << std::endl;
 	prev = line;
 	_redirections.push_back(newTrio);
+	std::cerr << "REDIRECTION: "<< &(_redirections.back()) << std::endl;
 }
 
 void Location::set_cgiBinPath(std::string & value)
