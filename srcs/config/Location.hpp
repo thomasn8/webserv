@@ -55,7 +55,7 @@ class Location
 		bool get_autoindex() const;
 		std::string get_index() const;
 		std::string get_uploadsdir() const;
-		std::list<Trio> get_redirections();
+		std::list<Trio> & get_redirections();
 		std::string get_cgiBinPath() const;
 
 	private:

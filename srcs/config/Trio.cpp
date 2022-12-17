@@ -1,6 +1,7 @@
 #include "Trio.hpp"
+#include <iostream>
 
-Trio::Trio() : 
+Trio::Trio() :
 first(std::string()), second(std::string()), third(0) 
 {}
 

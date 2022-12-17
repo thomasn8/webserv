@@ -34,7 +34,7 @@ class Server
 
 		// LOG
 		std::string get_time();
-		void cout_config_info();
+		void log_config_info();
 	
 		template <typename T>
 		void log(T message) { _accessStream << message; }

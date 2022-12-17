@@ -16,7 +16,6 @@ int main(int ac, char **av, char **env)
 		configFile = "conf/default.conf";
 	Server server;
 	parse_config(configFile, server);
-	server.cout_config_info();
 
 	// starter le server
 	return 0;

@@ -100,9 +100,9 @@ std::string Server::get_time()
 	return std::string(buf);
 }
 
-void Server::cout_config_info()
+void Server::log_config_info()
 {
-	std::cout << "Nombre de server: " << get_configs().size() << std::endl;
+	_accessStream << "Nombre de server: " << get_configs().size() << std::endl;
 	std::deque<Config>::iterator it = get_configs().begin();
 	std::deque<Config>::iterator ite = get_configs().end();
 	std::deque<Location>::iterator it2;
@@ -111,59 +111,47 @@ void Server::cout_config_info()
 	for (; it != ite; it++)
 	{
 		i++;
-		std::cout << "SERVER #" << i << std::endl;
-		std::cout << "	" << "port: " << ntohs((*it).get_port()) << std::endl;
-		std::cout << "	" << "address: " << ntohl((*it).get_address()) << std::endl;
+		_accessStream << "SERVER #" << i << std::endl;
+		_accessStream << "	" << "port: " << ntohs((*it).get_port()) << std::endl;
+		_accessStream << "	" << "address: " << ntohl((*it).get_address()) << std::endl;
 		for (int j = 0; j < (*it).get_servernames().size(); j++)
-			std::cout << "	" << "server_name: " << (*it).get_servernames()[j] << std::endl;
-		std::cout << "	" << "root: " << (*it).get_root() << std::endl;
+			_accessStream << "	" << "server_name: " << (*it).get_servernames()[j] << std::endl;
+		_accessStream << "	" << "root: " << (*it).get_root() << std::endl;
 		for (int j = 0; j < (*it).get_indexes().size(); j++)
-			std::cout << "	" << "index: " << (*it).get_indexes()[j] << std::endl;
+			_accessStream << "	" << "index: " << (*it).get_indexes()[j] << std::endl;
 		for (int j = 0; j < (*it).get_errorpages().size(); j++)
 		{
-			std::cout << "	" << "errorpage: ";
-			std::cout << (*it).get_errorpages()[j].first;
-			std::cout << ": ";
-			std::cout << (*it).get_errorpages()[j].second;
-			std::cout << std::endl;
+			_accessStream << "	" << "errorpage: ";
+			_accessStream << (*it).get_errorpages()[j].first;
+			_accessStream << ": ";
+			_accessStream << (*it).get_errorpages()[j].second;
+			_accessStream << std::endl;
 		}
-		std::cout << "	" << "client_mbs: " << (*it).get_client_max_body_size() << std::endl;
+		_accessStream << "	" << "client_mbs: " << (*it).get_client_max_body_size() << std::endl;
 		it2 = (*it).get_locations().begin();
 		it2e = (*it).get_locations().end();
 		for (; it2 != it2e; it2++)
 		{	
-			std::cout << "	" << "Location - " << (*it2).get_prefix() << std::endl;
-			std::cout << "		" << "root: " << (*it2).get_root() << std::endl;
+			_accessStream << "	" << "Location " << (*it2).get_prefix() << std::endl;
+			_accessStream << "		" << "root: " << (*it2).get_root() << std::endl;
 			std::list<std::string>::iterator it3 = (*it2).get_methods().begin();
 			std::list<std::string>::iterator ite3 = (*it2).get_methods().end();
 			for (; it3 != ite3; it3++)
-				std::cout << "		" << "method: " << (*it3) << std::endl;
+				_accessStream << "		" << "method: " << (*it3) << std::endl;
 			if ((*it2).get_autoindex() == true)
-				std::cout << "		" << "autoindex: " << "on" << std::endl;
+				_accessStream << "		" << "autoindex: " << "on" << std::endl;
 			else
-				std::cout << "		" << "autoindex: " << "off" << std::endl;
-			std::cout << "		" << "index: " << (*it2).get_index() << std::endl;
-			std::cout << "		" << "uploads_dir: " << (*it2).get_uploadsdir() << std::endl;
-			
+				_accessStream << "		" << "autoindex: " << "off" << std::endl;
+			_accessStream << "		" << "index: " << (*it2).get_index() << std::endl;
+			_accessStream << "		" << "uploads_dir: " << (*it2).get_uploadsdir() << std::endl;
 			if ((*it2).get_redirections().size())
 			{
 				std::list<Trio>::iterator it4 = (*it2).get_redirections().begin();
 				std::list<Trio>::iterator ite4 = (*it2).get_redirections().end();
-				// for (; it4 != ite4; it4++)
-				// 	std::cout << "		" << "redirections: " << (*it4).first << " " << (*it4).second << " " << (*it4).third << std::endl;
-
-				// std::cerr << "first REDIRECTION: "<< &(*it4) << std::endl;
-				// ite4--;
-				// std::cerr << "last REDIRECTION: "<< &(*ite4) << std::endl;
-
-				// for (int i = 4; i > -1; it4++,i--)
-				// {
-				// 	std::cout << "		" << "redirection: " << &(*it4) << std::endl;
-				// }
+				for (; it4 != ite4; it4++)
+					_accessStream << "		" << "redirect: " << (*it4).first << " " << (*it4).second << " " << (*it4).third << std::endl;
 			}
-
-
-			std::cout << "		" << "cgi: " << (*it2).get_cgiBinPath() << std::endl;
+			_accessStream << "		" << "cgi: " << (*it2).get_cgiBinPath() << std::endl;
 		}
 	}
 }

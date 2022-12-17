@@ -136,7 +136,7 @@ void Location::set_redirection(std::string & line)
 	if (prev == line)
 		return;
 
-	Trio newTrio;
+	Trio trio;
 	std::istringstream iss(line);
 	std::string word;
 	int code = -1;
@@ -149,20 +149,17 @@ void Location::set_redirection(std::string & line)
 		try {
 			code = std::stoi(word);
 			if (code > -1)
-				newTrio.third = code;
+				trio.third = code;
 		}
 		catch (const std::invalid_argument &ia) {
-			if (newTrio.first.empty())
-				newTrio.first = word;
+			if (trio.first.empty())
+				trio.first = word;
 			else
-				newTrio.second = word;
+				trio.second = word;
 		}
-		std::cerr << word << " ";
 	}
-	std::cerr << std::endl;
 	prev = line;
-	_redirections.push_back(newTrio);
-	std::cerr << "REDIRECTION: "<< &(_redirections.back()) << std::endl;
+	_redirections.push_back(trio);
 }
 
 void Location::set_cgiBinPath(std::string & value)
@@ -186,7 +183,7 @@ std::string Location::get_uploadsdir() const { return _uploadsDir; }
 
 std::string Location::get_cgiBinPath() const { return _cgiBinPath; }
 
-std::list<Trio> Location::get_redirections() { return _redirections; }
+std::list<Trio> & Location::get_redirections() { return _redirections; }
 
 std::string Location::_webserv_bin_path() const
 {

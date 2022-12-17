@@ -39,8 +39,8 @@ std::string p_trim_sides(std::string str);
 bool p_isnotblank(std::string line);
 bool p_isnotalphanum(std::string line);
 bool p_prefix_syntax(std::string prefix);
-bool p_error_page_syntax(std::string line, std::string word);
+bool p_error_page_syntax(std::string line);
 bool p_method_syntax(std::string word);
-bool p_redirect_syntax(std::string line, std::string word);
+bool p_redirect_syntax(std::string line);
 
 #endif
