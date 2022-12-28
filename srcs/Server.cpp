@@ -121,7 +121,7 @@ void Server::log_config_info()
 			_accessStream << "	" << "index: " << (*it).get_indexes()[j] << std::endl;
 		for (int j = 0; j < (*it).get_errorpages().size(); j++)
 		{
-			_accessStream << "	" << "errorpage: ";
+			_accessStream << "	" << "error_page: ";
 			_accessStream << (*it).get_errorpages()[j].first;
 			_accessStream << ": ";
 			_accessStream << (*it).get_errorpages()[j].second;

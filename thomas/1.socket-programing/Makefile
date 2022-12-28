@@ -8,7 +8,9 @@ NAME3		= client
 all:		${NAME1}
 
 # server en loop mode 
-SRCS1	=	socket_loop.cpp
+# SRCS1	=	socket_loop.cpp
+# SRCS1	=	socket_loop_2.cpp
+SRCS1	=	socket_loop_3.cpp
 OBJS1	=	${SRCS1:.cpp=.o}
 loop:		${OBJS1}
 			$(CC) $(CFLAGS) -o $(NAME1) ${OBJS1}

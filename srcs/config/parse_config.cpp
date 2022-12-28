@@ -54,6 +54,8 @@ void parse_config(std::string & configFile, Server & server)
 	clean_config(buffer, configStream);
 	configStream.close();
 
+	std::cout << buffer << std::endl;
+
 	// lecture et tri du buffer: 
 	// variables word et prefix utilisees pour remplir les objets Config et Location
 	std::string line, word, prefix;
