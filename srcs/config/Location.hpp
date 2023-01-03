@@ -78,4 +78,3 @@ class Location
 };
 
 #endif
- 
