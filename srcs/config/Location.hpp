@@ -11,7 +11,7 @@
 // INITIALIZATION
 # define DEFAULT_ROOT "www/html/"
 # define DEFAULT_INDEX "index.html"
-# define DEFAULT_CGI_PATH "cgi_tester"
+# define DEFAULT_CGI_PATH "cgi_bin"
 # define DEFAULT_CGI_EXT "php"
 # define GET "GET"
 # define POST "POST"
@@ -78,4 +78,3 @@ class Location
 };
 
 #endif
- 
