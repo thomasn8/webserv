@@ -12,7 +12,7 @@
 #include <deque>
 #include <vector>
 
-#include "config/Config.hpp"
+#include "../srcs/config/Config.hpp"
 
 # define LISTEN_BACKLOG 50
 # define KEEPALIVE 65

@@ -6,7 +6,7 @@
 #include <sstream>
 #include <vector>
 
-#include "../Server.hpp"
+#include "../../includes/Server.hpp"
 #include "Config.hpp"
 #include "Location.hpp"
 

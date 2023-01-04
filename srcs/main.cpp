@@ -1,6 +1,6 @@
 #include "config/parse_config.hpp"
 #include "config/Config.hpp"
-#include "Server.hpp"
+#include "../includes/Server.hpp"
 
 int main(int ac, char **av, char **env)
 {
