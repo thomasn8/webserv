@@ -2,8 +2,7 @@
 # define MESSAGE_HPP
 
 #include <string>
-#include <vector>
-#include <utility>
+#include <list>
 #include <map>
 
 // methods to implement
@@ -19,7 +18,21 @@ class Message {
 		Message(const Message &instance);
 		virtual ~Message() = 0;
 
+		std::map<std::string, std::list<std::string>>	get_fields() const;
+		std::string										get_body() const;
+		bool											has_body() const;
+
 		Message		&operator=(const Message &instance);
+
+		class MessageException : public std::exception {
+            public:
+				MessageException(int code) : _code(std::to_string(code)) {}
+                virtual const char* what() throw() {
+                    return (this->_code).c_str();	
+                }
+			private:
+				std::string _code;
+        };
 
 	protected:
 		std::map<std::string, std::string>	_fields;

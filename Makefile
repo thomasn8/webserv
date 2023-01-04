@@ -6,6 +6,9 @@ SRCS		=	srcs/main.cpp							\
 			  	srcs/Server.cpp							\
 			  	srcs/config/Config.cpp					\
 			  	srcs/config/Location.cpp				\
+			  	srcs/Request.cpp				\
+			  	srcs/Message.cpp				\
+			  	# srcs/Response.cpp				
 
 
 OBJS		= ${SRCS:.cpp=.o}
