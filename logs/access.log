@@ -1,4 +1,4 @@
-2022-12-17 15:52:34 CONFIGURATION RECAP.
+2023-01-04 12:51:38 CONFIGURATION RECAP.
 Nombre de server: 2
 SERVER #1
 	port: 8080
@@ -20,7 +20,7 @@ SERVER #1
 		autoindex: on
 		index: index.html
 		uploads_dir: 
-		cgi: /Users/thomas/Desktop/Webserv/cgi_tester
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
 	Location *.php
 		root: www/php
 		method: GET
@@ -32,7 +32,7 @@ SERVER #1
 		redirect: test1.php test2.php 0
 		redirect: test2.php helloworld.php 301
 		redirect: test3.php /helloworld3.php 302
-		cgi: /Users/thomas/Desktop/Webserv/cgi_tester
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
 SERVER #2
 	port: 9000
 	address: 2130706433
@@ -42,11 +42,11 @@ SERVER #2
 	index: index.html
 	index: index.php
 	client_mbs: 0
-2022-12-17 15:56:28 CONFIGURATION RECAP.
+2023-01-04 15:56:56 CONFIGURATION RECAP.
 Nombre de server: 2
 SERVER #1
 	port: 8080
-	address: 0
+	ip: 0
 	server_name: localhost
 	server_name: mon-site.com
 	root: www/html
@@ -64,7 +64,7 @@ SERVER #1
 		autoindex: on
 		index: index.html
 		uploads_dir: 
-		cgi: /Users/thomas/Desktop/Webserv/cgi_tester
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
 	Location *.php
 		root: www/php
 		method: GET
@@ -76,21 +76,21 @@ SERVER #1
 		redirect: test1.php test2.php 0
 		redirect: test2.php helloworld.php 301
 		redirect: test3.php /helloworld3.php 302
-		cgi: /Users/thomas/Desktop/Webserv/cgi_tester
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
 SERVER #2
 	port: 9000
-	address: 2130706433
+	ip: 2130706433
 	server_name: localhost
 	server_name: test.com
 	root: www/html/test
 	index: index.html
 	index: index.php
 	client_mbs: 0
-2022-12-17 15:56:35 CONFIGURATION RECAP.
+2023-01-04 15:58:34 CONFIGURATION RECAP.
 Nombre de server: 2
 SERVER #1
 	port: 8080
-	address: 0
+	ip: 0
 	server_name: localhost
 	server_name: mon-site.com
 	root: www/html
@@ -108,7 +108,7 @@ SERVER #1
 		autoindex: on
 		index: index.html
 		uploads_dir: 
-		cgi: /Users/thomas/Desktop/Webserv/cgi_tester
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
 	Location *.php
 		root: www/php
 		method: GET
@@ -120,10 +120,54 @@ SERVER #1
 		redirect: test1.php test2.php 0
 		redirect: test2.php helloworld.php 301
 		redirect: test3.php /helloworld3.php 302
-		cgi: /Users/thomas/Desktop/Webserv/cgi_tester
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
 SERVER #2
 	port: 9000
-	address: 2130706433
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-04 16:02:13 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
 	server_name: localhost
 	server_name: test.com
 	root: www/html/test

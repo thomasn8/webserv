@@ -73,10 +73,7 @@ int get_server_socket(int * master_socket, int * ports, int server_count, int ma
 		std::cout << " listening on socket fd: " << master_socket[i] << std::endl;
 		
 		if (bind(master_socket[i], (struct sockaddr *) &addresses[i], sizeof(addresses[i])) < 0)
-		{
 			std::cerr << "error: bind failed" << std::endl;
-		(master_socket[i]);
-		}
 		if (listen(master_socket[i], max_connections) < 0)
 			return -1;
 	}
@@ -96,77 +93,86 @@ int main()
 		exitWithError("error getting listening socket\n", 1);
 	for (int i = 0; i < SERVERS_COUNT; i++)
 	{
-		pfds[i].fd =  master_socket[i];
+		pfds[i].fd = master_socket[i];
     	pfds[i].events = POLLIN; 		// Report ready to read on incoming connection
+    	// pfds[i].events = POLLOUT; 		// Report ready to read on incoming connection
 	}
     fd_count = SERVERS_COUNT;
 
 	struct sockaddr_in remoteaddr;
 	int newfd;
 	char buf[256] = {0};
+	// char buf[1024] = {0};
 	std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello from the server!\n";
 
 	while (1)													// Main loop
 	{
 		int poll_count = poll(pfds, fd_count, -1);
-        if (poll_count == -1)
+		// int poll_count = poll(pfds, fd_count, 0);
+// If timeout is greater than zero, it specifies a maximum interval (in milliseconds) to wait for any file descriptor to become ready.
+// If timeout is zero, then poll() will return without blocking.
+// If the value of timeout is -1, the poll blocks indefinitely.
+        if (poll_count < 0)
 			exitWithError("error: poll failed\n", 1);
-		
-        for (int i = 0; i < fd_count; i++)						// Run through the existing connections
-		{
-            if (pfds[i].revents & POLLIN)						// Check read and write
+		// if (poll_count > 0)
+		// {
+			// std::cerr << "POLLING\n";
+			for (int i = 0; i < fd_count; i++)						// Run through the existing connections
 			{
-				for (int j = 0; j < SERVERS_COUNT; j++)
+				if (pfds[i].revents & POLLIN)						// We have data to read in the existing connections
 				{
-					if (pfds[i].fd == master_socket[j])			// If the server is ready to read, accept() new connection
+					std::cerr << "FD READY TO READ\n";
+					for (int j = 0; j < SERVERS_COUNT; j++)			// First, check only the master sockets and ...
 					{
-						remoteaddr.sin_len = sizeof(remoteaddr);
-						newfd = accept(master_socket[j], (struct sockaddr *)&remoteaddr, (socklen_t *)&remoteaddr.sin_len);
-						if (newfd < 0)
-							std::cerr << "error: accept failed\n";
-						else
+						if (pfds[i].fd == master_socket[j])			// ... if the server is ready to read, accept() new connection
 						{
-							add_to_pfds(&pfds, newfd, &fd_count, &fd_size);
-							std::cout << "Pollserver: new connection on socket " << master_socket[j];
-							std::cout << ", client socket fd is " << newfd;
-							std::cout << ", client ip is " << inet_ntoa(remoteaddr.sin_addr);
-							std::cout << ", client port is " <<  ntohs(remoteaddr.sin_port) << "\n\n";
-						}
-						break;
-					}
-					if (j == SERVERS_COUNT - 1)					// If a client is ready to write, handle his request (recv & send)
-					{
-						int nbytes_recv = recv(pfds[i].fd, buf, sizeof(buf), 0);
-						int sender_fd = pfds[i].fd;
-						
-						if (nbytes_recv <= 0)					// Error or connection closed by client
-						{
-							if (nbytes_recv == 0)
-								std::cout << "Pollserver: connection closed on socket " << sender_fd << "\n";
+							remoteaddr.sin_len = sizeof(remoteaddr);
+							newfd = accept(master_socket[j], (struct sockaddr *)&remoteaddr, (socklen_t *)&remoteaddr.sin_len);
+							if (newfd < 0)
+								std::cerr << "error: accept failed\n";
 							else
-								std::cerr << "error: recv failed\n";
-							close(pfds[i].fd);
-							del_from_pfds(pfds, i, &fd_count);
+							{
+								// fcntl(newfd, F_SETFL, O_NONBLOCK);
+								add_to_pfds(&pfds, newfd, &fd_count, &fd_size);
+								std::cout << "Poll-server: new connection on socket " << master_socket[j];
+								std::cout << ", client socket fd is " << newfd;
+								std::cout << ", client ip is " << inet_ntoa(remoteaddr.sin_addr);
+								std::cout << ", client port is " <<  ntohs(remoteaddr.sin_port) << "\n\n";
+							}
+							break;
 						}
-						else									// We got some good data from a client
+						if (j == SERVERS_COUNT - 1)					// If not a master socket so a client is ready to write ...
 						{
-							std::cout << nbytes_recv << " bytes read on socket " << pfds[i].fd << ":\n";
-							std::cout << buf << std::endl;
-							// if (pfds[i].revents == )
-							// {
-								int nbytes_sent = send(pfds[i].fd, response.c_str(), response.length(), 0);
-								// int nbytes_sent = send(pfds[i].fd, buf, nbytes_recv, 0);
+							int nbytes_recv = recv(pfds[i].fd, buf, sizeof(buf), 0);	// ... handle his request (recv & send)
+							int sender_fd = pfds[i].fd;
+							
+							if (nbytes_recv <= 0)					// Error or connection closed by client
+							{
+								if (nbytes_recv == 0)
+									std::cout << "Poll-server: connection closed on socket " << sender_fd << "\n";
+								else
+									std::cerr << "error: recv failed\n";
+								close(pfds[i].fd);
+								del_from_pfds(pfds, i, &fd_count);
+							}
+							else									// We got some good data from a client
+							{
+								std::cout << nbytes_recv << " bytes read on socket " << pfds[i].fd << ":\n";
+								std::cout << buf << std::endl;
+								int nbytes_sent = send(pfds[i].fd, response.c_str(), response.length(), 0);			// ESSAYER D'ENVOYER 1 SEULE FOIS, DES QUE LA REQUETE ENTIERE RECVEID
+								// int nbytes_sent = send(pfds[i].fd, buf, nbytes_recv, 0); // renvoyer le header
 								if (nbytes_sent < 0)
 									std::cerr << "error: send failed\n";
 								else
 									std::cout << "Welcome message sent successfully\n\n";
-							// }
+							}
 						}
 					}
 				}
-            }
-        }
+			}
+		// }
 	}
+	// FREE PFDS
 	return 0;
 }
 

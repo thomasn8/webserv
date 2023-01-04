@@ -46,15 +46,13 @@ static void clean_config(std::string & buffer, std::ifstream & configStream)
 	}
 }
 
-void parse_config(std::string & configFile, Server & server)
+void parse_config(std::string & configFile, Monitor & monitor)
 {
 	std::ifstream configStream;
 	open_file(configFile, configStream);
 	std::string buffer;
 	clean_config(buffer, configStream);
 	configStream.close();
-
-	std::cout << buffer << std::endl;
 
 	// lecture et tri du buffer: 
 	// variables word et prefix utilisees pour remplir les objets Config et Location
@@ -93,7 +91,7 @@ void parse_config(std::string & configFile, Server & server)
 							iss_w >> word;
 						compare = true;
 						if (server_context == true)
-							server.add_config();
+							monitor.add_server();
 					}
 				}
 				// DETECTE LES BLOCK LOCATION			
@@ -108,8 +106,8 @@ void parse_config(std::string & configFile, Server & server)
 						compare = true;
 						if (location_context == 2)
 						{
-							server.get_last_config().add_location();
-							server.get_last_config().get_last_location().set_prefix(prefix);
+							monitor.get_last_server().add_location();
+							monitor.get_last_server().get_last_location().set_prefix(prefix);
 						}
 					}
 				}
@@ -145,7 +143,7 @@ void parse_config(std::string & configFile, Server & server)
 				{
 					if (server_directive_index == I_ERROR_PAGE_C && p_error_page_syntax(line) == false)
 						p_exit_cerr_msg(ERROR_MSG, line, 1);
-					server.get_last_config().add_directive(server_directive_index, word);
+					monitor.get_last_server().add_directive(server_directive_index, word);
 				}
 				else
 				{
@@ -154,9 +152,9 @@ void parse_config(std::string & configFile, Server & server)
 					else if (location_directive_index == I_REDIRECTION_L && p_redirect_syntax(line) == false)
 						p_exit_cerr_msg(ERROR_MSG, line, 1);
 					if (location_directive_index != I_REDIRECTION_L)
-						server.get_last_config().get_last_location().add_directive(location_directive_index, word);
+						monitor.get_last_server().get_last_location().add_directive(location_directive_index, word);
 					else
-						server.get_last_config().get_last_location().add_directive(location_directive_index, line);
+						monitor.get_last_server().get_last_location().add_directive(location_directive_index, line);
 				}
 			}
 			word.clear();
@@ -171,6 +169,6 @@ void parse_config(std::string & configFile, Server & server)
 		p_exit_cerr_msg(ERROR_MSG, ERROR_LOCATION_BLOCK, 1);
 	if (server_context != BRACKET_CLOSED)
 		p_exit_cerr_msg(ERROR_MSG, ERROR_SERVER_BLOCK, 1);
-	server.log(server.get_time(), " CONFIGURATION RECAP.\n");
-	server.log_config_info();
+	monitor.log(monitor.get_time(), " CONFIGURATION RECAP.\n");
+	monitor.log_server_info();
 }
