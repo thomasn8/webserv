@@ -214,24 +214,23 @@ int Server::create_socket()
 	
 	_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket_fd < 0)
-		_exit_cerr_msg("Error: socket() failed", 1);
+		_exit_cerr_msg("Error: impossible to run server(s): socket() failed", 1);
 	fcntl(_socket_fd, F_SETFL, O_NONBLOCK);
 	if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, (void *)&opt, sizeof(opt)) < 0)
-		_exit_cerr_msg("Error: setsockopt() failed", 1);
+		_exit_cerr_msg("Error: impossible to run server(s): setsockopt() failed", 1);
 	
 	memset(_address.sin_zero, 0, sizeof(_address.sin_zero));
 	_address.sin_family = AF_INET;
-	_address.sin_addr.s_addr = htonl(INADDR_ANY);	// a voir si besoin d'utiliser _ipv4
+	_address.sin_addr.s_addr = htonl(INADDR_ANY);	// a voir si besoin d'utiliser _ipv4 (pour l'instant l'OS choisi l'ip)
 	_address.sin_port = _port;
 	_address.sin_len = sizeof(_address);
 
+	if (bind(_socket_fd, (struct sockaddr *) &_address, sizeof(_address)) < 0)
+		_exit_cerr_msg("Error: impossible to run server(s): bind() failed", 1);
+	if (listen(_socket_fd, BACKLOG) < 0)
+		_exit_cerr_msg("Error: impossible to run server(s): listen() failed", 1);
 	char ip4[INET_ADDRSTRLEN];
 	std::cout << inet_ntop(AF_INET, &(_address.sin_addr), ip4, INET_ADDRSTRLEN) << ":" << ntohs(_address.sin_port);
-	std::cout << " listening on socket fd: " << _socket_fd << std::endl;
-	
-	if (bind(_socket_fd, (struct sockaddr *) &_address, sizeof(_address)) < 0)
-		_exit_cerr_msg("Error: bind() failed", 1);
-	if (listen(_socket_fd, BACKLOG) < 0)
-		_exit_cerr_msg("Error: listen() failed", 1);
+	std::cout << " listening on socket " << _socket_fd << std::endl;
 	return _socket_fd;
 }
