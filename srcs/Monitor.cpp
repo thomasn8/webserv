@@ -103,7 +103,6 @@ void Monitor::handle_connections()
 	int newfd = -1;
 	int size_recv = 0, total_recv = 0, size_sent = 0;
 	char chunk[CHUNK_SIZE];
-	// char buf[500];
 	struct sockaddr_in remoteAddr;
 	while (1)													// Main loop
 	{
@@ -128,7 +127,7 @@ void Monitor::handle_connections()
 						else
 						{
 							_add_to_pfds(newfd);
-							std::cout << "Poll-server: new connection on socket " << _master_sockets[j];
+							std::cout << "New connection on socket " << _master_sockets[j];
 							std::cout << ", client socket fd is " << newfd;
 							std::cout << ", client ip is " << inet_ntoa(remoteAddr.sin_addr);
 							std::cout << ", client port is " <<  ntohs(remoteAddr.sin_port) << "\n\n";
@@ -137,31 +136,53 @@ void Monitor::handle_connections()
 					}
 					if (j == server_count - 1)					// If not a master socket so a client is ready to write ...
 					{
-						// MANIERE 1 DE RECV: dans une loop et jusqu'a ce que recv return -1
-						while(1)
+						// // MANIERE 1 DE RECV: dans une loop et jusqu'a ce que recv return -1
+						// while(1)
+						// {
+						// 	memset(chunk, 0, CHUNK_SIZE);
+						// 	size_recv = recv(_pfds[i].fd, chunk, CHUNK_SIZE, 0);	// ... handle his request
+						// 	if (size_recv <= 0)					// Error or connection closed by client
+						// 	{
+						// 		close(_pfds[i].fd);
+						// 		_del_from_pfds(i);
+						// 		std::cout << "Poll-server: connection closed on socket " << _pfds[i].fd << "\n";
+						// 		break;
+						// 	}
+						// 	else								// We got some good data from a client
+						// 	{
+						// 		total_recv += size_recv;
+						// 		std::cout << size_recv << " bytes read on socket " << _pfds[i].fd << ":\n";
+						// 		std::cout << chunk << std::endl;
+						// 		size_sent = send(_pfds[i].fd, finalResponse.c_str(), finalResponse.length(), 0);
+						// 		if (size_sent < 0)
+						// 			std::cerr << "error: send failed\n";
+						// 	}
+						// 	std::cout << std::endl;
+						// }
+
+						// MANIERE 2 DE RECV: dans une loop et jusqu'a ce que recv return -1
+						while (1)
 						{
-							memset(chunk, 0, CHUNK_SIZE);
+							memset(chunk, '\0', CHUNK_SIZE);
 							size_recv = recv(_pfds[i].fd, chunk, CHUNK_SIZE, 0);	// ... handle his request
-							if (size_recv <= 0)					// Error or connection closed by client
+							std::cout << size_recv << " bytes read on socket " << _pfds[i].fd << ":\n";
+							if (size_recv > 0)
 							{
+								// ici: construire la request a mesure que les recv renvoi > 0
+								std::cout << "CHUNK:\n" << chunk << std::endl;
+							}
+							if (size_recv < CHUNK_SIZE)								// toute la request a été read
+							{
+								size_sent = send(_pfds[i].fd, finalResponse.c_str(), finalResponse.length(), 0);
+								std::cout << "Response sent successfully on socket " << _pfds[i].fd << "\n";
 								close(_pfds[i].fd);
 								_del_from_pfds(i);
-								std::cout << "Poll-server: connection closed on socket " << _pfds[i].fd << "\n";
+								std::cout << "Connection closed on socket " << _pfds[i].fd << "\n";
 								break;
 							}
-							else								// We got some good data from a client
-							{
-								total_recv += size_recv;
-								std::cout << size_recv << " bytes read on socket " << _pfds[i].fd << ":\n";
-								std::cout << chunk << std::endl;
-								size_sent = send(_pfds[i].fd, finalResponse.c_str(), finalResponse.length(), 0);
-								if (size_sent < 0)
-									std::cerr << "error: send failed\n";
-							}
-							std::cout << std::endl;
 						}
 
-						// // MANIERE 2 DE RECV: repasse dans toute la while(1) loop de poll() et jusqu'a ce que recv return 0
+						// // MANIERE 3 DE RECV: repasse dans toute la while(1) loop de poll() et jusqu'a ce que recv return 0
 						// memset(chunk, '\0', CHUNK_SIZE);
 						// size_recv = recv(_pfds[i].fd, chunk, CHUNK_SIZE, 0);	// ... handle his request
 						// // try {

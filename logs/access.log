@@ -4002,3 +4002,1235 @@ SERVER #2
 	index: index.html
 	index: index.php
 	client_mbs: 0
+2023-01-06 12:47:17 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 12:47:43 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 12:49:41 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 12:50:03 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 12:54:20 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 12:56:11 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 12:59:45 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:00:32 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:01:14 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:01:33 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:04:51 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:05:39 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:08:09 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:09:32 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:11:23 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:13:47 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:15:42 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:17:17 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:19:50 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:23:22 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:24:15 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:36:23 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:37:08 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:38:31 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:39:34 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:40:05 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:40:36 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+2023-01-06 13:41:19 CONFIGURATION RECAP.
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
