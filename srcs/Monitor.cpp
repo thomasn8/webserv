@@ -1,5 +1,4 @@
 #include "../includes/Monitor.hpp"
-
 /* 
 	************ CONST/DESTR
 */
@@ -50,6 +49,8 @@ void Monitor::_prepare_sockets()
 	{
 		_pfds[i].fd = _master_sockets[i];
     	_pfds[i].events = POLLIN;
+    	// _pfds[i].events = POLLIN | POLLOUT;
+    	_pfds[i].revents = 0;
 	}
 }
 
@@ -62,6 +63,8 @@ void Monitor::_add_to_pfds(int newfd)
 	}
 	_pfds[_fd_count].fd = newfd;
 	_pfds[_fd_count].events = POLLIN;
+	// _pfds[_fd_count].events = POLLIN | POLLOUT;
+	_pfds[_fd_count].revents = 0 ;
 	_fd_count++;
 }
 
@@ -71,16 +74,36 @@ void Monitor::_del_from_pfds(int i)
 	_fd_count--;
 }
 
+int Monitor::_recv_chunks(int s)
+{
+	int size_recv , total_size = 0;
+	char chunk[CHUNK_SIZE];
+	while(1)
+	{
+		memset(chunk, 0, CHUNK_SIZE);
+		if((size_recv =  recv(s, chunk, CHUNK_SIZE, 0) ) < 0)
+			break;
+		else
+		{
+			total_size += size_recv;
+			printf("%s" , chunk);
+		}
+	}
+	return total_size;
+}
+
 void Monitor::handle_connections()
 {
 	_prepare_sockets();
 
 	int server_count = _servers.size();
-	std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello from the server!\n";
+	std::string response = "HTTP/1.1 200 OK\nContent-Length: 0\n\n";
+	std::string finalResponse = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello from the server!\n";
 	int poll_count = 0;
-	int sender_fd = -1, newfd = -1;
-	int nbytes_recv = 0, nbytes_sent = 0;
-	char buf[256];
+	int newfd = -1;
+	int size_recv = 0, total_recv = 0, size_sent = 0;
+	char chunk[CHUNK_SIZE];
+	// char buf[500];
 	struct sockaddr_in remoteAddr;
 	while (1)													// Main loop
 	{
@@ -90,7 +113,21 @@ void Monitor::handle_connections()
 			// log("Error: poll failed\n");
 		for (int i = 0; i < _fd_count; i++)						// Run through the existing connections
 		{
-			if (_pfds[i].revents & POLLIN)						// We have data to read in the existing connections
+			// if (_pfds[i].revents & POLLIN)						// We have data to read in the existing connections
+			// if (_pfds[i].revents & POLLIN | _pfds[i].revents & POLLOUT)						// We have data to read in the existing connections
+			// if (_pfds[i].revents == POLLIN + POLLOUT)						// We have data to read in the existing connections
+			// if (_pfds[i].revents == POLLIN)						// We have data to read in the existing connections
+			// if (_pfds[i].revents == READ_AND_WRITE)						// We have data to read in the existing connections
+			// if ((_pfds[i].revents & POLLIN) == POLLIN && (_pfds[i].revents & POLLOUT) == POLLOUT)						// We have data to read in the existing connections
+			if (_pfds[i].revents != 0) 
+			{
+				printf("  fd=%d; events: %s%s%s%s\n", _pfds[i].fd,
+						(_pfds[i].revents & POLLIN)  ? "POLLIN "  : "",
+						(_pfds[i].revents & POLLOUT)  ? "POLLOUT "  : "",
+						(_pfds[i].revents & POLLHUP) ? "POLLHUP " : "",
+						(_pfds[i].revents & POLLERR) ? "POLLERR " : "");
+			}
+			if (_pfds[i].revents & POLLIN)
 			{
 				std::cerr << "FD READY TO READ\n";
 				for (int j = 0; j < server_count; j++)			// First, check only the master sockets and ...
@@ -107,34 +144,86 @@ void Monitor::handle_connections()
 							std::cout << "Poll-server: new connection on socket " << _master_sockets[j];
 							std::cout << ", client socket fd is " << newfd;
 							std::cout << ", client ip is " << inet_ntoa(remoteAddr.sin_addr);
-							std::cout << ", client port is " <<  ntohs(remoteAddr.sin_port) << "\n\n";
+							// std::cout << ", client port is " <<  ntohs(remoteAddr.sin_port) << "\n\n";
+							
+							std::cout << ", client port is " <<  ntohs(remoteAddr.sin_port);
+							// int opt = 1;
+							// setsockopt(newfd, SOL_SOCKET, SO_KEEPALIVE, (void *)&opt, sizeof(opt));
+							// struct timeval tv;
+							// tv.tv_sec = 10;
+							// tv.tv_usec = 0;
+							// setsockopt(newfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+							int rcvBufferSize1;
+							int sockOptSize1 = sizeof(rcvBufferSize1);
+							getsockopt(newfd, SOL_SOCKET, SO_KEEPALIVE, &rcvBufferSize1, (socklen_t *)&sockOptSize1);
+							int rcvBufferSize2;
+							int sockOptSize2 = sizeof(rcvBufferSize2);
+							getsockopt(newfd, SOL_SOCKET, SO_RCVBUF, &rcvBufferSize2, (socklen_t *)&sockOptSize2);
+							int rcvBufferSize3;
+							int sockOptSize3 = sizeof(rcvBufferSize3);
+							getsockopt(newfd, SOL_SOCKET, SO_RCVTIMEO, &rcvBufferSize3, (socklen_t *)&sockOptSize3);
+							std::cout << "SO_KEEPALIVE: " << rcvBufferSize1 << ", SO_RCVBUF: " << rcvBufferSize2 << ",  SO_RCVTIMEO: " << rcvBufferSize3 << "\n\n";
 						}
 						break;
 					}
 					if (j == server_count - 1)					// If not a master socket so a client is ready to write ...
 					{
-						nbytes_recv = recv(_pfds[i].fd, buf, sizeof(buf), 0);	// ... handle his request (recv & send)
-						sender_fd = _pfds[i].fd;
-						
-						if (nbytes_recv <= 0)					// Error or connection closed by client
+						while(1)
 						{
-							if (nbytes_recv == 0)
-								std::cout << "Poll-server: connection closed on socket " << sender_fd << "\n";
+							memset(chunk, 0, CHUNK_SIZE);
+							size_recv = recv(_pfds[i].fd, chunk, CHUNK_SIZE, 0);	// ... handle his request (recv & send)
+							if (size_recv <= 0)
+							{
+								// if (size_recv < 0)
+								// {
+								// 	std::cerr << "error: recv failed\n";
+								// 	// printf("Error (%d) %s\n", errno, strerror(errno));
+								// }
+								close(_pfds[i].fd);
+								_del_from_pfds(i);
+								std::cout << "Poll-server: connection closed on socket " << _pfds[i].fd << "\n";
+								break;
+							}
 							else
-								std::cerr << "error: recv failed\n";
-							close(_pfds[i].fd);
-							_del_from_pfds(i);
+							{
+								total_recv += size_recv;
+								std::cout << std::endl << size_recv << " bytes read on socket " << _pfds[i].fd << ":\n";
+								std::cout << chunk;
+								size_sent = send(_pfds[i].fd, finalResponse.c_str(), finalResponse.length(), 0);
+								if (size_sent < 0)
+									std::cerr << "error: send failed\n";
+							}
+							std::cout << std::endl;
 						}
-						else									// We got some good data from a client
-						{
-							std::cout << nbytes_recv << " bytes read on socket " << _pfds[i].fd << ":\n";
-							std::cout << buf << std::endl;
-							nbytes_sent = send(_pfds[i].fd, response.c_str(), response.length(), 0);// ESSAYER D'ENVOYER 1 SEULE FOIS, DES QUE LA REQUETE ENTIERE RECVEID
-							if (nbytes_sent < 0)
-								std::cerr << "error: send failed\n";
-							else
-								std::cout << "Welcome message sent successfully\n\n";
-						}
+
+						// memset(chunk, '\0', CHUNK_SIZE);
+						// size_recv = recv(_pfds[i].fd, chunk, CHUNK_SIZE, 0);	// ... handle his request (recv & send)
+						// // try {
+						// // 	Request request(buf);
+						// // 	Response response(request);
+						// // }
+						// // catch (MessageException const & e) {
+						// // 	Response response(e.what);
+						// // }
+						// if (size_recv <= 0)					// Error or connection closed by client
+						// {
+						// 	if (size_recv < 0)
+						// 		std::cerr << "error: recv failed\n";
+						// 	close(_pfds[i].fd);
+						// 	_del_from_pfds(i);
+						// 	std::cout << "Poll-server: connection closed on socket " << _pfds[i].fd << "\n";
+						// 	// std::cout << "char[0] = |" << chunk[size_recv] << "|\n\n";
+						// }
+						// else									// We got some good data from a client
+						// {
+						// 	std::cout << size_recv << " bytes read on socket " << _pfds[i].fd << ":\n";
+						// 	std::cout << chunk << std::endl;
+						// 	size_sent = send(_pfds[i].fd, finalResponse.c_str(), finalResponse.length(), 0);
+						// 	if (size_sent < 0)
+						// 		std::cerr << "error: send failed\n";
+						// 	// std::cout << "char[477] = |" << chunk[size_recv - 2] << "|\n\n";
+						// 	// std::cout << "char[478] = |" << chunk[size_recv - 1] << "|\n\n";	// dernier char du buffer
+						// }
 					}
 				}
 			}

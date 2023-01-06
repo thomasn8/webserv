@@ -231,7 +231,7 @@ int Server::create_socket()
 	
 	if (bind(_socket_fd, (struct sockaddr *) &_address, sizeof(_address)) < 0)
 		_exit_cerr_msg("Error: bind() failed", 1);
-	if (listen(_socket_fd, MAX_PENDING_CONNECTIONS) < 0)
+	if (listen(_socket_fd, BACKLOG) < 0)
 		_exit_cerr_msg("Error: listen() failed", 1);
 	return _socket_fd;
 }
