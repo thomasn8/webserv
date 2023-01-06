@@ -34,7 +34,7 @@ const std::string	g_server_directives[] = {"listen", "server_name", "root", "ind
 # define I_CLIENT_MAX_BODY_SIZE_C 5
 
 // SOCKET
-# define MAX_PENDING_CONNECTIONS 20
+# define BACKLOG 10
 
 class Server
 {

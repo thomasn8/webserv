@@ -18,9 +18,9 @@
 
 #include "Server.hpp"
 
-# define LISTEN_BACKLOG 50
-# define KEEPALIVE 65
 # define LOG_PATH "logs/access.log"
+# define CHUNK_SIZE 512
+// # define KEEPALIVE 65
 
 class Monitor
 {
@@ -64,7 +64,7 @@ class Monitor
 		struct pollfd *_pfds;
 		void _add_to_pfds(int newfd);
 		void _del_from_pfds(int i);
-
+		int _recv_chunks(int s);
 
 		// LOG
 		void _create_log_file(std::string const & filename, std::ofstream & stream);
