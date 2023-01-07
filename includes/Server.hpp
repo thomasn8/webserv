@@ -13,10 +13,10 @@
 #include <vector>
 #include <deque>
 
+class Monitor;
 #include "Location.hpp"
 
 // INITIALIZATION
-# define DEFAULT_IP "0.0.0.0" // default IP address that lets the operating system choose
 # define DEFAULT_PORT 80
 # define DEFAULT_SERVERNAME "localhost"
 # define DEFAULT_ROOT "www/html/"
@@ -42,7 +42,7 @@ class Server
 		typedef std::pair<int, std::string> error_page_pair;
 
 		// CONST/DESTR
-		Server();
+		Server(Monitor * monitor);
 		Server(const Server & src);
 		~Server();
 
@@ -57,6 +57,7 @@ class Server
 		void set_index(std::string & value);
 		void set_error_page(std::string & value);
 		void set_client_max_body_size(std::string & value);
+		Monitor * get_monitor() const;
 		uint16_t get_port() const;
 		uint32_t get_address() const;
 		std::string get_servername() const;
@@ -71,6 +72,11 @@ class Server
 		int create_socket();
 
 	private:
+		// CONST/DESTR
+		Server();
+		Monitor * _monitor;
+
+		// CONFIG
 		std::deque<Location> _locations;
 
 		uint32_t _ipv4;

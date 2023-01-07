@@ -1,4 +1,5 @@
 #include "../includes/Monitor.hpp"
+#include "../includes/Server.hpp"
 /* 
 	************ CONST/DESTR
 */
@@ -26,7 +27,7 @@ std::deque<Server> & Monitor::get_servers() { return _servers; }
 
 Server & Monitor::get_last_server() { return get_servers().back(); }
 
-void Monitor::add_server() { _servers.push_back(Server()); }
+void Monitor::add_server() { _servers.push_back(Server(this)); }
 
 /* 
 	************ SOCKETS ( !!! allocations -> free dans le destructeur)
@@ -104,7 +105,10 @@ void Monitor::_print_events(struct pollfd *pfd) const
 void Monitor::handle_connections()
 {
 	_prepare_sockets(); // socket, bind, listen pour chaque port + creer les struct pollfd dédiées
-	log(get_time(), " START SERVER\n\n");
+	if (_servers.size() == 1)
+		log(get_time(), " SERVER STARTED\n\n");
+	else
+		log(get_time(), " SERVERS STARTED\n\n");
 
 	int server_count = _servers.size();
 	std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello from the server!\n";

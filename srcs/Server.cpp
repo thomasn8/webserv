@@ -1,9 +1,25 @@
 #include "../includes/Server.hpp"
-
+#include "../includes/Monitor.hpp"
 /* 
 	************ CONST/DESTR
 */
+Server::Server(Monitor * monitor) :
+_monitor(monitor),
+_locations(std::deque<Location>()),
+_ipv4(INADDR_ANY), _port(DEFAULT_PORT),  
+_serverNames(std::vector<std::string>(1, std::string(DEFAULT_SERVERNAME))),
+_defaultServerNames(true),
+_root(std::string(DEFAULT_ROOT)),
+_indexFiles(std::vector<std::string>(1, std::string(DEFAULT_INDEX))),
+_defaultIndex(true),
+_clientMaxBodySize(MBS),
+_errorPages(std::vector< error_page_pair >()),
+_socket_fd(-1),
+_address()
+{}
+
 Server::Server() :
+_monitor(),
 _locations(std::deque<Location>()),
 _ipv4(INADDR_ANY), _port(DEFAULT_PORT),  
 _serverNames(std::vector<std::string>(1, std::string(DEFAULT_SERVERNAME))),
@@ -18,6 +34,7 @@ _address()
 {}
 
 Server::Server(const Server & src) :
+_monitor(src.get_monitor()),
 _locations(std::deque<Location>()),
 _ipv4(INADDR_ANY), _port(DEFAULT_PORT),  
 _serverNames(std::vector<std::string>(1, std::string(DEFAULT_SERVERNAME))),
@@ -181,6 +198,8 @@ void Server::set_client_max_body_size(std::string & value)
 	_clientMaxBodySize = std::stoi(value);
 }
 
+Monitor * Server::get_monitor() const { return _monitor; }
+
 uint16_t Server::get_port() const { return _port; }
 
 uint32_t Server::get_address() const { return _ipv4; }
@@ -230,7 +249,6 @@ int Server::create_socket()
 	if (listen(_socket_fd, BACKLOG) < 0)
 		_exit_cerr_msg("Error: impossible to run server(s): listen() failed", 1);
 	char ip4[INET_ADDRSTRLEN];
-	std::cout << inet_ntop(AF_INET, &(_address.sin_addr), ip4, INET_ADDRSTRLEN) << ":" << ntohs(_address.sin_port);
-	std::cout << " listening on socket " << _socket_fd << std::endl;
+	_monitor->log(inet_ntop(AF_INET, &(_address.sin_addr), ip4, INET_ADDRSTRLEN), ":", ntohs(_address.sin_port), " listening on socket ", _socket_fd, "\n");
 	return _socket_fd;
 }

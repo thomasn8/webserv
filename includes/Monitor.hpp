@@ -2,6 +2,7 @@
 # define MONITOR_HPP
 
 #include <iostream>
+#include <fstream>
 #include <cstring>
 #include <string>
 #include <unistd.h>
@@ -16,7 +17,7 @@
 #include <deque>
 #include <vector>
 
-#include "Server.hpp"
+class Server;
 
 # define LOG_PATH "logs/access.log"
 # define CHUNK_SIZE 256
@@ -64,6 +65,7 @@ class Monitor
 		}
 
 	private:
+		// SERVERS
 		std::deque<Server> _servers;
 
 		// SOCKETS
