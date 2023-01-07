@@ -58,6 +58,10 @@ void Monitor::_prepare_sockets()
     	// _pfds[i].events = POLLIN | POLLOUT;
     	_pfds[i].revents = 0;
 	}
+	if (_servers.size() == 1)
+		log(get_time(), " SERVER STARTED\n\n");
+	else
+		log(get_time(), " SERVERS STARTED\n\n");
 }
 
 void Monitor::_add_to_pfds(int newfd)
@@ -105,10 +109,6 @@ void Monitor::_print_events(struct pollfd *pfd) const
 void Monitor::handle_connections()
 {
 	_prepare_sockets(); // socket, bind, listen pour chaque port + creer les struct pollfd dédiées
-	if (_servers.size() == 1)
-		log(get_time(), " SERVER STARTED\n\n");
-	else
-		log(get_time(), " SERVERS STARTED\n\n");
 
 	int server_count = _servers.size();
 	std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello from the server!\n";
