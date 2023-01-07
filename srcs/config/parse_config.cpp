@@ -169,6 +169,6 @@ void parse_config(std::string & configFile, Monitor & monitor)
 		p_exit_cerr_msg(ERROR_MSG, ERROR_LOCATION_BLOCK, 1);
 	if (server_context != BRACKET_CLOSED)
 		p_exit_cerr_msg(ERROR_MSG, ERROR_SERVER_BLOCK, 1);
-	monitor.log(monitor.get_time(), " CONFIGURATION RECAP.\n");
+	monitor.log(monitor.get_time(), " CONFIGURATION\n\n");
 	monitor.log_server_info();
 }

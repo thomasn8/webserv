@@ -49,13 +49,18 @@ class Monitor
 		void log_server_info();
 	
 		template <typename T>
-		void log(T message) { _accessStream << message; }
+		void log(T message)
+		{
+			_accessStream << message;
+			_accessStream.flush();
+		}
 		
 		template<typename T, typename... Args>
 		void log(T message, Args... args)
 		{ 
 			_accessStream << message;
 			log(args...);
+			_accessStream.flush();
 		}
 
 	private:

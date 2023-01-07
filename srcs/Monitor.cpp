@@ -104,6 +104,7 @@ void Monitor::_print_events(struct pollfd *pfd) const
 void Monitor::handle_connections()
 {
 	_prepare_sockets(); // socket, bind, listen pour chaque port + creer les struct pollfd dédiées
+	log(get_time(), " START SERVER\n\n");
 
 	int server_count = _servers.size();
 	std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello from the server!\n";
@@ -118,7 +119,7 @@ void Monitor::handle_connections()
 	{
 		poll_events = poll(_pfds, _fd_count, -1);
         if (poll_events < 0)
-			log("Error: poll failed\n");
+			log(get_time(), " Error: poll failed\n");
 		for (int i = 0; i < _fd_count; i++)						// Run through the existing connections
 		{
 			if (_pfds[i].revents != 0)
@@ -133,12 +134,13 @@ void Monitor::handle_connections()
 						remoteAddr.sin_len = sizeof(remoteAddr);
 						newfd = accept(_master_sockets[j], (struct sockaddr *)&remoteAddr, (socklen_t *)&remoteAddr.sin_len);
 						if (newfd < 0)
-							log("Error: accept: new connexion on port ", ntohs(_servers[j].get_port()), " failed\n");
+							log(get_time(), " Error: accept: new connexion on port ", ntohs(_servers[j].get_port()), " failed\n");
 						else
 						{
 							_add_to_pfds(newfd);
 							std::cout << "New connection on server port " << ntohs(_servers[j].get_port()) << std::endl;
 							std::cout << "Client " << inet_ntoa(remoteAddr.sin_addr) << ":" <<  ntohs(remoteAddr.sin_port) << " is given socket " << newfd << std::endl;
+							log(get_time(), " Client ", inet_ntoa(remoteAddr.sin_addr), ":", ntohs(remoteAddr.sin_port), " connects on server port ", ntohs(_servers[j].get_port()), " via socket ", newfd, "\n");
 						}
 						break;
 					}
@@ -165,6 +167,7 @@ void Monitor::handle_connections()
 								close(polled_fd);
 								_del_from_pfds(i);
 								std::cout << "Connection closed on socket " << polled_fd << std::endl;
+								log(get_time(), " Connection closed on socket ", polled_fd, "\n");
 								break;
 							}
 						}
@@ -255,4 +258,5 @@ void Monitor::log_server_info()
 			_accessStream << "		" << "cgi: " << (*it2).get_cgiBinPath() << std::endl;
 		}
 	}
+	_accessStream << std::endl;
 }
