@@ -9,9 +9,7 @@ Request::Request(std::string rawMessage) : _rawMessage(rawMessage) {
     _check_alone_CR();
     _parse_start_line(str);
     _parse_header(raw);
-
-    // check les headers
-    // check le body
+    _parse_body(raw);
 }
 
 Request::Request(const Request& instance) {
@@ -55,6 +53,7 @@ void Request::_parse_start_line(std::string startLine) {
     std::string token;
     size_t pos = 0;
 
+    tmp.erase(remove(tmp.begin(), tmp.end(), '\r'), tmp.end());
     for(int i = 0; i < 3; i++) {
         pos = tmp.find(' ');
         if (i < 2 && pos == std::string::npos)
@@ -70,8 +69,9 @@ void Request::_parse_start_line(std::string startLine) {
         }
         else if (i == 2) {
             this->_version = tmp.substr(0, pos);
-            if (this->_version != "HTTP/1.1")
+            if (this->_version.compare("HTTP/1.1") != 0) {
                 throw MessageException(HTTP_VERSION_UNSUPPORTED);
+            }
         }
         tmp.erase(0, pos + 1);
     }
@@ -79,15 +79,48 @@ void Request::_parse_start_line(std::string startLine) {
         throw MessageException(BAD_REQUEST);
 }
 
-void Request::_parse_header(std::istringstream &raw) {
-    std::string str;
+void Request::_split_field(size_t pos, std::string line) {
+    std::string             key;
+    std::string             tmp;
+    std::list<std::string>  lstTmp;
+    std::string::iterator   it;
+    std::string::iterator   it2;
 
-    getline(raw, str);
-    while (!str.empty() && str != "\r\n") {
-        
-        getline(raw, str);
+    key = line.substr(0, pos);
+    line.erase(0, pos + 1);
+    while ((pos = line.find(',')) != std::string::npos) {
+        tmp =  p_trim_sides(line.substr(0, pos));
+        lstTmp.push_back(tmp);
+        line.erase(0, pos + 1);
     }
+    tmp = p_trim_sides(line.substr(0, pos));
+    lstTmp.push_back(tmp);
+    line.erase(0, pos + 1);
+    this->_fields.insert({key, lstTmp});
+}
 
+//header parsing
+void Request::_parse_header(std::istringstream &raw) {
+    std::string             line;
+    size_t                  pos = 0;
+
+    getline(raw, line);
+    while (!line.empty() && line != "\r") {
+        pos = line.find(':');
+        if (pos == std::string::npos)
+            throw MessageException(BAD_REQUEST);
+        _split_field(pos, line);
+        getline(raw, line);
+    }
+}
+
+//body parsing
+void Request::_parse_body(std::istringstream &raw) {
+    std::string             line;
+
+    while (getline(raw, line)) {
+        this->_body += line;
+    }
 }
 
 // --------- Operator overload ------------
@@ -100,13 +133,6 @@ Request &Request::operator=(const Request &instance) {
 
     this->_hasBody = instance._hasBody;
     this->_body = instance._body;
-
-    std::map<std::string, std::string>::const_iterator it;
-    std::map<std::string, std::string>::const_iterator it2;
-    it2 = this->_fields.begin();
-    for (it = instance._fields.begin(); it != instance._fields.end(); it++) {
-        it2 = it;
-        it2++;
-    }
+    this->_fields.insert(instance._fields.begin(), instance._fields.end());
     return *this;
 }

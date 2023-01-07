@@ -1,6 +1,7 @@
 #ifndef MESSAGE_HPP
 # define MESSAGE_HPP
 
+#include <iostream>
 #include <string>
 #include <list>
 #include <map>
@@ -19,6 +20,7 @@ class Message {
 		virtual ~Message() = 0;
 
 		std::map<std::string, std::list<std::string>>	get_fields() const;
+		void											display_fields() const;
 		std::string										get_body() const;
 		bool											has_body() const;
 
@@ -35,9 +37,9 @@ class Message {
         };
 
 	protected:
-		std::map<std::string, std::string>	_fields;
-		bool								_hasBody;
-		std::string							_body;
+		std::map<std::string, std::list<std::string>>	_fields;
+		bool											_hasBody;
+		std::string										_body;
 };
 
 #endif
