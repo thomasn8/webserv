@@ -73,7 +73,7 @@ class Monitor
 		int _fd_count;
 		int _fd_capacity;
 		struct pollfd *_pfds;
-		void _add_to_pfds(int newfd);
+		void _add_to_pfds(int new_fd);
 		void _del_from_pfds(int i);
 		void _print_events(struct pollfd *pfd) const;
 
