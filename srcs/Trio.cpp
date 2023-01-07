@@ -1,4 +1,4 @@
-#include "Trio.hpp"
+#include "../includes/Trio.hpp"
 #include <iostream>
 
 Trio::Trio() :

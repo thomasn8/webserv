@@ -1,14 +1,14 @@
 SRCS		=	srcs/main.cpp							\
-				srcs/config/Trio.cpp							\
+				srcs/Trio.cpp							\
 				srcs/config/parse_config.cpp			\
 				srcs/config/parse_context.cpp			\
 				srcs/config/utils.cpp					\
+			  	srcs/Monitor.cpp						\
 			  	srcs/Server.cpp							\
-			  	srcs/config/Config.cpp					\
-			  	srcs/config/Location.cpp				\
-			  	srcs/Request.cpp				\
-			  	srcs/Message.cpp				\
+			  	srcs/Request.cpp						\
+			  	srcs/Message.cpp						\
 			  	# srcs/Response.cpp				
+			  	srcs/Location.cpp						\
 
 
 OBJS		= ${SRCS:.cpp=.o}

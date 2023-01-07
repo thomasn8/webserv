@@ -1,8 +1,9 @@
-2022-12-17 15:52:34 CONFIGURATION RECAP.
+2023-01-07 15:12:41 CONFIGURATION
+
 Nombre de server: 2
 SERVER #1
 	port: 8080
-	address: 0
+	ip: 0
 	server_name: localhost
 	server_name: mon-site.com
 	root: www/html
@@ -20,7 +21,7 @@ SERVER #1
 		autoindex: on
 		index: index.html
 		uploads_dir: 
-		cgi: /Users/thomas/Desktop/Webserv/cgi_tester
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
 	Location *.php
 		root: www/php
 		method: GET
@@ -32,21 +33,57 @@ SERVER #1
 		redirect: test1.php test2.php 0
 		redirect: test2.php helloworld.php 301
 		redirect: test3.php /helloworld3.php 302
-		cgi: /Users/thomas/Desktop/Webserv/cgi_tester
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
 SERVER #2
 	port: 9000
-	address: 2130706433
+	ip: 2130706433
 	server_name: localhost
 	server_name: test.com
 	root: www/html/test
 	index: index.html
 	index: index.php
 	client_mbs: 0
-2022-12-17 15:56:28 CONFIGURATION RECAP.
+
+0.0.0.0:8080 listening on socket 4
+0.0.0.0:9000 listening on socket 5
+2023-01-07 15:12:41 SERVERS STARTED
+
+2023-01-07 15:12:51 Client 127.0.0.1:0 connects on server port 8080 via socket 6
+2023-01-07 15:12:51 Connection closed on socket 6
+2023-01-07 15:14:08 Client 127.0.0.1:0 connects on server port 8080 via socket 6
+2023-01-07 15:14:09 Client 127.0.0.1:0 connects on server port 9000 via socket 7
+2023-01-07 15:14:14 Connection closed on socket 6
+2023-01-07 15:14:15 Connection closed on socket 7
+2023-01-07 15:14:17 Client 127.0.0.1:0 connects on server port 9000 via socket 6
+2023-01-07 15:14:17 Connection closed on socket 6
+2023-01-07 15:14:39 Client 127.0.0.1:0 connects on server port 8080 via socket 6
+2023-01-07 15:14:39 Connection closed on socket 6
+2023-01-07 15:14:46 Client 127.0.0.1:0 connects on server port 9000 via socket 6
+2023-01-07 15:14:46 Connection closed on socket 6
+2023-01-07 15:14:51 Client 127.0.0.1:0 connects on server port 9000 via socket 6
+2023-01-07 15:14:51 Connection closed on socket 6
+2023-01-07 15:15:01 Client 127.0.0.1:0 connects on server port 9000 via socket 6
+2023-01-07 15:15:01 Connection closed on socket 6
+2023-01-07 15:15:09 Client 127.0.0.1:0 connects on server port 9000 via socket 6
+2023-01-07 15:15:09 Connection closed on socket 6
+2023-01-07 15:15:22 Client 127.0.0.1:0 connects on server port 8080 via socket 6
+2023-01-07 15:15:22 Connection closed on socket 6
+2023-01-07 15:16:01 Client 127.0.0.1:0 connects on server port 8080 via socket 6
+2023-01-07 15:16:01 Connection closed on socket 6
+2023-01-07 15:16:06 Client 127.0.0.1:0 connects on server port 9000 via socket 6
+2023-01-07 15:16:06 Connection closed on socket 6
+2023-01-07 15:16:10 Client 127.0.0.1:0 connects on server port 8080 via socket 6
+2023-01-07 15:16:10 Connection closed on socket 6
+2023-01-07 15:16:25 Client 127.0.0.1:0 connects on server port 8080 via socket 6
+2023-01-07 15:16:25 Connection closed on socket 6
+2023-01-07 15:16:29 Client 127.0.0.1:0 connects on server port 9000 via socket 6
+2023-01-07 15:16:29 Connection closed on socket 6
+2023-01-07 15:16:51 CONFIGURATION
+
 Nombre de server: 2
 SERVER #1
 	port: 8080
-	address: 0
+	ip: 0
 	server_name: localhost
 	server_name: mon-site.com
 	root: www/html
@@ -64,7 +101,7 @@ SERVER #1
 		autoindex: on
 		index: index.html
 		uploads_dir: 
-		cgi: /Users/thomas/Desktop/Webserv/cgi_tester
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
 	Location *.php
 		root: www/php
 		method: GET
@@ -76,57 +113,20 @@ SERVER #1
 		redirect: test1.php test2.php 0
 		redirect: test2.php helloworld.php 301
 		redirect: test3.php /helloworld3.php 302
-		cgi: /Users/thomas/Desktop/Webserv/cgi_tester
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
 SERVER #2
 	port: 9000
-	address: 2130706433
+	ip: 2130706433
 	server_name: localhost
 	server_name: test.com
 	root: www/html/test
 	index: index.html
 	index: index.php
 	client_mbs: 0
-2022-12-17 15:56:35 CONFIGURATION RECAP.
-Nombre de server: 2
-SERVER #1
-	port: 8080
-	address: 0
-	server_name: localhost
-	server_name: mon-site.com
-	root: www/html
-	index: index.html
-	index: index.php
-	error_page: 404: /not_found.html
-	error_page: 500: /50x.html
-	error_page: 502: /50x.html
-	error_page: 503: /50x.html
-	error_page: 504: /50x.html
-	client_mbs: 200
-	Location /images/
-		root: www/images
-		method: GET
-		autoindex: on
-		index: index.html
-		uploads_dir: 
-		cgi: /Users/thomas/Desktop/Webserv/cgi_tester
-	Location *.php
-		root: www/php
-		method: GET
-		method: POST
-		autoindex: off
-		index: index.html
-		uploads_dir: /uploads
-		redirect: test1.php  500
-		redirect: test1.php test2.php 0
-		redirect: test2.php helloworld.php 301
-		redirect: test3.php /helloworld3.php 302
-		cgi: /Users/thomas/Desktop/Webserv/cgi_tester
-SERVER #2
-	port: 9000
-	address: 2130706433
-	server_name: localhost
-	server_name: test.com
-	root: www/html/test
-	index: index.html
-	index: index.php
-	client_mbs: 0
+
+0.0.0.0:8080 listening on socket 4
+0.0.0.0:9000 listening on socket 5
+2023-01-07 15:16:51 SERVERS STARTED
+
+2023-01-07 15:16:58 Client 127.0.0.1:0 connects on server port 9000 via socket 6
+2023-01-07 15:16:58 Connection closed on socket 6
