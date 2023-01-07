@@ -120,13 +120,18 @@ void Monitor::handle_connections()
 	// char chunk_send[CHUNK_SIZE];
 	std::string request_recv;
 	struct sockaddr_in remoteAddr;
+	int i, pollout_index = 0;
 	while (1)													// Main loop
 	{
-		poll_events = poll(_pfds, _fd_count, -1);				// block if no event
+		poll_events = poll(_pfds, _fd_count, -1);				// int if no event
 		std::cout << RED << "Poll unlocked: " << WHI;
         if (poll_events < 0)
 			log(get_time(), " Error: poll failed\n");
-		for (int i = 0; i < _fd_count; i++)						// Run through the existing connections
+		if (pollout_index == 0)
+			i = 0;
+		else
+			i = pollout_index;
+		while (i < _fd_count)									// Run through the existing connections
 		{
 			if (_pfds[i].revents != 0)
 				_print_events(&(_pfds[i]));
@@ -170,6 +175,9 @@ void Monitor::handle_connections()
 								// }
 								request_recv.clear();
 								_pfds[i].events = POLLOUT;
+								pollout_index = i;	// permet de revenir dans la loop infinie avec l'index du pfds où écrire
+								j = server_count;	// break la for loop
+								i = _fd_count;		// break la while loop
 								break;
 							}
 						}
@@ -184,7 +192,10 @@ void Monitor::handle_connections()
 				_del_from_pfds(i);
 				std::cout << "Connection closed on socket " << polled_fd << std::endl;
 				log(get_time(), " Connection closed on socket ", polled_fd, "\n");
+				pollout_index = 0;
+				break;
 			}
+			i++;
 		}
 	}
 }
