@@ -64,7 +64,7 @@ void Monitor::_prepare_sockets()
 		log(get_time(), " SERVERS STARTED\n\n");
 }
 
-void Monitor::_add_to_pfds(int newfd)
+void Monitor::_add_to_pfds(int new_fd)
 {
 	if (_fd_count == _fd_capacity)
 	{
@@ -76,7 +76,7 @@ void Monitor::_add_to_pfds(int newfd)
 			_exit_cerr_msg("Fatal error: allocation\n", 1);
 		}
 	}
-	_pfds[_fd_count].fd = newfd;
+	_pfds[_fd_count].fd = new_fd;
 	_pfds[_fd_count].events = POLLIN;
 	// _pfds[_fd_count].events = POLLIN | POLLOUT;
 	_pfds[_fd_count].revents = 0 ;
@@ -104,30 +104,30 @@ void Monitor::_print_events(struct pollfd *pfd) const
 }
 
 // AMELIORER LE SEND POUR METTRE DANS UNE LOOP COMME RECV
-// VOIR POUR INTEGRER POLLOUT QUAND IL FAUT (https://stackoverflow.com/questions/12170037/when-to-use-the-pollout-event-of-the-poll-c-function)
+// AJOUTER UN TIMER POUR LA LOOP DU RECV ET DU SEND AU CAS OU LES FONCTIONS SONT BLOCKEES POUR BREAK ET ENVOYER UNE ERREUR
 // VOIR POUR KEEP_ALIVE: CONSERVER LE SOCKET DU CLIENT APRES L'ENVOI D'UNE REPONSE (persistent-connection or keep-alive connection)
 void Monitor::handle_connections()
 {
 	_prepare_sockets(); // socket, bind, listen pour chaque port + creer les struct pollfd dédiées
 
-	int server_count = _servers.size();
 	std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello from the server!\n";
-	int poll_events = 0;
-	int newfd = -1, polled_fd = -1;
-	int size_recv = 0, total_recv = 0, size_sent = 0;
-	char chunk_read[CHUNK_SIZE];
-	// char chunk_send[CHUNK_SIZE];
-	std::string request_recv;
 	struct sockaddr_in remoteAddr;
+	int i, poll_index = 0;
+	int poll_count = 0, server_count = _servers.size();
+	int new_fd = -1, polled_fd = -1;
+	int size_recv = 0, total_recv = 0, size_sent = 0, total_sent = 0;
+	char chunk_read[CHUNK_SIZE], chunk_send[CHUNK_SIZE];
+	std::string request_recv;
 	while (1)													// Main loop
 	{
-		poll_events = poll(_pfds, _fd_count, -1);
-        if (poll_events < 0)
+		poll_count = poll(_pfds, _fd_count, -1);				// int if no event
+        if (poll_count < 0)
 			log(get_time(), " Error: poll failed\n");
-		for (int i = 0; i < _fd_count; i++)						// Run through the existing connections
+		i = poll_index;
+		while (i < _fd_count)									// Run through the existing connections
 		{
-			if (_pfds[i].revents != 0)
-				_print_events(&(_pfds[i]));
+			// if (_pfds[i].revents != 0)
+			// 	_print_events(&(_pfds[i]));
 			if (_pfds[i].revents & POLLIN)						// We have data to read in the existing connections
 			{
 				polled_fd = _pfds[i].fd;
@@ -136,15 +136,15 @@ void Monitor::handle_connections()
 					if (polled_fd == _master_sockets[j])		// Accept() new connection si fd correspond a un socket listening
 					{
 						remoteAddr.sin_len = sizeof(remoteAddr);
-						newfd = accept(_master_sockets[j], (struct sockaddr *)&remoteAddr, (socklen_t *)&remoteAddr.sin_len);
-						if (newfd < 0)
+						new_fd = accept(_master_sockets[j], (struct sockaddr *)&remoteAddr, (socklen_t *)&remoteAddr.sin_len);
+						if (new_fd < 0)
 							log(get_time(), " Error: accept: new connexion on port ", ntohs(_servers[j].get_port()), " failed\n");
 						else
 						{
-							_add_to_pfds(newfd);
+							_add_to_pfds(new_fd);
 							std::cout << "New connection on server port " << ntohs(_servers[j].get_port()) << std::endl;
-							std::cout << "Client " << inet_ntoa(remoteAddr.sin_addr) << ":" <<  ntohs(remoteAddr.sin_port) << " is given socket " << newfd << std::endl;
-							log(get_time(), " Client ", inet_ntoa(remoteAddr.sin_addr), ":", ntohs(remoteAddr.sin_port), " connects on server port ", ntohs(_servers[j].get_port()), " via socket ", newfd, "\n");
+							std::cout << "Client " << inet_ntoa(remoteAddr.sin_addr) << ":" <<  ntohs(remoteAddr.sin_port) << " is given socket " << new_fd << std::endl;
+							log(get_time(), " Client ", inet_ntoa(remoteAddr.sin_addr), ":", ntohs(remoteAddr.sin_port), " connects on server port ", ntohs(_servers[j].get_port()), " via socket ", new_fd, "\n");
 						}
 						break;
 					}
@@ -166,18 +166,29 @@ void Monitor::handle_connections()
 								// catch (MessageException const & e) {
 								// 	Response response(e.what);
 								// }
-								size_sent = send(polled_fd, response.c_str(), response.length(), 0);
-								std::cout << "Response sent successfully on socket " << polled_fd << std::endl;
-								close(polled_fd);
-								_del_from_pfds(i);
-								std::cout << "Connection closed on socket " << polled_fd << std::endl;
-								log(get_time(), " Connection closed on socket ", polled_fd, "\n");
+								request_recv.clear();
+								_pfds[i].events = POLLOUT;
+								poll_index = i;	// permet de revenir dans la loop infinie avec l'index du pfds où écrire
+								j = server_count;	// break la for loop
+								i = _fd_count;		// break la while loop
 								break;
 							}
 						}
 					}
 				}
 			}
+			else if (_pfds[i].revents & POLLOUT)
+			{
+				size_sent = send(polled_fd, response.c_str(), response.length(), 0);
+				std::cout << "Response sent successfully on socket " << polled_fd << std::endl;
+				close(polled_fd);
+				_del_from_pfds(i);
+				std::cout << "Connection closed on socket " << polled_fd << std::endl;
+				log(get_time(), " Connection closed on socket ", polled_fd, "\n");
+				poll_index = 0;
+				break;
+			}
+			i++;
 		}
 	}
 }
