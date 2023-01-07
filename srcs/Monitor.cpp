@@ -55,7 +55,6 @@ void Monitor::_prepare_sockets()
 	{
 		_pfds[i].fd = _master_sockets[i];
     	_pfds[i].events = POLLIN;
-    	// _pfds[i].events = POLLIN | POLLOUT;
     	_pfds[i].revents = 0;
 	}
 	if (_servers.size() == 1)
@@ -78,8 +77,7 @@ void Monitor::_add_to_pfds(int new_fd)
 	}
 	_pfds[_fd_count].fd = new_fd;
 	_pfds[_fd_count].events = POLLIN;
-	// _pfds[_fd_count].events = POLLIN | POLLOUT;
-	_pfds[_fd_count].revents = 0 ;
+	_pfds[_fd_count].revents = 0;
 	_fd_count++;
 }
 
