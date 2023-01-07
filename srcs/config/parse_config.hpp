@@ -6,9 +6,9 @@
 #include <sstream>
 #include <vector>
 
+#include "../../includes/Monitor.hpp"
 #include "../../includes/Server.hpp"
-#include "Config.hpp"
-#include "Location.hpp"
+#include "../../includes/Location.hpp"
 
 # define INVALID 1
 # define VALID 0
@@ -22,7 +22,7 @@ typedef	int (*f_ptr_s)(std::string & line, bool *x_block, int *x_count);
 typedef	int (*f_ptr_l)(std::string & line, std::string & prefix, int *x_block, int *x_count);
 
 // parse_config
-void parse_config(std::string & configFile, Server & server);
+void parse_config(std::string & configFile, Monitor & monitor);
 
 // parse_context
 int open_server_block(std::string & line, bool *server_context, int *server_count);

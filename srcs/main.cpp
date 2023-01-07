@@ -1,5 +1,5 @@
 #include "config/parse_config.hpp"
-#include "config/Config.hpp"
+#include "../includes/Monitor.hpp"
 #include "../includes/Server.hpp"
 
 int main(int ac, char **av, char **env)
@@ -14,9 +14,8 @@ int main(int ac, char **av, char **env)
 		configFile = av[1];
 	else
 		configFile = "conf/default.conf";
-	Server server;
-	parse_config(configFile, server);
-
-	// starter le server
+	Monitor monitor;
+	parse_config(configFile, monitor);
+	monitor.handle_connections();
 	return 0;
 }
