@@ -104,6 +104,7 @@ void Monitor::_print_events(struct pollfd *pfd) const
 }
 
 // AMELIORER LE SEND POUR METTRE DANS UNE LOOP COMME RECV
+// AJOUTER UN TIMER POUR LA LOOP DU RECV ET DU SEND AU CAS OU LES FONCTIONS SONT BLOCKEES POUR BREAK ET ENVOYER UNE ERREUR
 // VOIR POUR INTEGRER POLLOUT QUAND IL FAUT (https://stackoverflow.com/questions/12170037/when-to-use-the-pollout-event-of-the-poll-c-function)
 // VOIR POUR KEEP_ALIVE: CONSERVER LE SOCKET DU CLIENT APRES L'ENVOI D'UNE REPONSE (persistent-connection or keep-alive connection)
 void Monitor::handle_connections()
@@ -121,7 +122,8 @@ void Monitor::handle_connections()
 	struct sockaddr_in remoteAddr;
 	while (1)													// Main loop
 	{
-		poll_events = poll(_pfds, _fd_count, -1);
+		poll_events = poll(_pfds, _fd_count, -1);				// block if no event
+		std::cout << RED << "Poll unlocked: " << WHI;
         if (poll_events < 0)
 			log(get_time(), " Error: poll failed\n");
 		for (int i = 0; i < _fd_count; i++)						// Run through the existing connections
@@ -166,17 +168,22 @@ void Monitor::handle_connections()
 								// catch (MessageException const & e) {
 								// 	Response response(e.what);
 								// }
-								size_sent = send(polled_fd, response.c_str(), response.length(), 0);
-								std::cout << "Response sent successfully on socket " << polled_fd << std::endl;
-								close(polled_fd);
-								_del_from_pfds(i);
-								std::cout << "Connection closed on socket " << polled_fd << std::endl;
-								log(get_time(), " Connection closed on socket ", polled_fd, "\n");
+								request_recv.clear();
+								_pfds[i].events = POLLOUT;
 								break;
 							}
 						}
 					}
 				}
+			}
+			else if (_pfds[i].revents & POLLOUT)
+			{
+				size_sent = send(polled_fd, response.c_str(), response.length(), 0);
+				std::cout << "Response sent successfully on socket " << polled_fd << std::endl;
+				close(polled_fd);
+				_del_from_pfds(i);
+				std::cout << "Connection closed on socket " << polled_fd << std::endl;
+				log(get_time(), " Connection closed on socket ", polled_fd, "\n");
 			}
 		}
 	}
