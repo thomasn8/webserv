@@ -16,6 +16,7 @@
 #include <time.h>
 #include <deque>
 #include <vector>
+#include "Request.hpp"
 
 class Server;
 
