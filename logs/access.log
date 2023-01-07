@@ -100,9 +100,15 @@ SERVER #2
 0.0.0.0:9000 listening on socket 5
 2023-01-07 15:40:41 SERVERS STARTED
 
+<<<<<<< HEAD
 2023-01-07 15:40:43 Client 127.0.0.1:0 connects on server port 9000 via socket 6
 2023-01-07 15:40:43 Connection closed on socket 6
 2023-01-07 15:40:53 CONFIGURATION
+=======
+2023-01-07 15:16:58 Client 127.0.0.1:0 connects on server port 9000 via socket 6
+2023-01-07 15:16:58 Connection closed on socket 6
+2023-01-07 15:42:09 CONFIGURATION
+>>>>>>> master
 
 Nombre de server: 2
 SERVER #1
@@ -125,7 +131,11 @@ SERVER #1
 		autoindex: on
 		index: index.html
 		uploads_dir: 
+<<<<<<< HEAD
 		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+=======
+		cgi: /Users/mim/42/webserv/cgi_bin
+>>>>>>> master
 	Location *.php
 		root: www/php
 		method: GET
@@ -137,7 +147,11 @@ SERVER #1
 		redirect: test1.php test2.php 0
 		redirect: test2.php helloworld.php 301
 		redirect: test3.php /helloworld3.php 302
+<<<<<<< HEAD
 		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+=======
+		cgi: /Users/mim/42/webserv/cgi_bin
+>>>>>>> master
 SERVER #2
 	port: 9000
 	ip: 2130706433
@@ -150,6 +164,7 @@ SERVER #2
 
 0.0.0.0:8080 listening on socket 4
 0.0.0.0:9000 listening on socket 5
+<<<<<<< HEAD
 2023-01-07 15:40:53 SERVERS STARTED
 
 2023-01-07 15:41:01 Client 127.0.0.1:0 connects on server port 9000 via socket 6
@@ -2022,3 +2037,11 @@ SERVER #2
 
 2023-01-07 17:25:32 Client 127.0.0.1:0 connects on server port 8080 via socket 6
 2023-01-07 17:25:32 Connection closed on socket 6
+=======
+2023-01-07 15:42:09 SERVERS STARTED
+
+2023-01-07 15:42:40 Client 127.0.0.1:0 connects on server port 9000 via socket 6
+2023-01-07 15:42:40 Client 127.0.0.1:0 connects on server port 9000 via socket 7
+2023-01-07 15:42:40 Connection closed on socket 6
+2023-01-07 15:42:41 Connection closed on socket 7
+>>>>>>> master
