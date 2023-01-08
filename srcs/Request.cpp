@@ -1,4 +1,5 @@
 #include "../includes/Request.hpp"
+#include "../includes/utils.hpp"
 
 // ---------Constructor and destructor ------------
 

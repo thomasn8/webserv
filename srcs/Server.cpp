@@ -180,8 +180,6 @@ void Server::set_client_max_body_size(std::string & value)
 	_clientMaxBodySize = std::stoi(value);
 }
 
-// Monitor * Server::get_monitor() const { return _monitor; }
-
 uint16_t Server::get_port() const { return _port; }
 
 uint32_t Server::get_address() const { return _ipv4; }
