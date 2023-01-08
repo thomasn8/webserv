@@ -7,13 +7,13 @@
 #include <string>
 #include <unistd.h>
 #include <cstdlib>
+#include <time.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <poll.h>
-#include <time.h>
 #include <deque>
 #include <vector>
 
@@ -44,7 +44,7 @@ class Monitor
 		void add_server();
 
 		// SOCKETS
-		void _prepare_sockets();
+		void _prepare_master_sockets();
 		void handle_connections();
 
 		// LOG

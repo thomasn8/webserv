@@ -31,7 +31,7 @@ void Monitor::add_server() { _servers.push_back(Server()); }
 /* 
 	************ SOCKETS ( !!! allocations -> free dans le destructeur)
 */
-void Monitor::_prepare_sockets()
+void Monitor::_prepare_master_sockets()
 {
 	it_servers it = _servers.begin();
 	it_servers ite = _servers.end();
@@ -39,6 +39,7 @@ void Monitor::_prepare_sockets()
 	while (it != ite)
 	{
 		socket_fd = (*it).create_socket();
+		log((*it).get_ip(), ":", ntohs((*it).get_address().sin_port), " listening on socket ", socket_fd, "\n");
 		_master_sockets.push_back(socket_fd);
 		_fd_count++;
 		it++;
@@ -86,26 +87,12 @@ void Monitor::_del_from_pfds(int i)
 	_fd_count--;
 }
 
-void Monitor::_print_events(struct pollfd *pfd) const
-{
-	std::cout << RED << "socket " << pfd->fd << " events: ";
-	if (pfd->revents & POLLIN)
-		std::cout << "POLLIN ";
-	if (pfd->revents & POLLOUT)
-		std::cout << "POLLOUT ";
-	if (pfd->revents & POLLHUP)
-		std::cout << "POLLHUP ";
-	if (pfd->revents & POLLERR)
-		std::cout << "POLLERR ";
-	std::cout << WHI << std::endl;
-}
-
 // AJOUTER UN TIMER POUR LES LOOP RECV ET SEND AU CAS OU LES FONCTIONS SONT BLOCKEES POUR BREAK ET ENVOYER UNE ERREUR
 // VOIR POUR KEEP_ALIVE: CONSERVER LE SOCKET DU CLIENT APRES L'ENVOI D'UNE REPONSE (persistent-connection or keep-alive connection)
 // A LA FIN SPLITER LA LOOP EN FONCTIONS INDIV
 void Monitor::handle_connections()
 {
-	_prepare_sockets(); // socket, bind, listen pour chaque port + creer les struct pollfd dédiées
+	_prepare_master_sockets(); // socket, bind, listen pour chaque port + creer les struct pollfd dédiées
 	struct sockaddr_in remoteAddr;
 	int i, poll_index = 0;
 	int poll_count = 0, server_count = _servers.size();
@@ -122,8 +109,6 @@ void Monitor::handle_connections()
 		i = poll_index;
 		while (i < _fd_count)									// Run through the existing connections
 		{
-			// if (_pfds[i].revents != 0)
-			// 	_print_events(&(_pfds[i]));
 			if (_pfds[i].revents & POLLIN)						// We have data to read in the existing connections
 			{
 				polled_fd = _pfds[i].fd;
@@ -267,7 +252,8 @@ void Monitor::log_server_info()
 		i++;
 		_accessStream << "SERVER #" << i << std::endl;
 		_accessStream << "	" << "port: " << ntohs((*it).get_port()) << std::endl;
-		_accessStream << "	" << "ip: " << ntohl((*it).get_address()) << std::endl;
+		char ip4[INET_ADDRSTRLEN];
+		_accessStream << "	" << "ip: " << (*it).get_ip() << std::endl;
 		for (int j = 0; j < (*it).get_servernames().size(); j++)
 			_accessStream << "	" << "server_name: " << (*it).get_servernames()[j] << std::endl;
 		_accessStream << "	" << "root: " << (*it).get_root() << std::endl;

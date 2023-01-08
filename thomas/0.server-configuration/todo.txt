@@ -1,2 +1,0 @@
-utiliser la configuration par defaut OU parsing du configuration file
-pour lancer le server

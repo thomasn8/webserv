@@ -27,6 +27,7 @@ clean:
 
 fclean:		clean
 			${RM} ${NAME}
+			${RM} logs/access.log && touch logs/access.log
 
 re:			fclean all
 

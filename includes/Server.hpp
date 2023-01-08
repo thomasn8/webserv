@@ -2,9 +2,10 @@
 # define SERVER_HPP
 
 #include <iostream>
+#include <fstream>
 #include <cstring>
 #include <string>
-#include <fstream>
+#include <time.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
@@ -57,7 +58,8 @@ class Server
 		void set_error_page(std::string & value);
 		void set_client_max_body_size(std::string & value);
 		uint16_t get_port() const;
-		uint32_t get_address() const;
+		uint32_t get_ipv4() const;
+		std::string get_ip() const;
 		std::string get_servername() const;
 		std::vector<std::string> & get_servernames();
 		std::string get_root() const;
@@ -65,6 +67,7 @@ class Server
 		std::vector<std::string> & get_indexes();
 		std::vector<error_page_pair> & get_errorpages();
 		size_t get_client_max_body_size() const;
+		struct sockaddr_in & get_address();
 
 		// SOCKET
 		int create_socket();
@@ -92,4 +95,3 @@ class Server
 };
 
 #endif
- 

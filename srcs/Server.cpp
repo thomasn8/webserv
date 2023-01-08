@@ -182,7 +182,13 @@ void Server::set_client_max_body_size(std::string & value)
 
 uint16_t Server::get_port() const { return _port; }
 
-uint32_t Server::get_address() const { return _ipv4; }
+uint32_t Server::get_ipv4() const { return _ipv4; }
+
+std::string Server::get_ip() const 
+{
+	char ip4[INET_ADDRSTRLEN];
+	return std::string(inet_ntop(AF_INET, &(_address.sin_addr), ip4, INET_ADDRSTRLEN));
+}
 
 std::string Server::get_servername() const { return _serverNames.front(); }
 
@@ -198,6 +204,8 @@ size_t Server::get_client_max_body_size() const { return _clientMaxBodySize; }
 
 std::vector<Server::error_page_pair> & Server::get_errorpages() { return _errorPages; }
 
+struct sockaddr_in & Server::get_address() { return _address; }
+
 /* 
 	************ SOCKET
 */
@@ -210,7 +218,6 @@ void Server::_exit_cerr_msg(const std::string message, int code) const
 int Server::create_socket()
 {
 	int opt = 1;
-	
 	_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket_fd < 0)
 		_exit_cerr_msg("Error: impossible to run server(s): socket() failed", 1);
@@ -228,7 +235,5 @@ int Server::create_socket()
 		_exit_cerr_msg("Error: impossible to run server(s): bind() failed", 1);
 	if (listen(_socket_fd, BACKLOG) < 0)
 		_exit_cerr_msg("Error: impossible to run server(s): listen() failed", 1);
-	char ip4[INET_ADDRSTRLEN];
-	// _monitor->log(inet_ntop(AF_INET, &(_address.sin_addr), ip4, INET_ADDRSTRLEN), ":", ntohs(_address.sin_port), " listening on socket ", _socket_fd, "\n");
 	return _socket_fd;
 }
