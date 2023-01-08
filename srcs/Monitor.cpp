@@ -65,7 +65,7 @@ void Monitor::_prepare_master_sockets()
 		log(get_time(), " SERVERS STARTED\n\n");
 }
 
-void Monitor::_add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, void * server)
+void Monitor::_add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, Server * server)
 {
 	if (_fd_count == _fd_capacity)
 	{
@@ -147,11 +147,11 @@ void Monitor::handle_connections()
 							if (size_recv < CHUNK_SIZE) // toute la request a été read
 							{
 								std::cout << "Request from client " << inet_ntoa(_activeSockets[i].remoteAddr.sin_addr) << ":" << ntohs(_activeSockets[i].remoteAddr.sin_port) << " on server port ";
-								std::cout << ntohs((static_cast<Server *>(_activeSockets[i].server))->get_port()) << " via socket " << _activeSockets[i].pfd->fd << std::endl;
-								log(get_time(), " Request from client ", inet_ntoa(_activeSockets[i].remoteAddr.sin_addr), ":", ntohs(_activeSockets[i].remoteAddr.sin_port), " on server port ", ntohs((static_cast<Server *>(_activeSockets[i].server))->get_port()), " via socket ", _activeSockets[i].pfd->fd, "\n");
+								std::cout << ntohs(_activeSockets[i].server->get_port()) << " via socket " << _activeSockets[i].pfd->fd << std::endl;
+								log(get_time(), " Request from client ", inet_ntoa(_activeSockets[i].remoteAddr.sin_addr), ":", ntohs(_activeSockets[i].remoteAddr.sin_port), " on server port ", ntohs(_activeSockets[i].server->get_port()), " via socket ", _activeSockets[i].pfd->fd, "\n");
 								try {
 									Request request(request_recv.c_str());
-									Response response(request, this->_servers[0]);
+									Response response(request, *(_activeSockets[i].server));
 
 									// decomment to display in terminal:
 									// std::cout << request.get_method() << " " << request.get_target() << " " << request.get_version() << std::endl;

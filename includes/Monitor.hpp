@@ -77,7 +77,7 @@ class Monitor
 		int _fd_capacity;
 		struct pollfd *_pfds;
 		struct socket *_activeSockets; // les servers.size() premiers pointeurs sont NULL, les suivants correspondent par index aux _pfds
-		void _add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, void * server);
+		void _add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, Server * server);
 		void _del_from_pfds(int i);
 
 		// LOG
