@@ -1,5 +1,4 @@
 #include "../includes/Monitor.hpp"
-#include "../includes/Server.hpp"
 /* 
 	************ CONST/DESTR
 */
@@ -27,7 +26,7 @@ std::deque<Server> & Monitor::get_servers() { return _servers; }
 
 Server & Monitor::get_last_server() { return get_servers().back(); }
 
-void Monitor::add_server() { _servers.push_back(Server(this)); }
+void Monitor::add_server() { _servers.push_back(Server()); }
 
 /* 
 	************ SOCKETS ( !!! allocations -> free dans le destructeur)

@@ -1,4 +1,5 @@
 #include "../includes/Request.hpp"
+#include "../includes/utils.hpp"
 
 // ---------Constructor and destructor ------------
 
@@ -89,11 +90,11 @@ void Request::_split_field(size_t pos, std::string line) {
     key = line.substr(0, pos);
     line.erase(0, pos + 1);
     while ((pos = line.find(',')) != std::string::npos) {
-        tmp =  p_trim_sides(line.substr(0, pos));
+        tmp =  trim_sides(line.substr(0, pos));
         lstTmp.push_back(tmp);
         line.erase(0, pos + 1);
     }
-    tmp = p_trim_sides(line.substr(0, pos));
+    tmp = trim_sides(line.substr(0, pos));
     lstTmp.push_back(tmp);
     line.erase(0, pos + 1);
     this->_fields.insert({key, lstTmp});

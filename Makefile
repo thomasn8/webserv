@@ -8,6 +8,7 @@ SRCS		=	srcs/main.cpp							\
 			  	srcs/Request.cpp						\
 			  	srcs/Message.cpp						\
 			  	srcs/Location.cpp						\
+			  	srcs/utils.cpp							\
 			  	# srcs/Response.cpp						
 
 

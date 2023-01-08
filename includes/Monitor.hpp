@@ -16,9 +16,10 @@
 #include <time.h>
 #include <deque>
 #include <vector>
-#include "Request.hpp"
 
-class Server;
+#include "Server.hpp"
+#include "Response.hpp"
+#include "Request.hpp"
 
 # define LOG_PATH "logs/access.log"
 # define CHUNK_SIZE 512
