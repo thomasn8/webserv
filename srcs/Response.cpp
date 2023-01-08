@@ -6,14 +6,14 @@ Response::Response(Request &request, Server &server) : _request(request), _serve
 _finalMessage(std::string()), _version(std::string("HTTP/1.1")), 
 _statusCode(std::string()), _reason(std::string()),
 _isCGI(true), _targetFound(true) {
-    // if (request.get_method() == GET)
-    //     _response_get();
-    // else if (request.get_method() == POST)
-    //     _response_post();
-    // else if (request.get_method() == DELETE)
-    //     _response_delete();
-    // else
-    //     throw MessageException(HTTP_VERSION_UNSUPPORTED);  
+    if (request.get_method() == GET)
+        _response_get();
+    else if (request.get_method() == POST)
+        _response_post();
+    else if (request.get_method() == DELETE)
+        _response_delete();
+    else
+        throw MessageException(HTTP_VERSION_UNSUPPORTED);  
 }
 
 void Response::_response_get() {

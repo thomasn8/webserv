@@ -5,11 +5,7 @@
 #include <string>
 #include <list>
 #include <map>
-
-// methods to implement
-# define GET "GET"
-# define POST "POST"
-# define DELETE "DELETE"
+#include "methods.hpp"
 
 // Abstract class for common data 
 // shared with request and responses

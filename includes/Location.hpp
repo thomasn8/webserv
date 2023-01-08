@@ -13,9 +13,7 @@
 # define DEFAULT_INDEX "index.html"
 # define DEFAULT_CGI_PATH "cgi_bin"
 # define DEFAULT_CGI_EXT "php"
-# define GET "GET"
-# define POST "POST"
-# define DELETE "DELETE"
+#include "methods.hpp"
 # define DEFAULT_REDIRECT_CODE 301
 
 // DIRECTIVE INDEX
