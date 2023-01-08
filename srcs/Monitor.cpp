@@ -89,7 +89,6 @@ void Monitor::_del_from_pfds(int i)
 
 // AJOUTER UN TIMER POUR LES LOOP RECV ET SEND AU CAS OU LES FONCTIONS SONT BLOCKEES POUR BREAK ET ENVOYER UNE ERREUR
 // VOIR POUR KEEP_ALIVE: CONSERVER LE SOCKET DU CLIENT APRES L'ENVOI D'UNE REPONSE (persistent-connection or keep-alive connection)
-// A LA FIN SPLITER LA LOOP EN FONCTIONS INDIV
 void Monitor::handle_connections()
 {
 	_prepare_master_sockets(); // socket, bind, listen pour chaque port + creer les struct pollfd dédiées
