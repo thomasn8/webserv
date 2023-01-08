@@ -155,13 +155,14 @@ void Monitor::handle_connections()
 							{
 								std::cout << "REQUEST:\n" << BLU << request_recv << WHI; // request entière stockée ici
 								try {
-									// Request request(request_recv.c_str());
+									Request request(request_recv.c_str());
+									Response response(request, this->_servers[0]);
 
 									// decomment to display in terminal:
 									// std::cout << request.get_method() << " " << request.get_target() << " " << request.get_version() << std::endl;
 									// request.display_fields();
 									// std::cout << "\n" << request.get_body() << std::endl;
-									
+
 									// Response response(request);
 								}
 								catch (Request::MessageException & e) {

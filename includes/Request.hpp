@@ -1,6 +1,7 @@
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
+#include "utils.hpp"
 #include "Message.hpp"
 #include "StatusCode.hpp"
 #include <algorithm>

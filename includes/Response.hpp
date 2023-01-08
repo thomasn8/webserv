@@ -3,23 +3,37 @@
 
 #include "Message.hpp"
 #include "Request.hpp"
+#include "Server.hpp"
 
 class Response : public Message {
 	public:
-		Response(Request &request);
+		Response(Request &request, Server &server);
 		Response(const Response &instance);
 		virtual ~Response();
+
+		std::string getMessage() const;
+		std::string getStatusCode() const;
+		std::string getReason() const;
+		std::string getVersion() const;
 
 		Response		&operator=(const Response &instance);
 
 	private:
 		Response();
 
+		void		_response_get();
+		void		_response_post();
+		void		_response_delete();
+		void		_check_target(std::string target);
+		
 		Request		&_request;
-		std::string _rowMessage;
-		std::string _method;
-		std::string _target;
+		Server		&_server;
+		std::string _finalMessage;
 		std::string _version;
+		std::string _statusCode;
+		std::string _reason;
+		bool		_isCGI;
+		bool		_targetFound;
 };
 
 #endif
