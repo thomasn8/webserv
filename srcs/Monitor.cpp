@@ -46,6 +46,7 @@ void Monitor::_prepare_master_sockets()
 	}
 	_fd_capacity = _fd_count + 5;
 	_pfds = (struct pollfd *)malloc(sizeof(*_pfds) * _fd_capacity);
+	_activeSockets = (struct socket *)malloc(sizeof(*_activeSockets) * _fd_capacity);
 	if (_pfds == NULL)
 	{
 		log("Error: impossible to allocate", _fd_capacity ," struct pollfd\n");
@@ -56,6 +57,7 @@ void Monitor::_prepare_master_sockets()
 		_pfds[i].fd = _master_sockets[i];
     	_pfds[i].events = POLLIN;
     	_pfds[i].revents = 0;
+		_activeSockets[i].pfd = NULL;
 	}
 	if (_servers.size() == 1)
 		log(get_time(), " SERVER STARTED\n\n");
@@ -63,12 +65,13 @@ void Monitor::_prepare_master_sockets()
 		log(get_time(), " SERVERS STARTED\n\n");
 }
 
-void Monitor::_add_to_pfds(int new_fd)
+void Monitor::_add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, void * server)
 {
 	if (_fd_count == _fd_capacity)
 	{
 		_fd_capacity *= 2;
 		_pfds = (struct pollfd *)realloc(_pfds, sizeof(*_pfds) * (_fd_capacity));
+		_activeSockets = (struct socket *)realloc(_activeSockets, sizeof(*_activeSockets) * (_fd_capacity));
 		if (_pfds == NULL)
 		{
 			log("Error: impossible to allocate", _fd_capacity ," struct pollfd\n");
@@ -78,17 +81,23 @@ void Monitor::_add_to_pfds(int new_fd)
 	_pfds[_fd_count].fd = new_fd;
 	_pfds[_fd_count].events = POLLIN;
 	_pfds[_fd_count].revents = 0;
+	_activeSockets[_fd_count].pfd = &_pfds[_fd_count];
+	_activeSockets[_fd_count].remoteAddr = *remoteAddr;
+	_activeSockets[_fd_count].server = server;
 	_fd_count++;
 }
 
 void Monitor::_del_from_pfds(int i)
 {
 	_pfds[i] = _pfds[_fd_count - 1];
+	_activeSockets[i] = _activeSockets[_fd_count - 1];
 	_fd_count--;
 }
 
 // AJOUTER UN TIMER POUR LES LOOP RECV ET SEND AU CAS OU LES FONCTIONS SONT BLOCKEES POUR BREAK ET ENVOYER UNE ERREUR
 // VOIR POUR KEEP_ALIVE: CONSERVER LE SOCKET DU CLIENT APRES L'ENVOI D'UNE REPONSE (persistent-connection or keep-alive connection)
+// A LA FIN SPLITER LA LOOP EN FONCTIONS INDIV
+// VOIR SI LA HEAP GROSSI PAS A L'INFINI SANS LIBERE DE L'ESPACE CAR del_from_pfds() NE FREE PAS
 void Monitor::handle_connections()
 {
 	_prepare_master_sockets(); // socket, bind, listen pour chaque port + creer les struct pollfd dédiées
@@ -121,9 +130,9 @@ void Monitor::handle_connections()
 							log(get_time(), " Error: accept: new connexion on port ", ntohs(_servers[j].get_port()), " failed\n");
 						else
 						{
-							_add_to_pfds(new_fd);
-							std::cout << "Client " << inet_ntoa(remoteAddr.sin_addr) << ":" << ntohs(remoteAddr.sin_port) << " requests on server port " << ntohs(_servers[j].get_port()) << " via socket " << new_fd << std::endl;
-							log(get_time(), " Client ", inet_ntoa(remoteAddr.sin_addr), ":", ntohs(remoteAddr.sin_port), " requests on server port ", ntohs(_servers[j].get_port()), " via socket ", new_fd, "\n");
+							_add_to_pfds(new_fd, &remoteAddr, &_servers[j]);
+							std::cout << "Client " << inet_ntoa(remoteAddr.sin_addr) << ":" << ntohs(remoteAddr.sin_port) << " connected on server port " << ntohs(_servers[j].get_port()) << " via socket " << new_fd << std::endl;
+							log(get_time(), " Client ", inet_ntoa(remoteAddr.sin_addr), ":", ntohs(remoteAddr.sin_port), " connected on server port ", ntohs(_servers[j].get_port()), " via socket ", new_fd, "\n");
 						}
 						break;
 					}
@@ -137,7 +146,9 @@ void Monitor::handle_connections()
 								request_recv.append(chunk_read, size_recv);
 							if (size_recv < CHUNK_SIZE) // toute la request a été read
 							{
-								std::cout << "REQUEST:\n" << BLU << request_recv << WHI; // request entière stockée ici
+								std::cout << "Request from client " << inet_ntoa(_activeSockets[i].remoteAddr.sin_addr) << ":" << ntohs(_activeSockets[i].remoteAddr.sin_port) << " on server port ";
+								std::cout << ntohs((static_cast<Server *>(_activeSockets[i].server))->get_port()) << " via socket " << _activeSockets[i].pfd->fd << std::endl;
+								log(get_time(), " Request from client ", inet_ntoa(_activeSockets[i].remoteAddr.sin_addr), ":", ntohs(_activeSockets[i].remoteAddr.sin_port), " on server port ", ntohs((static_cast<Server *>(_activeSockets[i].server))->get_port()), " via socket ", _activeSockets[i].pfd->fd, "\n");
 								try {
 									Request request(request_recv.c_str());
 									Response response(request, this->_servers[0]);
@@ -194,7 +205,7 @@ void Monitor::handle_connections()
 				if (total_sent == response.size())
 				{
 					std::cout << "Response ("<< total_sent << ") bytes sent successfully on socket " << polled_fd << ", connection closed\n";
-					log(get_time(), " Response successful: ", total_sent, " sent on socket ", polled_fd, ", connection closed\n");
+					log(get_time(), " Response successful: ", total_sent, " bytes sent on socket ", polled_fd, ", connection closed\n");
 				}
 				else
 				{
