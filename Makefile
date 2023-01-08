@@ -8,8 +8,8 @@ SRCS		=	srcs/main.cpp							\
 			  	srcs/Request.cpp						\
 			  	srcs/Message.cpp						\
 			  	srcs/Location.cpp						\
-			  	# srcs/Response.cpp						
-
+			  	srcs/Response.cpp						\
+				srcs/utils.cpp							\
 
 OBJS		= ${SRCS:.cpp=.o}
 CC			= c++

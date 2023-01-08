@@ -1,7 +1,6 @@
 #include "config/parse_config.hpp"
 #include "../includes/Monitor.hpp"
 #include "../includes/Server.hpp"
-#include "../includes/Request.hpp"
 
 int main(int ac, char **av, char **env)
 {

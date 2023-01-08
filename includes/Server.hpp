@@ -13,7 +13,6 @@
 #include <vector>
 #include <deque>
 
-class Monitor;
 #include "Location.hpp"
 
 // INITIALIZATION
@@ -42,7 +41,7 @@ class Server
 		typedef std::pair<int, std::string> error_page_pair;
 
 		// CONST/DESTR
-		Server(Monitor * monitor);
+		Server();
 		Server(const Server & src);
 		~Server();
 
@@ -57,7 +56,7 @@ class Server
 		void set_index(std::string & value);
 		void set_error_page(std::string & value);
 		void set_client_max_body_size(std::string & value);
-		Monitor * get_monitor() const;
+		// Monitor * get_monitor() const;
 		uint16_t get_port() const;
 		uint32_t get_address() const;
 		std::string get_servername() const;
@@ -73,8 +72,8 @@ class Server
 
 	private:
 		// CONST/DESTR
-		Server();
-		Monitor * _monitor;
+		// Server();
+		// Monitor * _monitor;
 
 		// CONFIG
 		std::deque<Location> _locations;
