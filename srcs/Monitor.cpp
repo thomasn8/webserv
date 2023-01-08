@@ -161,8 +161,8 @@ void Monitor::handle_connections()
 								try {
 									Request request(request_recv.c_str());
 									// Request r2(request);
-									// Response response(request, this->_servers[0]);
-									Response response(request);
+									Response response(request, this->_servers[0]);
+									// Response response(request);
 
 									// decomment to display in terminal:
 									// std::cout << request.get_method() << " " << request.get_target() << " " << request.get_version() << std::endl;

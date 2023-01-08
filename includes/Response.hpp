@@ -3,14 +3,12 @@
 
 #include "Message.hpp"
 #include "Request.hpp"
-
-class Server;
+#include "Server.hpp"
 
 class Response : public Message {
 	public:
-		// Response(Request request, Server &server);
-		Response(Request request);
-		// Response(const Response &instance);
+		Response(Request &request, Server &server);
+		Response(const Response &instance);
 		virtual ~Response();
 
 		std::string getMessage() const;
@@ -28,8 +26,8 @@ class Response : public Message {
 		void		_response_delete();
 		void		_check_target(std::string target);
 		
-		Request		_request;
-		// Server		&_server;
+		Request		&_request;
+		Server		&_server;
 		std::string _finalMessage;
 		std::string _version;
 		std::string _statusCode;

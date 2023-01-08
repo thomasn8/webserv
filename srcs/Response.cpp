@@ -2,21 +2,7 @@
 
 // ---------Constructor and destructor ------------
 
-// Response::Response(Request request, Server &server) : _request(request), _server(server),
-// _finalMessage(std::string()), _version(std::string("HTTP/1.1")), 
-// _statusCode(std::string()), _reason(std::string()),
-// _isCGI(true), _targetFound(true) {
-//     // if (request.get_method() == GET)
-//     //     _response_get();
-//     // else if (request.get_method() == POST)
-//     //     _response_post();
-//     // else if (request.get_method() == DELETE)
-//     //     _response_delete();
-//     // else
-//     //     throw MessageException(HTTP_VERSION_UNSUPPORTED);  
-// }
-
-Response::Response(Request request) : _request(request),
+Response::Response(Request &request, Server &server) : _request(request), _server(server),
 _finalMessage(std::string()), _version(std::string("HTTP/1.1")), 
 _statusCode(std::string()), _reason(std::string()),
 _isCGI(true), _targetFound(true) {
@@ -54,9 +40,9 @@ void Response::_check_target(std::string target) {
 
 }
 
-// Response::Response(const Response& instance) : _request(instance._request), _server(instance._server) {
-//     *this = instance;
-// }
+Response::Response(const Response& instance) : _request(instance._request), _server(instance._server) {
+    *this = instance;
+}
 
 Response::~Response() {
 
@@ -85,7 +71,7 @@ std::string Response::getVersion() const {
 
 Response &Response::operator=(const Response &instance) {
     this->_request = instance._request;
-    // this->_server = instance._server;
+    this->_server = instance._server;
     this->_finalMessage = instance._finalMessage;
     this->_statusCode = instance._statusCode;
     this->_reason = instance._reason;
