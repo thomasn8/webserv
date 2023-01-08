@@ -19,9 +19,10 @@
 
 #include "Server.hpp"
 #include "Response.hpp"
+#include "Request.hpp"
 
 # define LOG_PATH "logs/access.log"
-# define CHUNK_SIZE 256
+# define CHUNK_SIZE 512
 // # define KEEPALIVE 65
 
 # define RED "\033[0;31m"
