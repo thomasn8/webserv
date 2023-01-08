@@ -18,7 +18,6 @@
 #include <vector>
 
 #include "Server.hpp"
-// #include "Request.hpp"
 #include "Response.hpp"
 
 # define LOG_PATH "logs/access.log"
