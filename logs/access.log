@@ -346,3 +346,3645 @@ SERVER #2
 
 2023-01-08 15:39:58 Client 127.0.0.1:0 requests on server port 8080 via socket 6
 2023-01-08 15:39:58 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 16:14:25 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 16:14:25 SERVERS STARTED
+
+2023-01-08 16:14:38 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 16:14:38 Client 127.0.0.1:0 requests on server port 8080 via socket 7
+2023-01-08 16:14:38 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 16:14:38 Response successful: 84 sent on socket 7, connection closed
+2023-01-08 16:15:24 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 16:15:24 Client 127.0.0.1:0 requests on server port 8080 via socket 7
+2023-01-08 16:15:24 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 16:15:24 Response successful: 84 sent on socket 7, connection closed
+2023-01-08 16:52:48 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 16:52:48 SERVERS STARTED
+
+2023-01-08 16:52:58 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 16:56:32 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 16:56:32 SERVERS STARTED
+
+2023-01-08 17:03:51 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:03:51 SERVERS STARTED
+
+2023-01-08 17:03:52 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:04:07 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:04:07 SERVERS STARTED
+
+2023-01-08 17:04:14 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:10:56 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:10:56 SERVERS STARTED
+
+2023-01-08 17:11:01 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:17:11 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:17:11 SERVERS STARTED
+
+2023-01-08 17:17:16 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:18:01 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:18:01 SERVERS STARTED
+
+2023-01-08 17:18:06 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:20:30 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:20:30 SERVERS STARTED
+
+2023-01-08 17:20:41 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:21:43 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:21:43 SERVERS STARTED
+
+2023-01-08 17:21:46 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:21:46 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 17:21:46 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:25:49 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:25:49 SERVERS STARTED
+
+2023-01-08 17:25:54 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:28:53 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:28:53 SERVERS STARTED
+
+2023-01-08 17:28:55 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:29:37 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:29:37 SERVERS STARTED
+
+2023-01-08 17:29:38 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:31:44 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:31:44 SERVERS STARTED
+
+2023-01-08 17:31:47 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:32:01 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:32:01 SERVERS STARTED
+
+2023-01-08 17:32:02 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:35:21 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:35:21 SERVERS STARTED
+
+2023-01-08 17:35:23 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:39:07 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:39:07 SERVERS STARTED
+
+2023-01-08 17:39:09 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:39:24 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:39:24 SERVERS STARTED
+
+2023-01-08 17:39:25 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:39:25 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 17:39:25 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:46:33 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:46:33 SERVERS STARTED
+
+2023-01-08 17:46:35 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:47:11 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:47:11 SERVERS STARTED
+
+2023-01-08 17:47:11 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:52:11 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:52:11 SERVERS STARTED
+
+2023-01-08 17:52:13 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:53:11 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:53:11 SERVERS STARTED
+
+2023-01-08 17:53:13 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:53:27 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:53:27 SERVERS STARTED
+
+2023-01-08 17:53:28 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:53:28 Client 127.0.0.1:0 requests on server port 8080 via socket 7
+2023-01-08 17:54:35 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:54:35 SERVERS STARTED
+
+2023-01-08 17:54:42 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:55:24 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/php
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 17:55:24 SERVERS STARTED
+
+2023-01-08 17:55:27 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 17:55:27 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 17:55:27 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 18:25:18 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 18:25:18 SERVERS STARTED
+
+2023-01-08 18:25:26 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 18:26:41 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 18:26:41 SERVERS STARTED
+
+2023-01-08 18:26:41 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 18:26:41 Client 127.0.0.1:0 requests on server port 8080 via socket 7
+2023-01-08 18:27:47 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 18:27:47 SERVERS STARTED
+
+2023-01-08 18:27:49 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 18:33:03 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 18:33:03 SERVERS STARTED
+
+2023-01-08 18:33:08 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 18:49:46 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 18:49:46 SERVERS STARTED
+
+2023-01-08 18:49:53 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 18:49:53 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 18:49:53 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 18:49:53 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 18:51:23 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 18:51:23 SERVERS STARTED
+
+2023-01-08 18:51:26 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 18:51:26 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 18:51:26 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 18:51:26 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 18:53:03 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 18:53:03 SERVERS STARTED
+
+2023-01-08 18:53:05 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 18:53:05 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 18:53:05 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 18:53:05 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 18:54:03 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 18:54:03 SERVERS STARTED
+
+2023-01-08 18:54:05 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 18:54:05 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 18:54:05 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 18:54:05 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 18:54:51 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 18:54:51 SERVERS STARTED
+
+2023-01-08 18:54:52 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 18:54:52 Client 127.0.0.1:0 requests on server port 8080 via socket 7
+2023-01-08 18:54:52 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 18:54:52 Response successful: 84 sent on socket 7, connection closed
+2023-01-08 18:55:55 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 18:55:55 SERVERS STARTED
+
+2023-01-08 18:55:55 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 18:55:55 Client 127.0.0.1:0 requests on server port 8080 via socket 7
+2023-01-08 18:56:52 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 18:56:52 SERVERS STARTED
+
+2023-01-08 18:56:53 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 19:01:19 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 19:01:19 SERVERS STARTED
+
+2023-01-08 19:01:24 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 19:01:24 Client 127.0.0.1:0 requests on server port 8080 via socket 7
+2023-01-08 19:01:24 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 19:01:24 Response successful: 84 sent on socket 7, connection closed
+2023-01-08 19:13:17 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 19:13:17 SERVERS STARTED
+
+2023-01-08 19:13:19 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 19:13:19 Client 127.0.0.1:0 requests on server port 8080 via socket 7
+2023-01-08 19:15:50 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 19:15:50 SERVERS STARTED
+
+2023-01-08 19:15:51 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 19:15:51 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 19:15:51 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 19:15:51 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 19:17:58 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 19:17:58 SERVERS STARTED
+
+2023-01-08 19:18:00 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 19:18:00 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 19:18:00 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 19:18:00 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 19:21:28 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 19:21:28 SERVERS STARTED
+
+2023-01-08 19:21:30 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 19:21:30 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 19:21:30 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 19:21:30 Response successful: 84 sent on socket 6, connection closed
+2023-01-08 19:24:32 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 19:24:32 SERVERS STARTED
+
+2023-01-08 19:24:33 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 19:24:33 Response successful: 359 sent on socket 6, connection closed
+2023-01-08 19:24:33 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 19:24:33 Response successful: 359 sent on socket 6, connection closed
+2023-01-08 20:23:06 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 20:23:06 SERVERS STARTED
+
+2023-01-08 20:25:18 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 20:25:18 SERVERS STARTED
+
+2023-01-08 20:25:31 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:25:31 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 20:25:36 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:25:36 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 20:26:56 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 20:26:56 SERVERS STARTED
+
+2023-01-08 20:26:57 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:26:57 Client 127.0.0.1:0 requests on server port 8080 via socket 7
+2023-01-08 20:41:49 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 20:41:49 SERVERS STARTED
+
+2023-01-08 20:41:52 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:41:52 Client 127.0.0.1:0 requests on server port 8080 via socket 7
+2023-01-08 20:43:20 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 20:43:20 SERVERS STARTED
+
+2023-01-08 20:43:23 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:43:23 Client 127.0.0.1:0 requests on server port 8080 via socket 7
+2023-01-08 20:46:46 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 20:46:46 SERVERS STARTED
+
+2023-01-08 20:46:51 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:46:51 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 20:46:51 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:46:52 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 20:46:52 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:46:52 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 20:46:52 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:46:52 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 20:46:57 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:46:57 Client 127.0.0.1:0 requests on server port 8080 via socket 11
+2023-01-08 20:46:57 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 20:47:33 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 20:47:33 SERVERS STARTED
+
+2023-01-08 20:47:33 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:47:33 Client 127.0.0.1:0 requests on server port 8080 via socket 7
+2023-01-08 20:47:33 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 20:47:34 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:47:34 Response successful: 0 sent on socket 7, connection closed
+2023-01-08 20:47:34 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 20:47:34 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:47:34 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 20:47:35 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:47:35 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 20:47:35 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:47:40 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 20:47:40 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:47:40 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 20:47:40 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:47:40 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 20:48:01 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 20:48:01 SERVERS STARTED
+
+2023-01-08 20:48:03 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:50:20 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 20:50:20 SERVERS STARTED
+
+2023-01-08 20:50:22 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:53:11 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 20:53:11 SERVERS STARTED
+
+2023-01-08 20:53:14 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:54:38 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 20:54:38 SERVERS STARTED
+
+2023-01-08 20:54:40 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:54:40 Client 127.0.0.1:0 requests on server port 8080 via socket 7
+2023-01-08 20:55:38 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 20:55:38 SERVERS STARTED
+
+2023-01-08 20:55:38 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 20:56:03 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 20:56:03 SERVERS STARTED
+
+2023-01-08 20:56:07 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:00:01 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 21:00:01 SERVERS STARTED
+
+2023-01-08 21:00:02 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:00:02 Response successful: 359 sent on socket 6, connection closed
+2023-01-08 21:00:02 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:00:02 Response successful: 359 sent on socket 6, connection closed
+2023-01-08 21:00:16 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:03:28 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 21:03:28 SERVERS STARTED
+
+2023-01-08 21:03:29 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:04:10 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 21:04:10 SERVERS STARTED
+
+2023-01-08 21:04:20 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:04:20 Client 127.0.0.1:0 requests on server port 8080 via socket 7
+2023-01-08 21:05:13 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 21:05:13 SERVERS STARTED
+
+2023-01-08 21:05:16 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:08:23 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 21:08:23 SERVERS STARTED
+
+2023-01-08 21:08:26 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:10:38 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 21:10:38 SERVERS STARTED
+
+2023-01-08 21:10:38 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:11:22 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 21:11:22 SERVERS STARTED
+
+2023-01-08 21:11:22 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:12:03 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 21:12:03 SERVERS STARTED
+
+2023-01-08 21:12:07 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:13:01 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 21:13:02 SERVERS STARTED
+
+2023-01-08 21:13:02 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:13:28 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 21:13:28 SERVERS STARTED
+
+2023-01-08 21:13:31 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:13:31 Client 127.0.0.1:0 requests on server port 8080 via socket 7
+2023-01-08 21:13:31 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 21:13:32 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:13:32 Response successful: 0 sent on socket 7, connection closed
+2023-01-08 21:13:32 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 21:13:32 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:13:32 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 21:17:01 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 21:17:01 SERVERS STARTED
+
+2023-01-08 21:17:04 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:18:26 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 21:18:26 SERVERS STARTED
+
+2023-01-08 21:18:26 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:18:26 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 21:18:26 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:18:27 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 21:18:27 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:18:27 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 21:18:27 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:18:27 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 21:18:32 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:18:32 Client 127.0.0.1:0 requests on server port 8080 via socket 7
+2023-01-08 21:18:32 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 21:19:25 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 21:19:25 SERVERS STARTED
+
+2023-01-08 21:19:27 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:19:27 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 21:19:27 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:19:28 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 21:19:28 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:19:28 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 21:19:28 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:19:29 Response successful: 0 sent on socket 6, connection closed
+2023-01-08 21:22:53 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 21:22:53 SERVERS STARTED
+
+2023-01-08 21:22:57 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:22:57 Client 127.0.0.1:0 requests on server port 8080 via socket 7
+2023-01-08 21:22:58 Response successful: 359 sent on socket 6, connection closed
+2023-01-08 21:22:58 Response successful: 359 sent on socket 7, connection closed
+2023-01-08 21:23:27 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 21:23:27 SERVERS STARTED
+
+2023-01-08 21:23:31 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:23:32 Client 127.0.0.1:0 requests on server port 8080 via socket 7
+2023-01-08 21:23:32 Response successful: 367 sent on socket 6, connection closed
+2023-01-08 21:23:32 Response successful: 367 sent on socket 7, connection closed
+2023-01-08 21:32:39 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0
+	server_name: localhost
+	server_name: mon-site.com
+	root: www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /not_found.html
+	error_page: 500: /50x.html
+	error_page: 502: /50x.html
+	error_page: 503: /50x.html
+	error_page: 504: /50x.html
+	client_mbs: 200
+	Location /images/
+		root: www/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		cgi: /Users/mim/42/webserv/cgi_bin
+	Location *.php
+		root: www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		uploads_dir: /uploads
+		redirect: test1.php  500
+		redirect: pouette.php  500
+		redirect: test1.php test2.php 0
+		redirect: test2.php helloworld.php 301
+		redirect: test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/cgi_bin
+SERVER #2
+	port: 9000
+	ip: 2130706433
+	server_name: localhost
+	server_name: test.com
+	root: www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 0
+
+2023-01-08 21:32:39 SERVERS STARTED
+
+2023-01-08 21:32:43 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:32:43 Response successful: 367 sent on socket 6, connection closed
+2023-01-08 21:32:43 Client 127.0.0.1:0 requests on server port 8080 via socket 6
+2023-01-08 21:32:43 Response successful: 367 sent on socket 6, connection closed

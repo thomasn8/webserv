@@ -1,9 +1,13 @@
 #ifndef RESPONSE_HPP
 # define RESPONSE_HPP
 
+#include <fstream>
+#include <streambuf>
+#include <unistd.h>
 #include "Message.hpp"
 #include "Request.hpp"
 #include "Server.hpp"
+#include "Location.hpp"
 
 class Response : public Message {
 	public:
@@ -16,7 +20,7 @@ class Response : public Message {
 		std::string getReason() const;
 		std::string getVersion() const;
 
-		Response		&operator=(const Response &instance);
+		Response	&operator=(const Response &instance);
 
 	private:
 		Response();
@@ -24,7 +28,12 @@ class Response : public Message {
 		void		_response_get();
 		void		_response_post();
 		void		_response_delete();
-		void		_check_target(std::string target);
+		void		_check_target_in_get(std::string target);
+		int			_check_redirections(std::string &target, std::deque<Location> &locations);
+		void		_check_locations(std::string &target, std::deque<Location> &locations);
+		void		_check_root(std::string &target);
+		int			_make_CGI();
+		void		_make_response();
 		
 		Request		&_request;
 		Server		&_server;
@@ -32,6 +41,7 @@ class Response : public Message {
 		std::string _version;
 		std::string _statusCode;
 		std::string _reason;
+		std::string _path;
 		bool		_isCGI;
 		bool		_targetFound;
 };
