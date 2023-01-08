@@ -11,7 +11,7 @@ struct socket
 	struct pollfd * pfd;
 	struct sockaddr_in remoteAddr;
 	Server * server;
-	// timeout
+	// keepalive timeouts ...
 };
 
 #endif

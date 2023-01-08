@@ -94,8 +94,6 @@ void Monitor::_del_from_pfds(int i)
 	_fd_count--;
 }
 
-// AJOUTER UN TIMER POUR LES LOOP RECV ET SEND AU CAS OU LES FONCTIONS SONT BLOCKEES POUR BREAK ET ENVOYER UNE ERREUR
-// VOIR POUR KEEP_ALIVE: CONSERVER LE SOCKET DU CLIENT APRES L'ENVOI D'UNE REPONSE (persistent-connection or keep-alive connection)
 // A LA FIN SPLITER LA LOOP EN FONCTIONS INDIV
 // VOIR SI LA HEAP GROSSI PAS A L'INFINI SANS LIBERE DE L'ESPACE CAR del_from_pfds() NE FREE PAS
 void Monitor::handle_connections()
@@ -146,8 +144,6 @@ void Monitor::handle_connections()
 								request_recv.append(chunk_read, size_recv);
 							if (size_recv < CHUNK_SIZE) // toute la request a été read
 							{
-								std::cout << "Request from client " << inet_ntoa(_activeSockets[i].remoteAddr.sin_addr) << ":" << ntohs(_activeSockets[i].remoteAddr.sin_port) << " on server port ";
-								std::cout << ntohs(_activeSockets[i].server->get_port()) << " via socket " << _activeSockets[i].pfd->fd << std::endl;
 								log(get_time(), " Request from client ", inet_ntoa(_activeSockets[i].remoteAddr.sin_addr), ":", ntohs(_activeSockets[i].remoteAddr.sin_port), " on server port ", ntohs(_activeSockets[i].server->get_port()), " via socket ", _activeSockets[i].pfd->fd, "\n");
 								try {
 									Request request(request_recv.c_str());
@@ -186,7 +182,7 @@ void Monitor::handle_connections()
 					chunk_send += size_sent;
 					total_sent += size_sent;
 				}
-				while (response_size > CHUNK_SIZE) // cas où response initiale > 512
+				while (response_size > CHUNK_SIZE && size_sent != -1) // cas où response initiale > 512
 				{
 					size_sent = send(polled_fd, chunk_send, CHUNK_SIZE, 0);
 					std::cout << size_sent << " bytes sent on socket " << polled_fd << std::endl;
@@ -194,7 +190,7 @@ void Monitor::handle_connections()
 					chunk_send += size_sent;
 					total_sent += size_sent;
 				}
-				while (response_size > 0) // cas où il reste des bytes a envoyer (envoyer les derniers bytes lorsque response initiale était > 512 bytes)
+				while (response_size > 0 && size_sent != -1) // cas où il reste des bytes a envoyer (envoyer les derniers bytes lorsque response initiale était > 512 bytes)
 				{
 					size_sent = send(polled_fd, chunk_send, response_size, 0);
 					std::cout << size_sent << " bytes sent on socket " << polled_fd << std::endl;
@@ -204,7 +200,7 @@ void Monitor::handle_connections()
 				}
 				if (total_sent == response.size())
 				{
-					std::cout << "Response ("<< total_sent << ") bytes sent successfully on socket " << polled_fd << ", connection closed\n";
+					std::cout << "Response successful: "<< total_sent << " bytes sent on socket " << polled_fd << ", connection closed\n";
 					log(get_time(), " Response successful: ", total_sent, " bytes sent on socket ", polled_fd, ", connection closed\n");
 				}
 				else

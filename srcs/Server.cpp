@@ -223,8 +223,16 @@ int Server::create_socket()
 		_exit_cerr_msg("Error: impossible to run server(s): socket() failed", 1);
 	fcntl(_socket_fd, F_SETFL, O_NONBLOCK);
 	if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, (void *)&opt, sizeof(opt)) < 0)
-		_exit_cerr_msg("Error: impossible to run server(s): setsockopt() failed", 1);
+		_exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 1 failed", 1);
 	
+	struct timeval timeout;      
+    timeout.tv_sec = 10;
+    timeout.tv_usec = 0;
+    if (setsockopt (_socket_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) < 0)
+        _exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 2 failed", 1);
+    if (setsockopt (_socket_fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout) < 0)
+        _exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 3 failed", 1);
+
 	memset(_address.sin_zero, 0, sizeof(_address.sin_zero));
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = htonl(INADDR_ANY);	// a voir si besoin d'utiliser _ipv4 (pour l'instant l'OS choisi l'ip)
