@@ -50,14 +50,12 @@ class Monitor
 		// LOG
 		std::string get_time();
 		void log_server_info();
-	
 		template <typename T>
 		void log(T message)
 		{
 			_accessStream << message;
 			_accessStream.flush();
 		}
-		
 		template<typename T, typename... Args>
 		void log(T message, Args... args)
 		{ 
@@ -79,8 +77,8 @@ class Monitor
 		struct socket * _add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, Server * server);
 		void _del_from_pfds(int i);
 		void _accept_new_connection(int master_index);
-		int _recvAll(int fd, std::string & request, struct socket & activeSocket);
-		int _sendAll(int i, const char * response, int size, struct socket & activeSocket);
+		int _recv_all(int fd, std::string & request, struct socket & activeSocket);
+		int _send_all(int i, const char * response, int size, struct socket & activeSocket);
 
 		// LOG
 		void _create_log_file(std::string const & filename, std::ofstream & stream);

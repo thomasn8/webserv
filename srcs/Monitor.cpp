@@ -141,7 +141,7 @@ void Monitor::_accept_new_connection(int master_index)
 	}
 }
 
-int Monitor::_recvAll(int fd, std::string & request, struct socket & activeSocket)
+int Monitor::_recv_all(int fd, std::string & request, struct socket & activeSocket)
 {
 	char chunk_read[CHUNK_SIZE];
 	int size_recv = 0, total_recv = 0;
@@ -160,7 +160,7 @@ int Monitor::_recvAll(int fd, std::string & request, struct socket & activeSocke
 	}
 }
 
-int Monitor::_sendAll(int i, const char * response, int size, struct socket & activeSocket)
+int Monitor::_send_all(int i, const char * response, int size, struct socket & activeSocket)
 {
 	int fd = _pfds[i].fd;
 	const char * chunk_send = response;
@@ -225,7 +225,7 @@ void Monitor::handle_connections()
 					}
 					if (j == server_count - 1)					// sinon fd correspond a un client qui fait une request
 					{
-						_recvAll(_pfds[i].fd, requestStr, _activeSockets[i]);
+						_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]);
 						try {
 							Request request(requestStr.c_str());
 							Response response(request, *(_activeSockets[i].server));
@@ -249,7 +249,7 @@ void Monitor::handle_connections()
 			}
 			else if (_pfds[i].revents & POLLOUT) 				// event sur fd[i]: si poll a debloquer pour un fd prêt à write
 			{
-				_sendAll(i, response.c_str(), response.size(), _activeSockets[i]);
+				_send_all(i, response.c_str(), response.size(), _activeSockets[i]);
 				poll_index = 0; // reset l'index au debut des fds
 			}
 			i++;

@@ -59,17 +59,13 @@ class Location
 	private:
 		std::string _prefix;
 		int _prefixLevelCount;
-
 		std::string _root;
 		std::list<std::string> _methods;
 		bool _defaultMethods;
-		
 		bool _autoindex;
 		std::string _index;
 		std::string _uploadsDir;
-
 		std::list<Trio> _redirections;
-
 		std::string _cgiBinPath;
 		std::string _webserv_bin_path() const;
 		std::string _cgiExtension;

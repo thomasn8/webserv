@@ -77,17 +77,14 @@ class Server
 	private:
 		// CONFIG
 		std::deque<Location> _locations;
-
 		uint32_t _ipv4;
 		uint16_t _port;
 		std::vector<std::string> _serverNames;
 		bool _defaultServerNames;
-
 		std::string	_root;
 		std::vector<std::string> _indexFiles;
 		bool _defaultIndex;
 		size_t _clientMaxBodySize;
-		
 		std::vector< error_page_pair > _errorPages;
 
 		// SOCKET
