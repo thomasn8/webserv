@@ -24,7 +24,6 @@
 
 # define LOG_PATH "logs/access.log"
 # define CHUNK_SIZE 512
-// # define KEEPALIVE 65
 
 # define RED "\033[0;31m"
 # define BLU "\033[0;34m"
@@ -79,6 +78,9 @@ class Monitor
 		struct socket *_activeSockets; // les servers.size() premiers pointeurs sont NULL, les suivants correspondent par index aux _pfds
 		void _add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, Server * server);
 		void _del_from_pfds(int i);
+		void _accept_new_connection(int master_index);
+		int _recvAll(int fd, std::string & request, struct socket & activeSocket);
+		int _sendAll(int fd, const char * response, int size, struct socket & activeSocket);
 
 		// LOG
 		void _create_log_file(std::string const & filename, std::ofstream & stream);

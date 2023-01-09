@@ -15,7 +15,10 @@ _accessFile(std::string(LOG_PATH)), _accessStream()
 
 Monitor::~Monitor()
 {
-	// CLOSE ET FREE TOUT CE QUI FAUT DANS LA PARTIE SOCKET (array de pollfds)
+	for (int i = 0; i < _fd_count; i++)
+		close(_pfds[i].fd);
+	free(_pfds);
+	free(_activeSockets);
 	_accessStream.close();
 }
 
@@ -29,7 +32,7 @@ Server & Monitor::get_last_server() { return get_servers().back(); }
 void Monitor::add_server() { _servers.push_back(Server()); }
 
 /* 
-	************ SOCKETS ( !!! allocations -> free dans le destructeur)
+	************ SOCKETS
 */
 void Monitor::_prepare_master_sockets()
 {
@@ -94,129 +97,135 @@ void Monitor::_del_from_pfds(int i)
 	_fd_count--;
 }
 
-// A LA FIN SPLITER LA LOOP EN FONCTIONS INDIV
 // VOIR SI LA HEAP GROSSI PAS A L'INFINI SANS LIBERE DE L'ESPACE CAR del_from_pfds() NE FREE PAS
 void Monitor::handle_connections()
 {
 	_prepare_master_sockets(); // socket, bind, listen pour chaque port + creer les struct pollfd dédiées
-	struct sockaddr_in remoteAddr;
 	int i, poll_index = 0;
 	int poll_count = 0, server_count = _servers.size();
-	int new_fd = -1, polled_fd = -1;
-	int size_recv = 0, total_recv = 0, size_sent = 0, total_sent = 0;
-	char chunk_read[CHUNK_SIZE], chunk_send[CHUNK_SIZE];
-	std::string request_recv;
+	std::string requestStr;
 	std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello from the server!\n";
 	while (1)													// Main loop
 	{
-		poll_count = poll(_pfds, _fd_count, -1);				// Sonde le nombre de pfd avec un event ready (blockant tant qu'il y en a aucun)
+		poll_count = poll(_pfds, _fd_count, -1);				// bloque tant qu'aucun fd est prêt à read ou write
         if (poll_count < 0)
 			log(get_time(), " Error: poll failed\n");
 		i = poll_index;
-		while (i < _fd_count)									// Run through the existing connections
+		while (i < _fd_count)									// cherche parmi tous les fd ouverts
 		{
-			if (_pfds[i].revents & POLLIN)						// We have data to read in the existing connections
+			if (_pfds[i].revents & POLLIN)						// event sur fd[i]: si poll a debloqué pour un fd prêt à read
 			{
-				polled_fd = _pfds[i].fd;
-				for (int j = 0; j < server_count; j++)			// First, check only the master sockets
+				for (int j = 0; j < server_count; j++)
 				{
-					if (polled_fd == _master_sockets[j])		// Accept() new connection si fd correspond a un socket listening
+					if (_pfds[i].fd == _master_sockets[j])		// si fd correspond a un socket de server en ecoute
 					{
-						remoteAddr.sin_len = sizeof(remoteAddr);
-						new_fd = accept(_master_sockets[j], (struct sockaddr *)&remoteAddr, (socklen_t *)&remoteAddr.sin_len);
-						if (new_fd < 0)
-							log(get_time(), " Error: accept: new connexion on port ", ntohs(_servers[j].get_port()), " failed\n");
-						else
-						{
-							_add_to_pfds(new_fd, &remoteAddr, &_servers[j]);
-							std::cout << "Client " << inet_ntoa(remoteAddr.sin_addr) << ":" << ntohs(remoteAddr.sin_port) << " connected on server port " << ntohs(_servers[j].get_port()) << " via socket " << new_fd << std::endl;
-							log(get_time(), " Client ", inet_ntoa(remoteAddr.sin_addr), ":", ntohs(remoteAddr.sin_port), " connected on server port ", ntohs(_servers[j].get_port()), " via socket ", new_fd, "\n");
-						}
+						_accept_new_connection(j);
 						break;
 					}
-					if (j == server_count - 1)					// If not a master socket so a client is ready to write
+					if (j == server_count - 1)					// sinon fd correspond a un client qui fait une request
 					{
-						while (1)
-						{
-							size_recv = recv(polled_fd, chunk_read, CHUNK_SIZE, 0); // recv la request jusqu'au bout du client_fd
-							std::cout << size_recv << " bytes read on socket " << polled_fd << std::endl;
-							if (size_recv > 0)
-								request_recv.append(chunk_read, size_recv);
-							if (size_recv < CHUNK_SIZE) // toute la request a été read
-							{
-								log(get_time(), " Request from client ", inet_ntoa(_activeSockets[i].remoteAddr.sin_addr), ":", ntohs(_activeSockets[i].remoteAddr.sin_port), " on server port ", ntohs(_activeSockets[i].server->get_port()), " via socket ", _activeSockets[i].pfd->fd, "\n");
-								try {
-									Request request(request_recv.c_str());
-									Response response(request, *(_activeSockets[i].server));
+						_recvAll(_pfds[i].fd, requestStr, _activeSockets[i]);
+						try {
+							Request request(requestStr.c_str());
+							Response response(request, *(_activeSockets[i].server));
 
-									// decomment to display in terminal:
-									// std::cout << request.get_method() << " " << request.get_target() << " " << request.get_version() << std::endl;
-									// request.display_fields();
-									// std::cout << "\n" << request.get_body() << std::endl;
+							// decomment to display in terminal:
+							// std::cout << request.get_method() << " " << request.get_target() << " " << request.get_version() << std::endl;
+							// request.display_fields();
+							// std::cout << "\n" << request.get_body() << std::endl;
 
-									// Response response(request);
-								}
-								catch (Request::MessageException & e) {
-									std::cout << "Error: " << e.what() << std::endl;
-								}
-								request_recv.clear();
-								_pfds[i].events = POLLOUT;
-								poll_index = i;		// permet de revenir dans la loop infinie avec l'index du pfds où écrire
-								j = server_count;	// break la for loop
-								i = _fd_count;		// break la while loop
-								break;
-							}
+							// Response response(request);
 						}
+						catch (Request::MessageException & e) {
+							std::cout << "Error: " << e.what() << std::endl; // A thomas de printer le message d'erreur de maniere la ou c'est coherent (log ?)
+						}
+						requestStr.clear();
+						_pfds[i].events = POLLOUT;
+						poll_index = i;		// permet de revenir dans la main loop avec l'index du pfds à écrire
+						j = server_count;	// break la for loop
+						i = _fd_count;		// break la while loop
 					}
 				}
 			}
-			else if (_pfds[i].revents & POLLOUT)
+			else if (_pfds[i].revents & POLLOUT) 				// event sur fd[i]: si poll a debloquer pour un fd prêt à write
 			{
-				const char * chunk_send = response.c_str();
-				int response_size = response.size();
-				if (response_size < CHUNK_SIZE)	// cas où response initiale fait < 512
-				{
-					size_sent = send(polled_fd, chunk_send, response_size, 0);
-					std::cout << size_sent << " bytes sent on socket " << polled_fd << std::endl;
-					response_size -= size_sent;
-					chunk_send += size_sent;
-					total_sent += size_sent;
-				}
-				while (response_size > CHUNK_SIZE && size_sent != -1) // cas où response initiale > 512
-				{
-					size_sent = send(polled_fd, chunk_send, CHUNK_SIZE, 0);
-					std::cout << size_sent << " bytes sent on socket " << polled_fd << std::endl;
-					response_size -= size_sent;
-					chunk_send += size_sent;
-					total_sent += size_sent;
-				}
-				while (response_size > 0 && size_sent != -1) // cas où il reste des bytes a envoyer (envoyer les derniers bytes lorsque response initiale était > 512 bytes)
-				{
-					size_sent = send(polled_fd, chunk_send, response_size, 0);
-					std::cout << size_sent << " bytes sent on socket " << polled_fd << std::endl;
-					response_size -= size_sent;
-					chunk_send += size_sent;
-					total_sent += size_sent;
-				}
-				if (total_sent == response.size())
-				{
-					std::cout << "Response successful: "<< total_sent << " bytes sent on socket " << polled_fd << ", connection closed\n";
-					log(get_time(), " Response successful: ", total_sent, " bytes sent on socket ", polled_fd, ", connection closed\n");
-				}
-				else
-				{
-					std::cout << "Error: response partially sent (" << total_sent << "/" << response.size() << ") on socket " << polled_fd << ", connection closed\n";
-					log(get_time(), " Error: response partially sent (", total_sent, "/", response.size(), ") on socket ", polled_fd, ", connection closed\n");
-				}
-				close(polled_fd);
+				_sendAll(_pfds[i].fd, response.c_str(), response.size(), _activeSockets[i]);
+				close(_pfds[i].fd);
 				_del_from_pfds(i);
-				total_sent = 0;
-				poll_index = 0;
-				break;
+				poll_index = 0; // reset l'index au debut des fds
 			}
 			i++;
 		}
 	}
+}
+
+void Monitor::_accept_new_connection(int master_index)
+{
+	struct sockaddr_in remoteAddr;
+	remoteAddr.sin_len = sizeof(remoteAddr);
+	int new_fd = accept(_master_sockets[master_index], (struct sockaddr *)&remoteAddr, (socklen_t *)&remoteAddr.sin_len);
+	if (new_fd < 0)
+		log(get_time(), " Error: accept: new connexion on port ", ntohs(_servers[master_index].get_port()), " failed\n");
+	else
+	{
+		_add_to_pfds(new_fd, &remoteAddr, &_servers[master_index]);
+		log(get_time(), " New connection  ", inet_ntoa(remoteAddr.sin_addr), ":", ntohs(remoteAddr.sin_port), " on server port ", ntohs(_servers[master_index].get_port()), " via socket ", new_fd, "\n");
+	}
+}
+
+int Monitor::_recvAll(int fd, std::string & request, struct socket & activeSocket)
+{
+	int size_recv = 0, total_recv = 0;
+	char chunk_read[CHUNK_SIZE];
+	while (1)
+	{
+		size_recv = recv(fd, chunk_read, CHUNK_SIZE, 0); // recv la request jusqu'au bout du client_fd
+		total_recv += size_recv;
+		// std::cout << size_recv << " bytes read on socket " << fd << std::endl;
+		if (size_recv > 0)
+			request.append(chunk_read, size_recv);
+		if (size_recv < CHUNK_SIZE) // toute la request a été read
+		{
+			log(get_time(), " Request from    ", inet_ntoa(activeSocket.remoteAddr.sin_addr), ":", ntohs(activeSocket.remoteAddr.sin_port), " on server port ", ntohs(activeSocket.server->get_port()), ": ", total_recv, " bytes read via socket ", fd, "\n");
+			return total_recv;
+		}
+	}
+}
+
+int Monitor::_sendAll(int fd, const char * response, int size, struct socket & activeSocket)
+{
+	const char * chunk_send = response;
+	int response_size = size;
+	int size_sent = 0, total_sent = 0;
+	if (response_size < CHUNK_SIZE)	// cas où response initiale fait < 512
+	{
+		size_sent = send(fd, chunk_send, response_size, 0);
+		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
+		response_size -= size_sent;
+		chunk_send += size_sent;
+		total_sent += size_sent;
+	}
+	while (response_size > CHUNK_SIZE && size_sent != -1) // cas où response initiale > 512
+	{
+		size_sent = send(fd, chunk_send, CHUNK_SIZE, 0);
+		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
+		response_size -= size_sent;
+		chunk_send += size_sent;
+		total_sent += size_sent;
+	}
+	while (response_size > 0 && size_sent != -1) // cas où il reste des bytes a envoyer (envoyer les derniers bytes lorsque response initiale était > 512 bytes)
+	{
+		size_sent = send(fd, chunk_send, response_size, 0);
+		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
+		response_size -= size_sent;
+		chunk_send += size_sent;
+		total_sent += size_sent;
+	}
+	if (total_sent == size)
+		log(get_time(), " Response to     ", inet_ntoa(activeSocket.remoteAddr.sin_addr), ":", ntohs(activeSocket.remoteAddr.sin_port), " on server port ", ntohs(activeSocket.server->get_port()),  ": ", total_sent, " bytes sent via socket ", fd, ", connection closed\n");
+	else
+		log(get_time(), " Response error: partial send to client " , inet_ntoa(activeSocket.remoteAddr.sin_addr), ":", ntohs(activeSocket.remoteAddr.sin_port), " on server port ", ntohs(activeSocket.server->get_port()),  ": ", total_sent, "/", size, "bytes sent via socket ", fd, ", connection closed\n");
+	return total_sent;
 }
 
 /* 
