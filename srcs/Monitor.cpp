@@ -241,7 +241,6 @@ void Monitor::handle_connections()
 						requestStr.clear();
 						_pfds[i].events = POLLOUT;
 						poll_index = i;		// permet de revenir dans la main loop avec l'index du pfds à écrire
-						j = server_count;	// break la for loop
 						i = _fd_count;		// break la while loop
 					}
 				}
