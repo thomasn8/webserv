@@ -59,7 +59,9 @@ class Server
 		void set_client_max_body_size(std::string & value);
 		uint16_t get_port() const;
 		uint32_t get_ipv4() const;
-		std::string get_ip() const;
+		std::string get_port_str() const;
+		std::string get_ipv4_str() const;
+		std::string get_ipv4_port_str() const; 
 		std::string get_servername() const;
 		std::vector<std::string> & get_servernames();
 		std::string get_root() const;

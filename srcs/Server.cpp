@@ -78,8 +78,11 @@ void Server::set_address_port(std::string & value)
 		if (!before.empty())
 		{
 			if (before.compare("localhost") == 0)
-				_ipv4 = inet_addr("127.0.0.1");
-			_ipv4 = inet_addr(before.c_str());
+				_ipv4 = INADDR_ANY;
+			_ipv4 = INADDR_ANY;
+			// if (before.compare("localhost") == 0)
+			// 	_ipv4 = inet_addr("127.0.0.1");
+			// _ipv4 = inet_addr(before.c_str());
 		}
 		if (!after.empty())
 		{
@@ -98,8 +101,11 @@ void Server::set_address_port(std::string & value)
 		if (pos > 0)
 		{
 			if (value.compare("localhost") == 0)
-				_ipv4 = inet_addr("127.0.0.1");
-			_ipv4 = inet_addr(value.c_str());
+				_ipv4 = INADDR_ANY;
+			_ipv4 = INADDR_ANY;
+			// if (value.compare("localhost") == 0)
+			// 	_ipv4 = inet_addr("127.0.0.1");
+			// _ipv4 = inet_addr(value.c_str());
 		}
 		else
 		{
@@ -184,11 +190,11 @@ uint16_t Server::get_port() const { return _port; }
 
 uint32_t Server::get_ipv4() const { return _ipv4; }
 
-std::string Server::get_ip() const 
-{
-	char ip4[INET_ADDRSTRLEN];
-	return std::string(inet_ntop(AF_INET, &(_address.sin_addr), ip4, INET_ADDRSTRLEN));
-}
+std::string Server::get_port_str() const { return std::to_string(ntohs(_port)); }
+
+std::string Server::get_ipv4_str() const { return std::string(inet_ntoa(_address.sin_addr)); }
+
+std::string Server::get_ipv4_port_str() const { return get_ipv4_str().append(":").append(get_port_str()); }
 
 std::string Server::get_servername() const { return _serverNames.front(); }
 
@@ -235,7 +241,7 @@ int Server::create_socket()
 
 	memset(_address.sin_zero, 0, sizeof(_address.sin_zero));
 	_address.sin_family = AF_INET;
-	_address.sin_addr.s_addr = htonl(INADDR_ANY);	// a voir si besoin d'utiliser _ipv4 (pour l'instant l'OS choisi l'ip)
+	_address.sin_addr.s_addr = _ipv4;
 	_address.sin_port = _port;
 	_address.sin_len = sizeof(_address);
 

@@ -8,6 +8,7 @@ _master_sockets(std::vector<int>()),
 _fd_count(0),
 _fd_capacity(0),
 _pfds(NULL),
+_activeSockets(NULL),
 _accessFile(std::string(LOG_PATH)), _accessStream()
 {
 	_create_log_file(_accessFile, _accessStream);
@@ -17,9 +18,13 @@ Monitor::~Monitor()
 {
 	for (int i = 0; i < _fd_count; i++)
 		close(_pfds[i].fd);
-	free(_pfds);
-	free(_activeSockets);
+	if (_pfds)
+		free(_pfds);
+	if (_activeSockets)
+		free(_activeSockets);
 	_accessStream.close();
+	log(get_time(), " Server shut down\n");
+	std::cout << "Server shut down" << std::endl;
 }
 
 /* 
@@ -42,7 +47,7 @@ void Monitor::_prepare_master_sockets()
 	while (it != ite)
 	{
 		socket_fd = (*it).create_socket();
-		log((*it).get_ip(), ":", ntohs((*it).get_address().sin_port), " listening on socket ", socket_fd, "\n");
+		log((*it).get_ipv4_port_str(), " listening on socket ", socket_fd, "\n");
 		_master_sockets.push_back(socket_fd);
 		_fd_count++;
 		it++;
@@ -68,7 +73,7 @@ void Monitor::_prepare_master_sockets()
 		log(get_time(), " SERVERS STARTED\n\n");
 }
 
-void Monitor::_add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, Server * server)
+struct socket * Monitor::_add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, Server * server)
 {
 	if (_fd_count == _fd_capacity)
 	{
@@ -84,10 +89,35 @@ void Monitor::_add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, Server *
 	_pfds[_fd_count].fd = new_fd;
 	_pfds[_fd_count].events = POLLIN;
 	_pfds[_fd_count].revents = 0;
-	_activeSockets[_fd_count].pfd = &_pfds[_fd_count];
-	_activeSockets[_fd_count].remoteAddr = *remoteAddr;
-	_activeSockets[_fd_count].server = server;
+	struct socket * activeSocket = &_activeSockets[_fd_count];
+	activeSocket->pfd = &_pfds[_fd_count];
+	activeSocket->remoteAddr = *remoteAddr;
+	activeSocket->server = server;
 	_fd_count++;
+
+	// renseigne l'adresse du client pour eviter de multiplier les appels à inet_ntoa() et ntohs() dans les logs
+	int i = 0;
+	const char * ip = inet_ntoa(activeSocket->remoteAddr.sin_addr);
+	const char * port = std::to_string(ntohs(activeSocket->remoteAddr.sin_port)).c_str();
+	while (ip[i])
+	{
+		activeSocket->client[i]  = ip[i];
+		i++;
+	}
+	activeSocket->client[i++] = ':';
+	int j = 0;
+	while (port[j])
+	{
+		activeSocket->client[i] = port[j];
+		i++;
+		j++;
+	}
+	while (i < 21)
+	{
+		activeSocket->client[i] = 0;
+		i++;
+	}
+	return activeSocket;
 }
 
 void Monitor::_del_from_pfds(int i)
@@ -103,11 +133,11 @@ void Monitor::_accept_new_connection(int master_index)
 	remoteAddr.sin_len = sizeof(remoteAddr);
 	int new_fd = accept(_master_sockets[master_index], (struct sockaddr *)&remoteAddr, (socklen_t *)&remoteAddr.sin_len);
 	if (new_fd < 0)
-		log(get_time(), " Error: accept: new connexion on port ", ntohs(_servers[master_index].get_port()), " failed\n");
+		log(get_time(), " Error: accept: new connexion on port ", _servers[master_index].get_port_str(), " failed\n");
 	else
 	{
-		_add_to_pfds(new_fd, &remoteAddr, &_servers[master_index]);
-		log(get_time(), " New connection  ", inet_ntoa(remoteAddr.sin_addr), ":", ntohs(remoteAddr.sin_port), " on server port ", ntohs(_servers[master_index].get_port()), " via socket ", new_fd, "\n");
+		struct socket * client_socket = _add_to_pfds(new_fd, &remoteAddr, &_servers[master_index]);
+		log(get_time(), " New connection  ", client_socket->client, " on server port ", _servers[master_index].get_port_str(), " via socket ", new_fd, "\n");
 	}
 }
 
@@ -124,7 +154,7 @@ int Monitor::_recvAll(int fd, std::string & request, struct socket & activeSocke
 			request.append(chunk_read, size_recv);
 		if (size_recv < CHUNK_SIZE) // toute la request a été read
 		{
-			log(get_time(), " Request from    ", inet_ntoa(activeSocket.remoteAddr.sin_addr), ":", ntohs(activeSocket.remoteAddr.sin_port), " on server port ", ntohs(activeSocket.server->get_port()), ": ", total_recv, " bytes read via socket ", fd, "\n");
+			log(get_time(), " Request from    ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(), ": ", total_recv, " bytes read via socket ", fd, "\n");
 			return total_recv;
 		}
 	}
@@ -151,7 +181,7 @@ int Monitor::_sendAll(int fd, const char * response, int size, struct socket & a
 		chunk_send += size_sent;
 		total_sent += size_sent;
 	}
-	while (response_size > 0 && size_sent != -1) // cas où il reste des bytes a envoyer (envoyer les derniers bytes lorsque response initiale était > 512 bytes)
+	while (response_size > 0 && size_sent != -1) // envoie les derniers bytes lorsque response initiale était > 512 bytes ou lorsque send a pas fonctionné comme prévu
 	{
 		size_sent = send(fd, chunk_send, response_size, 0);
 		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
@@ -160,13 +190,13 @@ int Monitor::_sendAll(int fd, const char * response, int size, struct socket & a
 		total_sent += size_sent;
 	}
 	if (total_sent == size)
-		log(get_time(), " Response to     ", inet_ntoa(activeSocket.remoteAddr.sin_addr), ":", ntohs(activeSocket.remoteAddr.sin_port), " on server port ", ntohs(activeSocket.server->get_port()),  ": ", total_sent, " bytes sent via socket ", fd, ", connection closed\n");
+		log(get_time(), " Response to     ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(),  ": ", total_sent, " bytes sent via socket ", fd, ", connection closed\n");
 	else
-		log(get_time(), " Response error: partial send to client " , inet_ntoa(activeSocket.remoteAddr.sin_addr), ":", ntohs(activeSocket.remoteAddr.sin_port), " on server port ", ntohs(activeSocket.server->get_port()),  ": ", total_sent, "/", size, "bytes sent via socket ", fd, ", connection closed\n");
+		log(get_time(), " Response error: partial send to client " , activeSocket.client, " on server port ", activeSocket.server->get_port_str(),  ": ", total_sent, "/", size, "bytes sent via socket ", fd, ", connection closed\n");
 	return total_sent;
 }
 
-// VOIR SI LA HEAP GROSSI PAS A L'INFINI SANS LIBERE DE L'ESPACE CAR del_from_pfds() NE FREE PAS
+// VOIR SI LA HEAP GROSSI PAS A L'INFINI SANS LIBERE DE L'ESPACE AVEC REALLOC ?
 void Monitor::handle_connections()
 {
 	_prepare_master_sockets(); // socket, bind, listen pour chaque port + creer les struct pollfd dédiées
@@ -206,7 +236,7 @@ void Monitor::handle_connections()
 							// Response response(request);
 						}
 						catch (Request::MessageException & e) {
-							std::cout << "Error: " << e.what() << std::endl; // A thomas de printer le message d'erreur de maniere la ou c'est coherent (log ?)
+							std::cout << "Error: " << e.what() << std::endl; // A la fin, job de thomas de printer le message d'erreur comme c'est coherent (log ?)
 						}
 						requestStr.clear();
 						_pfds[i].events = POLLOUT;
@@ -235,12 +265,23 @@ void Monitor::_create_log_file(std::string const & filename, std::ofstream & str
 {
 	stream.open(filename, std::ofstream::out | std::ofstream::app);
 	if (stream.fail() == true)
-		_exit_cerr_msg("Error while creating access log file\n", 1);
+	{
+		std::cerr << "Error while creating access log file" << std::endl;
+		exit(1);
+	}
 }
 
-void Monitor::_exit_cerr_msg(const std::string message, int code) const
+void Monitor::_exit_cerr_msg(const std::string message, int code)
 {
-	std::cerr << message;
+	log(get_time(), " Exit: ", message, "\n");
+	std::cerr << "Exit: " << message;
+	for (int i = 0; i < _fd_count; i++)
+		close(_pfds[i].fd);
+	if (_pfds)
+		free(_pfds);
+	if (_activeSockets)
+		free(_activeSockets);
+	_accessStream.close();
 	exit(code);
 }
 
@@ -266,9 +307,9 @@ void Monitor::log_server_info()
 	{
 		i++;
 		_accessStream << "SERVER #" << i << std::endl;
-		_accessStream << "	" << "port: " << ntohs((*it).get_port()) << std::endl;
+		_accessStream << "	" << "port: " << (*it).get_port_str() << std::endl;
 		char ip4[INET_ADDRSTRLEN];
-		_accessStream << "	" << "ip: " << (*it).get_ip() << std::endl;
+		_accessStream << "	" << "ip: " << (*it).get_ipv4_str() << std::endl;
 		for (int j = 0; j < (*it).get_servernames().size(); j++)
 			_accessStream << "	" << "server_name: " << (*it).get_servernames()[j] << std::endl;
 		_accessStream << "	" << "root: " << (*it).get_root() << std::endl;

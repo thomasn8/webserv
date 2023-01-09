@@ -76,7 +76,7 @@ class Monitor
 		int _fd_capacity;
 		struct pollfd *_pfds;
 		struct socket *_activeSockets; // les servers.size() premiers pointeurs sont NULL, les suivants correspondent par index aux _pfds
-		void _add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, Server * server);
+		struct socket * _add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, Server * server);
 		void _del_from_pfds(int i);
 		void _accept_new_connection(int master_index);
 		int _recvAll(int fd, std::string & request, struct socket & activeSocket);
@@ -86,7 +86,7 @@ class Monitor
 		void _create_log_file(std::string const & filename, std::ofstream & stream);
 		const std::string & _accessFile;
 		std::ofstream _accessStream;
-		void _exit_cerr_msg(std::string message, int code) const;
+		void _exit_cerr_msg(std::string message, int code);
 };
 
 #endif
