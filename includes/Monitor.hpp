@@ -25,10 +25,6 @@
 # define LOG_PATH "logs/access.log"
 # define CHUNK_SIZE 512
 
-# define RED "\033[0;31m"
-# define BLU "\033[0;34m"
-# define WHI "\033[0m"
-
 class Monitor
 {
 	public:

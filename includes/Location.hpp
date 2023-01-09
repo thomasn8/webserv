@@ -29,8 +29,6 @@ const std::string	g_location_directives[] = {"root", "method", "autoindex", "ind
 
 class Location
 {
-	// friend class Server;
-	// friend class Config;
 	public:
 		// CONST/DESTR
 		Location();
