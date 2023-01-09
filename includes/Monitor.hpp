@@ -80,7 +80,7 @@ class Monitor
 		void _del_from_pfds(int i);
 		void _accept_new_connection(int master_index);
 		int _recvAll(int fd, std::string & request, struct socket & activeSocket);
-		int _sendAll(int fd, const char * response, int size, struct socket & activeSocket);
+		int _sendAll(int i, const char * response, int size, struct socket & activeSocket);
 
 		// LOG
 		void _create_log_file(std::string const & filename, std::ofstream & stream);

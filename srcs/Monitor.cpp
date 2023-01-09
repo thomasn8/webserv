@@ -143,8 +143,8 @@ void Monitor::_accept_new_connection(int master_index)
 
 int Monitor::_recvAll(int fd, std::string & request, struct socket & activeSocket)
 {
-	int size_recv = 0, total_recv = 0;
 	char chunk_read[CHUNK_SIZE];
+	int size_recv = 0, total_recv = 0;
 	while (1)
 	{
 		size_recv = recv(fd, chunk_read, CHUNK_SIZE, 0); // recv la request jusqu'au bout du client_fd
@@ -160,11 +160,11 @@ int Monitor::_recvAll(int fd, std::string & request, struct socket & activeSocke
 	}
 }
 
-int Monitor::_sendAll(int fd, const char * response, int size, struct socket & activeSocket)
+int Monitor::_sendAll(int i, const char * response, int size, struct socket & activeSocket)
 {
+	int fd = _pfds[i].fd;
 	const char * chunk_send = response;
-	int response_size = size;
-	int size_sent = 0, total_sent = 0;
+	int response_size = size, size_sent = 0, total_sent = 0;
 	if (response_size < CHUNK_SIZE)	// cas où response initiale fait < 512
 	{
 		size_sent = send(fd, chunk_send, response_size, 0);
@@ -193,6 +193,8 @@ int Monitor::_sendAll(int fd, const char * response, int size, struct socket & a
 		log(get_time(), " Response to     ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(),  ": ", total_sent, " bytes sent via socket ", fd, ", connection closed\n");
 	else
 		log(get_time(), " Response error: partial send to client " , activeSocket.client, " on server port ", activeSocket.server->get_port_str(),  ": ", total_sent, "/", size, "bytes sent via socket ", fd, ", connection closed\n");
+	close(fd);
+	_del_from_pfds(i);
 	return total_sent;
 }
 
@@ -247,9 +249,7 @@ void Monitor::handle_connections()
 			}
 			else if (_pfds[i].revents & POLLOUT) 				// event sur fd[i]: si poll a debloquer pour un fd prêt à write
 			{
-				_sendAll(_pfds[i].fd, response.c_str(), response.size(), _activeSockets[i]);
-				close(_pfds[i].fd);
-				_del_from_pfds(i);
+				_sendAll(i, response.c_str(), response.size(), _activeSockets[i]);
 				poll_index = 0; // reset l'index au debut des fds
 			}
 			i++;
@@ -286,9 +286,9 @@ void Monitor::_exit_cerr_msg(const std::string message, int code)
 
 std::string Monitor::get_time()
 {
-	time_t     now = time(0);
-    struct tm  tstruct;
-    char       buf[80] = {0};
+	time_t now = time(0);
+    struct tm tstruct;
+    char buf[80] = {0};
     tstruct = *localtime(&now);
     strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
 	return std::string(buf);
