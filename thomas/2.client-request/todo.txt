@@ -1,3 +1,0 @@
-parsing de la requete du client obtenue dans son socket dédié (#4 client_fd -> read() -> buffer)
-identification de sa requete pour preparer la (les?) response(s) a envoyer
-	- obtention des information par le header de la requete

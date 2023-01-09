@@ -7,19 +7,20 @@
 #include <string>
 #include <unistd.h>
 #include <cstdlib>
+#include <time.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <poll.h>
-#include <time.h>
 #include <deque>
 #include <vector>
 
 #include "Server.hpp"
 #include "Response.hpp"
 #include "Request.hpp"
+#include "socket.hpp"
 
 # define LOG_PATH "logs/access.log"
 # define CHUNK_SIZE 512
@@ -44,7 +45,7 @@ class Monitor
 		void add_server();
 
 		// SOCKETS
-		void _prepare_sockets();
+		void _prepare_master_sockets();
 		void handle_connections();
 
 		// LOG
@@ -75,9 +76,9 @@ class Monitor
 		int _fd_count;
 		int _fd_capacity;
 		struct pollfd *_pfds;
-		void _add_to_pfds(int new_fd);
+		struct socket *_activeSockets; // les servers.size() premiers pointeurs sont NULL, les suivants correspondent par index aux _pfds
+		void _add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, Server * server);
 		void _del_from_pfds(int i);
-		void _print_events(struct pollfd *pfd) const;
 
 		// LOG
 		void _create_log_file(std::string const & filename, std::ofstream & stream);

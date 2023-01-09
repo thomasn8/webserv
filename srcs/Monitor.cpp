@@ -31,7 +31,7 @@ void Monitor::add_server() { _servers.push_back(Server()); }
 /* 
 	************ SOCKETS ( !!! allocations -> free dans le destructeur)
 */
-void Monitor::_prepare_sockets()
+void Monitor::_prepare_master_sockets()
 {
 	it_servers it = _servers.begin();
 	it_servers ite = _servers.end();
@@ -39,12 +39,14 @@ void Monitor::_prepare_sockets()
 	while (it != ite)
 	{
 		socket_fd = (*it).create_socket();
+		log((*it).get_ip(), ":", ntohs((*it).get_address().sin_port), " listening on socket ", socket_fd, "\n");
 		_master_sockets.push_back(socket_fd);
 		_fd_count++;
 		it++;
 	}
 	_fd_capacity = _fd_count + 5;
 	_pfds = (struct pollfd *)malloc(sizeof(*_pfds) * _fd_capacity);
+	_activeSockets = (struct socket *)malloc(sizeof(*_activeSockets) * _fd_capacity);
 	if (_pfds == NULL)
 	{
 		log("Error: impossible to allocate", _fd_capacity ," struct pollfd\n");
@@ -55,6 +57,7 @@ void Monitor::_prepare_sockets()
 		_pfds[i].fd = _master_sockets[i];
     	_pfds[i].events = POLLIN;
     	_pfds[i].revents = 0;
+		_activeSockets[i].pfd = NULL;
 	}
 	if (_servers.size() == 1)
 		log(get_time(), " SERVER STARTED\n\n");
@@ -62,12 +65,13 @@ void Monitor::_prepare_sockets()
 		log(get_time(), " SERVERS STARTED\n\n");
 }
 
-void Monitor::_add_to_pfds(int new_fd)
+void Monitor::_add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, Server * server)
 {
 	if (_fd_count == _fd_capacity)
 	{
 		_fd_capacity *= 2;
 		_pfds = (struct pollfd *)realloc(_pfds, sizeof(*_pfds) * (_fd_capacity));
+		_activeSockets = (struct socket *)realloc(_activeSockets, sizeof(*_activeSockets) * (_fd_capacity));
 		if (_pfds == NULL)
 		{
 			log("Error: impossible to allocate", _fd_capacity ," struct pollfd\n");
@@ -77,35 +81,24 @@ void Monitor::_add_to_pfds(int new_fd)
 	_pfds[_fd_count].fd = new_fd;
 	_pfds[_fd_count].events = POLLIN;
 	_pfds[_fd_count].revents = 0;
+	_activeSockets[_fd_count].pfd = &_pfds[_fd_count];
+	_activeSockets[_fd_count].remoteAddr = *remoteAddr;
+	_activeSockets[_fd_count].server = server;
 	_fd_count++;
 }
 
 void Monitor::_del_from_pfds(int i)
 {
 	_pfds[i] = _pfds[_fd_count - 1];
+	_activeSockets[i] = _activeSockets[_fd_count - 1];
 	_fd_count--;
 }
 
-void Monitor::_print_events(struct pollfd *pfd) const
-{
-	std::cout << RED << "socket " << pfd->fd << " events: ";
-	if (pfd->revents & POLLIN)
-		std::cout << "POLLIN ";
-	if (pfd->revents & POLLOUT)
-		std::cout << "POLLOUT ";
-	if (pfd->revents & POLLHUP)
-		std::cout << "POLLHUP ";
-	if (pfd->revents & POLLERR)
-		std::cout << "POLLERR ";
-	std::cout << WHI << std::endl;
-}
-
-// AJOUTER UN TIMER POUR LES LOOP RECV ET SEND AU CAS OU LES FONCTIONS SONT BLOCKEES POUR BREAK ET ENVOYER UNE ERREUR
-// VOIR POUR KEEP_ALIVE: CONSERVER LE SOCKET DU CLIENT APRES L'ENVOI D'UNE REPONSE (persistent-connection or keep-alive connection)
 // A LA FIN SPLITER LA LOOP EN FONCTIONS INDIV
+// VOIR SI LA HEAP GROSSI PAS A L'INFINI SANS LIBERE DE L'ESPACE CAR del_from_pfds() NE FREE PAS
 void Monitor::handle_connections()
 {
-	_prepare_sockets(); // socket, bind, listen pour chaque port + creer les struct pollfd dédiées
+	_prepare_master_sockets(); // socket, bind, listen pour chaque port + creer les struct pollfd dédiées
 	struct sockaddr_in remoteAddr;
 	int i, poll_index = 0;
 	int poll_count = 0, server_count = _servers.size();
@@ -122,8 +115,6 @@ void Monitor::handle_connections()
 		i = poll_index;
 		while (i < _fd_count)									// Run through the existing connections
 		{
-			// if (_pfds[i].revents != 0)
-			// 	_print_events(&(_pfds[i]));
 			if (_pfds[i].revents & POLLIN)						// We have data to read in the existing connections
 			{
 				polled_fd = _pfds[i].fd;
@@ -137,9 +128,9 @@ void Monitor::handle_connections()
 							log(get_time(), " Error: accept: new connexion on port ", ntohs(_servers[j].get_port()), " failed\n");
 						else
 						{
-							_add_to_pfds(new_fd);
-							std::cout << "Client " << inet_ntoa(remoteAddr.sin_addr) << ":" << ntohs(remoteAddr.sin_port) << " requests on server port " << ntohs(_servers[j].get_port()) << " via socket " << new_fd << std::endl;
-							log(get_time(), " Client ", inet_ntoa(remoteAddr.sin_addr), ":", ntohs(remoteAddr.sin_port), " requests on server port ", ntohs(_servers[j].get_port()), " via socket ", new_fd, "\n");
+							_add_to_pfds(new_fd, &remoteAddr, &_servers[j]);
+							std::cout << "Client " << inet_ntoa(remoteAddr.sin_addr) << ":" << ntohs(remoteAddr.sin_port) << " connected on server port " << ntohs(_servers[j].get_port()) << " via socket " << new_fd << std::endl;
+							log(get_time(), " Client ", inet_ntoa(remoteAddr.sin_addr), ":", ntohs(remoteAddr.sin_port), " connected on server port ", ntohs(_servers[j].get_port()), " via socket ", new_fd, "\n");
 						}
 						break;
 					}
@@ -153,10 +144,10 @@ void Monitor::handle_connections()
 								request_recv.append(chunk_read, size_recv);
 							if (size_recv < CHUNK_SIZE) // toute la request a été read
 							{
-								std::cout << "REQUEST:\n" << BLU << request_recv << WHI; // request entière stockée ici
+								log(get_time(), " Request from client ", inet_ntoa(_activeSockets[i].remoteAddr.sin_addr), ":", ntohs(_activeSockets[i].remoteAddr.sin_port), " on server port ", ntohs(_activeSockets[i].server->get_port()), " via socket ", _activeSockets[i].pfd->fd, "\n");
 								try {
 									Request request(request_recv.c_str());
-									Response response(request, this->_servers[0]);
+									Response response(request, *(_activeSockets[i].server));
 
 									// decomment to display in terminal:
 									// std::cout << request.get_method() << " " << request.get_target() << " " << request.get_version() << std::endl;
@@ -191,7 +182,7 @@ void Monitor::handle_connections()
 					chunk_send += size_sent;
 					total_sent += size_sent;
 				}
-				while (response_size > CHUNK_SIZE) // cas où response initiale > 512
+				while (response_size > CHUNK_SIZE && size_sent != -1) // cas où response initiale > 512
 				{
 					size_sent = send(polled_fd, chunk_send, CHUNK_SIZE, 0);
 					std::cout << size_sent << " bytes sent on socket " << polled_fd << std::endl;
@@ -199,7 +190,7 @@ void Monitor::handle_connections()
 					chunk_send += size_sent;
 					total_sent += size_sent;
 				}
-				while (response_size > 0) // cas où il reste des bytes a envoyer (envoyer les derniers bytes lorsque response initiale était > 512 bytes)
+				while (response_size > 0 && size_sent != -1) // cas où il reste des bytes a envoyer (envoyer les derniers bytes lorsque response initiale était > 512 bytes)
 				{
 					size_sent = send(polled_fd, chunk_send, response_size, 0);
 					std::cout << size_sent << " bytes sent on socket " << polled_fd << std::endl;
@@ -209,8 +200,8 @@ void Monitor::handle_connections()
 				}
 				if (total_sent == response.size())
 				{
-					std::cout << "Response ("<< total_sent << ") bytes sent successfully on socket " << polled_fd << ", connection closed\n";
-					log(get_time(), " Response successful: ", total_sent, " sent on socket ", polled_fd, ", connection closed\n");
+					std::cout << "Response successful: "<< total_sent << " bytes sent on socket " << polled_fd << ", connection closed\n";
+					log(get_time(), " Response successful: ", total_sent, " bytes sent on socket ", polled_fd, ", connection closed\n");
 				}
 				else
 				{
@@ -267,7 +258,8 @@ void Monitor::log_server_info()
 		i++;
 		_accessStream << "SERVER #" << i << std::endl;
 		_accessStream << "	" << "port: " << ntohs((*it).get_port()) << std::endl;
-		_accessStream << "	" << "ip: " << ntohl((*it).get_address()) << std::endl;
+		char ip4[INET_ADDRSTRLEN];
+		_accessStream << "	" << "ip: " << (*it).get_ip() << std::endl;
 		for (int j = 0; j < (*it).get_servernames().size(); j++)
 			_accessStream << "	" << "server_name: " << (*it).get_servernames()[j] << std::endl;
 		_accessStream << "	" << "root: " << (*it).get_root() << std::endl;
