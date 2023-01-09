@@ -97,68 +97,6 @@ void Monitor::_del_from_pfds(int i)
 	_fd_count--;
 }
 
-// VOIR SI LA HEAP GROSSI PAS A L'INFINI SANS LIBERE DE L'ESPACE CAR del_from_pfds() NE FREE PAS
-void Monitor::handle_connections()
-{
-	_prepare_master_sockets(); // socket, bind, listen pour chaque port + creer les struct pollfd dédiées
-	int i, poll_index = 0;
-	int poll_count = 0, server_count = _servers.size();
-	std::string requestStr;
-	std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello from the server!\n";
-	while (1)													// Main loop
-	{
-		poll_count = poll(_pfds, _fd_count, -1);				// bloque tant qu'aucun fd est prêt à read ou write
-        if (poll_count < 0)
-			log(get_time(), " Error: poll failed\n");
-		i = poll_index;
-		while (i < _fd_count)									// cherche parmi tous les fd ouverts
-		{
-			if (_pfds[i].revents & POLLIN)						// event sur fd[i]: si poll a debloqué pour un fd prêt à read
-			{
-				for (int j = 0; j < server_count; j++)
-				{
-					if (_pfds[i].fd == _master_sockets[j])		// si fd correspond a un socket de server en ecoute
-					{
-						_accept_new_connection(j);
-						break;
-					}
-					if (j == server_count - 1)					// sinon fd correspond a un client qui fait une request
-					{
-						_recvAll(_pfds[i].fd, requestStr, _activeSockets[i]);
-						try {
-							Request request(requestStr.c_str());
-							Response response(request, *(_activeSockets[i].server));
-
-							// decomment to display in terminal:
-							// std::cout << request.get_method() << " " << request.get_target() << " " << request.get_version() << std::endl;
-							// request.display_fields();
-							// std::cout << "\n" << request.get_body() << std::endl;
-
-							// Response response(request);
-						}
-						catch (Request::MessageException & e) {
-							std::cout << "Error: " << e.what() << std::endl; // A thomas de printer le message d'erreur de maniere la ou c'est coherent (log ?)
-						}
-						requestStr.clear();
-						_pfds[i].events = POLLOUT;
-						poll_index = i;		// permet de revenir dans la main loop avec l'index du pfds à écrire
-						j = server_count;	// break la for loop
-						i = _fd_count;		// break la while loop
-					}
-				}
-			}
-			else if (_pfds[i].revents & POLLOUT) 				// event sur fd[i]: si poll a debloquer pour un fd prêt à write
-			{
-				_sendAll(_pfds[i].fd, response.c_str(), response.size(), _activeSockets[i]);
-				close(_pfds[i].fd);
-				_del_from_pfds(i);
-				poll_index = 0; // reset l'index au debut des fds
-			}
-			i++;
-		}
-	}
-}
-
 void Monitor::_accept_new_connection(int master_index)
 {
 	struct sockaddr_in remoteAddr;
@@ -226,6 +164,68 @@ int Monitor::_sendAll(int fd, const char * response, int size, struct socket & a
 	else
 		log(get_time(), " Response error: partial send to client " , inet_ntoa(activeSocket.remoteAddr.sin_addr), ":", ntohs(activeSocket.remoteAddr.sin_port), " on server port ", ntohs(activeSocket.server->get_port()),  ": ", total_sent, "/", size, "bytes sent via socket ", fd, ", connection closed\n");
 	return total_sent;
+}
+
+// VOIR SI LA HEAP GROSSI PAS A L'INFINI SANS LIBERE DE L'ESPACE CAR del_from_pfds() NE FREE PAS
+void Monitor::handle_connections()
+{
+	_prepare_master_sockets(); // socket, bind, listen pour chaque port + creer les struct pollfd dédiées
+	int i, poll_index = 0;
+	int poll_count = 0, server_count = _servers.size();
+	std::string requestStr;
+	std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello from the server!\n";
+	while (1)													// Main loop
+	{
+		poll_count = poll(_pfds, _fd_count, -1);				// bloque tant qu'aucun fd est prêt à read ou write
+        if (poll_count < 0)
+			log(get_time(), " Error: poll failed\n");
+		i = poll_index;
+		while (i < _fd_count)									// cherche parmi tous les fd ouverts
+		{
+			if (_pfds[i].revents & POLLIN)						// event sur fd[i]: si poll a debloqué pour un fd prêt à read
+			{
+				for (int j = 0; j < server_count; j++)
+				{
+					if (_pfds[i].fd == _master_sockets[j])		// si fd correspond a un socket de server en ecoute
+					{
+						_accept_new_connection(j);
+						break;
+					}
+					if (j == server_count - 1)					// sinon fd correspond a un client qui fait une request
+					{
+						_recvAll(_pfds[i].fd, requestStr, _activeSockets[i]);
+						try {
+							Request request(requestStr.c_str());
+							Response response(request, *(_activeSockets[i].server));
+
+							// decomment to display in terminal:
+							// std::cout << request.get_method() << " " << request.get_target() << " " << request.get_version() << std::endl;
+							// request.display_fields();
+							// std::cout << "\n" << request.get_body() << std::endl;
+
+							// Response response(request);
+						}
+						catch (Request::MessageException & e) {
+							std::cout << "Error: " << e.what() << std::endl; // A thomas de printer le message d'erreur de maniere la ou c'est coherent (log ?)
+						}
+						requestStr.clear();
+						_pfds[i].events = POLLOUT;
+						poll_index = i;		// permet de revenir dans la main loop avec l'index du pfds à écrire
+						j = server_count;	// break la for loop
+						i = _fd_count;		// break la while loop
+					}
+				}
+			}
+			else if (_pfds[i].revents & POLLOUT) 				// event sur fd[i]: si poll a debloquer pour un fd prêt à write
+			{
+				_sendAll(_pfds[i].fd, response.c_str(), response.size(), _activeSockets[i]);
+				close(_pfds[i].fd);
+				_del_from_pfds(i);
+				poll_index = 0; // reset l'index au debut des fds
+			}
+			i++;
+		}
+	}
 }
 
 /* 
