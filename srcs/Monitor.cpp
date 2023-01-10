@@ -213,8 +213,7 @@ void Monitor::handle_connections()
 	_prepare_master_sockets(); // socket, bind, listen pour chaque port + creer les struct pollfd dédiées
 	int i, poll_index = 0;
 	int poll_count = 0, server_count = _servers.size();
-	std::string requestStr;
-	std::string responseStr; // = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello from the server!\n";
+	std::string requestStr, responseStr;
 	while (1)													// Main loop
 	{
 		poll_count = poll(_pfds, _fd_count, -1);				// bloque tant qu'aucun fd est prêt à read ou write
