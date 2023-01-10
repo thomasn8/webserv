@@ -1,36 +1,89 @@
 #include "../includes/Response.hpp"
 
 //TO DO Michele
-
-// 1. créer un constructeur à partir d'une erreur
 // 2. method POST
 // 3. methos DELETE
 // finetuner le parsing des requêtes?
-// erreur 431 pour depassement du header size
 
 
 // ---------Constructor and destructor ------------
 
-Response::Response(Request &request, Server &server) : 
+Response::Response(std::string code) : _version(std::string("HTTP/1.1")) {
+    char            *date;
+    std::string     body;
+    
+    _error_messages();
+    date = Rfc1123_DateTimeNow();
+    this->_header = this->_version + " " + code + " " + this->_errorMsg[stoi(code)] + "\r\n" +
+            "Content-Type: text/html, charset=utf-8\r\n" +
+            "Server: pizzabrownie\r\n" +
+            "Date: " + date + "\r\n";
+
+    if (_check_error_pages(code)) {
+        _make_response();
+    } else {
+        body = "<!DOCTYPE html> \
+            <html lang=\"en\"> \
+            <head> \
+                <meta charset=\"UTF-8\"> \
+                <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> \
+                <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> \
+                <title>" + code + "</title> \
+            </head> \
+            <body> \
+                <h1>Error " + code + "</h1> \
+                <p>" + this->_errorMsg[stoi(code)] + "</p> \
+            </body> \
+            </html>";
+
+        this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
+        free(date);
+    }
+}
+
+Response::Response(Request *request, Server *server) : 
     _request(request), 
     _server(server),
     _version(std::string("HTTP/1.1")),
     _isCGI(false),
     _targetFound(false) {
-    if (request.get_method() == GET)
+    if (request->get_method() == GET)
         _response_get();
-    else if (request.get_method() == POST)
+    else if (request->get_method() == POST)
         _response_post();
-    else if (request.get_method() == DELETE)
+    else if (request->get_method() == DELETE)
         _response_delete();
     else
         throw MessageException(HTTP_VERSION_UNSUPPORTED);
 }
 
+void Response::_error_messages() {
+    this->_errorMsg[400] = "BAD_REQUEST";
+    this->_errorMsg[404] = "NOT_FOUND";
+    this->_errorMsg[405] = "METHOD_NOT_ALLOWED";
+    this->_errorMsg[500] = "INTERNAL_SERVER_ERROR";
+    this->_errorMsg[505] = "HTTP_VERSION_UNSUPPORTED";
+}
+
+int Response::_check_error_pages(std::string code) {
+    std::list<std::pair<int, std::string>> &errorPages = this->_server->get_errorpages();
+    std::list<std::pair<int, std::string>>::iterator  it;
+
+    for (it = errorPages.begin(); it != errorPages.end(); it++) {
+        if ((*it).first == stoi(code)) {
+            if (access( (*it).second.c_str(), F_OK ) != -1) {
+                this->_path = (*it).second;
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 void Response::_response_get() {
     char *date;
-    
-    _check_target_in_get(this->_request.get_target());
+
+    _check_target_in_get(this->_request->get_target());
     date = Rfc1123_DateTimeNow();
     this->_header = this->_version + " 200 " + "OK\r\n" +
         "Content-Type: text/html, charset=utf-8\r\n" +
@@ -49,7 +102,7 @@ int Response::_make_CGI() {
     int		    status;
     char        *cgi;
 
-    cgi = (char *)malloc(sizeof(char) * this->_server.get_client_max_body_size());
+    cgi = (char *)malloc(sizeof(char) * this->_server->get_client_max_body_size());
     if (pipe(fd) == -1) {return -1;}
 	pid = fork();
 	if (pid == -1) {exit(EXIT_FAILURE);}
@@ -66,7 +119,7 @@ int Response::_make_CGI() {
 	}
     else {
         close(fd[1]);
-        if (read(fd[0], cgi, this->_server.get_client_max_body_size()) < 0) {
+        if (read(fd[0], cgi, this->_server->get_client_max_body_size()) < 0) {
             close(fd[0]);
             return (1);
         }
@@ -157,7 +210,7 @@ void Response::_check_locations(std::string &target, std::deque<Location> &locat
             std::cout << "path: " << path << std::endl;
         }
         if (access( path.c_str(), F_OK ) != -1) {
-            if (root.find("cgi_bin", root.length() - 7))
+            if (root.find("cgi_bin", root.length() - 7) != std::string::npos)
                 this->_isCGI = true;
             this->_targetFound = true;
             this->_path = path;
@@ -173,12 +226,12 @@ void Response::_check_root(std::string &target) {
 
     if (PRINT_RESPONSE_PARSING)
         std::cout << "________check root_____" << std::endl;
-    root = this->_server.get_root();
+    root = this->_server->get_root();
     path = root + target;
     if (PRINT_RESPONSE_PARSING)
         std::cout << "path: " << path << std::endl;
     if (access( path.c_str(), F_OK ) != -1) {
-        if (root.find("cgi_bin", root.length() - 7))
+        if (root.find("cgi_bin", root.length() - 7) != std::string::npos)
             this->_isCGI = true;
         this->_targetFound = true;
         this->_path = path;
@@ -189,7 +242,7 @@ void Response::_check_root(std::string &target) {
 
 void Response::_check_target_in_get(std::string target) {
     std::string                     redir = target;
-    std::deque<Location>            &locations = this->_server.get_locations();
+    std::deque<Location>            &locations = this->_server->get_locations();
 
     if (*target.begin() != '/')
         throw MessageException(BAD_REQUEST);
