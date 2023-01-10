@@ -12,7 +12,7 @@
 
 class Response : public Message {
 	public:
-		Response(std::string code, std::string * finalMessage);
+		Response(std::string code, Server *server, std::string * finalMessage);
 		Response(Request *request, Server *server, std::string * finalMessage);
 		Response(const Response &instance);
 		virtual ~Response();

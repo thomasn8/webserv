@@ -1,6 +1,7 @@
 #include "../includes/Response.hpp"
 
 //TO DO Michele
+// 1. default index
 // 2. method POST
 // 3. methos DELETE
 // finetuner le parsing des requêtes?
@@ -8,7 +9,7 @@
 
 // ---------Constructor and destructor ------------
 
-Response::Response(std::string code, std::string * finalMessage) : _version(std::string("HTTP/1.1")), _finalMessage(finalMessage) {
+Response::Response(std::string code, Server *server, std::string * finalMessage) : _server(server), _version(std::string("HTTP/1.1")), _finalMessage(finalMessage) {
     char            *date;
     std::string     body;
     

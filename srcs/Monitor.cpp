@@ -240,11 +240,11 @@ void Monitor::handle_connections()
 								Response response(&request, _activeSockets[i].server, &responseStr);
 							}
 							catch (Request::MessageException & e) {
-								Response response(e.what(), &responseStr);
+								Response response(e.what(), _activeSockets[i].server, &responseStr);
 							}
 						}
 						else
-							Response response("431", &responseStr);
+							Response response("431", _activeSockets[i].server, &responseStr);
 						requestStr.clear();
 						_pfds[i].events = POLLOUT;
 						poll_index = i;		// permet de revenir dans la main loop avec l'index du pfds à écrire
