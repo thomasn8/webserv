@@ -234,25 +234,26 @@ void Monitor::handle_connections()
 					}
 					if (j == server_count - 1)					// sinon fd correspond a un client qui fait une request
 					{
-						if (_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]) != -1)
-						{
-							try {
-								Request request(requestStr.c_str());
-								Response response(request, *(_activeSockets[i].server));
+						_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]);
+						// if (_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]) != -1)
+						// {
+						// 	try {
+						// 		Request request(requestStr.c_str());
+						// 		Response response(request, *(_activeSockets[i].server));
 
-								// decomment to display in terminal:
-								// std::cout << request.get_method() << " " << request.get_target() << " " << request.get_version() << std::endl;
-								// request.display_fields();
-								// std::cout << "\n" << request.get_body() << std::endl;
+						// 		// decomment to display in terminal:
+						// 		// std::cout << request.get_method() << " " << request.get_target() << " " << request.get_version() << std::endl;
+						// 		// request.display_fields();
+						// 		// std::cout << "\n" << request.get_body() << std::endl;
 
-								// Response response(request);
-							}
-							catch (Request::MessageException & e) {
-								std::cout << "Error: " << e.what() << std::endl; // A la fin, job de thomas de printer le message d'erreur comme c'est coherent (log ?)
-							}
-						}
-						else
-							Response response(request, *(_activeSockets[i].server));	// CREER UNE REPONSE POUR GERER ERREUR 431
+						// 		// Response response(request);
+						// 	}
+						// 	catch (Request::MessageException & e) {
+						// 		std::cout << "Error: " << e.what() << std::endl; // A la fin, job de thomas de printer le message d'erreur comme c'est coherent (log ?)
+						// 	}
+						// }
+						// else
+						// 	Response response(request, *(_activeSockets[i].server));	// CREER UNE REPONSE POUR GERER ERREUR 431
 						requestStr.clear();
 						_pfds[i].events = POLLOUT;
 						poll_index = i;		// permet de revenir dans la main loop avec l'index du pfds à écrire
