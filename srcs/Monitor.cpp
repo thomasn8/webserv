@@ -312,8 +312,10 @@ void Monitor::log_server_info()
 		for (int j = 0; j < (*it).get_servernames().size(); j++)
 			_accessStream << "	" << "server_name: " << (*it).get_servernames()[j] << std::endl;
 		_accessStream << "	" << "root: " << (*it).get_root() << std::endl;
-		for (int j = 0; j < (*it).get_indexes().size(); j++)
-			_accessStream << "	" << "index: " << (*it).get_indexes()[j] << std::endl;
+		std::list<std::string>::iterator it6 = (*it).get_indexes().begin();
+		std::list<std::string>::iterator ite6 = (*it).get_indexes().end();
+		for (; it6 != ite6; it6++)
+			_accessStream << "	" << "index: " << (*it6) << std::endl;
 		for (int j = 0; j < (*it).get_errorpages().size(); j++)
 		{
 			_accessStream << "	" << "error_page: ";
@@ -331,20 +333,23 @@ void Monitor::log_server_info()
 			_accessStream << "		" << "root: " << (*it2).get_root() << std::endl;
 			std::list<std::string>::iterator it3 = (*it2).get_methods().begin();
 			std::list<std::string>::iterator ite3 = (*it2).get_methods().end();
-			for (; it3 != ite3; it3++)
+			for (; it3 != (*it2).get_methods().end(); it3++)
 				_accessStream << "		" << "method: " << (*it3) << std::endl;
 			if ((*it2).get_autoindex() == true)
 				_accessStream << "		" << "autoindex: " << "on" << std::endl;
 			else
 				_accessStream << "		" << "autoindex: " << "off" << std::endl;
-			_accessStream << "		" << "index: " << (*it2).get_index() << std::endl;
+			std::list<std::string>::iterator it4 = (*it2).get_indexes().begin();
+			std::list<std::string>::iterator ite4 = (*it2).get_indexes().end();
+			for (; it4 != ite4; it4++)
+				_accessStream << "		" << "index: " << (*it4) << std::endl;
 			_accessStream << "		" << "uploads_dir: " << (*it2).get_uploadsdir() << std::endl;
 			if ((*it2).get_redirections().size())
 			{
-				std::list<Trio>::iterator it4 = (*it2).get_redirections().begin();
-				std::list<Trio>::iterator ite4 = (*it2).get_redirections().end();
-				for (; it4 != ite4; it4++)
-					_accessStream << "		" << "redirect: " << (*it4).first << " " << (*it4).second << " " << (*it4).third << std::endl;
+				std::list<Trio>::iterator it5 = (*it2).get_redirections().begin();
+				std::list<Trio>::iterator ite5 = (*it2).get_redirections().end();
+				for (; it5 != ite5; it5++)
+					_accessStream << "		" << "redirect: " << (*it5).first << " " << (*it5).second << " " << (*it5).third << std::endl;
 			}
 			_accessStream << "		" << "cgi: " << (*it2).get_cgiBinPath() << std::endl;
 		}

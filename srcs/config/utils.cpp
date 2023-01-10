@@ -76,7 +76,7 @@ bool p_error_page_syntax(std::string line)
 
 	std::istringstream iss(line);
 	std::string word;
-	int words = 0, str = 0;
+	int code = 0, file = 0;
 	iss >> word;
 	while (iss)
 	{
@@ -84,17 +84,19 @@ bool p_error_page_syntax(std::string line)
 			break;
 		iss >> word;
 		try {
-			std::stoi(word);
+			size_t idx;
+			std::stoi(word, &idx);
+			if (word.substr(idx).size() == 0)
+				code++;
+			else
+				file++;
 		}
 		catch (const std::invalid_argument &ia) {
-			str++;
+			file++;
 		}
-		words++;
 	}
 	prev = line;
-	// au minimum 1 status code et 1 fichier
-	// 1 fichier maximum
-	if (str != 1 || words < 2)
+	if (code < 1 || file != 1)
 		return false;
 	return true;
 }
@@ -130,7 +132,7 @@ bool p_redirect_syntax(std::string line)
 		words++;
 	}
 	prev = line;
-	// au moins 2 mots: file, file/code
+	// 2 mots: file, file/code
 	// ou 3 mots, dont un num: file, file, code
 	if (words < 2 || words > 3)
 		return false;

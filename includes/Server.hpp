@@ -13,15 +13,19 @@
 #include <fcntl.h>
 #include <vector>
 #include <deque>
+#include <stdexcept>
 
 #include "Location.hpp"
 
 // INITIALIZATION
 # define DEFAULT_PORT 80
+# define MIN_PORT_NO 1024
+# define MAX_PORT_NO 65535
 # define DEFAULT_SERVERNAME "localhost"
 # define DEFAULT_ROOT "www/html/"
 # define DEFAULT_INDEX "index.html"
-# define MBS 0 // Client Max Body Size
+# define MBS 20000
+# define MAX_MBS 500000000
 
 // DIRECTIVE INDEX
 // (pour en rajouter/modifier: modifier le tableau + definir une macro pour l'index + modifier le switch-case dans add_directive() et creer les getter/setter)
@@ -66,10 +70,11 @@ class Server
 		std::vector<std::string> & get_servernames();
 		std::string get_root() const;
 		std::string get_index() const;
-		std::vector<std::string> & get_indexes();
+		std::list<std::string> & get_indexes();
 		std::vector<error_page_pair> & get_errorpages();
 		size_t get_client_max_body_size() const;
 		struct sockaddr_in & get_address();
+		std::string _webserv_bin_path() const;
 
 		// SOCKET
 		int create_socket();
@@ -82,15 +87,17 @@ class Server
 		std::vector<std::string> _serverNames;
 		bool _defaultServerNames;
 		std::string	_root;
-		std::vector<std::string> _indexFiles;
 		bool _defaultIndex;
+		std::list<std::string> _indexFiles;
 		size_t _clientMaxBodySize;
 		std::vector< error_page_pair > _errorPages;
 
 		// SOCKET
-		void _exit_cerr_msg(std::string message, int code) const;
 		int _socket_fd;
 		struct sockaddr_in _address;
+
+		// ERROR
+		void _exit_cerr_msg(std::string message, int code) const;
 };
 
 #endif

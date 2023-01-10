@@ -31,7 +31,7 @@ class Location
 {
 	public:
 		// CONST/DESTR
-		Location();
+		Location(std::string const & server_root, std::list<std::string> const & server_indexes);
 		Location(const Location & src);
 		~Location();
 		
@@ -40,28 +40,31 @@ class Location
 		void set_prefix(std::string value);
 		void set_root(std::string & value);
 		void set_method(std::string & value);
-		void set_autoindex(std::string & value);
 		void set_index(std::string & value);
-		void set_redirection(std::string & line);
+		void set_autoindex(std::string & value);
 		void set_uploadsdir(std::string & value);
+		void set_redirection(std::string & line);
 		void set_cgiBinPath(std::string & value);
 		std::string get_prefix() const;
 		std::string get_root() const;
 		std::list<std::string> & get_methods();
-		bool get_autoindex() const;
 		std::string get_index() const;
+		std::list<std::string> & get_indexes();
+		bool get_autoindex() const;
 		std::string get_uploadsdir() const;
 		std::list<Trio> & get_redirections();
 		std::string get_cgiBinPath() const;
 
 	private:
-		std::string _prefix;
+		Location();
+		std::string _prefix; // = route
 		int _prefixLevelCount;
 		std::string _root;
 		std::list<std::string> _methods;
 		bool _defaultMethods;
+		bool _defaultIndex;
+		std::list<std::string> _indexFiles;
 		bool _autoindex;
-		std::string _index;
 		std::string _uploadsDir;
 		std::list<Trio> _redirections;
 		std::string _cgiBinPath;
