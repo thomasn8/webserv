@@ -9,7 +9,7 @@
 
 // ---------Constructor and destructor ------------
 
-Response::Response(std::string code, Server *server) : _server(server), _version(std::string("HTTP/1.1")) {
+Response::Response(std::string code, Server *server, std::string * finalMessage) : _server(server), _version(std::string("HTTP/1.1")), _finalMessage(finalMessage) {
     char            *date;
     std::string     body;
     
@@ -37,14 +37,15 @@ Response::Response(std::string code, Server *server) : _server(server), _version
             </body> \
             </html>";
 
-        this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
+        *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
         free(date);
     }
 }
 
-Response::Response(Request *request, Server *server) : 
+Response::Response(Request *request, Server *server, std::string * finalMessage) : 
     _request(request), 
     _server(server),
+	_finalMessage(finalMessage),
     _version(std::string("HTTP/1.1")),
     _isCGI(false),
     _targetFound(false) {
@@ -129,10 +130,10 @@ int Response::_make_CGI() {
             throw MessageException(atoi(cgi));
         if (PRINT_CGI_GET)
             std:: cout << "cgi recieve:" << cgi << std::endl;
-        this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(cgi).length()) + "\r\n\r\n" + cgi;
+       *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(cgi).length()) + "\r\n\r\n" + cgi;
         free(cgi);
         if (PRINT_HTTP_RESPONSE)
-            std:: cout << this->_finalMessage << std::endl;
+            std:: cout << *this->_finalMessage << std::endl;
         }
     return (0);
 }
@@ -146,9 +147,9 @@ void Response::_make_response() {
       ss << f.rdbuf();
       body = ss.str();
    }
-    this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
+    *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
     if (PRINT_HTTP_RESPONSE)
-        std:: cout << this->_finalMessage << std::endl;
+        std:: cout << *this->_finalMessage << std::endl;
 }
 
 void Response::_response_post() {
@@ -266,7 +267,7 @@ Response::~Response() {
 // --------- Fonctions ------------
 
 std::string Response::getMessage() const {
-    return this->_finalMessage;
+    return *this->_finalMessage;
 }
 
 std::string Response::getStatusCode() const {
