@@ -37,7 +37,7 @@ class Location
 		
 		// GETTERS/SETTERS
 		void add_directive(int directiveIndex, std::string value);
-		void set_prefix(std::string value);
+		void set_route(std::string value);
 		void set_root(std::string & value);
 		void set_method(std::string & value);
 		void set_index(std::string & value);
@@ -45,10 +45,9 @@ class Location
 		void set_uploadsdir(std::string & value);
 		void set_redirection(std::string & line);
 		void set_cgiBinPath(std::string & value);
-		std::string get_prefix() const;
+		std::string get_route() const;
 		std::string get_root() const;
 		std::list<std::string> & get_methods();
-		std::string get_index() const;
 		std::list<std::string> & get_indexes();
 		bool get_autoindex() const;
 		std::string get_uploadsdir() const;
@@ -57,8 +56,7 @@ class Location
 
 	private:
 		Location();
-		std::string _prefix; // = route
-		int _prefixLevelCount;
+		std::string _route;
 		std::string _root;
 		std::list<std::string> _methods;
 		bool _defaultMethods;

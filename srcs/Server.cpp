@@ -163,7 +163,8 @@ void Server::set_root(std::string & value)
 	else
 		_root = value;
 	
-	// toujours enlever le slash à la fin car on l'append toujours manuellement
+	// toujours checker qu'il n'y ait pas de slash à la fin, question d'uniformité
+	// quand on joint 2 paths, on sait qu'on doit toujours append("/") entre 2
 	if (_root[_root.size() - 1] == '/')
 		_root.erase(_root.size() - 1);
 }
@@ -265,8 +266,6 @@ std::string Server::get_servername() const { return _serverNames.front(); }
 std::vector<std::string> & Server::get_servernames() { return _serverNames; }
 
 std::string Server::get_root() const { return _root; }
-
-std::string Server::get_index() const { return _indexFiles.front(); }
 
 std::list<std::string> & Server::get_indexes() { return _indexFiles; }
 

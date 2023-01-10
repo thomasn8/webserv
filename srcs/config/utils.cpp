@@ -48,22 +48,22 @@ bool p_isnotalphanum(std::string line)
 	return false;
 }
 
-bool p_prefix_syntax(std::string prefix)
+bool p_route_syntax(std::string route)
 {
-	// check debut du prefix: commence par / OU par . OU *.
-	if (!(prefix[0] == '/' || prefix[0] == '.' || (prefix[0] == '*' && prefix[1] == '.')))
+	// check debut du route: commence par / OU par . OU *.
+	if (!(route[0] == '/' || route[0] == '.' || (route[0] == '*' && route[1] == '.')))
 		return false;
 	
 	// check format extension: que des alpha-num apres le . OU le *.
-	if (prefix[0] == '.')
-		prefix.erase(0,1);
-	else if ((prefix[0] == '*' && prefix[1] == '.'))
-		prefix.erase(0,2);
-	if (prefix[0] != '/' && p_isnotalphanum(prefix))
+	if (route[0] == '.')
+		route.erase(0,1);
+	else if ((route[0] == '*' && route[1] == '.'))
+		route.erase(0,2);
+	if (route[0] != '/' && p_isnotalphanum(route))
 		return false;
 	
-	// 1 seul mot (donc pas de whitespace, puisque prefix a deja ete trime)
-	if (!p_isnotblank(prefix))
+	// 1 seul mot (donc pas de whitespace, puisque route a deja ete trime)
+	if (!p_isnotblank(route))
 		return false;
 	return true;
 }

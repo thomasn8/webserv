@@ -329,7 +329,7 @@ void Monitor::log_server_info()
 		it2e = (*it).get_locations().end();
 		for (; it2 != it2e; it2++)
 		{	
-			_accessStream << "	" << "Location " << (*it2).get_prefix() << std::endl;
+			_accessStream << "	" << "Location " << (*it2).get_route() << std::endl;
 			_accessStream << "		" << "root: " << (*it2).get_root() << std::endl;
 			std::list<std::string>::iterator it3 = (*it2).get_methods().begin();
 			std::list<std::string>::iterator ite3 = (*it2).get_methods().end();

@@ -69,7 +69,6 @@ class Server
 		std::string get_servername() const;
 		std::vector<std::string> & get_servernames();
 		std::string get_root() const;
-		std::string get_index() const;
 		std::list<std::string> & get_indexes();
 		std::vector<error_page_pair> & get_errorpages();
 		size_t get_client_max_body_size() const;

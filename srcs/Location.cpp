@@ -4,8 +4,7 @@
 	************ CONST/DESTR
 */
 Location::Location(std::string const & server_root, std::list<std::string> const & server_indexes) :
-_prefix(),
-_prefixLevelCount(),
+_route(),
 _root(server_root),
 _autoindex(false),
 _indexFiles(std::list<std::string>(server_indexes)),
@@ -19,8 +18,7 @@ _cgiExtension(std::string(DEFAULT_CGI_EXT))
 {}
 
 Location::Location() :
-_prefix(),
-_prefixLevelCount(),
+_route(),
 _root(std::string(_webserv_bin_path().append("/").append(DEFAULT_ROOT))),
 _autoindex(false),
 _indexFiles(std::list<std::string>()),
@@ -34,8 +32,7 @@ _cgiExtension(std::string(DEFAULT_CGI_EXT))
 {}
 
 Location::Location(const Location & src) :
-_prefix(src._prefix),
-_prefixLevelCount(src._prefixLevelCount),
+_route(src._route),
 _root(src._root),
 _autoindex(src._autoindex), 
 _indexFiles(std::list<std::string>(src._indexFiles)),
@@ -81,11 +78,11 @@ void Location::add_directive(int directiveIndex, std::string value)
 	}
 }
 
-void Location::set_prefix(std::string value)
+void Location::set_route(std::string value)
 {
 	if (value.empty())
 		return;
-	_prefix = value;
+	_route = value;
 	if (value[0] == '.')
 		_cgiExtension = value.substr(1);
 	else if (value[0] == '*')
@@ -102,7 +99,8 @@ void Location::set_root(std::string & value)
 	else
 		_root = value;
 	
-	// toujours enlever le slash à la fin car on l'append toujours manuellement
+	// toujours checker qu'il n'y ait pas de slash à la fin, question d'uniformité
+	// quand on joint 2 paths, on sait qu'on doit toujours append("/") entre 2
 	if (_root[_root.size() - 1] == '/')
 		_root.erase(_root.size() - 1);
 }
@@ -217,23 +215,24 @@ void Location::set_cgiBinPath(std::string & value)
 		_cgiBinPath = get_root().append("/").append(value);
 	else
 		_cgiBinPath = value;
-	// std::cout << get_cgiBinPath() << std::endl;
 }
 
-std::string Location::get_prefix() const { return _prefix; }
+std::string Location::get_route() const { return _route; }
 
+// path du directory
 std::string Location::get_root() const { return _root; }
 
 std::list<std::string> & Location::get_methods() { return _methods; }
 
-std::string Location::get_index() const { return _indexFiles.front(); }
-
+// nom du/des fichier(s) d'index
 std::list<std::string> & Location::get_indexes() { return _indexFiles; }
 
 bool Location::get_autoindex() const { return _autoindex; }
 
+// path du directory
 std::string Location::get_uploadsdir() const { return _uploadsDir; }
 
+// path du fichier binaire
 std::string Location::get_cgiBinPath() const { return _cgiBinPath; }
 
 std::list<Trio> & Location::get_redirections() { return _redirections; }
