@@ -252,7 +252,7 @@ void Monitor::handle_connections()
 							}
 						}
 						else
-							// Response response(request, *(_activeSockets[i].server));	// CREER UNE REPONSE POUR GERER ERREUR 431
+							Response response(request, *(_activeSockets[i].server));	// CREER UNE REPONSE POUR GERER ERREUR 431
 						requestStr.clear();
 						_pfds[i].events = POLLOUT;
 						poll_index = i;		// permet de revenir dans la main loop avec l'index du pfds à écrire
