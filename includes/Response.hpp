@@ -30,6 +30,7 @@ class Response : public Message {
 		void		_response_get();
 		void		_response_post();
 		void		_response_delete();
+		void		_error_messages();
 		int			_check_error_pages(std::string code);
 		void		_check_target_in_get(std::string target);
 		int			_check_redirections(std::string &target, std::deque<Location> &locations);
@@ -38,16 +39,17 @@ class Response : public Message {
 		int			_make_CGI();
 		void		_make_response();
 		
-		Request		*_request;
-		Server		*_server;
-		std::string _finalMessage;
-		std::string _version;
-		std::string _header;
-		std::string _statusCode;
-		std::string _reason;
-		std::string _path;
-		bool		_isCGI;
-		bool		_targetFound;
+		Request						*_request;
+		Server						*_server;
+		std::map<int, std::string> 	_errorMsg;
+		std::string 				_finalMessage;
+		std::string 				_version;
+		std::string 				_header;
+		std::string 				_statusCode;
+		std::string 				_reason;
+		std::string 				_path;
+		bool						_isCGI;
+		bool						_targetFound;
 };
 
 #endif

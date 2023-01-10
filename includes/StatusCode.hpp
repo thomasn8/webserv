@@ -1,8 +1,6 @@
 #ifndef STATUSCODE_HPP
 # define STATUSCODE_HPP
 
-#define PRINTMESSAGE(x) #x
-
 // SUCCESSFUL RESPONSES
 # define HTTP_OK 200                            // request succeeded
 # define HTTP_CREATED 201                       // new resource was created as a result (use after POST or PUT)

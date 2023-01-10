@@ -1,8 +1,6 @@
 #include "../includes/Response.hpp"
 
 //TO DO Michele
-
-// 1. créer un constructeur à partir d'une erreur
 // 2. method POST
 // 3. methos DELETE
 // finetuner le parsing des requêtes?
@@ -13,6 +11,14 @@
 Response::Response(std::string code) : _version(std::string("HTTP/1.1")) {
     char            *date;
     std::string     body;
+    
+    _error_messages();
+    date = Rfc1123_DateTimeNow();
+    this->_header = this->_version + " " + code + " " + this->_errorMsg[stoi(code)] + "\r\n" +
+            "Content-Type: text/html, charset=utf-8\r\n" +
+            "Server: pizzabrownie\r\n" +
+            "Date: " + date + "\r\n";
+
     if (_check_error_pages(code)) {
         _make_response();
     } else {
@@ -26,15 +32,11 @@ Response::Response(std::string code) : _version(std::string("HTTP/1.1")) {
             </head> \
             <body> \
                 <h1>Error " + code + "</h1> \
-                <p>" + PRINTMESSAGE(BAD_REQUEST); + "</p> \
+                <p>" + this->_errorMsg[stoi(code)] + "</p> \
             </body> \
             </html>";
 
-        date = Rfc1123_DateTimeNow();
-        this->_finalMessage = this->_version + " " + code + " " + "OK\r\n" +
-            "Content-Type: text/html, charset=utf-8\r\n" +
-            "Server: pizzabrownie\r\n" +
-            "Date: " + date + "\r\n" + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
+        this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
         free(date);
     }
 }
@@ -55,14 +57,24 @@ Response::Response(Request *request, Server *server) :
         throw MessageException(HTTP_VERSION_UNSUPPORTED);
 }
 
+void Response::_error_messages() {
+    this->_errorMsg[400] = "BAD_REQUEST";
+    this->_errorMsg[404] = "NOT_FOUND";
+    this->_errorMsg[405] = "METHOD_NOT_ALLOWED";
+    this->_errorMsg[500] = "INTERNAL_SERVER_ERROR";
+    this->_errorMsg[505] = "HTTP_VERSION_UNSUPPORTED";
+}
+
 int Response::_check_error_pages(std::string code) {
     std::list<std::pair<int, std::string>> &errorPages = this->_server->get_errorpages();
     std::list<std::pair<int, std::string>>::iterator  it;
 
     for (it = errorPages.begin(); it != errorPages.end(); it++) {
         if ((*it).first == stoi(code)) {
-            this->_path = (*it).second;
-            return 1;
+            if (access( (*it).second.c_str(), F_OK ) != -1) {
+                this->_path = (*it).second;
+                return 1;
+            }
         }
     }
     return 0;
