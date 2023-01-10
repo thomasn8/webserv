@@ -8,6 +8,7 @@
 #include "Request.hpp"
 #include "Server.hpp"
 #include "Location.hpp"
+#include "debug.hpp"
 
 class Response : public Message {
 	public:
@@ -39,6 +40,7 @@ class Response : public Message {
 		Server		&_server;
 		std::string _finalMessage;
 		std::string _version;
+		std::string _header;
 		std::string _statusCode;
 		std::string _reason;
 		std::string _path;

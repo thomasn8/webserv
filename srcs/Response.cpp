@@ -1,5 +1,13 @@
 #include "../includes/Response.hpp"
 
+//TO DO Michele
+
+// 1. créer un constructeur à partir d'une erreur
+// 2. method POST
+// 3. methos DELETE
+// finetuner le parsing des requêtes?
+
+
 // ---------Constructor and destructor ------------
 
 Response::Response(Request &request, Server &server) : 
@@ -20,64 +28,68 @@ Response::Response(Request &request, Server &server) :
 
 void Response::_response_get() {
     _check_target_in_get(this->_request.get_target());
+    std::cout << Rfc1123_DateTimeNow();
+    this->_header = this->_version + " 200 " + "OK\r\n" +
+        "Content-Type: text/html, charset=utf-8\r\n" +
+        "Server: pizzabrownie\r\n" +
+        "Date: " + Rfc1123_DateTimeNow() + "\r\n";
     if (this->_isCGI == true)
         _make_CGI();
     else
         _make_response();
 }
 
-// en cours
 int Response::_make_CGI() {
-    std::string testStart;
-    std::string testHeader;
     int         fd[2];
 	pid_t       pid;
     int		    status;
     char        *cgi;
 
-    cgi = (char *)malloc(sizeof(char) * 10000);
+    cgi = (char *)malloc(sizeof(char) * this->_server.get_client_max_body_size());
     if (pipe(fd) == -1) {return -1;}
 	pid = fork();
 	if (pid == -1) {exit(EXIT_FAILURE);}
 	if (pid == 0)
 	{
+        if (PRINT_CGI_GET)
+            std:: cout << "path:" << this->_path << std::endl;
         close(fd[0]);
         if (dup2(fd[1], STDOUT_FILENO) == -1) {exit(EXIT_FAILURE);}
         execlp("php", "php", this->_path.c_str(), NULL);
         std::cerr << "Error launching cgi: " << this->_path << std::endl;
+        write(1, "500", 3);
         exit(0);
 	}
     else {
         close(fd[1]);
-        if (read(fd[0], cgi, 10000) < 0) {
+        if (read(fd[0], cgi, this->_server.get_client_max_body_size()) < 0) {
             close(fd[0]);
             return (1);
         }
         waitpid(pid, &status, 0);
-
-        testStart = this->_version + " 200 " + "OK\r\n";
-        testHeader = "Content-Type: text/html, charset=utf-8\r\nContent-Length: " + std::to_string(std::string(cgi).length()) + "\r\n\r\n";
-        this->_finalMessage = testStart + testHeader + cgi;
-        std:: cout << this->_finalMessage << std::endl;
+        if (is_number(cgi))
+            throw MessageException(atoi(cgi));
+        if (PRINT_CGI_GET)
+            std:: cout << "cgi recieve:" << cgi << std::endl;
+        this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(cgi).length()) + "\r\n\r\n" + cgi;
+        if (PRINT_HTTP_RESPONSE)
+            std:: cout << this->_finalMessage << std::endl;
         }
     return (0);
 }
 
-// en cours
 void Response::_make_response() {
-    std::string testStart;
-    std::string testHeader;
-    std::string testBody;
+    std::string body;
 
     std::ifstream f(this->_path);
     if(f) {
       std::ostringstream ss;
-      ss << f.rdbuf(); // reading data
-      testBody = ss.str();
+      ss << f.rdbuf();
+      body = ss.str();
    }
-    testStart = this->_version + " 200 " + "OK\r\n";
-    testHeader = "Content-Type: text/html, charset=utf-8\r\nContent-Length: " + std::to_string(testBody.length()) + "\r\n\r\n";
-    this->_finalMessage = testStart + testHeader + testBody;
+    this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
+    if (PRINT_HTTP_RESPONSE)
+        std:: cout << this->_finalMessage << std::endl;
 }
 
 void Response::_response_post() {
@@ -93,6 +105,10 @@ int Response::_check_redirections(std::string &target, std::deque<Location> &loc
     std::deque<Location>::iterator  it;
     std::list<Trio>::iterator       it2;
 
+    if (PRINT_RESPONSE_PARSING) {
+        std::cout << "________check redirections_____" << std::endl;
+        std::cout << "Target before: " << target << std::endl;
+    }
     for (it = locations.begin(); it != locations.end(); it++) {
         std::list<Trio> &trio = (*it).get_redirections();
         for (it2 = trio.begin(); it2 != trio.end(); it2++) {
@@ -104,41 +120,65 @@ int Response::_check_redirections(std::string &target, std::deque<Location> &loc
             }
         }
     }
-    if (is_number(redir)) {
+    if (PRINT_RESPONSE_PARSING)
+        std::cout << "Redir: " << redir << std::endl;
+    if (is_number(redir))
         throw MessageException(stoi(redir));
-    }
     if (target != redir) {
         target.erase(target.begin()+1, target.end());
         target.replace(1, redir.length(), redir);
+        if (PRINT_RESPONSE_PARSING)
+            std::cout << "Target after: " << target << std::endl;
         return 1;
     }
+    if (PRINT_RESPONSE_PARSING)
+            std::cout << "Target after: " << target << std::endl;
     return 0;
 }
 
 void Response::_check_locations(std::string &target, std::deque<Location> &locations) {
-    std::string path;
+    std::string                     path;
+    std::string                     root;
     std::deque<Location>::iterator  it;
 
+    if (PRINT_RESPONSE_PARSING)
+        std::cout << "________check locations_____" << std::endl;
     for (it = locations.begin(); it != locations.end(); it++) {
-        path = "./" + (*it).get_root() + target;
+        root = (*it).get_root();
+        path = root + target;
+        if (PRINT_RESPONSE_PARSING) {
+            std::cout << "location root: " << root << std::endl;
+            std::cout << "target: " << target << std::endl;
+            std::cout << "path: " << path << std::endl;
+        }
         if (access( path.c_str(), F_OK ) != -1) {
-            if ((*it).get_root() == "www/cgi_bin")
+            if (root.find("cgi_bin", root.length() - 7))
                 this->_isCGI = true;
             this->_targetFound = true;
             this->_path = path;
+            if (PRINT_RESPONSE_PARSING)
+                std::cout << "path found: " << this->_path << std::endl;
         }
     }
 }
 
 void Response::_check_root(std::string &target) {
     std::string path;
+    std::string root;
 
-    path = "./" + this->_server.get_root() + target;
+    if (PRINT_RESPONSE_PARSING)
+        std::cout << "________check root_____" << std::endl;
+    root = this->_server.get_root();
+    path = root + target;
+    if (PRINT_RESPONSE_PARSING)
+        std::cout << "path: " << path << std::endl;
     if (access( path.c_str(), F_OK ) != -1) {
-        if (this->_server.get_root() == "www/cgi_bin")
+        if (root.find("cgi_bin", root.length() - 7))
             this->_isCGI = true;
         this->_targetFound = true;
         this->_path = path;
+        if (PRINT_RESPONSE_PARSING)
+            std::cout << "path found: " << this->_path << std::endl;
     }
 }
 
