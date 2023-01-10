@@ -4,7 +4,8 @@
 */
 Monitor::Monitor() :
 _servers(std::deque<Server>()),
-_master_sockets(std::vector<int>()),
+_master_sockets(NULL),
+_master_size(0),
 _fd_count(0),
 _fd_capacity(0),
 _pfds(NULL),
@@ -22,6 +23,8 @@ Monitor::~Monitor()
 		free(_pfds);
 	if (_activeSockets)
 		free(_activeSockets);
+	if (_master_size)
+		free(_master_sockets);
 	_accessStream.close();
 	log(get_time(), " Server shut down\n");
 	std::cout << "Server shut down" << std::endl;
@@ -44,13 +47,17 @@ void Monitor::_prepare_master_sockets()
 	it_servers it = _servers.begin();
 	it_servers ite = _servers.end();
 	int socket_fd;
+	int i = 0;
+	_master_size = _servers.size();
+	_master_sockets = (int *)malloc(_master_size);
 	while (it != ite)
 	{
 		socket_fd = (*it).create_socket();
 		log((*it).get_ipv4_port_str(), " listening on socket ", socket_fd, "\n");
-		_master_sockets.push_back(socket_fd);
+		_master_sockets[i] = socket_fd;
 		_fd_count++;
 		it++;
+		i++;
 	}
 	_fd_capacity = _fd_count + 5;
 	_pfds = (struct pollfd *)malloc(sizeof(*_pfds) * _fd_capacity);
@@ -144,11 +151,13 @@ void Monitor::_accept_new_connection(int master_index)
 int Monitor::_recv_all(int fd, std::string & request, struct socket & activeSocket)
 {
 	char chunk_read[CHUNK_SIZE];
-	int size_recv = 0, total_recv = 0;
+	ssize_t size_recv = 0, total_recv = 0, maxrecv = activeSocket.server->get_maxrecv();
 	while (1)
 	{
 		size_recv = recv(fd, chunk_read, CHUNK_SIZE, 0); // recv la request jusqu'au bout du client_fd
 		total_recv += size_recv;
+		if (maxrecv && total_recv > maxrecv) // erreur max body size 431
+			return -1;
 		// std::cout << size_recv << " bytes read on socket " << fd << std::endl;
 		if (size_recv > 0)
 			request.append(chunk_read, size_recv);
@@ -164,7 +173,7 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 {
 	int fd = _pfds[i].fd;
 	const char * chunk_send = response;
-	int response_size = size, size_sent = 0, total_sent = 0;
+	ssize_t response_size = size, size_sent = 0, total_sent = 0;
 	if (response_size < CHUNK_SIZE)	// cas où response initiale fait < 512
 	{
 		size_sent = send(fd, chunk_send, response_size, 0);
@@ -226,21 +235,25 @@ void Monitor::handle_connections()
 					if (j == server_count - 1)					// sinon fd correspond a un client qui fait une request
 					{
 						_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]);
-						try {
-							Request request(requestStr.c_str());
-							Response httpResponse(request, *(_activeSockets[i].server));
-							response = httpResponse.getMessage();
+						// if (_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]) != -1)
+						// {
+						// 	try {
+						// 		Request request(requestStr.c_str());
+						// 		Response response(request, *(_activeSockets[i].server));
 
-							// decomment to display in terminal:
-							// std::cout << request.get_method() << " " << request.get_target() << " " << request.get_version() << std::endl;
-							// request.display_fields();
-							// std::cout << "\n" << request.get_body() << std::endl;
+						// 		// decomment to display in terminal:
+						// 		// std::cout << request.get_method() << " " << request.get_target() << " " << request.get_version() << std::endl;
+						// 		// request.display_fields();
+						// 		// std::cout << "\n" << request.get_body() << std::endl;
 
-							// Response response(request);
-						}
-						catch (Request::MessageException & e) {
-							std::cout << "Error: " << e.what() << std::endl; // A la fin, job de thomas de printer le message d'erreur comme c'est coherent (log ?)
-						}
+						// 		// Response response(request);
+						// 	}
+						// 	catch (Request::MessageException & e) {
+						// 		std::cout << "Error: " << e.what() << std::endl; // A la fin, job de thomas de printer le message d'erreur comme c'est coherent (log ?)
+						// 	}
+						// }
+						// else
+						// 	Response response(request, *(_activeSockets[i].server));	// CREER UNE REPONSE POUR GERER ERREUR 431
 						requestStr.clear();
 						_pfds[i].events = POLLOUT;
 						poll_index = i;		// permet de revenir dans la main loop avec l'index du pfds à écrire
@@ -281,6 +294,8 @@ void Monitor::_exit_cerr_msg(const std::string message, int code)
 		free(_pfds);
 	if (_activeSockets)
 		free(_activeSockets);
+	if (_master_size)
+		free(_master_sockets);
 	_accessStream.close();
 	exit(code);
 }
