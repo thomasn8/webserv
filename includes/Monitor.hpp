@@ -15,7 +15,6 @@
 #include <arpa/inet.h>
 #include <poll.h>
 #include <deque>
-#include <vector>
 
 #include "Server.hpp"
 #include "Response.hpp"
@@ -65,11 +64,12 @@ class Monitor
 		std::deque<Server> _servers;
 
 		// SOCKETS
-		std::vector<int> _master_sockets;
+		int * _master_sockets;
+		int _master_size;
 		int _fd_count;
 		int _fd_capacity;
-		struct pollfd *_pfds;
-		struct socket *_activeSockets; // les servers.size() premiers pointeurs sont NULL, les suivants correspondent par index aux _pfds
+		struct pollfd * _pfds;
+		struct socket * _activeSockets; // les _master_size premiers pointeurs sont NULL, les suivants correspondent par index aux _pfds
 		struct socket * _add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, Server * server);
 		void _del_from_pfds(int i);
 		void _accept_new_connection(int master_index);

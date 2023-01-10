@@ -12,6 +12,7 @@ _root(std::string(_webserv_bin_path().append("/").append(DEFAULT_ROOT))),
 _indexFiles(std::list<std::string>(1, std::string(DEFAULT_INDEX))),
 _defaultIndex(true),
 _clientMaxBodySize(MBS),
+_maxrecv(MHS + MBS),
 _errorPages(std::list<error_page_pair>()),
 _socket_fd(-1),
 _address()
@@ -27,6 +28,7 @@ _root(src._root),
 _indexFiles(src._indexFiles),
 _defaultIndex(src._defaultIndex),
 _clientMaxBodySize(src._clientMaxBodySize),
+_maxrecv(src._maxrecv),
 _errorPages(src._errorPages),
 _socket_fd(src._socket_fd),
 _address(src._address)
@@ -233,11 +235,11 @@ void Server::set_client_max_body_size(std::string & value)
 		{
 			if (unit.compare("B") == 0)
 				mbs *= 1;
-			else if (unit.compare("KB") == 0 || unit.compare("K") == 0)
+			else if (unit.compare("KB") == 0 || unit.compare("KO") == 0 || unit.compare("K") == 0)
 				mbs *= 1000;
-			else if (unit.compare("MB") == 0 || unit.compare("M") == 0)
+			else if (unit.compare("MB") == 0 || unit.compare("MO") == 0 || unit.compare("M") == 0)
 				mbs *= 1000 * 1000;
-			else if (unit.compare("GB") == 0 || unit.compare("G") == 0)
+			else if (unit.compare("GB") == 0 || unit.compare("GO") == 0 || unit.compare("G") == 0)
 				_exit_cerr_msg("Error: client_max_body_size too large: maximum of 500MB\n", 1);
 			else
 				_exit_cerr_msg("Error: invalid client_max_body_size format. Examples: 4000, 300KB, 2M\n", 1);
@@ -249,6 +251,7 @@ void Server::set_client_max_body_size(std::string & value)
 	if (mbs > MAX_MBS)
 		_exit_cerr_msg("Error: client_max_body_size too large: maximum of 500MB\n", 1);
 	_clientMaxBodySize = mbs;
+	_clientMaxBodySize ? _maxrecv = _clientMaxBodySize + MHS : _maxrecv = 0;
 }
 
 uint16_t Server::get_port() const { return _port; }
@@ -270,6 +273,8 @@ std::string Server::get_root() const { return _root; }
 std::list<std::string> & Server::get_indexes() { return _indexFiles; }
 
 size_t Server::get_client_max_body_size() const { return _clientMaxBodySize; }
+
+size_t Server::get_maxrecv() const { return _maxrecv; }
 
 std::list<Server::error_page_pair> & Server::get_errorpages() { return _errorPages; }
 

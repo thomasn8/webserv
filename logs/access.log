@@ -1,0 +1,58 @@
+2023-01-10 15:01:08 CONFIGURATION
+
+Nombre de server: 2
+SERVER #1
+	port: 8080
+	ip: 0.0.0.0
+	server_name: localhost
+	server_name: mon-site.com
+	root: /Users/thomas/Desktop/Webserv/www/html
+	index: index.html
+	index: index.php
+	error_page: 404: /Users/thomas/Desktop/Webserv/www/html/not_found.html
+	error_page: 500: /Users/thomas/Desktop/Webserv/www/html/50x.html
+	error_page: 502: /Users/thomas/Desktop/Webserv/www/html/50x.html
+	error_page: 503: /Users/thomas/Desktop/Webserv/www/html/50x.html
+	error_page: 504: /Users/thomas/Desktop/Webserv/www/html/50x.html
+	client_mbs: 4000
+	Location /images/
+		root: /Users/thomas/Desktop/Webserv/www/html/media/images
+		method: GET
+		autoindex: on
+		index: index.html
+		uploads_dir: 
+		redirect: /Users/thomas/Desktop/Webserv/www/html/media/images/test1.html /Users/thomas/Desktop/Webserv/www/html/media/images/helloworld.html 301
+		redirect: /Users/thomas/Desktop/Webserv/www/html/media/images/oiseau/test2.html /Users/thomas/Desktop/Webserv/www/html/media/images/helloworld.html 301
+		redirect: /Users/thomas/Desktop/Webserv/www/html/media/images/test3.html /Users/thomas/Desktop/Webserv/www/html/media/images/galaxy/helloworld.html 301
+		redirect: /Users/thomas/Desktop/Webserv/www/html/media/images/oiseau/test4.html /galaxy/helloworld.html 301
+		redirect: /Users/thomas/Desktop/Webserv/www/html/media/images/test5.html  500
+		redirect: /Users/thomas/Desktop/Webserv/www/html/media/images/test6.html /Users/thomas/Desktop/Webserv/www/html/media/images/test7.html 0
+		cgi: /Users/thomas/Desktop/Webserv/cgi_bin
+	Location *.php
+		root: /Users/mim/42/webserv/www/cgi_bin
+		method: GET
+		method: POST
+		autoindex: off
+		index: index.html
+		index: index.php
+		uploads_dir: /Users/mim/42/webserv/www/cgi_bin/uploads
+		redirect: /Users/mim/42/webserv/www/cgi_bin/test2.php /Users/mim/42/webserv/www/cgi_bin/helloworld.php 301
+		redirect: /Users/mim/42/webserv/www/cgi_bin/test3.php /helloworld3.php 302
+		cgi: /Users/mim/42/webserv/www/cgi_bin/cgi_tester
+SERVER #2
+	port: 9000
+	ip: 0.0.0.0
+	server_name: localhost
+	server_name: test.com
+	root: /Users/thomas/Desktop/Webserv/www/html/test
+	index: index.html
+	index: index.php
+	client_mbs: 1000000
+
+0.0.0.0:8080 listening on socket 4
+0.0.0.0:9000 listening on socket 5
+2023-01-10 15:01:08 SERVERS STARTED
+
+2023-01-10 15:01:11 New connection  127.0.0.1:0 on server port 9000 via socket 6
+2023-01-10 15:01:11 Request from    127.0.0.1:0 on server port 9000: 479 bytes read via socket 6
+2023-01-10 15:01:11 Response to     127.0.0.1:0 on server port 9000: 84 bytes sent via socket 6, connection closed
