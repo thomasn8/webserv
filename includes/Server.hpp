@@ -24,9 +24,8 @@
 # define DEFAULT_SERVERNAME "localhost"
 # define DEFAULT_ROOT "www/html/"
 # define DEFAULT_INDEX "index.html"
-# define MHS 8000 // 8K
-# define MBS 1000000 // 1M
-# define MAX_MBS 1000000000 // 100M
+# define MBS 20000
+# define MAX_MBS 500000000
 
 // DIRECTIVE INDEX
 // (pour en rajouter/modifier: modifier le tableau + definir une macro pour l'index + modifier le switch-case dans add_directive() et creer les getter/setter)
@@ -73,7 +72,6 @@ class Server
 		std::list<std::string> & get_indexes();
 		std::list<error_page_pair> & get_errorpages();
 		size_t get_client_max_body_size() const;
-		size_t get_maxrecv() const;
 		struct sockaddr_in & get_address();
 		std::string _webserv_bin_path() const;
 
@@ -91,7 +89,6 @@ class Server
 		bool _defaultIndex;
 		std::list<std::string> _indexFiles;
 		size_t _clientMaxBodySize;
-		size_t _maxrecv;
 		std::list<error_page_pair> _errorPages;
 
 		// SOCKET

@@ -30,6 +30,7 @@ class Response : public Message {
 		void		_response_get();
 		void		_response_post();
 		void		_response_delete();
+		int			_check_error_pages(std::string code);
 		void		_check_target_in_get(std::string target);
 		int			_check_redirections(std::string &target, std::deque<Location> &locations);
 		void		_check_locations(std::string &target, std::deque<Location> &locations);

@@ -13,28 +13,30 @@
 Response::Response(std::string code) : _version(std::string("HTTP/1.1")) {
     char            *date;
     std::string     body;
+    if (_check_error_pages(code)) {
+        _make_response();
+    } else {
+        body = "<!DOCTYPE html> \
+            <html lang=\"en\"> \
+            <head> \
+                <meta charset=\"UTF-8\"> \
+                <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> \
+                <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> \
+                <title>" + code + "</title> \
+            </head> \
+            <body> \
+                <h1>Error " + code + "</h1> \
+                <p>" + PRINTMESSAGE(BAD_REQUEST); + "</p> \
+            </body> \
+            </html>";
 
-    body = "<!DOCTYPE html> \
-        <html lang=\"en\"> \
-        <head> \
-            <meta charset=\"UTF-8\"> \
-            <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> \
-            <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> \
-            <title>Cgi hello</title> \
-        </head> \
-        <body> \
-            <h1>Error " + code + "</h1> \
-            <p>" + PRINTMESSAGE(BAD_REQUEST); + "</p> \
-        </body> \
-        </html>";
-
-
-    date = Rfc1123_DateTimeNow();
-    this->_finalMessage = this->_version + " " + code + " " + "OK\r\n" +
-        "Content-Type: text/html, charset=utf-8\r\n" +
-        "Server: pizzabrownie\r\n" +
-        "Date: " + date + "\r\n" + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
-    free(date);
+        date = Rfc1123_DateTimeNow();
+        this->_finalMessage = this->_version + " " + code + " " + "OK\r\n" +
+            "Content-Type: text/html, charset=utf-8\r\n" +
+            "Server: pizzabrownie\r\n" +
+            "Date: " + date + "\r\n" + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
+        free(date);
+    }
 }
 
 Response::Response(Request *request, Server *server) : 
@@ -51,6 +53,19 @@ Response::Response(Request *request, Server *server) :
         _response_delete();
     else
         throw MessageException(HTTP_VERSION_UNSUPPORTED);
+}
+
+int Response::_check_error_pages(std::string code) {
+    std::list<std::pair<int, std::string>> &errorPages = this->_server->get_errorpages();
+    std::list<std::pair<int, std::string>>::iterator  it;
+
+    for (it = errorPages.begin(); it != errorPages.end(); it++) {
+        if ((*it).first == stoi(code)) {
+            this->_path = (*it).second;
+            return 1;
+        }
+    }
+    return 0;
 }
 
 void Response::_response_get() {
