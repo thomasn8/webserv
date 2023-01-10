@@ -247,12 +247,12 @@ void Monitor::handle_connections()
 								// std::cout << "\n" << request.get_body() << std::endl;
 							}
 							catch (Request::MessageException & e) {
-								Response error(e.what());
+								Response error(e.what(), _activeSockets[i].server);
 								response = error.getMessage();
 							}
 						}
 						else {
-							Response error431("431");
+							Response error431("431", _activeSockets[i].server);
 							response = error431.getMessage();
 						}
 						requestStr.clear();
