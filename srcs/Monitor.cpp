@@ -214,7 +214,7 @@ void Monitor::handle_connections()
 	int i, poll_index = 0;
 	int poll_count = 0, server_count = _servers.size();
 	std::string requestStr;
-	std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello from the server!\n";
+	std::string response; // = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello from the server!\n";
 	while (1)													// Main loop
 	{
 		poll_count = poll(_pfds, _fd_count, -1);				// bloque tant qu'aucun fd est prêt à read ou write
@@ -238,23 +238,14 @@ void Monitor::handle_connections()
 						{
 							try {
 								Request request(requestStr.c_str());
-								Response httpResponse(&request, _activeSockets[i].server);
-								response = httpResponse.getMessage();
-
-								// decomment to display in terminal:
-								// std::cout << request.get_method() << " " << request.get_target() << " " << request.get_version() << std::endl;
-								// request.display_fields();
-								// std::cout << "\n" << request.get_body() << std::endl;
+								Response response(&request, _activeSockets[i].server, &response);
 							}
 							catch (Request::MessageException & e) {
-								Response error(e.what());
-								response = error.getMessage();
+								Response response(e.what(), &response);
 							}
 						}
-						else {
-							Response error431("431");
-							response = error431.getMessage();
-						}
+						else
+							Response response("431", &response);
 						requestStr.clear();
 						_pfds[i].events = POLLOUT;
 						poll_index = i;		// permet de revenir dans la main loop avec l'index du pfds à écrire
