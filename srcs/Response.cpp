@@ -6,14 +6,11 @@
 // 2. method POST
 // 3. methos DELETE
 // finetuner le parsing des requêtes?
-// erreur 431 pour depassement du header size
 
 
 // ---------Constructor and destructor ------------
 
-Response::Response(std::string code, Server &server) : 
-    _server(server),
-    _version(std::string("HTTP/1.1"))  {
+Response::Response(std::string code) : _version(std::string("HTTP/1.1")) {
     char            *date;
     std::string     body;
 
@@ -40,7 +37,7 @@ Response::Response(std::string code, Server &server) :
     free(date);
 }
 
-Response::Response(Request *request, Server &server) : 
+Response::Response(Request *request, Server *server) : 
     _request(request), 
     _server(server),
     _version(std::string("HTTP/1.1")),
@@ -78,7 +75,7 @@ int Response::_make_CGI() {
     int		    status;
     char        *cgi;
 
-    cgi = (char *)malloc(sizeof(char) * this->_server.get_client_max_body_size());
+    cgi = (char *)malloc(sizeof(char) * this->_server->get_client_max_body_size());
     if (pipe(fd) == -1) {return -1;}
 	pid = fork();
 	if (pid == -1) {exit(EXIT_FAILURE);}
@@ -95,7 +92,7 @@ int Response::_make_CGI() {
 	}
     else {
         close(fd[1]);
-        if (read(fd[0], cgi, this->_server.get_client_max_body_size()) < 0) {
+        if (read(fd[0], cgi, this->_server->get_client_max_body_size()) < 0) {
             close(fd[0]);
             return (1);
         }
@@ -186,7 +183,7 @@ void Response::_check_locations(std::string &target, std::deque<Location> &locat
             std::cout << "path: " << path << std::endl;
         }
         if (access( path.c_str(), F_OK ) != -1) {
-            if (root.find("cgi_bin", root.length() - 7))
+            if (root.find("cgi_bin", root.length() - 7) != std::string::npos)
                 this->_isCGI = true;
             this->_targetFound = true;
             this->_path = path;
@@ -202,12 +199,12 @@ void Response::_check_root(std::string &target) {
 
     if (PRINT_RESPONSE_PARSING)
         std::cout << "________check root_____" << std::endl;
-    root = this->_server.get_root();
+    root = this->_server->get_root();
     path = root + target;
     if (PRINT_RESPONSE_PARSING)
         std::cout << "path: " << path << std::endl;
     if (access( path.c_str(), F_OK ) != -1) {
-        if (root.find("cgi_bin", root.length() - 7))
+        if (root.find("cgi_bin", root.length() - 7) != std::string::npos)
             this->_isCGI = true;
         this->_targetFound = true;
         this->_path = path;
@@ -218,7 +215,7 @@ void Response::_check_root(std::string &target) {
 
 void Response::_check_target_in_get(std::string target) {
     std::string                     redir = target;
-    std::deque<Location>            &locations = this->_server.get_locations();
+    std::deque<Location>            &locations = this->_server->get_locations();
 
     if (*target.begin() != '/')
         throw MessageException(BAD_REQUEST);

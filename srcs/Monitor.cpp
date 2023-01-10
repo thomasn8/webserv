@@ -234,12 +234,11 @@ void Monitor::handle_connections()
 					}
 					if (j == server_count - 1)					// sinon fd correspond a un client qui fait une request
 					{
-						_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]);
 						if (_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]) != -1)
 						{
 							try {
 								Request request(requestStr.c_str());
-								Response httpResponse(&request, *(_activeSockets[i].server));
+								Response httpResponse(&request, _activeSockets[i].server);
 								response = httpResponse.getMessage();
 
 								// decomment to display in terminal:
@@ -248,13 +247,13 @@ void Monitor::handle_connections()
 								// std::cout << "\n" << request.get_body() << std::endl;
 							}
 							catch (Request::MessageException & e) {
-								Response error(e.what(), *(_activeSockets[i].server));
+								Response error(e.what());
 								response = error.getMessage();
 							}
 						}
 						else {
-							Response error431("431", *(_activeSockets[i].server));
-							response = error431.getMessage();	// CREER UNE REPONSE POUR GERER ERREUR 431
+							Response error431("431");
+							response = error431.getMessage();
 						}
 						requestStr.clear();
 						_pfds[i].events = POLLOUT;

@@ -12,8 +12,8 @@
 
 class Response : public Message {
 	public:
-		Response(std::string code, Server &server);
-		Response(Request *request, Server &server);
+		Response(std::string code);
+		Response(Request *request, Server *server);
 		Response(const Response &instance);
 		virtual ~Response();
 
@@ -38,7 +38,7 @@ class Response : public Message {
 		void		_make_response();
 		
 		Request		*_request;
-		Server		&_server;
+		Server		*_server;
 		std::string _finalMessage;
 		std::string _version;
 		std::string _header;
