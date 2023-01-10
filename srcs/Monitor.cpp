@@ -214,7 +214,7 @@ void Monitor::handle_connections()
 	int i, poll_index = 0;
 	int poll_count = 0, server_count = _servers.size();
 	std::string requestStr;
-	std::string response; // = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello from the server!\n";
+	std::string responseStr; // = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello from the server!\n";
 	while (1)													// Main loop
 	{
 		poll_count = poll(_pfds, _fd_count, -1);				// bloque tant qu'aucun fd est prêt à read ou write
@@ -238,14 +238,14 @@ void Monitor::handle_connections()
 						{
 							try {
 								Request request(requestStr.c_str());
-								Response response(&request, _activeSockets[i].server, &response);
+								Response response(&request, _activeSockets[i].server, &responseStr);
 							}
 							catch (Request::MessageException & e) {
-								Response response(e.what(), &response);
+								Response response(e.what(), &responseStr);
 							}
 						}
 						else
-							Response response("431", &response);
+							Response response("431", &responseStr);
 						requestStr.clear();
 						_pfds[i].events = POLLOUT;
 						poll_index = i;		// permet de revenir dans la main loop avec l'index du pfds à écrire
@@ -255,7 +255,7 @@ void Monitor::handle_connections()
 			}
 			else if (_pfds[i].revents & POLLOUT) 				// event sur fd[i]: si poll a debloquer pour un fd prêt à write
 			{
-				_send_all(i, response.c_str(), response.size(), _activeSockets[i]);
+				_send_all(i, responseStr.c_str(), responseStr.size(), _activeSockets[i]);
 				poll_index = 0; // reset l'index au debut des fds
 			}
 			i++;
