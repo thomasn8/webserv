@@ -11,7 +11,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
-#include <vector>
+#include <list>
 #include <deque>
 #include <stdexcept>
 
@@ -67,10 +67,10 @@ class Server
 		std::string get_ipv4_str() const;
 		std::string get_ipv4_port_str() const; 
 		std::string get_servername() const;
-		std::vector<std::string> & get_servernames();
+		std::list<std::string> & get_servernames();
 		std::string get_root() const;
 		std::list<std::string> & get_indexes();
-		std::vector<error_page_pair> & get_errorpages();
+		std::list<error_page_pair> & get_errorpages();
 		size_t get_client_max_body_size() const;
 		struct sockaddr_in & get_address();
 		std::string _webserv_bin_path() const;
@@ -83,13 +83,13 @@ class Server
 		std::deque<Location> _locations;
 		uint32_t _ipv4;
 		uint16_t _port;
-		std::vector<std::string> _serverNames;
+		std::list<std::string> _serverNames;
 		bool _defaultServerNames;
 		std::string	_root;
 		bool _defaultIndex;
 		std::list<std::string> _indexFiles;
 		size_t _clientMaxBodySize;
-		std::vector< error_page_pair > _errorPages;
+		std::list<error_page_pair> _errorPages;
 
 		// SOCKET
 		int _socket_fd;

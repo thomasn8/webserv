@@ -6,13 +6,13 @@ Server::Server() :
 _locations(std::deque<Location>()),
 _ipv4(INADDR_ANY),
 _port(DEFAULT_PORT),  
-_serverNames(std::vector<std::string>(1, std::string(DEFAULT_SERVERNAME))),
+_serverNames(std::list<std::string>(1, std::string(DEFAULT_SERVERNAME))),
 _defaultServerNames(true),
 _root(std::string(_webserv_bin_path().append("/").append(DEFAULT_ROOT))),
 _indexFiles(std::list<std::string>(1, std::string(DEFAULT_INDEX))),
 _defaultIndex(true),
 _clientMaxBodySize(MBS),
-_errorPages(std::vector< error_page_pair >()),
+_errorPages(std::list<error_page_pair>()),
 _socket_fd(-1),
 _address()
 {}
@@ -200,8 +200,8 @@ void Server::set_error_page(std::string & value)
 	catch (const std::invalid_argument &ia) {
 		// itere sur tous les statusCode-errorFile pair depuis la fin
 		// et ajoute le errorFile aux pairs qui ont que le statusCode
-		std::vector< error_page_pair >::reverse_iterator rit = _errorPages.rbegin();
-		std::vector< error_page_pair >::reverse_iterator rite = _errorPages.rend();
+		std::list< error_page_pair >::reverse_iterator rit = _errorPages.rbegin();
+		std::list< error_page_pair >::reverse_iterator rite = _errorPages.rend();
 		for (; rit!= rite; ++rit)
 		{
 			if ((*rit).second.empty())
@@ -263,7 +263,7 @@ std::string Server::get_ipv4_port_str() const { return get_ipv4_str().append(":"
 
 std::string Server::get_servername() const { return _serverNames.front(); }
 
-std::vector<std::string> & Server::get_servernames() { return _serverNames; }
+std::list<std::string> & Server::get_servernames() { return _serverNames; }
 
 std::string Server::get_root() const { return _root; }
 
@@ -271,7 +271,7 @@ std::list<std::string> & Server::get_indexes() { return _indexFiles; }
 
 size_t Server::get_client_max_body_size() const { return _clientMaxBodySize; }
 
-std::vector<Server::error_page_pair> & Server::get_errorpages() { return _errorPages; }
+std::list<Server::error_page_pair> & Server::get_errorpages() { return _errorPages; }
 
 struct sockaddr_in & Server::get_address() { return _address; }
 
