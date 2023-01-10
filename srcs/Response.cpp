@@ -6,6 +6,7 @@
 // 2. method POST
 // 3. methos DELETE
 // finetuner le parsing des requêtes?
+// erreur 431 pour depassement du header size
 
 
 // ---------Constructor and destructor ------------
@@ -27,12 +28,15 @@ Response::Response(Request &request, Server &server) :
 }
 
 void Response::_response_get() {
+    char *date;
+    
     _check_target_in_get(this->_request.get_target());
-    std::cout << Rfc1123_DateTimeNow();
+    date = Rfc1123_DateTimeNow();
     this->_header = this->_version + " 200 " + "OK\r\n" +
         "Content-Type: text/html, charset=utf-8\r\n" +
         "Server: pizzabrownie\r\n" +
-        "Date: " + Rfc1123_DateTimeNow() + "\r\n";
+        "Date: " + date + "\r\n";
+    free(date);
     if (this->_isCGI == true)
         _make_CGI();
     else
@@ -72,6 +76,7 @@ int Response::_make_CGI() {
         if (PRINT_CGI_GET)
             std:: cout << "cgi recieve:" << cgi << std::endl;
         this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(cgi).length()) + "\r\n\r\n" + cgi;
+        free(cgi);
         if (PRINT_HTTP_RESPONSE)
             std:: cout << this->_finalMessage << std::endl;
         }
