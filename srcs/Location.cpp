@@ -3,12 +3,26 @@
 /* 
 	************ CONST/DESTR
 */
+Location::Location(std::string const & server_root, std::list<std::string> const & server_indexes) :
+_route(),
+_root(server_root),
+_autoindex(false),
+_indexFiles(std::list<std::string>(server_indexes)),
+_defaultIndex(true),
+_methods(std::list<std::string>(1, std::string(GET))),
+_defaultMethods(true),
+_uploadsDir(),
+_redirections(std::list<Trio>()),
+_cgiBinPath(std::string(_webserv_bin_path().append("/").append(DEFAULT_CGI_PATH))),
+_cgiExtension(std::string(DEFAULT_CGI_EXT)) 
+{}
+
 Location::Location() :
-_prefix(),
-_prefixLevelCount(),
-_root(std::string(DEFAULT_ROOT)),
-_autoindex(false), 
-_index(std::string(DEFAULT_INDEX)),
+_route(),
+_root(std::string(_webserv_bin_path().append("/").append(DEFAULT_ROOT))),
+_autoindex(false),
+_indexFiles(std::list<std::string>()),
+_defaultIndex(true),
 _methods(std::list<std::string>(1, std::string(GET))),
 _defaultMethods(true),
 _uploadsDir(),
@@ -18,18 +32,18 @@ _cgiExtension(std::string(DEFAULT_CGI_EXT))
 {}
 
 Location::Location(const Location & src) :
-_prefix(),
-_prefixLevelCount(),
-_root(std::string(DEFAULT_ROOT)),
-_autoindex(false), 
-_index(std::string(DEFAULT_INDEX)),
-_methods(std::list<std::string>(1, std::string(GET))),
-_defaultMethods(true),
-_uploadsDir(),
-_redirections(std::list<Trio>()),
-_cgiBinPath(std::string(_webserv_bin_path().append("/").append(DEFAULT_CGI_PATH))),
-_cgiExtension(std::string(DEFAULT_CGI_EXT)) 
-{ (void) src; }
+_route(src._route),
+_root(src._root),
+_autoindex(src._autoindex), 
+_indexFiles(std::list<std::string>(src._indexFiles)),
+_defaultIndex(src._defaultIndex),
+_methods(src._methods),
+_defaultMethods(src._defaultMethods),
+_uploadsDir(src._uploadsDir),
+_redirections(src._redirections),
+_cgiBinPath(src._cgiBinPath),
+_cgiExtension(src._cgiExtension) 
+{}
 
 Location::~Location() {}
 
@@ -64,11 +78,11 @@ void Location::add_directive(int directiveIndex, std::string value)
 	}
 }
 
-void Location::set_prefix(std::string value)
+void Location::set_route(std::string value)
 {
 	if (value.empty())
 		return;
-	_prefix = value;
+	_route = value;
 	if (value[0] == '.')
 		_cgiExtension = value.substr(1);
 	else if (value[0] == '*')
@@ -79,7 +93,16 @@ void Location::set_root(std::string & value)
 {
 	if (value.empty())
 		return;
-	_root = value;
+	// si relative, on complete la partie qui précède pour uniformiser les path en absolute
+	if (value[0] != '/')
+		_root = _root.append("/").append(value);
+	else
+		_root = value;
+	
+	// toujours checker qu'il n'y ait pas de slash à la fin, question d'uniformité
+	// quand on joint 2 paths, on sait qu'on doit toujours append("/") entre 2
+	if (_root[_root.size() - 1] == '/')
+		_root.erase(_root.size() - 1);
 }
 
 void Location::set_method(std::string & value)
@@ -104,28 +127,40 @@ void Location::set_method(std::string & value)
 	}
 }
 
-void Location::set_autoindex(std::string & value)
-{
-	if (value.empty())
-		return;
-	if (value.compare("on") == 0)
-		_autoindex = true;
-	else if (value.compare("off") == 0)
-		_autoindex = false;
-}
-
 void Location::set_index(std::string & value)
 {
 	if (value.empty())
 		return;
-	_index = value;
+	if (value[0] == '/')
+		value.erase(0, 1);
+	if (_defaultIndex == true)
+	{
+		_indexFiles.clear();
+		_indexFiles.push_back(value);
+		_defaultIndex = false;
+	}
+	else
+		_indexFiles.push_back(value);
+}
+
+void Location::set_autoindex(std::string & value)
+{
+	if (value.empty())
+		return;
+	if (value.compare("on") == 0 || value.compare("true") == 0 || value.compare("1") == 0)
+		_autoindex = true;
+	else if (value.compare("off") == 0 || value.compare("false") == 0 || value.compare("0") == 0)
+		_autoindex = false;
 }
 
 void Location::set_uploadsdir(std::string & value)
 {
 	if (value.empty())
 		return;
-	_uploadsDir = value;
+	if (value[0] != '/')
+		_uploadsDir = get_root().append("/").append(value);
+	else
+		_uploadsDir = value;
 }
 
 void Location::set_redirection(std::string & line)
@@ -153,9 +188,18 @@ void Location::set_redirection(std::string & line)
 		}
 		catch (const std::invalid_argument &ia) {
 			if (trio.first.empty())
-				trio.first = word;
+			{
+				if (word[0] == '/')
+					word.erase(0, 1);
+				trio.first = get_root().append("/").append(word);
+			}
 			else
-				trio.second = word;
+			{
+				if (word[0] != '/')
+					trio.second = get_root().append("/").append(word);
+				else
+					trio.second = word;
+			}
 		}
 	}
 	prev = line;
@@ -166,21 +210,29 @@ void Location::set_cgiBinPath(std::string & value)
 {
 	if (value.empty())
 		return;
-	_cgiBinPath = value;
+	// si relative, on complete la partie qui précède pour uniformiser les path en absolute
+	if (value[0] != '/')
+		_cgiBinPath = get_root().append("/").append(value);
+	else
+		_cgiBinPath = value;
 }
 
-std::string Location::get_prefix() const { return _prefix; }
+std::string Location::get_route() const { return _route; }
 
+// path du directory
 std::string Location::get_root() const { return _root; }
 
 std::list<std::string> & Location::get_methods() { return _methods; }
 
+// nom du/des fichier(s) d'index
+std::list<std::string> & Location::get_indexes() { return _indexFiles; }
+
 bool Location::get_autoindex() const { return _autoindex; }
 
-std::string Location::get_index() const { return _index; }
-
+// path du directory
 std::string Location::get_uploadsdir() const { return _uploadsDir; }
 
+// path du fichier binaire
 std::string Location::get_cgiBinPath() const { return _cgiBinPath; }
 
 std::list<Trio> & Location::get_redirections() { return _redirections; }

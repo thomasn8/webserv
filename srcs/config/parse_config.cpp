@@ -55,8 +55,8 @@ void parse_config(std::string & configFile, Monitor & monitor)
 	configStream.close();
 
 	// lecture et tri du buffer: 
-	// variables word et prefix utilisees pour remplir les objets Config et Location
-	std::string line, word, prefix;
+	// variables word et route utilisees pour remplir les objets Config et Location
+	std::string line, word, route;
 	std::istringstream iss_l(buffer), iss_w;
 	int server_count = 0, location_count = 0, server_directive_index = -1, location_context = 0, location_directive_index = -1;
 	bool first_word = true, server_context = false, compare = false;
@@ -99,7 +99,7 @@ void parse_config(std::string & configFile, Monitor & monitor)
 				{
 					if (word.compare(0, std::string::npos, location_block[i].c_str(), word.length()) == EQUAL)
 					{
-						if (f_location_block[i](line, prefix, &location_context, &location_count) == INVALID)
+						if (f_location_block[i](line, route, &location_context, &location_count) == INVALID)
 							p_exit_cerr_msg(ERROR_MSG, line, 1);
 						if (i == 0)
 							iss_w >> word;
@@ -107,7 +107,7 @@ void parse_config(std::string & configFile, Monitor & monitor)
 						if (location_context == 2)
 						{
 							monitor.get_last_server().add_location();
-							monitor.get_last_server().get_last_location().set_prefix(prefix);
+							monitor.get_last_server().get_last_location().set_route(route);
 						}
 					}
 				}

@@ -56,10 +56,10 @@ int close_server_block(std::string & line, bool *server_context, int *server_cou
 	return VALID;
 }
 
-int open_location_block(std::string & line, std::string & prefix, int *location_context, int *location_count)
+int open_location_block(std::string & line, std::string & route, int *location_context, int *location_count)
 {
 	(void) location_count;
-	int prefix_count = 0;
+	int route_count = 0;
 	if (*location_context == 1 || *location_context == 2)
 	{
 		line = ERROR_LOCATION_BLOCK;
@@ -68,17 +68,17 @@ int open_location_block(std::string & line, std::string & prefix, int *location_
 	int pos = line.find("location");
 	if (!isblank(line[pos + 8]))
 		return INVALID;
-	prefix = p_trim_sides(line.substr(pos + 8));
-	if (p_prefix_syntax(prefix) == false)
+	route = p_trim_sides(line.substr(pos + 8));
+	if (p_route_syntax(route) == false)
 		return INVALID;
 	*location_context = 1;
 	return VALID;
 }
 
-int open_location_block_2(std::string & line, std::string & prefix, int *location_context, int *location_count)
+int open_location_block_2(std::string & line, std::string & route, int *location_context, int *location_count)
 {
 	(void) location_count;
-	(void) prefix;
+	(void) route;
 	if (*location_context != 1)
 	{
 		line = ERROR_LOCATION_BLOCK;
@@ -96,9 +96,9 @@ int open_location_block_2(std::string & line, std::string & prefix, int *locatio
 	return VALID;
 }
 
-int close_location_block(std::string & line, std::string & prefix, int *location_context, int *location_count)
+int close_location_block(std::string & line, std::string & route, int *location_context, int *location_count)
 {
-	(void) prefix;
+	(void) route;
 	if (*location_context == 0)
 		return INVALID;
 	int pos = line.find("}");
