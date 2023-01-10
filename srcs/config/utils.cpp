@@ -48,22 +48,22 @@ bool p_isnotalphanum(std::string line)
 	return false;
 }
 
-bool p_prefix_syntax(std::string prefix)
+bool p_route_syntax(std::string route)
 {
-	// check debut du prefix: commence par / OU par . OU *.
-	if (!(prefix[0] == '/' || prefix[0] == '.' || (prefix[0] == '*' && prefix[1] == '.')))
+	// check debut du route: commence par / OU par . OU *.
+	if (!(route[0] == '/' || route[0] == '.' || (route[0] == '*' && route[1] == '.')))
 		return false;
 	
 	// check format extension: que des alpha-num apres le . OU le *.
-	if (prefix[0] == '.')
-		prefix.erase(0,1);
-	else if ((prefix[0] == '*' && prefix[1] == '.'))
-		prefix.erase(0,2);
-	if (prefix[0] != '/' && p_isnotalphanum(prefix))
+	if (route[0] == '.')
+		route.erase(0,1);
+	else if ((route[0] == '*' && route[1] == '.'))
+		route.erase(0,2);
+	if (route[0] != '/' && p_isnotalphanum(route))
 		return false;
 	
-	// 1 seul mot (donc pas de whitespace, puisque prefix a deja ete trime)
-	if (!p_isnotblank(prefix))
+	// 1 seul mot (donc pas de whitespace, puisque route a deja ete trime)
+	if (!p_isnotblank(route))
 		return false;
 	return true;
 }
@@ -76,7 +76,7 @@ bool p_error_page_syntax(std::string line)
 
 	std::istringstream iss(line);
 	std::string word;
-	int words = 0, str = 0;
+	int code = 0, file = 0;
 	iss >> word;
 	while (iss)
 	{
@@ -84,17 +84,19 @@ bool p_error_page_syntax(std::string line)
 			break;
 		iss >> word;
 		try {
-			std::stoi(word);
+			size_t idx;
+			std::stoi(word, &idx);
+			if (word.substr(idx).size() == 0)
+				code++;
+			else
+				file++;
 		}
 		catch (const std::invalid_argument &ia) {
-			str++;
+			file++;
 		}
-		words++;
 	}
 	prev = line;
-	// au minimum 1 status code et 1 fichier
-	// 1 fichier maximum
-	if (str != 1 || words < 2)
+	if (code < 1 || file != 1)
 		return false;
 	return true;
 }
@@ -130,7 +132,7 @@ bool p_redirect_syntax(std::string line)
 		words++;
 	}
 	prev = line;
-	// au moins 2 mots: file, file/code
+	// 2 mots: file, file/code
 	// ou 3 mots, dont un num: file, file, code
 	if (words < 2 || words > 3)
 		return false;

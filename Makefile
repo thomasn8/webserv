@@ -3,6 +3,7 @@ SRCS		=	srcs/main.cpp							\
 				srcs/config/parse_config.cpp			\
 				srcs/config/parse_context.cpp			\
 				srcs/config/utils.cpp					\
+				srcs/config/Monitor_log_config.cpp		\
 			  	srcs/Monitor.cpp						\
 			  	srcs/Server.cpp							\
 			  	srcs/Request.cpp						\
@@ -27,6 +28,7 @@ clean:
 
 fclean:		clean
 			${RM} ${NAME}
+			${RM} logs/access.log && touch logs/access.log
 
 re:			fclean all
 

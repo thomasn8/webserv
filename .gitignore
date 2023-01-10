@@ -2,6 +2,7 @@
 *.vscode
 *.log
 logs/access.log
+webserv
 
 # Prerequisites
 *.d
