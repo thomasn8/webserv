@@ -4,7 +4,8 @@
 */
 Monitor::Monitor() :
 _servers(std::deque<Server>()),
-_master_sockets(std::vector<int>()),
+_master_sockets(NULL),
+_master_size(0),
 _fd_count(0),
 _fd_capacity(0),
 _pfds(NULL),
@@ -22,6 +23,8 @@ Monitor::~Monitor()
 		free(_pfds);
 	if (_activeSockets)
 		free(_activeSockets);
+	if (_master_size)
+		free(_master_sockets);
 	_accessStream.close();
 	log(get_time(), " Server shut down\n");
 	std::cout << "Server shut down" << std::endl;
@@ -44,13 +47,17 @@ void Monitor::_prepare_master_sockets()
 	it_servers it = _servers.begin();
 	it_servers ite = _servers.end();
 	int socket_fd;
+	int i = 0;
+	_master_size = _servers.size();
+	_master_sockets = (int *)malloc(_master_size);
 	while (it != ite)
 	{
 		socket_fd = (*it).create_socket();
 		log((*it).get_ipv4_port_str(), " listening on socket ", socket_fd, "\n");
-		_master_sockets.push_back(socket_fd);
+		_master_sockets[i] = socket_fd;
 		_fd_count++;
 		it++;
+		i++;
 	}
 	_fd_capacity = _fd_count + 5;
 	_pfds = (struct pollfd *)malloc(sizeof(*_pfds) * _fd_capacity);
@@ -280,6 +287,8 @@ void Monitor::_exit_cerr_msg(const std::string message, int code)
 		free(_pfds);
 	if (_activeSockets)
 		free(_activeSockets);
+	if (_master_size)
+		free(_master_sockets);
 	_accessStream.close();
 	exit(code);
 }

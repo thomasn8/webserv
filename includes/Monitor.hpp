@@ -15,7 +15,6 @@
 #include <arpa/inet.h>
 #include <poll.h>
 #include <deque>
-#include <vector>
 
 #include "Server.hpp"
 #include "Response.hpp"
@@ -65,7 +64,8 @@ class Monitor
 		std::deque<Server> _servers;
 
 		// SOCKETS
-		std::vector<int> _master_sockets;
+		int * _master_sockets; // à remplacer par un tableau d'int (pas nécessaire d'utiliser un vector pour ça)
+		int _master_size;
 		int _fd_count;
 		int _fd_capacity;
 		struct pollfd *_pfds;
