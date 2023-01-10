@@ -228,7 +228,8 @@ void Monitor::handle_connections()
 						_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]);
 						try {
 							Request request(requestStr.c_str());
-							Response response(request, *(_activeSockets[i].server));
+							Response httpResponse(request, *(_activeSockets[i].server));
+							response = httpResponse.getMessage();
 
 							// decomment to display in terminal:
 							// std::cout << request.get_method() << " " << request.get_target() << " " << request.get_version() << std::endl;
