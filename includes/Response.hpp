@@ -12,7 +12,8 @@
 
 class Response : public Message {
 	public:
-		Response(Request &request, Server &server);
+		Response(std::string code, Server &server);
+		Response(Request *request, Server &server);
 		Response(const Response &instance);
 		virtual ~Response();
 
@@ -36,7 +37,7 @@ class Response : public Message {
 		int			_make_CGI();
 		void		_make_response();
 		
-		Request		&_request;
+		Request		*_request;
 		Server		&_server;
 		std::string _finalMessage;
 		std::string _version;

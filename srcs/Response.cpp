@@ -11,17 +11,46 @@
 
 // ---------Constructor and destructor ------------
 
-Response::Response(Request &request, Server &server) : 
+Response::Response(std::string code, Server &server) : 
+    _server(server),
+    _version(std::string("HTTP/1.1"))  {
+    char            *date;
+    std::string     body;
+
+    body = "<!DOCTYPE html> \
+        <html lang=\"en\"> \
+        <head> \
+            <meta charset=\"UTF-8\"> \
+            <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> \
+            <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> \
+            <title>Cgi hello</title> \
+        </head> \
+        <body> \
+            <h1>Error " + code + "</h1> \
+            <p>" + PRINTMESSAGE(BAD_REQUEST); + "</p> \
+        </body> \
+        </html>";
+
+
+    date = Rfc1123_DateTimeNow();
+    this->_finalMessage = this->_version + " " + code + " " + "OK\r\n" +
+        "Content-Type: text/html, charset=utf-8\r\n" +
+        "Server: pizzabrownie\r\n" +
+        "Date: " + date + "\r\n" + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
+    free(date);
+}
+
+Response::Response(Request *request, Server &server) : 
     _request(request), 
     _server(server),
     _version(std::string("HTTP/1.1")),
     _isCGI(false),
     _targetFound(false) {
-    if (request.get_method() == GET)
+    if (request->get_method() == GET)
         _response_get();
-    else if (request.get_method() == POST)
+    else if (request->get_method() == POST)
         _response_post();
-    else if (request.get_method() == DELETE)
+    else if (request->get_method() == DELETE)
         _response_delete();
     else
         throw MessageException(HTTP_VERSION_UNSUPPORTED);
@@ -29,8 +58,8 @@ Response::Response(Request &request, Server &server) :
 
 void Response::_response_get() {
     char *date;
-    
-    _check_target_in_get(this->_request.get_target());
+
+    _check_target_in_get(this->_request->get_target());
     date = Rfc1123_DateTimeNow();
     this->_header = this->_version + " 200 " + "OK\r\n" +
         "Content-Type: text/html, charset=utf-8\r\n" +

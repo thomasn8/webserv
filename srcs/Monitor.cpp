@@ -228,18 +228,17 @@ void Monitor::handle_connections()
 						_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]);
 						try {
 							Request request(requestStr.c_str());
-							Response httpResponse(request, *(_activeSockets[i].server));
+							Response httpResponse(&request, *(_activeSockets[i].server));
 							response = httpResponse.getMessage();
 
 							// decomment to display in terminal:
 							// std::cout << request.get_method() << " " << request.get_target() << " " << request.get_version() << std::endl;
 							// request.display_fields();
 							// std::cout << "\n" << request.get_body() << std::endl;
-
-							// Response response(request);
 						}
 						catch (Request::MessageException & e) {
-							std::cout << "Error: " << e.what() << std::endl; // A la fin, job de thomas de printer le message d'erreur comme c'est coherent (log ?)
+							Response test(e.what(), *(_activeSockets[i].server));
+							response = test.getMessage();
 						}
 						requestStr.clear();
 						_pfds[i].events = POLLOUT;
