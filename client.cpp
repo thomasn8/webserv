@@ -164,6 +164,7 @@ void parse(int ac, const char **av, struct tester * test) {
 
 int main(int ac, const char **av) {
 
+	// PARSE ARGS
 	struct tester test;
 	parse(ac, av, &test);
 	std::cout << "Summary\nYou asked to request " << test.repeatcount << " times on ip " << test.ip << ":" << test.port << " with the message:\n\n";
