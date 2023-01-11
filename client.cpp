@@ -2,7 +2,7 @@
 	make client OR	c++ -Wall -Wextra -Werror client.cpp -o client
 	make run-client OR ./client [...]
 
-	usage: ./client [-p port] [-n repeat] [[-f requestfile] or [-s requeststring]]
+	usage: ./client [-i ipv4] [-p port] [-n repeat] [[-f requestfile] or [-s requeststring]]
 */
 
 #include <iostream>
@@ -28,7 +28,17 @@
 # define BLU "\033[0;34m"
 # define WHI "\033[0m"
 
+const char option1[] = "-i";
+const char option2[] = "-p";
+const char option3[] = "-n";
+const char option4[] = "-s";
+const char option5[] = "-f";
+const char *options[5] = {option1, option2, option3, option4, option5};
+const int len = 5;
+
+
 struct tester {
+	const char	*ip;
 	int			port;
 	int			repeatcount;
 	const char	*requeststring;
@@ -63,8 +73,9 @@ int port_check(const char *av1) {
 }
 
 void parse(int ac, const char **av, struct tester * test) {
-	if (ac > 7)
-		error("Usage: ./client [-p port] [-n repeat] [[-s requeststring] or [-f requestfile]]", "", 1);
+	if (ac > len*2-1)
+		error("Usage: ./client [-i ipv4] [-p port] [-n repeat] [[-s requeststring] or [-f requestfile]]", "", 1);
+	test->ip = IP;
 	test->port = PORT;
 	test->repeatcount = 1;
 	test->filename = NULL;
@@ -72,12 +83,6 @@ void parse(int ac, const char **av, struct tester * test) {
 	test->requeststring = NULL;
 	if (ac == 1)
 		return;
-	const char option1[] = "-p";
-	const char option2[] = "-n";
-	const char option3[] = "-s";
-	const char option4[] = "-f";
-	const char *options[4] = {option1, option2, option3, option4};
-	int len = 4;
 	for (int i = 1; i < ac; i++) { 		// itere sur tous les av (sauf le prog)
 		if ((i % 2) > 0) {				// si i est impair compare av aux options
 			int j = -1;
@@ -94,24 +99,31 @@ void parse(int ac, const char **av, struct tester * test) {
 							if (ac < i+2) 			// test si av[i+1] existe
 								error("Error: incomplete option ", av[i], 1);
 							else
-								test->port = port_check(av[i+1]);
+								test->ip = av[i+1];
 							j = len+1;				// breaks while loop
 							break;
 						case 1:
 							if (ac < i+2)
 								error("Error: incomplete option ", av[i], 1);
 							else
-								test->repeatcount = atoi(av[i+1]);
+								test->port = port_check(av[i+1]);
 							j = len+1;
 							break;
 						case 2:
 							if (ac < i+2)
 								error("Error: incomplete option ", av[i], 1);
 							else
-								test->requeststring = av[i+1];
+								test->repeatcount = atoi(av[i+1]);
 							j = len+1;
 							break;
 						case 3:
+							if (ac < i+2)
+								error("Error: incomplete option ", av[i], 1);
+							else
+								test->requeststring = av[i+1];
+							j = len+1;
+							break;
+						case 4:
 							if (ac < i+2)
 								error("Error: incomplete option ", av[i], 1);
 							else
@@ -129,7 +141,6 @@ void parse(int ac, const char **av, struct tester * test) {
 		error("Error: no request to send: either -f or -s option must be specified", "", 1);
 	if (test->requeststring != NULL && test->filename != NULL)
 		error("Error: either -f or -s option must be specified, not both", "", 1);
-
 	if (test->filename != NULL) {
 		// open file
 		std::ifstream ifs(test->filename, std::ifstream::binary);
@@ -155,7 +166,7 @@ int main(int ac, const char **av) {
 
 	struct tester test;
 	parse(ac, av, &test);
-	std::cout << "Summary\nYou asked to request " << test.repeatcount << " times on ip 127.0.0.1:" << test.port << " with the message:\n\n";
+	std::cout << "Summary\nYou asked to request " << test.repeatcount << " times on ip " << test.ip << ":" << test.port << " with the message:\n\n";
 	if (test.requeststring)
 		std::cout << test.requeststring << std::endl;
 	if (test.requestfile)
@@ -170,7 +181,7 @@ int main(int ac, const char **av) {
 	struct sockaddr_in server_addr;
 	memset(server_addr.sin_zero, 0, sizeof(server_addr.sin_zero));
 	server_addr.sin_family = AF_INET;
-	if(inet_pton(AF_INET, IP, &server_addr.sin_addr) <= 0)
+	if(inet_pton(AF_INET, test.ip, &server_addr.sin_addr) <= 0)
 		error("Error: inet_pton(): ", strerror(errno), 1);
 	server_addr.sin_port = htons(test.port);
 	server_addr.sin_len = sizeof(server_addr);
