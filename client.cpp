@@ -2,7 +2,7 @@
 	make client OR	c++ -Wall -Wextra -Werror client.cpp -o client
 	make run-client OR ./client [...]
 
-	usage: ./client [-p port] [-n repeatcount] [[-f requestfile] or [-s requeststring]]
+	usage: ./client [-p port] [-n repeat] [[-f requestfile] or [-s requeststring]]
 */
 
 #include <iostream>
@@ -30,10 +30,11 @@
 
 struct tester {
 	int			port;
-	size_t		repeatcount;
-	std::string	file;
-	std::string	request;
-	char 		*requestbuf;
+	int			repeatcount;
+	const char	*requeststring;
+	const char	*filename;
+	char 		*requestfile;
+	ssize_t		size;
 };
 
 void error(const char *msg, const char *precision, int code) {
@@ -63,15 +64,18 @@ int port_check(const char *av1) {
 
 void parse(int ac, const char **av, struct tester * test) {
 	if (ac > 7)
-		error("Usage: ./client [-p port] [-n repeatcount] [[-f requestfile] or [-s requeststring]]", "", 1);
+		error("Usage: ./client [-p port] [-n repeat] [[-s requeststring] or [-f requestfile]]", "", 1);
 	test->port = PORT;
 	test->repeatcount = 1;
+	test->filename = NULL;
+	test->requestfile = NULL;
+	test->requeststring = NULL;
 	if (ac == 1)
 		return;
 	const char option1[] = "-p";
 	const char option2[] = "-n";
-	const char option3[] = "-f";
-	const char option4[] = "-s";
+	const char option3[] = "-s";
+	const char option4[] = "-f";
 	const char *options[4] = {option1, option2, option3, option4};
 	int len = 4;
 	for (int i = 1; i < ac; i++) { 		// itere sur tous les av (sauf le prog)
@@ -79,7 +83,10 @@ void parse(int ac, const char **av, struct tester * test) {
 			int j = -1;
 			while (++j <= len) {			// itere sur toutes les options
 				if (j == len)				// erreur: pas d'option correspondante
+				{
+					std::cout << "TEST\n";
 					error("Error: invalid option ", av[i], 1);
+				}
 				if (strncmp(av[i], options[j], strlen(av[i])) == EQUAL) {
 					switch (j)
 					{
@@ -88,24 +95,28 @@ void parse(int ac, const char **av, struct tester * test) {
 								error("Error: incomplete option ", av[i], 1);
 							else
 								test->port = port_check(av[i+1]);
+							j = len+1;				// breaks while loop
 							break;
 						case 1:
 							if (ac < i+2)
 								error("Error: incomplete option ", av[i], 1);
 							else
 								test->repeatcount = atoi(av[i+1]);
+							j = len+1;
 							break;
 						case 2:
 							if (ac < i+2)
 								error("Error: incomplete option ", av[i], 1);
 							else
-								test->file = av[i+1];
+								test->requeststring = av[i+1];
+							j = len+1;
 							break;
 						case 3:
 							if (ac < i+2)
 								error("Error: incomplete option ", av[i], 1);
 							else
-								test->request = av[i+1];
+								test->filename = av[i+1];
+							j = len+1;
 							break;
 					}
 				}
@@ -114,14 +125,14 @@ void parse(int ac, const char **av, struct tester * test) {
 	}
 	if (test->repeatcount < 1)
 		error("Error: repeatcount must be set at least to 1 in order to send any request", "", 1);
-	if (test->file.empty() && test->request.empty())
+	if (test->requeststring == NULL && test->filename == NULL)
 		error("Error: no request to send: either -f or -s option must be specified", "", 1);
-	if (!test->file.empty() && !test->request.empty())
+	if (test->requeststring != NULL && test->filename != NULL)
 		error("Error: either -f or -s option must be specified, not both", "", 1);
 
-	if (!test->file.empty()) {
+	if (test->filename != NULL) {
 		// open file
-		std::ifstream ifs(test->file.c_str(), std::ifstream::binary);
+		std::ifstream ifs(test->filename, std::ifstream::binary);
 		// get pointer to associated buffer object
 		std::filebuf *pbuf = ifs.rdbuf();
 		// get file size using buffer's members
@@ -130,24 +141,31 @@ void parse(int ac, const char **av, struct tester * test) {
 		if (size > FILE_MAX_LEN)
 			error("Error: input file is too large: maximum is 1MO", "", 1);
 		// allocate memory to contain file data
-		test->requestbuf = new char[size];
+		test->requestfile = new char[size];
+		test->size = size;
 		// get file data
-		pbuf->sgetn(test->requestbuf, size);
+		pbuf->sgetn(test->requestfile, size);
 		ifs.close();
 	}
 	else
-		test->requestbuf = test->request.c_str();
+		test->size = strlen(test->requeststring);
 }
 
 int main(int ac, const char **av) {
 
 	struct tester test;
 	parse(ac, av, &test);
+	std::cout << "Summary\nYou asked to request " << test.repeatcount << " times on ip 127.0.0.1:" << test.port << " with the message:\n\n";
+	if (test.requeststring)
+		std::cout << test.requeststring << std::endl;
+	if (test.requestfile)
+		std::cout << test.requestfile << std::endl;
 
 	int socket_fd = -1;
 	socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (socket_fd < 0)
 		error("Error: socket() failed: ", strerror(errno), 1);
+	std::cout << "\nResult\n\n";
 
 	struct sockaddr_in server_addr;
 	memset(server_addr.sin_zero, 0, sizeof(server_addr.sin_zero));
@@ -157,23 +175,33 @@ int main(int ac, const char **av) {
 	server_addr.sin_port = htons(test.port);
 	server_addr.sin_len = sizeof(server_addr);
 
-	// REQUESTS repeatcount THE SERVER (localhost:port)
+	// REQUESTS repeatcount TIMES THE SERVER WITH ARGS
+	ssize_t recv_size;
+	char buffer[BUFFER_SIZE];
 	for (int i = 0; i < test.repeatcount; i++) {
+		// CONNECT
 		if (connect(socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
 			error("Error: connect(): ", strerror(errno), 1);
 
-		ssize_t send_size = send(socket_fd, test.request.c_str(), test.size(), 0);
-		if (send_size == test.size())
+		// SEND
+		const char *request;
+		test.requeststring ? request = test.requeststring : test.requestfile;
+		ssize_t send_size = send(socket_fd, request, test.size, 0);
+		if (send_size == test.size)
 			std::cout << "\nSuccess: request sent\n" << std::endl;
 		else if (send_size > 0)
 			std::cout << "\nError: request partially sent\n" << std::endl;
 		else
 			error("Error: send() failed: ", strerror(errno), 1);
 
-		char buffer[BUFFER_SIZE];
-		ssize_t recv_size = recv(socket_fd, buffer, BUFFER_SIZE, 0);
+		// RECV
+		recv_size = recv(socket_fd, buffer, BUFFER_SIZE, 0);
 		if (recv_size > 0)
 			std::cout << "\nResponse received:\n";
+		else if(recv_size == 0)
+			std::cout << "\nError: empty response received\n";
+		else
+			error("Error: recv() failed: ", strerror(errno), 1);
 	}
 
 	// PRINT ONLY LAST RESPONSE	(THATS WHY OUTSIDE OF LOOP)
@@ -183,7 +211,7 @@ int main(int ac, const char **av) {
 		write(STDOUT_FILENO, &buffer[i], 1);
 	std::cout << WHI << std::endl;
 
-	if (!test.file.empty())
-		delete[] test.requestbuf;
+	if (test.requestfile)
+		delete[] test.requestfile;
 	return 0;
 }
