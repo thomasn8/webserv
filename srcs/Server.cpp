@@ -5,7 +5,7 @@
 Server::Server() :
 _locations(std::deque<Location>()),
 _ipv4(INADDR_ANY),
-_port(DEFAULT_PORT),  
+_port(htons(DEFAULT_PORT)),  
 _serverNames(std::list<std::string>(1, std::string(DEFAULT_SERVERNAME))),
 _defaultServerNames(true),
 _root(std::string(_webserv_bin_path().append("/").append(DEFAULT_ROOT))),
@@ -70,7 +70,27 @@ void Server::add_directive(int directiveIndex, std::string value)
 	}
 }
 
+int Server::_port_check(std::string & value)
+{
+	int port = DEFAULT_PORT;
+	try {
+		size_t idx;
+		port = std::stoi(value, &idx);
+		if (value.substr(idx).size() != 0)
+			_exit_cerr_msg("Error: invalid port", 1);
+	}
+	catch (const std::invalid_argument &ia) {
+		_exit_cerr_msg("Error: invalid port", 1);
+	}
+	if (port != 80 && port < MIN_PORT_NO)
+		_exit_cerr_msg("Error: invalid port: port number below 1024 (except default port 80) are not available\n", 1);
+	if (port > MAX_PORT_NO)
+		_exit_cerr_msg("Error: invalid port: maximum port number is 65535\n", 1);
+	return htons(port);
+}
+
 // ip choisi par l'OS et la même pour chaque serveur, peu importe ce qui est spécifié dans la config
+// pour utiliser une ip configurée, utiliser la variante commentée
 void Server::set_address_port(std::string & value)
 {
 	if (value.empty())
@@ -82,62 +102,28 @@ void Server::set_address_port(std::string & value)
 		std::string after  = value.substr(pos+1);
 		if (!before.empty())
 		{
-			if (before.compare("localhost") == 0)
-				_ipv4 = INADDR_ANY;
 			_ipv4 = INADDR_ANY;
 			// if (before.compare("localhost") == 0)
 			// 	_ipv4 = inet_addr("127.0.0.1");
-			// _ipv4 = inet_addr(before.c_str());
+			// else
+			// 	_ipv4 = inet_addr(before.c_str());
 		}
 		if (!after.empty())
-		{
-			int port = DEFAULT_PORT;
-			try {
-				size_t idx;
-				port = std::stoi(after, &idx);
-				if (after.substr(idx).size() != 0)
-					_exit_cerr_msg("Error: invalid port", 1);
-			}
-			catch (const std::invalid_argument &ia) {
-				_exit_cerr_msg("Error: invalid port", 1);
-			}
-			if (port != 80 && port < MIN_PORT_NO)
-				_exit_cerr_msg("Error: invalid port: port number below 1024 (except default port 80) are not available\n", 1);
-			if (port > MAX_PORT_NO)
-				_exit_cerr_msg("Error: invalid port: maximum port number is 65535\n", 1);
-			_port = htons(port);
-		}
+			_port = _port_check(after);
 	}
 	else
 	{
 		pos = value.find('.');
 		if (pos > 0)
 		{
-			if (value.compare("localhost") == 0)
-				_ipv4 = INADDR_ANY;
 			_ipv4 = INADDR_ANY;
 			// if (value.compare("localhost") == 0)
 			// 	_ipv4 = inet_addr("127.0.0.1");
-			// _ipv4 = inet_addr(value.c_str());
+			// else
+			// 	_ipv4 = inet_addr(value.c_str());
 		}
 		else
-		{
-			int port = DEFAULT_PORT;
-			try {
-				size_t idx;
-				port = std::stoi(value, &idx);
-				if (value.substr(idx).size() != 0)
-					_exit_cerr_msg("Error: invalid port\n", 1);
-			}
-			catch (const std::invalid_argument &ia) {
-				_exit_cerr_msg("Error: invalid port\n", 1);
-			}
-			if (port != 80 && port < MIN_PORT_NO)
-				_exit_cerr_msg("Error: invalid port: port number below 1024 (except default port 80) are not available\n", 1);
-			if (port > MAX_PORT_NO)
-				_exit_cerr_msg("Error: invalid port: maximum port number is 65535\n", 1);
-			_port = htons(port);
-		}
+			_port = _port_check(value);
 	}
 }
 

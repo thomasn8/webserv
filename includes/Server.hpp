@@ -24,7 +24,7 @@
 # define DEFAULT_SERVERNAME "localhost"
 # define DEFAULT_ROOT "www/html/"
 # define DEFAULT_INDEX "index.html"
-# define MHS 8000 // 8K
+# define MHS 8000
 # define MBS 1000000 // 1M
 # define MAX_MBS 1000000000 // 100M
 
@@ -85,6 +85,7 @@ class Server
 		std::deque<Location> _locations;
 		uint32_t _ipv4;
 		uint16_t _port;
+		int _port_check(std::string & value);
 		std::list<std::string> _serverNames;
 		bool _defaultServerNames;
 		std::string	_root;
