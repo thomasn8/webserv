@@ -29,7 +29,7 @@ clean:
 fclean:		clean
 			${RM} ${NAME}
 			${RM} logs/access.log && touch logs/access.log
-			${RM} client client.o
+			${RM} client.o
 
 re:			fclean all
 

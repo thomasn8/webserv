@@ -171,13 +171,9 @@ int main(int ac, const char **av) {
 		std::cout << test.requeststring << std::endl;
 	if (test.requestfile)
 		std::cout << test.requestfile << std::endl;
-
-	int socket_fd = -1;
-	socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (socket_fd < 0)
-		error("Error: socket() failed: ", strerror(errno), 1);
 	std::cout << "\nResult\n\n";
 
+	// SERVER INFOS
 	struct sockaddr_in server_addr;
 	memset(server_addr.sin_zero, 0, sizeof(server_addr.sin_zero));
 	server_addr.sin_family = AF_INET;
@@ -186,10 +182,16 @@ int main(int ac, const char **av) {
 	server_addr.sin_port = htons(test.port);
 	server_addr.sin_len = sizeof(server_addr);
 
-	// REQUESTS repeatcount TIMES THE SERVER WITH ARGS
+	// REQUESTS n TIMES THE SERVER (depends on args)
 	ssize_t recv_size;
 	char buffer[BUFFER_SIZE];
 	for (int i = 0; i < test.repeatcount; i++) {
+		// GET FD
+		int socket_fd = -1;
+		socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+		if (socket_fd < 0)
+		error("Error: socket() failed: ", strerror(errno), 1);
+
 		// CONNECT
 		if (connect(socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
 			error("Error: connect(): ", strerror(errno), 1);
@@ -213,6 +215,9 @@ int main(int ac, const char **av) {
 			std::cout << "\nError: empty response received\n";
 		else
 			error("Error: recv() failed: ", strerror(errno), 1);
+		
+		// CLOSE
+		close(socket_fd);
 	}
 
 	// PRINT ONLY LAST RESPONSE	(THATS WHY OUTSIDE OF LOOP)
