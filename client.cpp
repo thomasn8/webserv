@@ -17,6 +17,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+# define USAGE "Usage: ./client [-i ipv4] [-p port] [-n repeat] [[-s requeststring] or [-f requestfile]]"
 # define IP "127.0.0.1"
 # define PORT 80
 # define MIN_PORT_NO 1024
@@ -72,9 +73,12 @@ int port_check(const char *av1) {
 	return port;
 }
 
+// ameliorations: ajoute la possibilite de passer des args sans specifier l'option
+// exemple: ./client 8080 "GET /index.html HTTP/1.1"
+// mettre option facultative pour le port et pour le requeststring
 void parse(int ac, const char **av, struct tester * test) {
 	if (ac > len*2-1)
-		error("Usage: ./client [-i ipv4] [-p port] [-n repeat] [[-s requeststring] or [-f requestfile]]", "", 1);
+		error(USAGE, "", 1);
 	test->ip = IP;
 	test->port = PORT;
 	test->repeatcount = 1;
@@ -88,10 +92,7 @@ void parse(int ac, const char **av, struct tester * test) {
 			int j = -1;
 			while (++j <= len) {			// itere sur toutes les options
 				if (j == len)				// erreur: pas d'option correspondante
-				{
-					std::cout << "TEST\n";
 					error("Error: invalid option ", av[i], 1);
-				}
 				if (strncmp(av[i], options[j], strlen(av[i])) == EQUAL) {
 					switch (j)
 					{
