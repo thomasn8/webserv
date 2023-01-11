@@ -214,7 +214,9 @@ void Monitor::handle_connections()
 	int i, poll_index = 0;
 	int poll_count = 0, server_count = _servers.size();
 	std::string requestStr;
-	std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello from the server!\n";
+	// std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 23\n\nHello from the server!\n";
+	Request *request;
+	Response *response;
 	while (1)													// Main loop
 	{
 		poll_count = poll(_pfds, _fd_count, -1);				// bloque tant qu'aucun fd est prêt à read ou write
@@ -237,24 +239,16 @@ void Monitor::handle_connections()
 						if (_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]) != -1)
 						{
 							try {
-								Request request(requestStr.c_str());
-								Response httpResponse(&request, _activeSockets[i].server);
-								response = httpResponse.getMessage();
-
-								// decomment to display in terminal:
-								// std::cout << request.get_method() << " " << request.get_target() << " " << request.get_version() << std::endl;
-								// request.display_fields();
-								// std::cout << "\n" << request.get_body() << std::endl;
+								request = new Request(requestStr.c_str());
+								response = new Response(request, _activeSockets[i].server);
+								delete request;
 							}
 							catch (Request::MessageException & e) {
-								Response error(e.what(), _activeSockets[i].server);
-								response = error.getMessage();
+								response = new Response(e.what(), _activeSockets[i].server);
 							}
 						}
-						else {
-							Response error431("431", _activeSockets[i].server);
-							response = error431.getMessage();
-						}
+						else
+							response = new Response("431", _activeSockets[i].server);
 						requestStr.clear();
 						_pfds[i].events = POLLOUT;
 						poll_index = i;		// permet de revenir dans la main loop avec l'index du pfds à écrire
@@ -264,12 +258,65 @@ void Monitor::handle_connections()
 			}
 			else if (_pfds[i].revents & POLLOUT) 				// event sur fd[i]: si poll a debloquer pour un fd prêt à write
 			{
-				_send_all(i, response.c_str(), response.size(), _activeSockets[i]);
+				_send_all(i, response->getMessage().c_str(), response->getMessage().size(), _activeSockets[i]);
+				delete response;
 				poll_index = 0; // reset l'index au debut des fds
 			}
 			i++;
 		}
 	}
+
+
+	// while (1)													// Main loop
+	// {
+	// 	poll_count = poll(_pfds, _fd_count, -1);				// bloque tant qu'aucun fd est prêt à read ou write
+    //     if (poll_count < 0)
+	// 		log(get_time(), " Error: poll failed\n");
+	// 	i = poll_index;
+	// 	while (i < _fd_count)									// cherche parmi tous les fd ouverts
+	// 	{
+	// 		if (_pfds[i].revents & POLLIN)						// event sur fd[i]: si poll a debloqué pour un fd prêt à read
+	// 		{
+	// 			for (int j = 0; j < server_count; j++)
+	// 			{
+	// 				if (_pfds[i].fd == _master_sockets[j])		// si fd correspond a un socket de server en ecoute
+	// 				{
+	// 					_accept_new_connection(j);
+	// 					break;
+	// 				}
+	// 				if (j == server_count - 1)					// sinon fd correspond a un client qui fait une request
+	// 				{
+	// 					if (_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]) != -1)
+	// 					{
+	// 						try {
+	// 							Request request(requestStr.c_str());
+	// 							Response httpResponse(&request, _activeSockets[i].server);
+	// 							response = httpResponse.getMessage();
+	// 						}
+	// 						catch (Request::MessageException & e) {
+	// 							Response error(e.what(), _activeSockets[i].server);
+	// 							response = error.getMessage();
+	// 						}
+	// 					}
+	// 					else {
+	// 						Response error431("431", _activeSockets[i].server);
+	// 						response = error431.getMessage();
+	// 					}
+	// 					requestStr.clear();
+	// 					_pfds[i].events = POLLOUT;
+	// 					poll_index = i;		// permet de revenir dans la main loop avec l'index du pfds à écrire
+	// 					i = _fd_count;		// break la while loop
+	// 				}
+	// 			}
+	// 		}
+	// 		else if (_pfds[i].revents & POLLOUT) 				// event sur fd[i]: si poll a debloquer pour un fd prêt à write
+	// 		{
+	// 			_send_all(i, response.c_str(), response.size(), _activeSockets[i]);
+	// 			poll_index = 0; // reset l'index au debut des fds
+	// 		}
+	// 		i++;
+	// 	}
+	// }
 }
 
 /* 
