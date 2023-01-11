@@ -211,8 +211,7 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 void Monitor::handle_connections()
 {
 	_prepare_master_sockets(); // socket, bind, listen pour chaque port + creer les struct pollfd dédiées
-	int i, poll_index = 0;
-	int poll_count = 0, server_count = _servers.size();
+	int i, poll_index = 0, poll_count = 0, server_count = _servers.size();
 	std::string requestStr, responseStr;
 	while (1)													// Main loop
 	{
@@ -222,7 +221,7 @@ void Monitor::handle_connections()
 		i = poll_index;
 		while (i < _fd_count)									// cherche parmi tous les fd ouverts
 		{
-			if (_pfds[i].revents & POLLIN)						// event sur fd[i]: si poll a debloqué pour un fd prêt à read
+			if (_pfds[i].revents & POLLIN)						// event sur fd[i] si poll a debloqué pour un fd prêt à read
 			{
 				for (int j = 0; j < server_count; j++)
 				{
@@ -252,7 +251,7 @@ void Monitor::handle_connections()
 					}
 				}
 			}
-			else if (_pfds[i].revents & POLLOUT) 				// event sur fd[i]: si poll a debloquer pour un fd prêt à write
+			else if (_pfds[i].revents & POLLOUT) 				// event sur fd[i] si poll a debloquer pour un fd prêt à write
 			{
 				_send_all(i, responseStr.c_str(), responseStr.size(), _activeSockets[i]);
 				poll_index = 0; // reset l'index au debut des fds

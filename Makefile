@@ -29,10 +29,19 @@ clean:
 fclean:		clean
 			${RM} ${NAME}
 			${RM} logs/access.log && touch logs/access.log
+			${RM} client client.o
 
 re:			fclean all
 
 run:		
 			./${NAME}
 
-.PHONY:		all clean fclean re run
+# #######################
+# programme de test perso
+client:
+			c++ -Wall -Wextra -Werror client.cpp -o client
+run-client:
+			./client
+# #######################
+
+.PHONY:		all clean fclean re run client run-client
