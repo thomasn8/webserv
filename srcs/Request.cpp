@@ -3,29 +3,27 @@
 
 // ---------Constructor and destructor ------------
 
-Request::Request(std::string *rawMessage) : _rawMessage(rawMessage) {	// passe un ptr au lieu d un string pour eviter une copie
+// comme j'ai remplace le type de la variable body (par std::string *) dans la classe parent Message, tu risques d'avoir des adaptations a faire dans Responses
+Request::Request(std::string *rawMessage) : _rawMessage(rawMessage) {	// passe un ptr au lieu d un string pour eviter 1 copie
+	// std::istringstream raw(*this->_rawMessage);
+    // getline(raw, start_line);
 	
-	// chope la 1ere ligne sans recopier toute la request
+	// chope la 1ere ligne sans recopier une 2eme fois toute la request dans un istringstream
 	size_t i = this->_rawMessage->find_first_of('\n');
     std::string start_line = this->_rawMessage->substr(0, i);
-	
 	// comme getline avance le ptr sur le stream, il faut erase le debut du string jusqu'au char suivant le \n (avance le ptr et desalloue le debut)
 	_rawMessage->erase(0, i+1);
     
-	// std::istringstream raw(*this->_rawMessage);
-    // getline(raw, start_line);
-
     _check_alone_CR();					// ok
     _parse_start_line(start_line);		// optimisation possible
     _parse_header();					// reecrit en getlinant sur une string au lieu du stream (TESTER MA LOOP ET LE _split_field REECRIT AVEC DES PTR)
-    _parse_body();						// en utilisant les ptr, pas besoin de recopier entierement le body
-	// comme j'ai remplace le type de la variable body (par std::string *) dans la classe parent Message, tu risques d'avoir des adaptations a faire dans Responses
+    _parse_body();						// en utilisant les ptr, pas besoin de recopier entierement le body une 3eme fois
 	
 	// NBR de passe economisees: 
 	// au lieu de recopier le body 3x (2x dans le constr + 1x dans parse_body), on le recopie 0x
 	// header: 3x comme le body + plusieurs fois dans _parse_header()
 	
-	// quand on sait pas ce qu'on recoit je trouve qu'il faut tjr s'attendre au pire et optimiser a fond
+	// il faut tjr s'attendre au pire et optimiser a fond quand on sait pas ce qu'on recoit
 	// apres pour le parse du fichier de config par exemple, j'ai aussi coder sans trop faire attention au nombre de copie de memoire vu que c'est nous qui fournissons le fichier et on connait sa taille
 }
 
@@ -66,18 +64,19 @@ void Request::_check_alone_CR() {
 
 //start-line parsing
 void Request::_parse_start_line(std::string startLine) {
-    // std::string tmp = startLine; // pas besoin de recopier startline dans cette fonction puisque la fonction elle meme creer une copie de l'objet pour son scope
-									// on peut soit passer un ptr, soit utiliser directement l'argument startline en tant qu'objet recopié
+    // std::string tmp = startLine; 
+	// pas besoin de copier startline dans cette fonction puisque la fonction elle meme creer une copie de l'objet pour son propre scope
+	// donc on peut utiliser directement startline en tant qu'objet recopié, sans que ca ait d impact sur l'object passe depuis le constucteur
+
 	std::string token;
     size_t pos = 0;
 
     startLine.erase(remove(startLine.begin(), startLine.end(), '\r'), startLine.end());
-	// Dans tous les cas, startline ne contient pas le \n final donc est qu'on peut pas juste faire:
-	// remove(startLine.begin(), startLine.end(), '\r'); // suffirait ?
-
-	// ou mieux:
 	
-	// si le but est de tester si seulement le dernier char est un \r et, si oui, de le retirer, ca serait + efficace et suffirait de faire:
+	// Dans tous les cas, startline ne contient pas le \n final donc est ce qu'on peut pas juste faire ?:
+	// remove(startLine.begin(), startLine.end(), '\r');
+
+	// ou mieux, si le but est de tester si seulement le dernier char est un \r et, si oui, de le retirer, ca serait + efficace et suffirait de faire?:
 	// if (*(startLine.end()-1) == '\r')
 	// 	startLine.pop_back();
     
@@ -195,7 +194,7 @@ void Request::_parse_header() {
 //     }
 // }
 
-void Request::_parse_body() {									// si aucune erreur dans la maniere que j'ai reecrit les fonctions, on a plus qu'a utiliser le reste de _rawMessage pour le body
+void Request::_parse_body() {	// si aucune erreur dans la maniere que j'ai je parse le header, on a plus qu'a utiliser le ptr sur le reste de _rawMessage variable _body
 	this->_body = this->_rawMessage;
 }
 
