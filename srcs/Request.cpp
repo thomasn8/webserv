@@ -66,7 +66,8 @@ void Request::_check_alone_CR() {
 void Request::_parse_start_line(std::string startLine) {
     // std::string tmp = startLine; 
 	// pas besoin de copier startline dans cette fonction puisque la fonction elle meme creer une copie de l'objet pour son propre scope
-	// donc on peut utiliser directement startline en tant qu'objet recopié, sans que ca ait d impact sur l'object passe depuis le constucteur
+	// donc on peut utiliser directement startline en tant qu'objet recopié, sans que ca ait d impact sur l'objet source
+	// par contre si tu l'avais passé en &reference, la a aurait modifier l objet et ca aurait pu etre une solution d'en faire une copie ici
 
 	std::string token;
     size_t pos = 0;
@@ -194,7 +195,7 @@ void Request::_parse_header() {
 //         this->_body += line;
 //     }
 // }
-void Request::_parse_body() {	// si aucune erreur dans la maniere que j'ai je parse le header, on a plus qu'a utiliser le ptr sur le reste de _rawMessage variable _body
+void Request::_parse_body() {	// si aucune erreur dans la maniere dont je parse le header, on a plus qu'a utiliser le ptr sur le reste de _rawMessage variable _body
 	this->_body = this->_rawMessage;
 }
 
