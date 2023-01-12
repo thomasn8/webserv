@@ -12,7 +12,7 @@
 
 class Request : public Message {
 	public:
-		Request(std::string rowMessage);
+		Request(std::string *rowMessage);
 		Request(const Request &instance);
 		virtual ~Request();
 
@@ -26,16 +26,19 @@ class Request : public Message {
 	private:
 		Request();
 
-		std::string _rawMessage;
+		std::string *_rawMessage;
 		std::string _method;
 		std::string _target;
 		std::string _version;
 		
 		void		_check_alone_CR(void);
 		void		_parse_start_line(std::string startLine);
-		void		_parse_header(std::istringstream &raw);
-		void		_split_field(size_t pos, std::string line);
-		void		_parse_body(std::istringstream &raw);
+		// void		_split_field(size_t pos, std::string line);
+		void		_split_field(size_t separator, size_t lastchar);
+		// void		_parse_header(std::istringstream &raw);
+		void		_parse_header();
+		// void		_parse_body(std::istringstream &raw);
+		void		_parse_body();
 };
 
 #endif

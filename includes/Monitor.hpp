@@ -35,7 +35,6 @@ class Monitor
 
 		// GETTERS/SETTERS
 		std::deque<Server> & get_servers();
-		Server & get_last_server();
 		void add_server();
 
 		// SOCKETS
