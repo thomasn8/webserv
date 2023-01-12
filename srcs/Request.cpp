@@ -3,7 +3,7 @@
 
 // ---------Constructor and destructor ------------
 
-// comme j'ai remplace le type de la variable body (par std::string *) dans la classe parent Message, tu risques d'avoir des adaptations a faire dans Responses
+// comme j'ai remplace le type de la variable _body (par std::string *) dans la classe parent Message, tu risques d'avoir des adaptations a faire dans Responses
 Request::Request(std::string *rawMessage) : _rawMessage(rawMessage) {	// passe un ptr au lieu d un string pour eviter 1 copie
 	// std::istringstream raw(*this->_rawMessage);
     // getline(raw, start_line);
