@@ -11,9 +11,9 @@ _indexFiles(std::list<std::string>(server_indexes)),
 _defaultIndex(true),
 _methods(std::list<std::string>(1, std::string(GET))),
 _defaultMethods(true),
-_uploadsDir(),
+_uploadsDir(_root),
 _redirections(std::list<Trio>()),
-_cgiExtension(std::list<std::string>(1, std::string(DEFAULT_CGI_EXT)))
+_cgiExtension(std::string(DEFAULT_CGI_EXT))
 {}
 
 Location::Location() :
@@ -24,9 +24,9 @@ _indexFiles(std::list<std::string>()),
 _defaultIndex(true),
 _methods(std::list<std::string>(1, std::string(GET))),
 _defaultMethods(true),
-_uploadsDir(),
+_uploadsDir(_root),
 _redirections(std::list<Trio>()),
-_cgiExtension(std::list<std::string>(1, std::string(DEFAULT_CGI_EXT)))
+_cgiExtension(std::string(DEFAULT_CGI_EXT))
 {}
 
 Location::Location(const Location & src) :
@@ -79,23 +79,11 @@ void Location::set_route(std::string value)
 		return;
 	_route = value;
 
-	// if route is a cgi, save ext if new one (php already used by default)
-	if (value[0] == '.' || value[0] == '*')
-	{
-		std::string ext;
-		if (value[0] == '.' )
-			ext = value.substr(1);
-		else
-			ext = value.substr(2);
-		std::list<std::string>::iterator it = _cgiExtension.begin();
-		while (it != _cgiExtension.end())
-		{
-			if ((*it).compare(0, std::string::npos, ext.c_str(), (*it).length()) == 0)
-				return;
-			it++;
-		}
-		_cgiExtension.push_back(ext);
-	}
+	// if route is a cgi, replace default php cgi extension
+	if (value[0] == '.' )
+		_cgiExtension = value.substr(1);
+	else if (value[0] == '*')
+		_cgiExtension = value.substr(2);
 }
 
 void Location::set_root(std::string & value)
@@ -112,6 +100,7 @@ void Location::set_root(std::string & value)
 	// quand on joint 2 paths, on sait qu'on doit toujours append("/") entre 2
 	if (_root[_root.size() - 1] == '/')
 		_root.erase(_root.size() - 1);
+	_uploadsDir = _root;
 }
 
 void Location::set_method(std::string & value)
@@ -232,7 +221,7 @@ std::string Location::get_uploadsdir() const { return _uploadsDir; }
 
 std::list<Trio> & Location::get_redirections() { return _redirections; }
 
-std::list<std::string> & Location::get_cgi() { return _cgiExtension; }
+std::string Location::get_cgi() const { return _cgiExtension; }
 
 std::string Location::_webserv_bin_path() const
 {

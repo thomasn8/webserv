@@ -48,7 +48,7 @@ class Location
 		bool get_autoindex() const;
 		std::string get_uploadsdir() const;
 		std::list<Trio> & get_redirections();
-		std::list<std::string> & get_cgi();
+		std::string get_cgi() const;
 
 	private:
 		Location();
@@ -62,7 +62,7 @@ class Location
 		std::string _uploadsDir;
 		std::list<Trio> _redirections;
 		std::string _webserv_bin_path() const;
-		std::list<std::string> _cgiExtension;
+		std::string _cgiExtension;
 };
 
 #endif

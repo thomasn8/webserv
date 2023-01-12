@@ -53,10 +53,7 @@ void Monitor::log_server_info()
 				for (; it5 != (*it2).get_redirections().end(); it5++)
 					_accessStream << "		" << "redirect: " << (*it5).first << " " << (*it5).second << " " << (*it5).third << std::endl;
 			}
-			// _accessStream << "		" << "cgi: " << (*it2).get_cgiBinPath() << std::endl;
-			std::list<std::string>::iterator it9 = (*it2).get_cgi().begin();
-			for (; it9 != (*it2).get_cgi().end(); it9++)
-				_accessStream << "		" << "cgi: " << (*it9) << std::endl;
+			_accessStream << "		" << "cgi: " << (*it2).get_cgi() << std::endl;
 		}
 	}
 	_accessStream << std::endl;
