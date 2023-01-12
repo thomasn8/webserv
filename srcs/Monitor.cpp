@@ -235,15 +235,15 @@ void Monitor::handle_connections()
 						if (_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]) != -1)
 						{
 							try {
-								Request request(requestStr.c_str());
-								Response response(&request, _activeSockets[i].server, &responseStr);
+								Request request(requestStr.c_str());									// essaie de constr une requete depuis les donnees recues
+								Response response(&request, _activeSockets[i].server, &responseStr);	//
 							}
 							catch (Request::MessageException & e) {
-								Response response(e.what(), _activeSockets[i].server, &responseStr);
+								Response response(e.what(), _activeSockets[i].server, &responseStr);	//
 							}
 						}
 						else
-							Response response("431", _activeSockets[i].server, &responseStr);
+							Response response("431", _activeSockets[i].server, &responseStr);			//
 						requestStr.clear();
 						_pfds[i].events = POLLOUT;
 						poll_index = i;		// permet de revenir dans la main loop avec l'index du pfds à écrire

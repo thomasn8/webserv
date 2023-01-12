@@ -1,8 +1,6 @@
 /*
 	make client OR	c++ -Wall -Wextra -Werror client.cpp -o client
 	make run-client OR ./client [...]
-
-	usage: ./client [-i ipv4] [-p port] [-n repeat] [[-f requestfile] or [-s requeststring]]
 */
 
 #include <iostream>

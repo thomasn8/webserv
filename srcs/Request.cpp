@@ -3,7 +3,7 @@
 
 // ---------Constructor and destructor ------------
 
-Request::Request(std::string rawMessage) : _rawMessage(rawMessage) {
+Request::Request(std::string rawMessage) : _rawMessage(rawMessage) {	// passer un ptr au lieu d un string
     std::string str;
     std::istringstream raw(this->_rawMessage);
     getline(raw, str);
