@@ -235,7 +235,7 @@ void Monitor::handle_connections()
 						if (_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]) != -1)
 						{
 							try {
-								Request request(requestStr.c_str());
+								Request request(requestStr);
 								Response response(&request, _activeSockets[i].server, &responseStr);
 							}
 							catch (Request::MessageException & e) {

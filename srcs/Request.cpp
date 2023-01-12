@@ -54,7 +54,7 @@ void Request::_parse_start_line(std::string startLine) {
     std::string token;
     size_t pos = 0;
 
-    tmp.erase(remove(tmp.begin(), tmp.end(), '\r'), tmp.end());
+    // tmp.erase(remove(tmp.begin(), tmp.end(), '\r'), tmp.end());
     for(int i = 0; i < 3; i++) {
         pos = tmp.find(' ');
         if (i < 2 && pos == std::string::npos)
@@ -64,13 +64,11 @@ void Request::_parse_start_line(std::string startLine) {
             if (!(this->_method == "GET" || this->_method == "POST" || this->_method == "DELETE"))
                 throw MessageException(METHOD_NOT_ALLOWED);
         }
-        else if (i == 1) {
+        else if (i == 1)
             this->_target = tmp.substr(0, pos);
-            //checker la target? (question)
-        }
         else if (i == 2) {
             this->_version = tmp.substr(0, pos);
-            if (this->_version.compare("HTTP/1.1") != 0) {
+            if (this->_version.compare("HTTP/1.1\r") != 0) {
                 throw MessageException(HTTP_VERSION_UNSUPPORTED);
             }
         }
@@ -117,11 +115,13 @@ void Request::_parse_header(std::istringstream &raw) {
 
 //body parsing
 void Request::_parse_body(std::istringstream &raw) {
-    std::string             line;
+   std::string line;
 
     while (getline(raw, line)) {
-        this->_body += line;
-    }
+        this->_body.append(line);
+        this->_body.append("\n");
+    }   
+    raw.clear();
 }
 
 // --------- Operator overload ------------
