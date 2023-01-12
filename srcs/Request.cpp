@@ -105,10 +105,6 @@ void Request::_parse_start_line(std::string startLine) {
         throw MessageException(BAD_REQUEST);
 }
 
-/*
-	reecrit avec moins de copie de string, donc + de ptr et d'indexes
-	t'as aussi oublie de trim la key je crois
-*/
 // void Request::_split_field(size_t pos, std::string line) {
 //     std::string             key;
 //     std::string             tmp;
@@ -128,8 +124,11 @@ void Request::_parse_start_line(std::string startLine) {
 //     line.erase(0, pos + 1);
 //     this->_fields.insert({key, lstTmp});
 // }
-
-void Request::_split_field(size_t separator, size_t lastchar) {		// A TESTER
+/*
+	reecrit avec moins de copie de string, donc + de ptr et d'indexes
+	t'as aussi oublie de trim la key je crois
+*/
+void Request::_split_field(size_t separator, size_t lastchar) {				// A TESTER
 	std::list<std::string> listValues;	
 	std::string key(_rawMessage->c_str(), lastchar+1);
 	const char *values = _rawMessage->c_str()+separator+1;
@@ -167,11 +166,13 @@ void Request::_split_field(size_t separator, size_t lastchar) {		// A TESTER
 //         getline(raw, line);
 //     }
 // }
-
+/*
+	reecrit avec le ptr sur rawMassage et des index
+*/
 void Request::_parse_header() {
 	size_t pos = 0, i = std::string::npos;
 	i = this->_rawMessage->find_first_of('\n');
-	while (i != std::string::npos && *this->_rawMessage != "\r")	// A TESTER, possibles erreurs dans le fonctionnement de la loop selon ce qu'on attend (j suis pas sur du format de la fin du header aussi)
+	while (i != std::string::npos && *this->_rawMessage != "\r")	// A TESTER, possibles erreurs dans le fonctionnement de la loop selon ce qu'on attend (j suis pas sur du format de la fin du header)
 	{
 		// firstchar = 0, lastchar (before \n) = i-1, \n = i, len to erase = i+1
 		pos = this->_rawMessage->find(':');
@@ -185,7 +186,7 @@ void Request::_parse_header() {
 		this->_rawMessage->erase(0, i+1);	// efface la derniere ligne vide du header ??
 }
 
-//body parsing													// pas top car c'est pas vraiment un parsing mais juste une recopie de la memoire
+//body parsing													// pas top car c'est pas vraiment un parsing mais juste une copie de la memoire
 // void Request::_parse_body(std::istringstream &raw) {			// qui peut etre lourde selon la longueur du body
 //     std::string             line;
 
@@ -193,7 +194,6 @@ void Request::_parse_header() {
 //         this->_body += line;
 //     }
 // }
-
 void Request::_parse_body() {	// si aucune erreur dans la maniere que j'ai je parse le header, on a plus qu'a utiliser le ptr sur le reste de _rawMessage variable _body
 	this->_body = this->_rawMessage;
 }
