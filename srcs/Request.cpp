@@ -5,7 +5,7 @@
 
 Request::Request(std::string *rawMessage, Server *server) : _rawMessage(rawMessage), _server(server) {
 
-	std::cout << *rawMessage << std::endl;
+	// std::cout << *rawMessage << std::endl;
 
 	size_t i = this->_rawMessage->find_first_of('\n');
     // std::string start_line = this->_rawMessage->substr(0, i-1); // prend pas le /r avant /n
@@ -125,22 +125,34 @@ void Request::_split_field(size_t separator, size_t lastchar) {
 int Request::_parse_header() {
 	size_t pos = 0, i = std::string::npos;
 	i = this->_rawMessage->find_first_of('\n');
-	while (i != std::string::npos && *this->_rawMessage != "\r\n")
+	while (i != std::string::npos && (*this->_rawMessage).c_str()[0] != '\r')
 	{
 		// firstchar = 0, lastchar (before \n) = i-1, \n = i, len to erase = i+1
 		if (this->_rawMessage->c_str()[i-1] != '\r')
+		{
+			std::cout << "TEST1" << std::endl << std::endl;
             throw MessageException(BAD_REQUEST);
+		}
 		pos = this->_rawMessage->find(':');
 		if (pos == std::string::npos)
+		{
+			std::cout << "TEST2:" << std::string(*this->_rawMessage,i-1) << std::endl << std::endl;	// PROBLEME, LOOP DEBORDE SUR LE BODY
             throw MessageException(BAD_REQUEST);
+		}
 		_split_field(pos, i-1);
 		this->_rawMessage->erase(0, i+1); // prend pas le /r
 		i = this->_rawMessage->find_first_of('\n');
 	}
-	if (*this->_rawMessage == "\r\n")
+	// if (*this->_rawMessage == "\r\n")
+	if ((*this->_rawMessage).c_str()[0] == '\r')
 		this->_rawMessage->erase(0, i+1); // efface la derniere ligne vide du header
 	else
+	{
+		std::cout << "TEST3" << std::endl << std::endl;
 		throw MessageException(BAD_REQUEST);
+	}
+
+	std::cout << "RESTE:" << *this->_rawMessage << std::endl << std::endl;
 	return this->_rawMessage->size(); // retourne la size du body
 }
 
@@ -167,13 +179,19 @@ bool Request::_check_filetype(std::string &contentType)
 void Request::_parse_body() {
 	this->_body = this->_rawMessage;
 	
+	std::cout << "TEST" << std::endl << std::endl;
 	// faire les checks necessaire sur la len
 	mapit len = _fields.find("Content-Length");
 	if ((*len).second.size() > 1)
 		throw MessageException(BAD_REQUEST);
 	size_t contentLength = strtoul((*len).second.front().c_str(), NULL, 0);
 	if (contentLength != _rawMessage->size())
+	{
+		std::cout << "\n\nCONTENT LENGTH WRONG" << std::endl << std::endl;
 		throw MessageException(BAD_REQUEST);
+	}
+	else
+		std::cout << "\n\nCONTENT LENGTH OKAY" << std::endl << std::endl;
 
 	// // choper le type de donner et agir en consequence
 	// mapit type = _fields.find("Content-Type");

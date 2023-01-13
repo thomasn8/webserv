@@ -233,7 +233,7 @@ void Monitor::handle_connections()
 						if (_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]) != -1)
 						{
 							try {
-								Request request(&requestStr, _activeSockets[i].server);									// essaie de constr une requeste depuis les donnees recues
+								Request request(&requestStr, _activeSockets[i].server);					// essaie de constr une requeste depuis les donnees recues
 								Response response(&request, _activeSockets[i].server, &responseStr);	// essaie de constr une response si on a une request
 							}
 							catch (Request::MessageException & e) {
