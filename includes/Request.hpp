@@ -36,7 +36,7 @@ class Request : public Message {
 		// void		_split_field(size_t pos, std::string line);
 		void		_split_field(size_t separator, size_t lastchar);
 		// void		_parse_header(std::istringstream &raw);
-		void		_parse_header();
+		int			_parse_header();
 		// void		_parse_body(std::istringstream &raw);
 		void		_parse_body();
 };
