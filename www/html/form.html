@@ -7,7 +7,8 @@
     <title>Fill the form</title>
 </head>
 <body>
-    <form method="post" enctype="multipart/form-data">
+  <!-- form with file upload -->
+    <!-- <form method="post" enctype="multipart/form-data">
         <fieldset style="background: #f6f8ff; border: 2px solid #4238ca;">
           <legend>Who are you?</legend>
           <input type="text" name="firstname" placeholder="First name"><br /><br />
@@ -19,6 +20,25 @@
           <button type="submit">Submit</button>
         </fieldset>
       
+      </form> -->
+
+      <!-- radio button formular -->
+      <!-- <form method="post">
+        <input type="radio" id="html" name="fav_language" value="HTML">
+        <label for="html">HTML</label><br>
+        <input type="radio" id="css" name="fav_language" value="CSS">
+        <label for="css">CSS</label><br>
+        <input type="radio" id="javascript" name="fav_language" value="JavaScript">
+        <label for="javascript">JavaScript</label>
+        <button type="submit">Submit</button>
+      </form> -->
+
+
+      <form method="post" enctype="multipart/form-data">
+        <textarea id="story" name="story" rows="5" cols="33">
+          It was a dark and stormy night...
+          </textarea>
+        <button type="submit">Submit</button>
       </form>
 </body>
 </html>

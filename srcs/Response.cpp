@@ -1,7 +1,9 @@
 #include "../includes/Response.hpp"
 
 //TO DO Michele
+// 1 merger les modifs de Thomas et adapter response
 // 1. default index et autoindex
+// 4. GET avec des query? (?fav_language=CSS)
 // 2. method POST
 // 3. methos DELETE
 // finetuner le parsing des requêtes?
@@ -259,24 +261,24 @@ void Response::_decript_img() {
 }
 
 void Response::_response_post() {
-    std::string body = this->_request->get_body();
-    size_t pos = body.find("image/jpeg\r\n") + 14;
-    std::cout << "pos: " <<pos << std::endl;;
-    body.erase(0, pos);
-    pos = body.find("------");
-    body.erase(pos, body.length());
-    std::cout << "body:" << body << std::endl;
-    std::cout << "body length: " << body.length() << std::endl;
-    std::cout << "content-length: " << *this->_request->get_fields()["Content-Length"].begin() << std::endl;
+    // std::string body = this->_request->get_body();
+    // size_t pos = body.find("image/jpeg\r\n") + 14;
+    // std::cout << "pos: " <<pos << std::endl;;
+    // body.erase(0, pos);
+    // pos = body.find("------");
+    // body.erase(pos, body.length());
+    // // std::cout << "body:" << body << std::endl;
+    // // std::cout << "body length: " << body.length() << std::endl;
+    // // std::cout << "content-length: " << *this->_request->get_fields()["Content-Length"].begin() << std::endl;
 
-    std::ofstream file("text.txt", std::ofstream::binary | std::ofstream::out);
+    // std::ofstream file("text.txt", std::ofstream::binary | std::ofstream::out);
 
-    char buffer[body.length()];
-    int bodySize = body.length();
+    // char buffer[body.length()];
+    // int bodySize = body.length();
 
-    file.write(body.c_str(), bodySize);
-    memset(buffer, 0, body.length());
-    file.close();
+    // file.write(body.c_str(), bodySize);
+    // memset(buffer, 0, body.length());
+    // file.close();
 }
 
 void Response::_response_delete() {
