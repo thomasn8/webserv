@@ -4,7 +4,6 @@
 // ---------Constructor and destructor ------------
 
 Request::Request(std::string *rawMessage) : _rawMessage(rawMessage) {
-	std::cout << *_rawMessage;
 	size_t i = this->_rawMessage->find_first_of('\n');
     std::string start_line = this->_rawMessage->substr(0, i-1); // prend pas le /r avant /n
     // std::string start_line = this->_rawMessage->substr(0, i); // prend le /r avant /n
