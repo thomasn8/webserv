@@ -293,7 +293,6 @@ Response &Response::operator=(const Response &instance) {
     this->_reason = instance._reason;
     this->_version = instance._version;
 
-    this->_hasBody = instance._hasBody;
     this->_body = instance._body;
     this->_fields.insert(instance._fields.begin(), instance._fields.end());
     return *this;

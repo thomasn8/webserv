@@ -1,8 +1,6 @@
 /*
 	make client OR	c++ -Wall -Wextra -Werror client.cpp -o client
 	make run-client OR ./client [...]
-
-	usage: ./client [-p port] [-n repeatcount] [[-f requestfile] or [-s requeststring]]
 */
 
 #include <iostream>
@@ -17,6 +15,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+# define USAGE "Usage: ./client [-i ipv4] [-p port] [-n repeat] [[-s requeststring] or [-f requestfile]]"
 # define IP "127.0.0.1"
 # define PORT 80
 # define MIN_PORT_NO 1024
@@ -28,12 +27,23 @@
 # define BLU "\033[0;34m"
 # define WHI "\033[0m"
 
+const char option1[] = "-i";
+const char option2[] = "-p";
+const char option3[] = "-n";
+const char option4[] = "-s";
+const char option5[] = "-f";
+const char *options[5] = {option1, option2, option3, option4, option5};
+const int len = 5;
+
+
 struct tester {
+	const char	*ip;
 	int			port;
-	size_t		repeatcount;
-	std::string	file;
-	std::string	request;
-	char 		*requestbuf;
+	int			repeatcount;
+	const char	*requeststring;
+	const char	*filename;
+	char 		*requestfile;
+	ssize_t		size;
 };
 
 void error(const char *msg, const char *precision, int code) {
@@ -61,19 +71,20 @@ int port_check(const char *av1) {
 	return port;
 }
 
+// ameliorations: ajoute la possibilite de passer des args sans specifier l'option
+// exemple: ./client 8080 "GET /index.html HTTP/1.1"
+// mettre option facultative pour le port et pour le requeststring
 void parse(int ac, const char **av, struct tester * test) {
-	if (ac > 7)
-		error("Usage: ./client [-p port] [-n repeatcount] [[-f requestfile] or [-s requeststring]]", "", 1);
+	if (ac > len*2-1)
+		error(USAGE, "", 1);
+	test->ip = IP;
 	test->port = PORT;
 	test->repeatcount = 1;
+	test->filename = NULL;
+	test->requestfile = NULL;
+	test->requeststring = NULL;
 	if (ac == 1)
 		return;
-	const char option1[] = "-p";
-	const char option2[] = "-n";
-	const char option3[] = "-f";
-	const char option4[] = "-s";
-	const char *options[4] = {option1, option2, option3, option4};
-	int len = 4;
 	for (int i = 1; i < ac; i++) { 		// itere sur tous les av (sauf le prog)
 		if ((i % 2) > 0) {				// si i est impair compare av aux options
 			int j = -1;
@@ -87,25 +98,36 @@ void parse(int ac, const char **av, struct tester * test) {
 							if (ac < i+2) 			// test si av[i+1] existe
 								error("Error: incomplete option ", av[i], 1);
 							else
-								test->port = port_check(av[i+1]);
+								test->ip = av[i+1];
+							j = len+1;				// breaks while loop
 							break;
 						case 1:
 							if (ac < i+2)
 								error("Error: incomplete option ", av[i], 1);
 							else
-								test->repeatcount = atoi(av[i+1]);
+								test->port = port_check(av[i+1]);
+							j = len+1;
 							break;
 						case 2:
 							if (ac < i+2)
 								error("Error: incomplete option ", av[i], 1);
 							else
-								test->file = av[i+1];
+								test->repeatcount = atoi(av[i+1]);
+							j = len+1;
 							break;
 						case 3:
 							if (ac < i+2)
 								error("Error: incomplete option ", av[i], 1);
 							else
-								test->request = av[i+1];
+								test->requeststring = av[i+1];
+							j = len+1;
+							break;
+						case 4:
+							if (ac < i+2)
+								error("Error: incomplete option ", av[i], 1);
+							else
+								test->filename = av[i+1];
+							j = len+1;
 							break;
 					}
 				}
@@ -114,14 +136,15 @@ void parse(int ac, const char **av, struct tester * test) {
 	}
 	if (test->repeatcount < 1)
 		error("Error: repeatcount must be set at least to 1 in order to send any request", "", 1);
-	if (test->file.empty() && test->request.empty())
+	if (test->requeststring == NULL && test->filename == NULL)
 		error("Error: no request to send: either -f or -s option must be specified", "", 1);
-	if (!test->file.empty() && !test->request.empty())
+	if (test->requeststring != NULL && test->filename != NULL)
 		error("Error: either -f or -s option must be specified, not both", "", 1);
-
-	if (!test->file.empty()) {
+	if (test->filename != NULL) {
 		// open file
-		std::ifstream ifs(test->file.c_str(), std::ifstream::binary);
+		std::ifstream ifs(test->filename, std::ifstream::binary);
+		if (!ifs.is_open())
+    		error("Error: impossible to open input file", "", 1);
 		// get pointer to associated buffer object
 		std::filebuf *pbuf = ifs.rdbuf();
 		// get file size using buffer's members
@@ -130,50 +153,73 @@ void parse(int ac, const char **av, struct tester * test) {
 		if (size > FILE_MAX_LEN)
 			error("Error: input file is too large: maximum is 1MO", "", 1);
 		// allocate memory to contain file data
-		test->requestbuf = new char[size];
+		test->requestfile = new char[size];
+		test->size = size;
 		// get file data
-		pbuf->sgetn(test->requestbuf, size);
+		pbuf->sgetn(test->requestfile, size);
 		ifs.close();
 	}
 	else
-		test->requestbuf = test->request.c_str();
+		test->size = strlen(test->requeststring);
 }
 
 int main(int ac, const char **av) {
 
+	// PARSE ARGS
 	struct tester test;
 	parse(ac, av, &test);
+	std::cout << "Summary\nYou asked to request " << test.repeatcount << " times on ip " << test.ip << ":" << test.port << " with the message:\n";
+	if (test.requeststring)
+		std::cout << BLU << test.requeststring << WHI << std::endl;
+	if (test.requestfile)
+		std::cout << BLU << test.requestfile << WHI << std::endl;
+	std::cout << "\nResult\n";
 
-	int socket_fd = -1;
-	socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (socket_fd < 0)
-		error("Error: socket() failed: ", strerror(errno), 1);
-
+	// SERVER INFOS
 	struct sockaddr_in server_addr;
 	memset(server_addr.sin_zero, 0, sizeof(server_addr.sin_zero));
 	server_addr.sin_family = AF_INET;
-	if(inet_pton(AF_INET, IP, &server_addr.sin_addr) <= 0)
+	if(inet_pton(AF_INET, test.ip, &server_addr.sin_addr) <= 0)
 		error("Error: inet_pton(): ", strerror(errno), 1);
 	server_addr.sin_port = htons(test.port);
 	server_addr.sin_len = sizeof(server_addr);
 
-	// REQUESTS repeatcount THE SERVER (localhost:port)
+	// REQUESTS n TIMES THE SERVER (depends on args)
+	ssize_t recv_size;
+	char buffer[BUFFER_SIZE];
 	for (int i = 0; i < test.repeatcount; i++) {
+		// GET FD
+		int socket_fd = -1;
+		socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+		if (socket_fd < 0)
+		error("Error: socket() failed: ", strerror(errno), 1);
+
+		// CONNECT
 		if (connect(socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
 			error("Error: connect(): ", strerror(errno), 1);
 
-		ssize_t send_size = send(socket_fd, test.request.c_str(), test.size(), 0);
-		if (send_size == test.size())
-			std::cout << "\nSuccess: request sent\n" << std::endl;
+		// SEND
+		const char *request;
+		test.requeststring ? request = test.requeststring : test.requestfile;
+		ssize_t send_size = send(socket_fd, request, test.size, 0);
+		if (send_size == test.size)
+			std::cout << "Success: request sent\n" << std::endl;
 		else if (send_size > 0)
-			std::cout << "\nError: request partially sent\n" << std::endl;
+			std::cout << "Error: request partially sent\n" << std::endl;
 		else
 			error("Error: send() failed: ", strerror(errno), 1);
 
-		char buffer[BUFFER_SIZE];
-		ssize_t recv_size = recv(socket_fd, buffer, BUFFER_SIZE, 0);
+		// RECV
+		recv_size = recv(socket_fd, buffer, BUFFER_SIZE, 0);
 		if (recv_size > 0)
-			std::cout << "\nResponse received:\n";
+			std::cout << "Response received:";
+		else if(recv_size == 0)
+			std::cout << "Error: empty response received\n";
+		else
+			error("Error: recv() failed: ", strerror(errno), 1);
+		
+		// CLOSE
+		close(socket_fd);
 	}
 
 	// PRINT ONLY LAST RESPONSE	(THATS WHY OUTSIDE OF LOOP)
@@ -183,7 +229,7 @@ int main(int ac, const char **av) {
 		write(STDOUT_FILENO, &buffer[i], 1);
 	std::cout << WHI << std::endl;
 
-	if (!test.file.empty())
-		delete[] test.requestbuf;
+	if (test.requestfile)
+		delete[] test.requestfile;
 	return 0;
 }

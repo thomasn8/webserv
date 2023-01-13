@@ -106,8 +106,8 @@ void parse_config(std::string & configFile, Monitor & monitor)
 						compare = true;
 						if (location_context == 2)
 						{
-							monitor.get_last_server().add_location();
-							monitor.get_last_server().get_last_location().set_route(route);
+							monitor.get_servers().back().add_location();
+							monitor.get_servers().back().get_last_location().set_route(route);
 						}
 					}
 				}
@@ -143,7 +143,7 @@ void parse_config(std::string & configFile, Monitor & monitor)
 				{
 					if (server_directive_index == I_ERROR_PAGE_C && p_error_page_syntax(line) == false)
 						p_exit_cerr_msg(ERROR_MSG, line, 1);
-					monitor.get_last_server().add_directive(server_directive_index, word);
+					monitor.get_servers().back().add_directive(server_directive_index, word);
 				}
 				else
 				{
@@ -152,9 +152,9 @@ void parse_config(std::string & configFile, Monitor & monitor)
 					else if (location_directive_index == I_REDIRECTION_L && p_redirect_syntax(line) == false)
 						p_exit_cerr_msg(ERROR_MSG, line, 1);
 					if (location_directive_index != I_REDIRECTION_L)
-						monitor.get_last_server().get_last_location().add_directive(location_directive_index, word);
+						monitor.get_servers().back().get_last_location().add_directive(location_directive_index, word);
 					else
-						monitor.get_last_server().get_last_location().add_directive(location_directive_index, line);
+						monitor.get_servers().back().get_last_location().add_directive(location_directive_index, line);
 				}
 			}
 			word.clear();
