@@ -7,6 +7,9 @@ Request::Request(std::string *rawMessage) : _rawMessage(rawMessage) {
 	size_t i = this->_rawMessage->find_first_of('\n');
     // std::string start_line = this->_rawMessage->substr(0, i-1); // prend pas le /r avant /n
     std::string start_line = this->_rawMessage->substr(0, i); // prend le /r avant /n
+	
+	if (PRINT_HTTP_REQUEST)
+        std::cout << *rawMessage << std::endl;
 	_rawMessage->erase(0, i+1);    
     _check_alone_CR();
     _parse_start_line(start_line);

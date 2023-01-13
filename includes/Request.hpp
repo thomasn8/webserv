@@ -4,6 +4,7 @@
 #include "utils.hpp"
 #include "Message.hpp"
 #include "StatusCode.hpp"
+#include "debug.hpp"
 #include <algorithm>
 #include <string>
 #include <cstring>
