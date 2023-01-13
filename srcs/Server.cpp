@@ -258,8 +258,10 @@ std::string Server::get_root() const { return _root; }
 
 std::list<std::string> & Server::get_indexes() { return _indexFiles; }
 
+// max body size
 size_t Server::get_client_max_body_size() const { return _clientMaxBodySize; }
 
+// max body size + max header size
 size_t Server::get_maxrecv() const { return _maxrecv; }
 
 std::list<Server::error_page_pair> & Server::get_errorpages() { return _errorPages; }

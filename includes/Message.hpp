@@ -11,6 +11,9 @@
 // shared with request and responses
 class Message {
 	public:
+		typedef std::map<std::string, std::list<std::string>>::iterator mapit;
+		typedef std::list<std::string>::iterator listit;
+
 		Message();
 		Message(const Message &instance);
 		virtual ~Message() = 0;

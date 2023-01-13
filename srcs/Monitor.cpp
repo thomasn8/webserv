@@ -154,7 +154,7 @@ int Monitor::_recv_all(int fd, std::string & request, struct socket & activeSock
 	{
 		size_recv = recv(fd, chunk_read, CHUNK_SIZE, 0); // recv la request jusqu'au bout du client_fd
 		total_recv += size_recv;
-		if (maxrecv && total_recv > maxrecv) // erreur max body size 431
+		if (maxrecv && total_recv > maxrecv) // erreur max body size 413
 			return -1;
 		// std::cout << size_recv << " bytes read on socket " << fd << std::endl;
 		if (size_recv > 0)
@@ -233,7 +233,7 @@ void Monitor::handle_connections()
 						if (_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]) != -1)
 						{
 							try {
-								Request request(&requestStr);									// essaie de constr une requeste depuis les donnees recues
+								Request request(&requestStr, _activeSockets[i].server);									// essaie de constr une requeste depuis les donnees recues
 								Response response(&request, _activeSockets[i].server, &responseStr);	// essaie de constr une response si on a une request
 							}
 							catch (Request::MessageException & e) {
@@ -241,7 +241,7 @@ void Monitor::handle_connections()
 							}
 						}
 						else
-							Response response("431", _activeSockets[i].server, &responseStr);			// si recvall a atteint le MBS, constuit une response selon le status code
+							Response response("413", _activeSockets[i].server, &responseStr);			// si recvall a atteint le MBS, constuit une response selon le status code
 						requestStr.clear();
 						_pfds[i].events = POLLOUT;
 						poll_index = i; // permet de revenir dans la main loop avec l'index du pfds à écrire

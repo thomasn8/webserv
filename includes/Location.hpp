@@ -16,13 +16,14 @@
 
 // DIRECTIVE INDEX
 // (pour en rajouter/modifier: modifier le tableau + definir une macro pour l'index + modifier le switch-case dans add_directive() et creer les getter/setter)
-const std::string	g_location_directives[] = {"root", "method", "autoindex", "index", "uploads_dir", "redirect", ""};
+const std::string	g_location_directives[] = {"root", "method", "autoindex", "index", "uploads_dir", "redirect", "content", ""};
 # define I_ROOT_L 0
 # define I_METHODS_L 1
 # define I_AUTOINDEX_L 2
 # define I_INDEX_L 3
 # define I_UPLOADS_DIR_L 4
 # define I_REDIRECTION_L 5
+# define I_CONTENT 6
 
 class Location
 {
@@ -41,6 +42,7 @@ class Location
 		void set_autoindex(std::string & value);
 		void set_uploadsdir(std::string & value);
 		void set_redirection(std::string & line);
+		void set_contentType(std::string & value);
 		std::string get_route() const;
 		std::string get_root() const;
 		std::list<std::string> & get_methods();
@@ -49,6 +51,7 @@ class Location
 		std::string get_uploadsdir() const;
 		std::list<Trio> & get_redirections();
 		std::string get_cgi() const;
+		std::list<std::string> & get_contentTypes();
 
 	private:
 		Location();
@@ -63,6 +66,7 @@ class Location
 		std::list<Trio> _redirections;
 		std::string _webserv_bin_path() const;
 		std::string _cgiExtension;
+		std::list<std::string> _contentType;
 };
 
 #endif
