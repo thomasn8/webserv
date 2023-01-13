@@ -143,6 +143,8 @@ void parse(int ac, const char **av, struct tester * test) {
 	if (test->filename != NULL) {
 		// open file
 		std::ifstream ifs(test->filename, std::ifstream::binary);
+		if (!ifs.is_open())
+    		error("Error: impossible to open input file", "", 1);
 		// get pointer to associated buffer object
 		std::filebuf *pbuf = ifs.rdbuf();
 		// get file size using buffer's members
@@ -166,12 +168,12 @@ int main(int ac, const char **av) {
 	// PARSE ARGS
 	struct tester test;
 	parse(ac, av, &test);
-	std::cout << "Summary\nYou asked to request " << test.repeatcount << " times on ip " << test.ip << ":" << test.port << " with the message:\n\n";
+	std::cout << "Summary\nYou asked to request " << test.repeatcount << " times on ip " << test.ip << ":" << test.port << " with the message:\n";
 	if (test.requeststring)
-		std::cout << test.requeststring << std::endl;
+		std::cout << BLU << test.requeststring << WHI << std::endl;
 	if (test.requestfile)
-		std::cout << test.requestfile << std::endl;
-	std::cout << "\nResult\n\n";
+		std::cout << BLU << test.requestfile << WHI << std::endl;
+	std::cout << "\nResult\n";
 
 	// SERVER INFOS
 	struct sockaddr_in server_addr;
@@ -201,18 +203,18 @@ int main(int ac, const char **av) {
 		test.requeststring ? request = test.requeststring : test.requestfile;
 		ssize_t send_size = send(socket_fd, request, test.size, 0);
 		if (send_size == test.size)
-			std::cout << "\nSuccess: request sent\n" << std::endl;
+			std::cout << "Success: request sent\n" << std::endl;
 		else if (send_size > 0)
-			std::cout << "\nError: request partially sent\n" << std::endl;
+			std::cout << "Error: request partially sent\n" << std::endl;
 		else
 			error("Error: send() failed: ", strerror(errno), 1);
 
 		// RECV
 		recv_size = recv(socket_fd, buffer, BUFFER_SIZE, 0);
 		if (recv_size > 0)
-			std::cout << "\nResponse received:\n";
+			std::cout << "Response received:";
 		else if(recv_size == 0)
-			std::cout << "\nError: empty response received\n";
+			std::cout << "Error: empty response received\n";
 		else
 			error("Error: recv() failed: ", strerror(errno), 1);
 		
