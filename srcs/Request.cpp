@@ -4,13 +4,11 @@
 // ---------Constructor and destructor ------------
 
 Request::Request(std::string *rawMessage) : _rawMessage(rawMessage) {
+	std::cout << *_rawMessage;
 	size_t i = this->_rawMessage->find_first_of('\n');
     std::string start_line = this->_rawMessage->substr(0, i-1); // prend pas le /r avant /n
     // std::string start_line = this->_rawMessage->substr(0, i); // prend le /r avant /n
-std::cout << "STARTLINE:\n" << start_line;
-	_rawMessage->erase(0, i+1);
-std::cout << "\nRESTE:\n" << *rawMessage;
-    
+	_rawMessage->erase(0, i+1);    
     _check_alone_CR();
     _parse_start_line(start_line);
     if (_parse_header() > 0)
@@ -47,14 +45,15 @@ std::string Request::get_version() const {
 void Request::_check_alone_CR() { // parse que le header
     std::string::iterator it;
     for (it = (*this->_rawMessage).begin(); it != (*this->_rawMessage).end(); it++) {
+		// std::cout << *it;																	// A TESTER AVEC UNE REQUEST QUI A UN BODY
         if (*it == '\r')
 		{
 			if (it+1 < (*this->_rawMessage).end() && *(it + 1) != '\n') 
 				*it = ' ';
 			else
 			{
-				if (it+3 < (*this->_rawMessage).end() 
-					&& *(it + 1) == '\n' && *(it + 2) == '\r' && *(it + 3) == '\n') // si on trouve le pattern /r/n/r/n c'est qu'on est plus dans le header
+				// si on trouve le pattern /r/n/r/n c'est qu'on est plus dans le header
+				if (it+3 < (*this->_rawMessage).end() && *(it + 1) == '\n' && *(it + 2) == '\r' && *(it + 3) == '\n')
 					return;
 			}
 		}
@@ -67,7 +66,7 @@ void Request::_parse_start_line(std::string startLine) {
     size_t pos = 0;
 
 	// if (*(startLine.end()-1) == '\r')
-	// 	startLine.pop_back();    
+	// 	startLine.pop_back();				// plus besoin si dans le constr on decoupe deja le /r
 	for(int i = 0; i < 3; i++) {
         pos = startLine.find(' ');
         if (i < 2 && pos == std::string::npos)
@@ -90,22 +89,17 @@ void Request::_parse_start_line(std::string startLine) {
         throw MessageException(BAD_REQUEST);
 }
 
-void Request::_split_field(size_t separator, size_t lastchar) {				// A TESTER
-std::cout << "SPLIT_FIELD=" << this->_rawMessage->substr(0,lastchar) << std::endl;		// correct
-std::cout << "KEY=" << std::string(_rawMessage->c_str(), separator) << std::endl;		// correct
+void Request::_split_field(size_t separator, size_t lastchar) {
 	std::list<std::string> listValues;	
 	std::string key(_rawMessage->c_str(), separator);
 	const char *values = _rawMessage->c_str()+separator+1;
-	size_t newlastchar = lastchar - separator - 1;
-std::cout << "VALUES= |" << std::string(values, newlastchar) << "|" << std::endl;		// corrigé
 	const char *newvalue = values;
+	size_t newlastchar = lastchar - separator - 1;
 	int len = 0;
-	
-	while (*values && newlastchar--)																		// ERRORS
+	while (*values && newlastchar--)
 	{
 		if (*values == ',')
 		{
-std::cout << "NEW VALUE= |" << trim_sides(std::string(newvalue, len)) << "|" << std::endl;
 			listValues.push_back(trim_sides(std::string(newvalue, len)));
 			if (*(values+1))
 				newvalue = values+1;
@@ -116,7 +110,6 @@ std::cout << "NEW VALUE= |" << trim_sides(std::string(newvalue, len)) << "|" << 
 		values++;
 		len++;
 	}
-std::cout << "NEW VALUE= |" << trim_sides(std::string(newvalue, len)) << "|" << std::endl << std::endl;
 	listValues.push_back(trim_sides(std::string(newvalue, len)));
 	this->_fields.insert(std::make_pair(key, listValues));
 }
@@ -126,30 +119,16 @@ int Request::_parse_header() {
 	i = this->_rawMessage->find_first_of('\n');
 	while (i != std::string::npos && *this->_rawMessage != "\r\n")
 	{
-
-if (i != std::string::npos && *this->_rawMessage != "\r\n")
-	std::cout << "Line=" << this->_rawMessage->substr(0,i) << std::endl; // affiche la ligne avec le /r, sans le /n
-		
 		// firstchar = 0, lastchar (before \n) = i-1, \n = i, len to erase = i+1
 		pos = this->_rawMessage->find(':');
 		if (pos == std::string::npos)
             throw MessageException(BAD_REQUEST);
-		_split_field(pos, i-1); // passe le RESTE avec l'index du separator et l'index du dernier char avant le \r
+		_split_field(pos, i-1);
 		this->_rawMessage->erase(0, i+1);
 		i = this->_rawMessage->find_first_of('\n');
-
-// std::cout << "RESTE:\n" << *_rawMessage;
 	}
-
-// std::cout << "LAST LINE FOUND\n" << *_rawMessage;
 	if (*this->_rawMessage == "\r\n")
-	{
-std::cout << "i = " << i << ": erase last empty line of header\n";
-		this->_rawMessage->erase(0, i+1);	// efface la derniere ligne vide du header
-	}
-
-std::cout << "\nFIELDS:\n";
-display_fields();
+		this->_rawMessage->erase(0, i+1); // efface la derniere ligne vide du header
 	return this->_rawMessage->size();
 }
 
