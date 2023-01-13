@@ -42,7 +42,7 @@ std::string *Message::get_body() const {
 }
 
 bool Message::has_body() const {
-    return this->_body;				// plus besoin dune variable bool, on peut juste checker la valeur du ptr si null ou pas et la fonction fait une conversion implicite pour la valeur de retour
+    return this->_body;
 }
 
 // --------- Operator overload ------------

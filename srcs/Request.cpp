@@ -5,8 +5,8 @@
 
 Request::Request(std::string *rawMessage) : _rawMessage(rawMessage) {
 	size_t i = this->_rawMessage->find_first_of('\n');
-    std::string start_line = this->_rawMessage->substr(0, i-1); // prend pas le /r avant /n
-    // std::string start_line = this->_rawMessage->substr(0, i); // prend le /r avant /n
+    // std::string start_line = this->_rawMessage->substr(0, i-1); // prend pas le /r avant /n
+    std::string start_line = this->_rawMessage->substr(0, i); // prend le /r avant /n
 	_rawMessage->erase(0, i+1);    
     _check_alone_CR();
     _parse_start_line(start_line);
@@ -64,8 +64,11 @@ void Request::_parse_start_line(std::string startLine) {
 	std::string token;
     size_t pos = 0;
 
-	// if (*(startLine.end()-1) == '\r')
-	// 	startLine.pop_back();				// plus besoin si dans le constr on decoupe deja le /r
+	if (*(startLine.end()-1) != '\r')
+		 throw MessageException(BAD_REQUEST);
+	else
+		startLine.pop_back();
+
 	for(int i = 0; i < 3; i++) {
         pos = startLine.find(' ');
         if (i < 2 && pos == std::string::npos)
