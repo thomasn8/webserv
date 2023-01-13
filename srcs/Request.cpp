@@ -3,15 +3,10 @@
 
 // ---------Constructor and destructor ------------
 
-Request::Request(std::string *rawMessage) : _rawMessage(rawMessage) {	// passe un ptr au lieu d un string pour eviter 1 copie
-// std::cout << "ALL:\n" << *rawMessage;
-	// chope la 1ere ligne sans recopier une 2eme fois toute la request dans un istringstream
+Request::Request(std::string *rawMessage) : _rawMessage(rawMessage) {
 	size_t i = this->_rawMessage->find_first_of('\n');
-// std::cout << "_rawMessage[i-1]: |" << this->_rawMessage->c_str()[i-1] << "|" << std::endl;
-// std::cout << "_rawMessage[i]: |" << this->_rawMessage->c_str()[i] << "|" << std::endl;
-// std::cout << "_rawMessage[i+1]: |" << this->_rawMessage->c_str()[i+1] << "|" << std::endl;
-    // std::string start_line = this->_rawMessage->substr(0, i-1); // prend pas le /r avant /n
-    std::string start_line = this->_rawMessage->substr(0, i); // prend le /r avant /n
+    std::string start_line = this->_rawMessage->substr(0, i-1); // prend pas le /r avant /n
+    // std::string start_line = this->_rawMessage->substr(0, i); // prend le /r avant /n
 std::cout << "STARTLINE:\n" << start_line;
 	_rawMessage->erase(0, i+1);
 std::cout << "\nRESTE:\n" << *rawMessage;
@@ -71,8 +66,8 @@ void Request::_parse_start_line(std::string startLine) {
 	std::string token;
     size_t pos = 0;
 
-	if (*(startLine.end()-1) == '\r')
-		startLine.pop_back();    
+	// if (*(startLine.end()-1) == '\r')
+	// 	startLine.pop_back();    
 	for(int i = 0; i < 3; i++) {
         pos = startLine.find(' ');
         if (i < 2 && pos == std::string::npos)
@@ -96,19 +91,21 @@ void Request::_parse_start_line(std::string startLine) {
 }
 
 void Request::_split_field(size_t separator, size_t lastchar) {				// A TESTER
-// std::cout << "SPLIT_FIELD:" << this->_rawMessage->substr(0,lastchar) << std::endl;
-// std::cout << "KEY:" << std::string(_rawMessage->c_str(), separator) << std::endl;
+std::cout << "SPLIT_FIELD=" << this->_rawMessage->substr(0,lastchar) << std::endl;		// correct
+std::cout << "KEY=" << std::string(_rawMessage->c_str(), separator) << std::endl;		// correct
 	std::list<std::string> listValues;	
 	std::string key(_rawMessage->c_str(), separator);
 	const char *values = _rawMessage->c_str()+separator+1;
-// std::cout << "VALUES:" << std::string(values, lastchar) << std::endl;
+	size_t newlastchar = lastchar - separator - 1;
+std::cout << "VALUES= |" << std::string(values, newlastchar) << "|" << std::endl;		// corrigé
 	const char *newvalue = values;
 	int len = 0;
-	while (*values)
+	
+	while (*values && newlastchar--)																		// ERRORS
 	{
 		if (*values == ',')
 		{
-// std::cout << "NEW VALUE:" << trim_sides(std::string(newvalue, len)) << std::endl;
+std::cout << "NEW VALUE= |" << trim_sides(std::string(newvalue, len)) << "|" << std::endl;
 			listValues.push_back(trim_sides(std::string(newvalue, len)));
 			if (*(values+1))
 				newvalue = values+1;
@@ -119,7 +116,7 @@ void Request::_split_field(size_t separator, size_t lastchar) {				// A TESTER
 		values++;
 		len++;
 	}
-// std::cout << "NEW VALUE:" << trim_sides(std::string(newvalue, len)) << std::endl;
+std::cout << "NEW VALUE= |" << trim_sides(std::string(newvalue, len)) << "|" << std::endl << std::endl;
 	listValues.push_back(trim_sides(std::string(newvalue, len)));
 	this->_fields.insert(std::make_pair(key, listValues));
 }
@@ -141,10 +138,10 @@ if (i != std::string::npos && *this->_rawMessage != "\r\n")
 		this->_rawMessage->erase(0, i+1);
 		i = this->_rawMessage->find_first_of('\n');
 
-std::cout << "RESTE:\n" << *_rawMessage;
+// std::cout << "RESTE:\n" << *_rawMessage;
 	}
 
-std::cout << "LAST LINE FOUND\n" << *_rawMessage;
+// std::cout << "LAST LINE FOUND\n" << *_rawMessage;
 	if (*this->_rawMessage == "\r\n")
 	{
 std::cout << "i = " << i << ": erase last empty line of header\n";
@@ -156,14 +153,6 @@ display_fields();
 	return this->_rawMessage->size();
 }
 
-//body parsing													// pas top car c'est pas vraiment un parsing mais juste une copie de la memoire
-// void Request::_parse_body(std::istringstream &raw) {			// qui peut etre lourde selon la longueur du body
-//     std::string             line;
-
-//     while (getline(raw, line)) {
-//         this->_body += line;
-//     }
-// }
 void Request::_parse_body() {	// si aucune erreur dans la maniere dont je parse le header, on a plus qu'a utiliser le ptr sur le reste de _rawMessage variable _body
 	this->_body = this->_rawMessage;
 	// FAIRE PARSING DU BODY
