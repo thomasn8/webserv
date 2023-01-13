@@ -122,11 +122,13 @@ int Request::_parse_header() {
 	while (i != std::string::npos && *this->_rawMessage != "\r\n")
 	{
 		// firstchar = 0, lastchar (before \n) = i-1, \n = i, len to erase = i+1
+		if (this->_rawMessage->c_str()[i-1] != '\r')									// rajouter check pour verifier si chaque fin de ligne du header contient \r
+            throw MessageException(BAD_REQUEST);
 		pos = this->_rawMessage->find(':');
 		if (pos == std::string::npos)
             throw MessageException(BAD_REQUEST);
 		_split_field(pos, i-1);
-		this->_rawMessage->erase(0, i+1);
+		this->_rawMessage->erase(0, i+1); // prend pas le /r
 		i = this->_rawMessage->find_first_of('\n');
 	}
 	if (*this->_rawMessage == "\r\n")
