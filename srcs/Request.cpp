@@ -153,7 +153,7 @@ display_fields();
 	return this->_rawMessage->size();
 }
 
-void Request::_parse_body() {	// si aucune erreur dans la maniere dont je parse le header, on a plus qu'a utiliser le ptr sur le reste de _rawMessage variable _body
+void Request::_parse_body() {
 	this->_body = this->_rawMessage;
 	// FAIRE PARSING DU BODY
 }
