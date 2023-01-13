@@ -11,10 +11,9 @@ _indexFiles(std::list<std::string>(server_indexes)),
 _defaultIndex(true),
 _methods(std::list<std::string>(1, std::string(GET))),
 _defaultMethods(true),
-_uploadsDir(),
+_uploadsDir(_root),
 _redirections(std::list<Trio>()),
-_cgiBinPath(std::string(_webserv_bin_path().append("/").append(DEFAULT_CGI_PATH))),
-_cgiExtension(std::string(DEFAULT_CGI_EXT)) 
+_cgiExtension(std::string(DEFAULT_CGI_EXT))
 {}
 
 Location::Location() :
@@ -25,10 +24,9 @@ _indexFiles(std::list<std::string>()),
 _defaultIndex(true),
 _methods(std::list<std::string>(1, std::string(GET))),
 _defaultMethods(true),
-_uploadsDir(),
+_uploadsDir(_root),
 _redirections(std::list<Trio>()),
-_cgiBinPath(std::string(_webserv_bin_path().append("/").append(DEFAULT_CGI_PATH))),
-_cgiExtension(std::string(DEFAULT_CGI_EXT)) 
+_cgiExtension(std::string(DEFAULT_CGI_EXT))
 {}
 
 Location::Location(const Location & src) :
@@ -41,7 +39,6 @@ _methods(src._methods),
 _defaultMethods(src._defaultMethods),
 _uploadsDir(src._uploadsDir),
 _redirections(src._redirections),
-_cgiBinPath(src._cgiBinPath),
 _cgiExtension(src._cgiExtension) 
 {}
 
@@ -72,18 +69,18 @@ void Location::add_directive(int directiveIndex, std::string value)
 		case I_REDIRECTION_L:
 			set_redirection(value);
 			break;
-		case I_CGI_BIN_L:
-			set_cgiBinPath(value);
-			break;
 	}
 }
 
 void Location::set_route(std::string value)
 {
+	// route value
 	if (value.empty())
 		return;
 	_route = value;
-	if (value[0] == '.')
+
+	// if route is a cgi, replace default php cgi extension
+	if (value[0] == '.' )
 		_cgiExtension = value.substr(1);
 	else if (value[0] == '*')
 		_cgiExtension = value.substr(2);
@@ -103,6 +100,7 @@ void Location::set_root(std::string & value)
 	// quand on joint 2 paths, on sait qu'on doit toujours append("/") entre 2
 	if (_root[_root.size() - 1] == '/')
 		_root.erase(_root.size() - 1);
+	_uploadsDir = _root;
 }
 
 void Location::set_method(std::string & value)
@@ -206,17 +204,6 @@ void Location::set_redirection(std::string & line)
 	_redirections.push_back(trio);
 }
 
-void Location::set_cgiBinPath(std::string & value)
-{
-	if (value.empty())
-		return;
-	// si relative, on complete la partie qui précède pour uniformiser les path en absolute
-	if (value[0] != '/')
-		_cgiBinPath = get_root().append("/").append(value);
-	else
-		_cgiBinPath = value;
-}
-
 std::string Location::get_route() const { return _route; }
 
 // path du directory
@@ -232,10 +219,9 @@ bool Location::get_autoindex() const { return _autoindex; }
 // path du directory
 std::string Location::get_uploadsdir() const { return _uploadsDir; }
 
-// path du fichier binaire
-std::string Location::get_cgiBinPath() const { return _cgiBinPath; }
-
 std::list<Trio> & Location::get_redirections() { return _redirections; }
+
+std::string Location::get_cgi() const { return _cgiExtension; }
 
 std::string Location::_webserv_bin_path() const
 {

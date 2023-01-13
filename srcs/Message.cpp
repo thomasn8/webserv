@@ -2,7 +2,7 @@
 
 // ---------Constructor and destructor ------------
 
-Message::Message() {
+Message::Message() : _body(NULL){
     
 }
 
@@ -37,18 +37,17 @@ void Message::display_fields() const {
     }
 }
 
-std::string Message::get_body() const {
+std::string *Message::get_body() const {
     return this->_body;
 }
 
 bool Message::has_body() const {
-    return this->_hasBody;
+    return this->_body;
 }
 
 // --------- Operator overload ------------
 
 Message &Message::operator=(const Message &instance) {
-    this->_hasBody = instance._hasBody;
     this->_body = instance._body;
     this->_fields.insert(instance._fields.begin(), instance._fields.end());
     return *this;

@@ -3,14 +3,15 @@
 
 // ---------Constructor and destructor ------------
 
-Request::Request(std::string rawMessage) : _rawMessage(rawMessage) {
-    std::string str;
-    std::istringstream raw(this->_rawMessage);
-    getline(raw, str);
+Request::Request(std::string *rawMessage) : _rawMessage(rawMessage) {
+	size_t i = this->_rawMessage->find_first_of('\n');
+    // std::string start_line = this->_rawMessage->substr(0, i-1); // prend pas le /r avant /n
+    std::string start_line = this->_rawMessage->substr(0, i); // prend le /r avant /n
+	_rawMessage->erase(0, i+1);    
     _check_alone_CR();
-    _parse_start_line(str);
-    _parse_header(raw);
-    _parse_body(raw);
+    _parse_start_line(start_line);
+    if (_parse_header() > 0)
+    	_parse_body();
 }
 
 Request::Request(const Request& instance) {
@@ -24,7 +25,7 @@ Request::~Request() {
 // --------- Fonctions ------------
 
 std::string Request::get_message() const {
-    return this->_rawMessage;
+    return *this->_rawMessage;
 }
 
 std::string Request::get_method() const {
@@ -40,88 +41,104 @@ std::string Request::get_version() const {
 }
 
 // RFC 9112 2.2. Message Parsing 4 paragraph about CR
-void Request::_check_alone_CR() {
+void Request::_check_alone_CR() { // parse que le header
     std::string::iterator it;
-    for (it = this->_rawMessage.begin(); it != this->_rawMessage.end(); it++) {
-        if (*it == '\r' && *(it + 1) != '\n')
-            *it = ' ';
+    for (it = (*this->_rawMessage).begin(); it != (*this->_rawMessage).end(); it++) {
+		// std::cout << *it;																	// A TESTER AVEC UNE REQUEST QUI A UN BODY
+        if (*it == '\r')
+		{
+			if (it+1 < (*this->_rawMessage).end() && *(it + 1) != '\n') 
+				*it = ' ';
+			else
+			{
+				// si on trouve le pattern /r/n/r/n c'est qu'on est plus dans le header
+				if (it+3 < (*this->_rawMessage).end() && *(it + 1) == '\n' && *(it + 2) == '\r' && *(it + 3) == '\n')
+					return;
+			}
+		}
     }
 }
 
 //start-line parsing
 void Request::_parse_start_line(std::string startLine) {
-    std::string tmp = startLine;
-    std::string token;
+	std::string token;
     size_t pos = 0;
 
-    // tmp.erase(remove(tmp.begin(), tmp.end(), '\r'), tmp.end());
-    for(int i = 0; i < 3; i++) {
-        pos = tmp.find(' ');
+	if (*(startLine.end()-1) != '\r')
+		 throw MessageException(BAD_REQUEST);
+	else
+		startLine.pop_back();
+
+	for(int i = 0; i < 3; i++) {
+        pos = startLine.find(' ');
         if (i < 2 && pos == std::string::npos)
             throw MessageException(BAD_REQUEST);
         if (i == 0) {
-            this->_method = tmp.substr(0, pos);
+            this->_method = startLine.substr(0, pos);
             if (!(this->_method == "GET" || this->_method == "POST" || this->_method == "DELETE"))
                 throw MessageException(METHOD_NOT_ALLOWED);
         }
         else if (i == 1)
-            this->_target = tmp.substr(0, pos);
+            this->_target = startLine.substr(0, pos);
         else if (i == 2) {
-            this->_version = tmp.substr(0, pos);
-            if (this->_version.compare("HTTP/1.1\r") != 0) {
+            this->_version = startLine.substr(0, pos);
+            if (this->_version.compare("HTTP/1.1") != 0)
                 throw MessageException(HTTP_VERSION_UNSUPPORTED);
-            }
         }
-        tmp.erase(0, pos + 1);
+        startLine.erase(0, pos + 1);
     }
     if (pos != std::string::npos)
         throw MessageException(BAD_REQUEST);
 }
 
-void Request::_split_field(size_t pos, std::string line) {
-    std::string             key;
-    std::string             tmp;
-    std::list<std::string>  lstTmp;
-    std::string::iterator   it;
-    std::string::iterator   it2;
-
-    key = line.substr(0, pos);
-    line.erase(0, pos + 1);
-    while ((pos = line.find(',')) != std::string::npos) {
-        tmp =  trim_sides(line.substr(0, pos));
-        lstTmp.push_back(tmp);
-        line.erase(0, pos + 1);
-    }
-    tmp = trim_sides(line.substr(0, pos));
-    lstTmp.push_back(tmp);
-    line.erase(0, pos + 1);
-    this->_fields.insert({key, lstTmp});
+void Request::_split_field(size_t separator, size_t lastchar) {
+	std::list<std::string> listValues;	
+	std::string key(_rawMessage->c_str(), separator);
+	const char *values = _rawMessage->c_str()+separator+1;
+	const char *newvalue = values;
+	size_t newlastchar = lastchar - separator - 1;
+	int len = 0;
+	while (*values && newlastchar--)
+	{
+		if (*values == ',')
+		{
+			listValues.push_back(trim_sides(std::string(newvalue, len)));
+			if (*(values+1))
+				newvalue = values+1;
+			else
+				break;
+			len = -1;
+		}
+		values++;
+		len++;
+	}
+	listValues.push_back(trim_sides(std::string(newvalue, len)));
+	this->_fields.insert(std::make_pair(key, listValues));
 }
 
-//header parsing
-void Request::_parse_header(std::istringstream &raw) {
-    std::string             line;
-    size_t                  pos = 0;
-
-    getline(raw, line);
-    while (!line.empty() && line != "\r") {
-        pos = line.find(':');
-        if (pos == std::string::npos)
+int Request::_parse_header() {
+	size_t pos = 0, i = std::string::npos;
+	i = this->_rawMessage->find_first_of('\n');
+	while (i != std::string::npos && *this->_rawMessage != "\r\n")
+	{
+		// firstchar = 0, lastchar (before \n) = i-1, \n = i, len to erase = i+1
+		if (this->_rawMessage->c_str()[i-1] != '\r')									// rajouter check pour verifier si chaque fin de ligne du header contient \r
             throw MessageException(BAD_REQUEST);
-        _split_field(pos, line);
-        getline(raw, line);
-    }
+		pos = this->_rawMessage->find(':');
+		if (pos == std::string::npos)
+            throw MessageException(BAD_REQUEST);
+		_split_field(pos, i-1);
+		this->_rawMessage->erase(0, i+1); // prend pas le /r
+		i = this->_rawMessage->find_first_of('\n');
+	}
+	if (*this->_rawMessage == "\r\n")
+		this->_rawMessage->erase(0, i+1); // efface la derniere ligne vide du header
+	return this->_rawMessage->size();
 }
 
-//body parsing
-void Request::_parse_body(std::istringstream &raw) {
-   std::string line;
-
-    while (getline(raw, line)) {
-        this->_body.append(line);
-        this->_body.append("\n");
-    }   
-    raw.clear();
+void Request::_parse_body() {
+	this->_body = this->_rawMessage;
+	// FAIRE PARSING DU BODY
 }
 
 // --------- Operator overload ------------
@@ -132,7 +149,6 @@ Request &Request::operator=(const Request &instance) {
     this->_target = instance._target;
     this->_version = instance._version;
 
-    this->_hasBody = instance._hasBody;
     this->_body = instance._body;
     this->_fields.insert(instance._fields.begin(), instance._fields.end());
     return *this;

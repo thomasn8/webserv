@@ -35,8 +35,6 @@ Monitor::~Monitor()
 */
 std::deque<Server> & Monitor::get_servers() { return _servers; }
 
-Server & Monitor::get_last_server() { return get_servers().back(); }
-
 void Monitor::add_server() { _servers.push_back(Server()); }
 
 /* 
@@ -210,7 +208,7 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 // VOIR SI LA HEAP GROSSI PAS A L'INFINI SANS LIBERE DE L'ESPACE AVEC REALLOC ?
 void Monitor::handle_connections()
 {
-	_prepare_master_sockets(); // socket, bind, listen pour chaque port + creer les struct pollfd dédiées
+	_prepare_master_sockets(); // socket, bind, listen pour chaque port/server + creer les struct pollfd dédiées
 	int i, poll_index = 0, poll_count = 0, server_count = _servers.size();
 	std::string requestStr, responseStr;
 	while (1)													// Main loop
@@ -235,25 +233,25 @@ void Monitor::handle_connections()
 						if (_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]) != -1)
 						{
 							try {
-								Request request(requestStr);
-								Response response(&request, _activeSockets[i].server, &responseStr);
+								Request request(&requestStr);									// essaie de constr une requeste depuis les donnees recues
+								Response response(&request, _activeSockets[i].server, &responseStr);	// essaie de constr une response si on a une request
 							}
 							catch (Request::MessageException & e) {
-								Response response(e.what(), _activeSockets[i].server, &responseStr);
+								Response response(e.what(), _activeSockets[i].server, &responseStr);	// si request a un probleme, construit une response selon son status code
 							}
 						}
 						else
-							Response response("431", _activeSockets[i].server, &responseStr);
+							Response response("431", _activeSockets[i].server, &responseStr);			// si recvall a atteint le MBS, constuit une response selon le status code
 						requestStr.clear();
 						_pfds[i].events = POLLOUT;
-						poll_index = i;		// permet de revenir dans la main loop avec l'index du pfds à écrire
-						i = _fd_count;		// break la while loop
+						poll_index = i; // permet de revenir dans la main loop avec l'index du pfds à écrire
+						i = _fd_count;  // break la while loop
 					}
 				}
 			}
 			else if (_pfds[i].revents & POLLOUT) 				// event sur fd[i] si poll a debloquer pour un fd prêt à write
 			{
-				_send_all(i, responseStr.c_str(), responseStr.size(), _activeSockets[i]);
+				_send_all(i, responseStr.c_str(), responseStr.size(), _activeSockets[i]);				// send la response construite dans response
 				poll_index = 0; // reset l'index au debut des fds
 			}
 			i++;

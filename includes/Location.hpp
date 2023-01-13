@@ -11,21 +11,18 @@
 // INITIALIZATION
 # define DEFAULT_ROOT "www/html/"
 # define DEFAULT_INDEX "index.html"
-# define DEFAULT_CGI_PATH "cgi_bin"
 # define DEFAULT_CGI_EXT "php"
 #include "methods.hpp"
-# define DEFAULT_REDIRECT_CODE 301
 
 // DIRECTIVE INDEX
 // (pour en rajouter/modifier: modifier le tableau + definir une macro pour l'index + modifier le switch-case dans add_directive() et creer les getter/setter)
-const std::string	g_location_directives[] = {"root", "method", "autoindex", "index", "uploads_dir", "redirect", "cgi_bin", ""};
+const std::string	g_location_directives[] = {"root", "method", "autoindex", "index", "uploads_dir", "redirect", ""};
 # define I_ROOT_L 0
 # define I_METHODS_L 1
 # define I_AUTOINDEX_L 2
 # define I_INDEX_L 3
 # define I_UPLOADS_DIR_L 4
 # define I_REDIRECTION_L 5
-# define I_CGI_BIN_L 6
 
 class Location
 {
@@ -44,7 +41,6 @@ class Location
 		void set_autoindex(std::string & value);
 		void set_uploadsdir(std::string & value);
 		void set_redirection(std::string & line);
-		void set_cgiBinPath(std::string & value);
 		std::string get_route() const;
 		std::string get_root() const;
 		std::list<std::string> & get_methods();
@@ -52,7 +48,7 @@ class Location
 		bool get_autoindex() const;
 		std::string get_uploadsdir() const;
 		std::list<Trio> & get_redirections();
-		std::string get_cgiBinPath() const;
+		std::string get_cgi() const;
 
 	private:
 		Location();
@@ -65,7 +61,6 @@ class Location
 		bool _autoindex;
 		std::string _uploadsDir;
 		std::list<Trio> _redirections;
-		std::string _cgiBinPath;
 		std::string _webserv_bin_path() const;
 		std::string _cgiExtension;
 };
