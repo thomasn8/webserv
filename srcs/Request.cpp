@@ -193,38 +193,28 @@ void Request::_parse_body() {
 		if (pos == -1)
 			throw MessageException(BAD_REQUEST);
 		std::string boundry = ((*type).second.front().substr(pos+1, std::string::npos)).insert(0, "--");
-		
-		// std::cout << "BOUNDRY=" << boundry << std::endl;
-		// utiliser boundry pour decouper le body
 		ssize_t next = 0, boundrylen = boundry.size(), len = 0, namelen = 0, filenamelen = 0, valuelen = 0, contenttypename = 0;
 		bool stop = false;
-		this->_rawMessage->erase(0, this->_rawMessage->find(boundry));						// efface les caracteres jusqu au 1er flag
-		while (next > -1)
+		ssize_t first = this->_rawMessage->find(boundry);
+		if (first == -1)
+			throw MessageException(BAD_REQUEST);
+		// efface les caracteres jusqu au 1er boundry (\r \n ou whitespace)
+		this->_rawMessage->erase(0, first);
+		while (1)
 		{
-			// CHECK NEW BOUDRY FLAG
-			if (this->_rawMessage->find(boundry) != 0)										// check si boundry en debut de bloque
-			{
-				// std::cout << this->_rawMessage[0] << this->_rawMessage[1] << this->_rawMessage[2] << this->_rawMessage[3] << std::endl;
-				std::cout << "ERROR1: " << this->_rawMessage->find(boundry) << std::endl;
+			// check si boundry en debut de block et l'efface
+			if (this->_rawMessage->find(boundry) != 0)
 				throw MessageException(BAD_REQUEST);
-			}
 			else
-				this->_rawMessage->erase(0, boundrylen);									// et l'efface
+				this->_rawMessage->erase(0, boundrylen);
 
-			// FIND NEXT FLAG OR ENDIND FLAG boudry--
-			next = this->_rawMessage->find(boundry);										// find next boudry pos
-			const void *bodyLastChar = static_cast<const void *>(&(*(this->_rawMessage->rbegin())));
-			const void *boudrynext = static_cast<const void *>(this->_rawMessage->c_str() + next + boundrylen + 1);
-			if (next == -1 || boudrynext > bodyLastChar)										// si aucun, error
-			{
-				std::cout << "ERROR2: " << next << std::endl;
-				throw MessageException(BAD_REQUEST);
-			}
-			else if (*(static_cast<const char *>(boudrynext)) == '-')						// si boudry-- parsing du body se termine apres ce block de data
-				stop = true;
+			// find next boudry or break
+			next = this->_rawMessage->find(boundry);
+			if (next == -1)
+				break;
 			
 			// TREATE DATA UNTIL NEXT BOUNDRY: next
-			std::cout << boundry << std::string(this->_rawMessage->c_str(), next);			// reconstruit le contenu posté manuellement (check)
+			// std::cout << boundry << std::string(this->_rawMessage->c_str(), next);	// check le contenu si correspond a la requete
 			// // si input classic: name-value, si file: name-filename
 			// namelen = ;
 			// valuelen = ;
@@ -233,12 +223,12 @@ void Request::_parse_body() {
 			// contenttypename = ;
 			// // if (filenamelen && _check_filetype(std::string(...)) == false)	// si upload, choper le filetype
 			// // 	throw MessageException(MEDIA_UNSUPPORTED);
-			if (stop == true)
-				break;
 			
-			// ERASE USED DATA UNTIL NEXT BOUNDRY
+			// sinon efface le contenu jusquau next boundry
 			this->_rawMessage->erase(0, next);
 		}
+		// CLEAR LAST FLAG
+		// std::cout << "end of body: " << *this->_rawMessage << std::endl; // check si on a les -- residuels du dernier boundry
 		this->_rawMessage->clear();
 	}
 	else // default/application
