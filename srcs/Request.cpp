@@ -173,10 +173,9 @@ bool Request::_check_filetype(std::string &contentType)
 
 std::string find_value_from_boundry_block(std::string &block, const char *strtofind, const char *strtolen, char stop)
 {
-	ssize_t namestart = block.find(strtofind) + strlen(strtolen); 	// pos du debut de la value name
-	ssize_t nameend = block.find(stop, namestart);					// len de la value name
+	ssize_t namestart = block.find(strtofind) + strlen(strtolen);
+	ssize_t nameend = block.find(stop, namestart);
 	ssize_t namelen = nameend - namestart;
-	// std::cout << "name=" << std::string(block.c_str() + namestart, namelen) << std::endl;
 	return std::string(block.c_str() + namestart, namelen);
 }
 
@@ -221,19 +220,23 @@ void Request::_parse_body() {
 			// TREATE DATA UNTIL NEXT BOUNDRY
 			// std::cout << boundry << std::string(this->_rawMessage->c_str(), next);	// check le contenu si correspond a la requete
 			// std::cout << "\n\nblock: |" << std::string(this->_rawMessage->c_str(), next) << "|" << std::endl;
-			std::string first_line = this->_rawMessage->substr(2, this->_rawMessage->find('\n', 2) - 3); // attention au CR
+			ssize_t start_secondline = this->_rawMessage->find('\n', 2) + 1;
+			std::string first_line = this->_rawMessage->substr(2, start_secondline - 4); // attention au CR
 			// name
-			std::cout << "name=" << find_value_from_boundry_block(first_line, "name=", "name=\"", '"') << std::endl;
+			std::cout << "name=|" << find_value_from_boundry_block(first_line, "name=", "name=\"", '"') << "|" << std::endl;
 			// si file: filename + type
 			// std::cout << "first line = |" << first_line << "|" << std::endl;
 			if (first_line.find("filename=") != -1)
 			{
 				// filename
-				std::cout << "filename=" << find_value_from_boundry_block(first_line, "filename=", "filename=\"", '"') << std::endl;
+				std::cout << "filename=|" << find_value_from_boundry_block(first_line, "filename=", "filename=\"", '"') << "|" << std::endl;
 
 				// contenttype
-				std::string second_line = this->_rawMessage->substr(2+this->_rawMessage->find('\n', 2), this->_rawMessage->find('\n', 2) - 3); // attention au CR
-				std::cout << "contenttype=" << find_value_from_boundry_block(second_line, "Content-Type:", "Content-Type: ", '\r') << std::endl;
+				ssize_t end_secondline = this->_rawMessage->find('\r', start_secondline);
+				// std::cout << "char:" << this->_rawMessage->c_str()[end_secondline] << ", i=" << end_secondline << std::endl;
+				std::string second_line = this->_rawMessage->substr(start_secondline, end_secondline); // attention au CR
+				// std::cout << "second line from " << start_secondline << " to " <<  end_secondline << ": |" << second_line << "|" << std::endl;
+				std::cout << "contenttype=|" << find_value_from_boundry_block(second_line, "Content-Type:", "Content-Type: ", '\r') << "|"<< std::endl;
 
 				// check file extension if server accept
 				// if (_check_filetype(std::string(...)) == false)	// si upload, choper le filetype
