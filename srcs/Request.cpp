@@ -171,6 +171,14 @@ bool Request::_check_filetype(std::string &contentType)
 	return false;
 }
 
+std::string find_value_from_boundry_block(std::string &block, const char *strtofind, const char *strtolen, char stop)
+{
+	ssize_t namestart = block.find(strtofind) + strlen(strtolen); 	// pos du debut de la value name
+	ssize_t nameend = block.find(stop, namestart);					// len de la value name
+	ssize_t namelen = nameend - namestart;
+	// std::cout << "name=" << std::string(block.c_str() + namestart, namelen) << std::endl;
+	return std::string(block.c_str() + namestart, namelen);
+}
 
 void Request::_parse_body() {
 	this->_body = this->_rawMessage;
@@ -193,13 +201,10 @@ void Request::_parse_body() {
 		if (pos == -1)
 			throw MessageException(BAD_REQUEST);
 		std::string boundry = ((*type).second.front().substr(pos+1, std::string::npos)).insert(0, "--");
-		ssize_t next = 0, boundrylen = boundry.size(), len = 0, namelen = 0, filenamelen = 0, valuelen = 0, contenttypename = 0;
-		bool stop = false;
-		ssize_t first = this->_rawMessage->find(boundry);
+		ssize_t next = 0, boundrylen = boundry.size(), first = this->_rawMessage->find(boundry);
 		if (first == -1)
 			throw MessageException(BAD_REQUEST);
-		// efface les caracteres jusqu au 1er boundry (\r \n ou whitespace)
-		this->_rawMessage->erase(0, first);
+		this->_rawMessage->erase(0, first); // efface les caracteres jusqu au 1er boundry (\r \n ou whitespace)
 		while (1)
 		{
 			// check si boundry en debut de block et l'efface
@@ -213,16 +218,36 @@ void Request::_parse_body() {
 			if (next == -1)
 				break;
 			
-			// TREATE DATA UNTIL NEXT BOUNDRY: next
+			// TREATE DATA UNTIL NEXT BOUNDRY
 			// std::cout << boundry << std::string(this->_rawMessage->c_str(), next);	// check le contenu si correspond a la requete
-			// // si input classic: name-value, si file: name-filename
-			// namelen = ;
-			// valuelen = ;
-			// // si file: type-value
-			// filenamelen = ;
-			// contenttypename = ;
-			// // if (filenamelen && _check_filetype(std::string(...)) == false)	// si upload, choper le filetype
-			// // 	throw MessageException(MEDIA_UNSUPPORTED);
+			// std::cout << "\n\nblock: |" << std::string(this->_rawMessage->c_str(), next) << "|" << std::endl;
+			// name
+			std::cout << "name=" << find_value_from_boundry_block(*this->_rawMessage, "name=", "name=\"", '"') << std::endl;
+			// si file: filename + type
+			std::string first_line = this->_rawMessage->substr(2, this->_rawMessage->find('\n', 2) - 3); // attention au CR
+			// std::cout << "first line = |" << first_line << "|" << std::endl;
+			if (first_line.find("filename=") != -1)
+			{
+				// filename
+				std::cout << "filename=" << find_value_from_boundry_block(*this->_rawMessage, "filename=", "filename=\"", '"') << std::endl;
+				
+				// ssize_t filenamelen = this->_rawMessage->find('"', filenamepos) - 1;
+				// std::cout << "filename=" << std::string(this->_rawMessage->c_str() + filenamepos, filenamelen) << std::endl;
+				
+				// ssize_t contenttypepos = this->_rawMessage->find("Content-Type:") + strlen("Content-Type: ");
+				// ssize_t contenttypelen = this->_rawMessage->find('\n', contenttypepos) - 1;
+				
+				// std::cout << "contenttype=" << std::string(this->_rawMessage->c_str() + contenttypepos, contenttypelen) << std::endl;
+				// if (_check_filetype(std::string(...)) == false)	// si upload, choper le filetype
+				// 	throw MessageException(MEDIA_UNSUPPORTED);
+			}
+			else
+			{
+				std::cout << "NO FILE\n";
+			}
+			// value
+			// ssize_t valuepos = this->_rawMessage->find("name=") + strlen("name=\"");
+			// ssize_t valuelen = ;
 			
 			// sinon efface le contenu jusquau next boundry
 			this->_rawMessage->erase(0, next);
@@ -234,17 +259,17 @@ void Request::_parse_body() {
 	else // default/application
 	{
 		ssize_t i, keylen = 0, vallen = 0;
-		i = this->_rawMessage->find_first_of('&');
+		i = this->_rawMessage->find('&');
 		while (i != -1)
 		{
 			// firstchar = 0, lastchar (before \n) = i-1, \n = i, len to erase = i+1
-			keylen = this->_rawMessage->find_first_of('=');
-			vallen = this->_rawMessage->find_first_of('&') - keylen - 1;
+			keylen = this->_rawMessage->find('=');
+			vallen = this->_rawMessage->find('&') - keylen - 1;
 			_postNameValue.insert(std::make_pair(std::string(this->_rawMessage->c_str(), keylen), std::string(this->_rawMessage->c_str()+keylen+1, vallen)));
 			this->_rawMessage->erase(0, i+1);
-			i = this->_rawMessage->find_first_of('&');
+			i = this->_rawMessage->find('&');
 		}
-		keylen = this->_rawMessage->find_first_of('=');
+		keylen = this->_rawMessage->find('=');
 		vallen = this->_rawMessage->size() - keylen - 1;
 		_postNameValue.insert(std::make_pair(std::string(this->_rawMessage->c_str(), keylen), std::string(this->_rawMessage->c_str()+keylen+1, vallen)));
 		this->_rawMessage->clear();
