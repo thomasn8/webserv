@@ -3,12 +3,12 @@
 
 // ---------Constructor and destructor ------------
 
-Request::Request(std::string *rawMessage, Server *server) : _rawMessage(rawMessage), _server(server) {
+Request::Request(std::string *rawMessage, Server *server) : 
+_rawMessage(rawMessage), _server(server) {
 
-	std::cout << *rawMessage;
+	std::cout << *rawMessage << std::endl;
 
-	size_t i = this->_rawMessage->find_first_of('\n');
-    // std::string start_line = this->_rawMessage->substr(0, i-1); // prend pas le /r avant /n
+	ssize_t i = this->_rawMessage->find_first_of('\n');
     std::string start_line = this->_rawMessage->substr(0, i); // prend le /r avant /n
 	_rawMessage->erase(0, i+1);    
     _check_alone_CR();
@@ -46,7 +46,7 @@ std::string Request::get_version() const {
 // RFC 9112 2.2. Message Parsing 4 paragraph about CR
 void Request::_check_alone_CR() { // parse que le header
     std::string::iterator it;
-	int len = 0;
+	size_t len = 0;
     for (it = (*this->_rawMessage).begin(); it != (*this->_rawMessage).end() && len < MHS; it++) {
 		// std::cout << *it;																	// A TESTER AVEC UNE REQUEST QUI A UN BODY
         if (*it == '\r')
@@ -68,7 +68,7 @@ void Request::_check_alone_CR() { // parse que le header
 
 void Request::_parse_start_line(std::string startLine) {
 	std::string token;
-    size_t pos = 0;
+    ssize_t pos = 0;
 
 	if (*(startLine.end()-1) != '\r')
 		 throw MessageException(BAD_REQUEST);
@@ -102,7 +102,7 @@ void Request::_split_field(size_t separator, size_t lastchar) {
 	const char *values = _rawMessage->c_str()+separator+1;
 	const char *newvalue = values;
 	size_t newlastchar = lastchar - separator - 1;
-	int len = 0;
+	ssize_t len = 0;
 	while (*values && newlastchar--)
 	{
 		if (*values == ',')
@@ -122,7 +122,7 @@ void Request::_split_field(size_t separator, size_t lastchar) {
 }
 
 int Request::_parse_header() {
-	size_t pos = 0, i = std::string::npos;
+	ssize_t pos = 0, i;
 	i = this->_rawMessage->find_first_of('\n');
 	while (i != std::string::npos && (*this->_rawMessage).c_str()[0] != '\r')
 	{
@@ -132,8 +132,8 @@ int Request::_parse_header() {
 		pos = this->_rawMessage->find(':');
 		if (pos == std::string::npos)
             throw MessageException(BAD_REQUEST);
-		_split_field(pos, i-1);
-		this->_rawMessage->erase(0, i+1); // prend pas le /r
+		_split_field(pos, i-1);	// prend pas le /r
+		this->_rawMessage->erase(0, i+1);
 		i = this->_rawMessage->find_first_of('\n');
 	}
 	if ((*this->_rawMessage).c_str()[0] == '\r')
@@ -167,44 +167,60 @@ void Request::_parse_body() {
 	this->_body = this->_rawMessage;
 	
 	// faire les checks necessaire sur la len
-	mapit len = _fields.find("Content-Length");
-	if ((*len).second.size() > 1)
+	mapit contentlen = _fields.find("Content-Length");
+	if ((*contentlen).second.size() != 1)						// SI CONTENT-LENGTH PAS PRECISE, BAD REQUEST ?
 		throw MessageException(BAD_REQUEST);
-	size_t contentLength = strtoul((*len).second.front().c_str(), NULL, 0);
+	size_t contentLength = strtoul((*contentlen).second.front().c_str(), NULL, 0);
 	if (contentLength != _rawMessage->size())
 		throw MessageException(BAD_REQUEST);
 
-	// // choper le type de donner et agir en consequence
-	// mapit type = _fields.find("Content-Type");
-	// if ((*type).second.size() > 1)
-	// 	throw MessageException(BAD_REQUEST);
-	// if ((*type).second.front().c_str()[0] == 'm') // multipart
-	// {
-	// 	int pos = (*type).second.front().find_first_of('=');
-	// 	if (pos == -1)
-	// 		throw MessageException(BAD_REQUEST);
-	// 	std::string boundry = (*type).second.front().substr(pos+1, std::string::npos);
-	// 	// utiliser boundry pour decouper le body
-	// 	// ...
+	// choper le type de donner et agir en consequence
+	mapit type = _fields.find("Content-Type");
+	if ((*type).second.size() > 1)
+		throw MessageException(BAD_REQUEST);
+	if ((*type).second.front().c_str()[0] == 'm') // multipart
+	{
+		ssize_t pos = (*type).second.front().find_first_of('=');
+		if (pos == -1)
+			throw MessageException(BAD_REQUEST);
+		std::string boundry = (*type).second.front().substr(pos+1, std::string::npos);
 
-	// 	// if (_check_filetype(...) == false)
-	// 	// 	throw MessageException(MEDIA_UNSUPPORTED);
-	// }
-	// else // default
-	// {
+		// utiliser boundry pour decouper le body
+		// ...
 
-	// }
+		// if (_check_filetype(...) == false)				// si upload, choper le filetype
+		// 	throw MessageException(MEDIA_UNSUPPORTED);
+	}
+	else // default/application
+	{
+		ssize_t pos = 0, i, keylen = 0, vallen = 0;
+		i = this->_rawMessage->find_first_of('&');
+		while (i != std::string::npos)
+		{
+			// firstchar = 0, lastchar (before \n) = i-1, \n = i, len to erase = i+1
+			keylen = this->_rawMessage->find_first_of('=');
+			vallen = this->_rawMessage->find_first_of('&') - keylen - 1;
+			_postDefault.insert(std::make_pair(std::string(this->_rawMessage->c_str(), keylen), std::string(this->_rawMessage->c_str()+keylen+1, vallen)));
+			this->_rawMessage->erase(0, i+1);
+			i = this->_rawMessage->find_first_of('&');
+		}
+		keylen = this->_rawMessage->find_first_of('=');
+		vallen = this->_rawMessage->size() - keylen - 1;
+		_postDefault.insert(std::make_pair(std::string(this->_rawMessage->c_str(), keylen), std::string(this->_rawMessage->c_str()+keylen+1, vallen)));
+		this->_rawMessage->clear();
+	}
 }
 
 // --------- Operator overload ------------
 
 Request &Request::operator=(const Request &instance) {
     this->_server = instance._server;
-
     this->_rawMessage = instance._rawMessage;
     this->_method = instance._method;
     this->_target = instance._target;
     this->_version = instance._version;
+	this->_postDefault = instance._postDefault;
+	// this->_postMultipart = instance._postMultipart;
 
     this->_body = instance._body;
     this->_fields.insert(instance._fields.begin(), instance._fields.end());

@@ -16,4 +16,4 @@ Sec-Fetch-Mode: navigate
 Sec-Fetch-Site: same-origin
 Sec-Fetch-User: ?1
 
-story=++++++++++It+was+a+dark+and+stormy+night...%0D%0A++++++++++
+firstname=Thomas&lastname=Nanchen&age=23&story=It+was+a+dark+and+stormy+night...

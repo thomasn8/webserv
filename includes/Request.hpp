@@ -31,12 +31,14 @@ class Request : public Message {
 		Request();
 
 		Server		*_server;
-
 		std::string *_rawMessage;
 		std::string _method;
 		std::string _target;
 		std::string _version;
 		
+		std::map<std::string, std::string> _postDefault;
+		// std::list<std::pair<std::string, std::string> > _postMultipart;
+
 		void		_check_alone_CR(void);
 		void		_parse_start_line(std::string startLine);
 		void		_split_field(size_t separator, size_t lastchar);
