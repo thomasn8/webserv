@@ -36,8 +36,12 @@ class Request : public Message {
 		std::string _target;
 		std::string _version;
 		
-		std::map<std::string, std::string> _postDefault;
-		// std::list<std::pair<std::string, std::string> > _postMultipart;
+		// key-value pair pour les inputs classc
+		std::map<std::string, std::string> _postNameValue;
+
+		// key-value pair pour les file uploads, 2 lists avec index correspondant
+		std::list<std::pair<std::string, std::string> > _postNameFilename;
+		std::list<std::pair<std::string, std::string> > _postTypeValue;
 
 		void		_check_alone_CR(void);
 		void		_parse_start_line(std::string startLine);

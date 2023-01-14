@@ -184,29 +184,53 @@ void Request::_parse_body() {
 		if (pos == -1)
 			throw MessageException(BAD_REQUEST);
 		std::string boundry = (*type).second.front().substr(pos+1, std::string::npos);
-
+		
+		// std::cout << "BOUNDRY=" << boundry << std::endl;
 		// utiliser boundry pour decouper le body
-		// ...
 
-		// if (_check_filetype(...) == false)				// si upload, choper le filetype
-		// 	throw MessageException(MEDIA_UNSUPPORTED);
+// D'ABORD REUSSIR A FAIRE TOURNER LA LOOP EN PRINTANT CORRECTEMENT CHAQUE BLOQUE
+		ssize_t i, j = 0, boundrylen = boundry.size(), len = 0, namelen = 0, filenamelen = 0, valuelen = 0, contenttypename = 0;
+		i = this->_rawMessage->find(boundry);
+		const char *boudrynext = this->_rawMessage->c_str() + i + boundrylen + 1;
+		while (boudrynext < this->_rawMessage->end() && *boudrynext != '-')
+		{
+			// firstchar = 0, lastchar (before \n) = i-1, \n = i, len to erase = i+1
+			this->_rawMessage->erase(0, i+boundrylen); 									// enleve le boudry
+			j = this->_rawMessage->find(boundry); 										// trouve le boundry suivant
+			std::cout << std::string(this->_rawMessage->c_str(), j) << std::endl;
+
+			// // si input classic: name-value, si file: name-filename
+			// namelen = ;
+			// valuelen = ;
+			// // si file: type-value
+			// filenamelen = ;
+			// contenttypename = ;
+			// // if (filenamelen && _check_filetype(std::string(...)) == false)	// si upload, choper le filetype
+			// // 	throw MessageException(MEDIA_UNSUPPORTED);
+
+			// loop (SYSTEM PAS ENCORE ABOUTI)
+			this->_rawMessage->erase(0, j); 											// efface le contenu jusquau boundry
+			i = this->_rawMessage->find(boundry);										
+			boudrynext = this->_rawMessage->c_str() + i + boundrylen + 1;
+		}
+		this->_rawMessage->clear();
 	}
 	else // default/application
 	{
-		ssize_t pos = 0, i, keylen = 0, vallen = 0;
+		ssize_t i, keylen = 0, vallen = 0;
 		i = this->_rawMessage->find_first_of('&');
-		while (i != std::string::npos)
+		while (i != -1)
 		{
 			// firstchar = 0, lastchar (before \n) = i-1, \n = i, len to erase = i+1
 			keylen = this->_rawMessage->find_first_of('=');
 			vallen = this->_rawMessage->find_first_of('&') - keylen - 1;
-			_postDefault.insert(std::make_pair(std::string(this->_rawMessage->c_str(), keylen), std::string(this->_rawMessage->c_str()+keylen+1, vallen)));
+			_postNameValue.insert(std::make_pair(std::string(this->_rawMessage->c_str(), keylen), std::string(this->_rawMessage->c_str()+keylen+1, vallen)));
 			this->_rawMessage->erase(0, i+1);
 			i = this->_rawMessage->find_first_of('&');
 		}
 		keylen = this->_rawMessage->find_first_of('=');
 		vallen = this->_rawMessage->size() - keylen - 1;
-		_postDefault.insert(std::make_pair(std::string(this->_rawMessage->c_str(), keylen), std::string(this->_rawMessage->c_str()+keylen+1, vallen)));
+		_postNameValue.insert(std::make_pair(std::string(this->_rawMessage->c_str(), keylen), std::string(this->_rawMessage->c_str()+keylen+1, vallen)));
 		this->_rawMessage->clear();
 	}
 }
@@ -219,7 +243,7 @@ Request &Request::operator=(const Request &instance) {
     this->_method = instance._method;
     this->_target = instance._target;
     this->_version = instance._version;
-	this->_postDefault = instance._postDefault;
+	this->_postNameValue = instance._postNameValue;
 	// this->_postMultipart = instance._postMultipart;
 
     this->_body = instance._body;
