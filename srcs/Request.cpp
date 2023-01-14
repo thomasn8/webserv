@@ -187,18 +187,29 @@ void Request::_parse_body() {
 		
 		// std::cout << "BOUNDRY=" << boundry << std::endl;
 		// utiliser boundry pour decouper le body
-
 // D'ABORD REUSSIR A FAIRE TOURNER LA LOOP EN PRINTANT CORRECTEMENT CHAQUE BLOQUE
-		ssize_t i, j = 0, boundrylen = boundry.size(), len = 0, namelen = 0, filenamelen = 0, valuelen = 0, contenttypename = 0;
-		i = this->_rawMessage->find(boundry);
-		const char *boudrynext = this->_rawMessage->c_str() + i + boundrylen + 1;
-		while (boudrynext < this->_rawMessage->end() && *boudrynext != '-')
+		ssize_t next = 0, boundrylen = boundry.size(), len = 0, namelen = 0, filenamelen = 0, valuelen = 0, contenttypename = 0;
+		bool stop = false;
+		while (next > -1)
 		{
-			// firstchar = 0, lastchar (before \n) = i-1, \n = i, len to erase = i+1
-			this->_rawMessage->erase(0, i+boundrylen); 									// enleve le boudry
-			j = this->_rawMessage->find(boundry); 										// trouve le boundry suivant
-			std::cout << std::string(this->_rawMessage->c_str(), j) << std::endl;
+			// CHECK NEW BOUDRY FLAG
+			if (this->_rawMessage->find(0, boundry) != 0)									// check boundry en debut de bloque
+				throw MessageException(BAD_REQUEST);
+			else
+				this->_rawMessage->erase(0, boundrylen);									// et l'efface
 
+			// FIND NEXT FLAG OR ENDIND FLAG boudry--
+			next = this->_rawMessage->find(boundry);										// find next boudry pos
+			const char *boudrynext = this->_rawMessage->c_str() + next + boundrylen + 1;
+			if (next = -1 || boudrynext < this->_rawMessage->end())							// si aucun, error
+				throw MessageException(BAD_REQUEST);
+			else if (*boudrynext == '-')													// si boudry-- parsing du body se termine apres ce block de data
+				stop = true;
+			
+			// TREATE DATA UNTIL NEXT BOUNDRY: next
+			std::cout << std::string(this->_rawMessage->c_str(), next);
+			if (stop == true)
+				break;
 			// // si input classic: name-value, si file: name-filename
 			// namelen = ;
 			// valuelen = ;
@@ -207,11 +218,9 @@ void Request::_parse_body() {
 			// contenttypename = ;
 			// // if (filenamelen && _check_filetype(std::string(...)) == false)	// si upload, choper le filetype
 			// // 	throw MessageException(MEDIA_UNSUPPORTED);
-
-			// loop (SYSTEM PAS ENCORE ABOUTI)
-			this->_rawMessage->erase(0, j); 											// efface le contenu jusquau boundry
-			i = this->_rawMessage->find(boundry);										
-			boudrynext = this->_rawMessage->c_str() + i + boundrylen + 1;
+			
+			// ERASE USED DATA UNTIL NEXT BOUNDRY
+			this->_rawMessage->erase(0, next);
 		}
 		this->_rawMessage->clear();
 	}
