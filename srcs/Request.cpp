@@ -221,29 +221,23 @@ void Request::_parse_body() {
 			// TREATE DATA UNTIL NEXT BOUNDRY
 			// std::cout << boundry << std::string(this->_rawMessage->c_str(), next);	// check le contenu si correspond a la requete
 			// std::cout << "\n\nblock: |" << std::string(this->_rawMessage->c_str(), next) << "|" << std::endl;
-			// name
-			std::cout << "name=" << find_value_from_boundry_block(*this->_rawMessage, "name=", "name=\"", '"') << std::endl;
-			// si file: filename + type
 			std::string first_line = this->_rawMessage->substr(2, this->_rawMessage->find('\n', 2) - 3); // attention au CR
+			// name
+			std::cout << "name=" << find_value_from_boundry_block(first_line, "name=", "name=\"", '"') << std::endl;
+			// si file: filename + type
 			// std::cout << "first line = |" << first_line << "|" << std::endl;
 			if (first_line.find("filename=") != -1)
 			{
 				// filename
-				std::cout << "filename=" << find_value_from_boundry_block(*this->_rawMessage, "filename=", "filename=\"", '"') << std::endl;
-				
-				// ssize_t filenamelen = this->_rawMessage->find('"', filenamepos) - 1;
-				// std::cout << "filename=" << std::string(this->_rawMessage->c_str() + filenamepos, filenamelen) << std::endl;
-				
-				// ssize_t contenttypepos = this->_rawMessage->find("Content-Type:") + strlen("Content-Type: ");
-				// ssize_t contenttypelen = this->_rawMessage->find('\n', contenttypepos) - 1;
-				
-				// std::cout << "contenttype=" << std::string(this->_rawMessage->c_str() + contenttypepos, contenttypelen) << std::endl;
+				std::cout << "filename=" << find_value_from_boundry_block(first_line, "filename=", "filename=\"", '"') << std::endl;
+
+				// contenttype
+				std::string second_line = this->_rawMessage->substr(2+this->_rawMessage->find('\n', 2), this->_rawMessage->find('\n', 2) - 3); // attention au CR
+				std::cout << "contenttype=" << find_value_from_boundry_block(second_line, "Content-Type:", "Content-Type: ", '\r') << std::endl;
+
+				// check file extension if server accept
 				// if (_check_filetype(std::string(...)) == false)	// si upload, choper le filetype
 				// 	throw MessageException(MEDIA_UNSUPPORTED);
-			}
-			else
-			{
-				std::cout << "NO FILE\n";
 			}
 			// value
 			// ssize_t valuepos = this->_rawMessage->find("name=") + strlen("name=\"");
