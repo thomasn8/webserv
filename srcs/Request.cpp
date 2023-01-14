@@ -47,16 +47,17 @@ std::string Request::get_version() const {
 void Request::_check_alone_CR() { // parse que le header
     std::string::iterator it;
 	size_t len = 0;
-    for (it = (*this->_rawMessage).begin(); it != (*this->_rawMessage).end() && len < MHS; it++) {
+	const char * lastChar = &(*(this->_rawMessage->end()-1));
+    for (it = this->_rawMessage->begin(); it != this->_rawMessage->end() && len < MHS; it++) {
 		// std::cout << *it;																	// A TESTER AVEC UNE REQUEST QUI A UN BODY
         if (*it == '\r')
 		{
-			if (it+1 < (*this->_rawMessage).end() && *(it + 1) != '\n') 
+			if ( &(*(it+1)) <= lastChar && *(it + 1) != '\n') 
 				*it = ' ';
 			else
 			{
 				// si on trouve le pattern /r/n/r/n c'est qu'on est plus dans le header
-				if (it+3 < (*this->_rawMessage).end() && *(it + 1) == '\n' && *(it + 2) == '\r' && *(it + 3) == '\n')
+				if ( &(*(it+3)) <= lastChar && *(it + 1) == '\n' && *(it + 2) == '\r' && *(it + 3) == '\n')
 					return;
 			}
 		}
@@ -193,15 +194,16 @@ void Request::_parse_body() {
 		while (next > -1)
 		{
 			// CHECK NEW BOUDRY FLAG
-			if (this->_rawMessage->find(0, boundry) != 0)									// check boundry en debut de bloque
+			if (this->_rawMessage->find(boundry) != 0)										// check si boundry en debut de bloque
 				throw MessageException(BAD_REQUEST);
 			else
 				this->_rawMessage->erase(0, boundrylen);									// et l'efface
 
 			// FIND NEXT FLAG OR ENDIND FLAG boudry--
 			next = this->_rawMessage->find(boundry);										// find next boudry pos
+			const char *bodyLastChar = &(*(this->_rawMessage->end()-1));
 			const char *boudrynext = this->_rawMessage->c_str() + next + boundrylen + 1;
-			if (next = -1 || boudrynext < this->_rawMessage->end())							// si aucun, error
+			if (next = -1 || boudrynext > bodyLastChar)										// si aucun, error
 				throw MessageException(BAD_REQUEST);
 			else if (*boudrynext == '-')													// si boudry-- parsing du body se termine apres ce block de data
 				stop = true;
