@@ -201,6 +201,8 @@ void Request::_parse_body() {
 			throw MessageException(BAD_REQUEST);
 		std::string boundry = ((*type).second.front().substr(pos+1, std::string::npos)).insert(0, "--");
 		ssize_t next = 0, boundrylen = boundry.size(), first = this->_rawMessage->find(boundry);
+		size_t start_value = 0;
+		const char *valueptr;
 		if (first == -1)
 			throw MessageException(BAD_REQUEST);
 		this->_rawMessage->erase(0, first); // efface les caracteres jusqu au 1er boundry (\r \n ou whitespace)
@@ -221,11 +223,10 @@ void Request::_parse_body() {
 			// std::cout << boundry << std::string(this->_rawMessage->c_str(), next);	// check le contenu si correspond a la requete
 			// std::cout << "\n\nblock: |" << std::string(this->_rawMessage->c_str(), next) << "|" << std::endl;
 			ssize_t start_secondline = this->_rawMessage->find('\n', 2) + 1;
-			std::string first_line = this->_rawMessage->substr(2, start_secondline - 4); // attention au CR
+			std::string first_line = this->_rawMessage->substr(2, start_secondline - 4); // attention au CRCL
 			// name
-			std::cout << "name=|" << find_value_from_boundry_block(first_line, "name=", "name=\"", '"') << "|" << std::endl;
+			std::cout << std::endl << "name=|" << find_value_from_boundry_block(first_line, "name=", "name=\"", '"') << "|" << std::endl;
 			// si file: filename + type
-			// std::cout << "first line = |" << first_line << "|" << std::endl;
 			if (first_line.find("filename=") != -1)
 			{
 				// filename
@@ -233,18 +234,31 @@ void Request::_parse_body() {
 
 				// contenttype
 				ssize_t end_secondline = this->_rawMessage->find('\r', start_secondline);
-				// std::cout << "char:" << this->_rawMessage->c_str()[end_secondline] << ", i=" << end_secondline << std::endl;
-				std::string second_line = this->_rawMessage->substr(start_secondline, end_secondline); // attention au CR
-				// std::cout << "second line from " << start_secondline << " to " <<  end_secondline << ": |" << second_line << "|" << std::endl;
+				std::string second_line = this->_rawMessage->substr(start_secondline, end_secondline); // attention au CRCL
 				std::cout << "contenttype=|" << find_value_from_boundry_block(second_line, "Content-Type:", "Content-Type: ", '\r') << "|"<< std::endl;
-
-				// check file extension if server accept
+				// check contenttype if server accept file extension
 				// if (_check_filetype(std::string(...)) == false)	// si upload, choper le filetype
 				// 	throw MessageException(MEDIA_UNSUPPORTED);
+				
+				// value
+				ssize_t start_fourthline = end_secondline + 4;
+				start_value = start_fourthline;
+				valueptr = &this->_rawMessage->c_str()[start_value];
 			}
-			// value
-			// ssize_t valuepos = this->_rawMessage->find("name=") + strlen("name=\"");
-			// ssize_t valuelen = ;
+			else
+			{
+				// value
+				ssize_t start_thirdline = start_secondline + 2;
+				start_value = start_thirdline;
+				valueptr = &this->_rawMessage->c_str()[start_value];
+			}
+			// size_t valuelen = 0;
+			// while (valueptr[valuelen] != '\r')	// pas la bonne tactique, il faut chercher boundry
+			// 	valuelen++;
+			// size_t valuelen = next - start_value;
+			size_t valuelen = next - start_value - 2;
+			// size_t valuelen = next - start_value + 1;
+			std::cout << "value=|" << std::string(valueptr, valuelen) << "|" << std::endl;
 			
 			// sinon efface le contenu jusquau next boundry
 			this->_rawMessage->erase(0, next);
