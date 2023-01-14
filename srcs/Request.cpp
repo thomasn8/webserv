@@ -10,11 +10,17 @@ _rawMessage(rawMessage), _server(server) {
 
 	ssize_t i = this->_rawMessage->find_first_of('\n');
     std::string start_line = this->_rawMessage->substr(0, i); // prend le /r avant /n
-	_rawMessage->erase(0, i+1);    
+	_rawMessage->erase(0, i+1);
     _check_alone_CR();
+	std::cout << "TEST PARSE CR OKAY" << std::endl;
     _parse_start_line(start_line);
+	std::cout << "TEST PARSE START LINE OKAY" << std::endl;
     if (_parse_header() > 0)
+	{
+		std::cout << "HAS BODY" << std::endl;
     	_parse_body();
+	}
+	std::cout << "TEST REQUEST OBJECT OKAY" << std::endl;
 }
 
 Request::Request(const Request& instance) {
@@ -47,17 +53,18 @@ std::string Request::get_version() const {
 void Request::_check_alone_CR() { // parse que le header
     std::string::iterator it;
 	size_t len = 0;
-	const char * lastChar = &(*(this->_rawMessage->end()-1));
+	const void * lastChar = static_cast<const void *>(&(*(this->_rawMessage->rbegin()))); // chope l'adresse du dernier char de _rawMessage (protection)
     for (it = this->_rawMessage->begin(); it != this->_rawMessage->end() && len < MHS; it++) {
-		// std::cout << *it;																	// A TESTER AVEC UNE REQUEST QUI A UN BODY
         if (*it == '\r')
 		{
-			if ( &(*(it+1)) <= lastChar && *(it + 1) != '\n') 
+			if (static_cast<const void *>(&(*(it+3))) > lastChar) // protection pour voir si memoire est accessible vu qu'on teste *(it + 3) en bas
+				throw MessageException(BAD_REQUEST);
+			if (*(it + 1) != '\n') 
 				*it = ' ';
 			else
 			{
 				// si on trouve le pattern /r/n/r/n c'est qu'on est plus dans le header
-				if ( &(*(it+3)) <= lastChar && *(it + 1) == '\n' && *(it + 2) == '\r' && *(it + 3) == '\n')
+				if (*(it + 1) == '\n' && *(it + 2) == '\r' && *(it + 3) == '\n')
 					return;
 			}
 		}
@@ -141,6 +148,7 @@ int Request::_parse_header() {
 		this->_rawMessage->erase(0, i+1); // efface la derniere ligne vide du header
 	else
 		throw MessageException(BAD_REQUEST);
+	std::cout << "TEST PARSE HEADER OKAY" << std::endl;
 	return this->_rawMessage->size(); // retourne la size du body
 }
 
@@ -184,34 +192,39 @@ void Request::_parse_body() {
 		ssize_t pos = (*type).second.front().find_first_of('=');
 		if (pos == -1)
 			throw MessageException(BAD_REQUEST);
-		std::string boundry = (*type).second.front().substr(pos+1, std::string::npos);
+		std::string boundry = ((*type).second.front().substr(pos+1, std::string::npos)).insert(0, "--");
 		
 		// std::cout << "BOUNDRY=" << boundry << std::endl;
 		// utiliser boundry pour decouper le body
-// D'ABORD REUSSIR A FAIRE TOURNER LA LOOP EN PRINTANT CORRECTEMENT CHAQUE BLOQUE
 		ssize_t next = 0, boundrylen = boundry.size(), len = 0, namelen = 0, filenamelen = 0, valuelen = 0, contenttypename = 0;
 		bool stop = false;
+		this->_rawMessage->erase(0, this->_rawMessage->find(boundry));						// efface les caracteres jusqu au 1er flag
 		while (next > -1)
 		{
 			// CHECK NEW BOUDRY FLAG
 			if (this->_rawMessage->find(boundry) != 0)										// check si boundry en debut de bloque
+			{
+				// std::cout << this->_rawMessage[0] << this->_rawMessage[1] << this->_rawMessage[2] << this->_rawMessage[3] << std::endl;
+				std::cout << "ERROR1: " << this->_rawMessage->find(boundry) << std::endl;
 				throw MessageException(BAD_REQUEST);
+			}
 			else
 				this->_rawMessage->erase(0, boundrylen);									// et l'efface
 
 			// FIND NEXT FLAG OR ENDIND FLAG boudry--
 			next = this->_rawMessage->find(boundry);										// find next boudry pos
-			const char *bodyLastChar = &(*(this->_rawMessage->end()-1));
-			const char *boudrynext = this->_rawMessage->c_str() + next + boundrylen + 1;
-			if (next = -1 || boudrynext > bodyLastChar)										// si aucun, error
+			const void *bodyLastChar = static_cast<const void *>(&(*(this->_rawMessage->rbegin())));
+			const void *boudrynext = static_cast<const void *>(this->_rawMessage->c_str() + next + boundrylen + 1);
+			if (next == -1 || boudrynext > bodyLastChar)										// si aucun, error
+			{
+				std::cout << "ERROR2: " << next << std::endl;
 				throw MessageException(BAD_REQUEST);
-			else if (*boudrynext == '-')													// si boudry-- parsing du body se termine apres ce block de data
+			}
+			else if (*(static_cast<const char *>(boudrynext)) == '-')						// si boudry-- parsing du body se termine apres ce block de data
 				stop = true;
 			
 			// TREATE DATA UNTIL NEXT BOUNDRY: next
-			std::cout << std::string(this->_rawMessage->c_str(), next);
-			if (stop == true)
-				break;
+			std::cout << boundry << std::string(this->_rawMessage->c_str(), next);			// reconstruit le contenu posté manuellement (check)
 			// // si input classic: name-value, si file: name-filename
 			// namelen = ;
 			// valuelen = ;
@@ -220,6 +233,8 @@ void Request::_parse_body() {
 			// contenttypename = ;
 			// // if (filenamelen && _check_filetype(std::string(...)) == false)	// si upload, choper le filetype
 			// // 	throw MessageException(MEDIA_UNSUPPORTED);
+			if (stop == true)
+				break;
 			
 			// ERASE USED DATA UNTIL NEXT BOUNDRY
 			this->_rawMessage->erase(0, next);
@@ -244,6 +259,7 @@ void Request::_parse_body() {
 		_postNameValue.insert(std::make_pair(std::string(this->_rawMessage->c_str(), keylen), std::string(this->_rawMessage->c_str()+keylen+1, vallen)));
 		this->_rawMessage->clear();
 	}
+	std::cout << "TEST PARSE BODY OKAY" << std::endl;
 }
 
 // --------- Operator overload ------------
