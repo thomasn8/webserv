@@ -5,6 +5,7 @@
 #include "Message.hpp"
 #include "StatusCode.hpp"
 #include "Server.hpp"
+#include "multipartData.hpp"
 #include <algorithm>
 #include <string>
 #include <cstring>
@@ -36,12 +37,8 @@ class Request : public Message {
 		std::string _target;
 		std::string _version;
 		
-		// key-value pair pour les inputs classc
 		std::map<std::string, std::string> _postNameValue;
-
-		// key-value pair pour les file uploads, 2 lists avec index correspondant
-		std::list<std::pair<std::string, std::string> > _postNameFilename;
-		std::list<std::pair<std::string, std::string> > _postTypeValue;
+		std::map<std::string, struct multipartData> _postMultipart;
 
 		void		_check_alone_CR(void);
 		void		_parse_start_line(std::string startLine);

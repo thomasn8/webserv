@@ -173,10 +173,10 @@ bool Request::_check_filetype(std::string &contentType)
 
 std::string find_value_from_boundry_block(std::string &block, const char *strtofind, const char *strtolen, char stop)
 {
-	ssize_t namestart = block.find(strtofind) + strlen(strtolen);
-	ssize_t nameend = block.find(stop, namestart);
-	ssize_t namelen = nameend - namestart;
-	return std::string(block.c_str() + namestart, namelen);
+	ssize_t valstart = block.find(strtofind) + strlen(strtolen);
+	ssize_t valend = block.find(stop, valstart);
+	ssize_t vallen = valend - valstart;
+	return std::string(block.c_str() + valstart, vallen);
 }
 
 void Request::_parse_body() {
@@ -208,34 +208,40 @@ void Request::_parse_body() {
 		this->_rawMessage->erase(0, first); // efface les caracteres jusqu au 1er boundry (\r \n ou whitespace)
 		while (1)
 		{
-			// check si boundry en debut de block et l'efface
+			// CHECK SI BOUNDRY EN DEBUT DE BLOCK ET L'EFFACE
 			if (this->_rawMessage->find(boundry) != 0)
 				throw MessageException(BAD_REQUEST);
 			else
 				this->_rawMessage->erase(0, boundrylen);
 
-			// find next boudry or break
+			// FIND NEXT BOUDRY OR BREAK
 			next = this->_rawMessage->find(boundry);
 			if (next == -1)
 				break;
 			
-			// TREATE DATA UNTIL NEXT BOUNDRY
-			// std::cout << boundry << std::string(this->_rawMessage->c_str(), next);	// check le contenu si correspond a la requete
-			// std::cout << "\n\nblock: |" << std::string(this->_rawMessage->c_str(), next) << "|" << std::endl;
+			// TREATE DATA UNTIL NEXT BOUNDRY (attention au CRCL dans les boundry block)
 			ssize_t start_secondline = this->_rawMessage->find('\n', 2) + 1;
-			std::string first_line = this->_rawMessage->substr(2, start_secondline - 4); // attention au CRCL
+			std::string first_line = this->_rawMessage->substr(2, start_secondline - 4);
+			
 			// name
-			std::cout << std::endl << "name=|" << find_value_from_boundry_block(first_line, "name=", "name=\"", '"') << "|" << std::endl;
-			// si file: filename + type
+			std::string name = find_value_from_boundry_block(first_line, "name=", "name=\"", '"');
+			// std::cout << std::endl << "name=|" << find_value_from_boundry_block(first_line, "name=", "name=\"", '"') << "|" << std::endl;
+			struct multipartData multi;
+			multi.file = false;
+			
+			// si file
 			if (first_line.find("filename=") != -1)
 			{
+				multi.file = true;
 				// filename
-				std::cout << "filename=|" << find_value_from_boundry_block(first_line, "filename=", "filename=\"", '"') << "|" << std::endl;
+				multi.filename = find_value_from_boundry_block(first_line, "filename=", "filename=\"", '"');
+				// std::cout << "filename=|" << find_value_from_boundry_block(first_line, "filename=", "filename=\"", '"') << "|" << std::endl;
 
 				// contenttype
 				ssize_t end_secondline = this->_rawMessage->find('\r', start_secondline);
-				std::string second_line = this->_rawMessage->substr(start_secondline, end_secondline); // attention au CRCL
-				std::cout << "contenttype=|" << find_value_from_boundry_block(second_line, "Content-Type:", "Content-Type: ", '\r') << "|"<< std::endl;
+				std::string second_line = this->_rawMessage->substr(start_secondline, end_secondline);
+				multi.contenttype = find_value_from_boundry_block(second_line, "Content-Type:", "Content-Type: ", '\r');
+				// std::cout << "contenttype=|" << find_value_from_boundry_block(second_line, "Content-Type:", "Content-Type: ", '\r') << "|"<< std::endl;
 				// check contenttype if server accept file extension
 				// if (_check_filetype(std::string(...)) == false)	// si upload, choper le filetype
 				// 	throw MessageException(MEDIA_UNSUPPORTED);
@@ -252,19 +258,17 @@ void Request::_parse_body() {
 				start_value = start_thirdline;
 				valueptr = &this->_rawMessage->c_str()[start_value];
 			}
-			// size_t valuelen = 0;
-			// while (valueptr[valuelen] != '\r')	// pas la bonne tactique, il faut chercher boundry
-			// 	valuelen++;
-			// size_t valuelen = next - start_value;
+			// value
 			size_t valuelen = next - start_value - 2;
-			// size_t valuelen = next - start_value + 1;
-			std::cout << "value=|" << std::string(valueptr, valuelen) << "|" << std::endl;
-			
-			// sinon efface le contenu jusquau next boundry
+			// std::cout << "value=|" << std::string(valueptr, valuelen) << "|" << std::endl;
+			multi.value = valueptr;
+			multi.value_len = valuelen;
+			this->_postMultipart.insert(std::make_pair(name, multi));
+
+			// EFFACE LE CONTENU JUSQUAU NEXT BOUNDRY
 			this->_rawMessage->erase(0, next);
 		}
 		// CLEAR LAST FLAG
-		// std::cout << "end of body: " << *this->_rawMessage << std::endl; // check si on a les -- residuels du dernier boundry
 		this->_rawMessage->clear();
 	}
 	else // default/application
@@ -297,8 +301,7 @@ Request &Request::operator=(const Request &instance) {
     this->_target = instance._target;
     this->_version = instance._version;
 	this->_postNameValue = instance._postNameValue;
-	this->_postNameFilename = instance._postNameFilename;
-	this->_postTypeValue = instance._postTypeValue;
+	this->_postMultipart = instance._postMultipart;
 
     this->_body = instance._body;
     this->_fields.insert(instance._fields.begin(), instance._fields.end());
