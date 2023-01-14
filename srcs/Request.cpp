@@ -244,7 +244,8 @@ Request &Request::operator=(const Request &instance) {
     this->_target = instance._target;
     this->_version = instance._version;
 	this->_postNameValue = instance._postNameValue;
-	// this->_postMultipart = instance._postMultipart;
+	this->_postNameFilename = instance._postNameFilename;
+	this->_postTypeValue = instance._postTypeValue;
 
     this->_body = instance._body;
     this->_fields.insert(instance._fields.begin(), instance._fields.end());
