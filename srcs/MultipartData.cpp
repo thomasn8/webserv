@@ -3,13 +3,18 @@
 /* 
 	************ CONST/DESTR
 */
-MultipartData::MultipartData() : _value(NULL), _valueLen(0), _file(false), _fileName(std::string()), _contentType(std::string()) {}
+MultipartData::MultipartData(std::string & name) : 
+_name(name), _value(std::string()), _valueLen(0),
+_file(false), _fileName(std::string()), _contentType(std::string()) {}
 
-MultipartData::MultipartData(MultipartData const &instance) { *this = instance; }
+MultipartData::MultipartData(MultipartData const &instance) :
+_name(instance._name), _value(instance._value), _valueLen(instance._valueLen),
+_file(instance._file), _fileName(instance._fileName), _contentType(instance._contentType) {}
 
 MultipartData::~MultipartData() {}
 
 MultipartData & MultipartData::operator=(MultipartData const &instance) {
+	_name = instance._name;
 	_value = instance._value;
 	_valueLen = instance._valueLen;
 	_file = instance._file;
@@ -21,7 +26,9 @@ MultipartData & MultipartData::operator=(MultipartData const &instance) {
 /* 
 	************ GETTERS/SETTERS
 */
-void MultipartData::set_value(const char *value) { _value = value; }
+void MultipartData::set_name(std::string name) { _name = name; }
+
+void MultipartData::set_value(std::string value) { _value = value; }
 
 void MultipartData::set_valueLen(size_t value_len) { _valueLen = value_len; }
 
@@ -31,7 +38,9 @@ void MultipartData::set_fileName(std::string filename) { _fileName = filename; }
 
 void MultipartData::set_contentType(std::string contenttype) { _contentType = contenttype;}
 
-const char * MultipartData::get_value() const { return _value; }
+std::string MultipartData::get_name() const { return _name; }
+
+const char * MultipartData::get_value() const { return _value.c_str(); }
 
 size_t MultipartData::get_valueLen() const { return _valueLen; }
 
@@ -42,11 +51,12 @@ std::string MultipartData::get_fileName() const { return _fileName; }
 std::string MultipartData::get_contentType() const { return _contentType; }
 
 /* 
-	************ OTHERS
+	************ PRINT
 */
 void MultipartData::print_data() const
 {
 	std::cout << "Multipart data (" << static_cast<const void *>(this) << "):" << std::endl;
+	std::cout << "name = " << get_name() << std::endl;
 	if (get_file())
 	{
 		std::cout << "filename = " << get_fileName() << std::endl;
@@ -54,7 +64,7 @@ void MultipartData::print_data() const
 	}
 	std::cout << "value len = " << get_valueLen() << std::endl;
 	const char * ptr = get_value();
-	std::cout << "value (" << static_cast<const void *>(ptr) << ") = ";
+	std::cout << "value = ";
 	for (int i = 0; i < get_valueLen(); i++)
 		std::cout << ptr[i];
 	std::cout << std::endl;

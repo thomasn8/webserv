@@ -7,17 +7,19 @@
 class MultipartData
 {
 	public:
-		MultipartData();
+		MultipartData(std::string &name);
 		MultipartData(MultipartData const &instance);
 		~MultipartData();
 		MultipartData &operator=(MultipartData const &instance);
 
-		void set_value(const char *value);
+		void set_name(std::string name);
+		void set_value(std::string value);
 		void set_valueLen(size_t value_len);
 		void set_file(bool file);
 		void set_fileName(std::string filename);
 		void set_contentType(std::string contenttype);
 		
+		std::string get_name() const;
 		const char * get_value() const;
 		size_t get_valueLen() const;
 		bool get_file() const;
@@ -27,11 +29,12 @@ class MultipartData
 		void print_data() const;
 
 	private:
-		const char *_value;				// erreur dans la map
-		size_t _valueLen;				// ok
-		bool _file;						// ok
-		std::string _fileName;			// ok
-		std::string _contentType;		// ok
+		std::string _name;
+		std::string _value;
+		size_t _valueLen;
+		bool _file;
+		std::string _fileName;
+		std::string _contentType;
 };
 
 #endif

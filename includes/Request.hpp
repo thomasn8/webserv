@@ -6,11 +6,12 @@
 #include "StatusCode.hpp"
 #include "Server.hpp"
 #include "MultipartData.hpp"
-#include <algorithm>
 #include <string>
 #include <cstring>
 #include <sstream>
 #include <iostream>
+#include <map>
+#include <list>
 
 #define ENCTYPE_DEFAULT 1
 #define ENCTYPE_MULTIPART 2
@@ -38,7 +39,7 @@ class Request : public Message {
 		std::string _version;
 		
 		std::map<std::string, std::string> _postNameValue;
-		std::map<std::string, MultipartData *> _postMultipart;
+		std::list<MultipartData *> _postMultipart;
 		void 		_print_defaultDatas() const;
 		void 		_print_multipartDatas() const;
 		void		_free_multipartDatas();

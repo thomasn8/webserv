@@ -5,7 +5,7 @@
 
 Request::Request(std::string *rawMessage, Server *server) : 
 _rawMessage(rawMessage), _server(server) {
-	std::cout << *rawMessage << std::endl;
+	// std::cout << *rawMessage << std::endl;
 	ssize_t i = this->_rawMessage->find_first_of('\n');
     std::string start_line = this->_rawMessage->substr(0, i); // prend le /r avant /n
 	_rawMessage->erase(0, i+1);
@@ -206,22 +206,22 @@ void Request::_parse_multipartDataType(mapit type)
 	_rawMessage->erase(0, first); // efface les \r \n jusqu au 1er boundry
 	while (1)
 	{
-		std::cout << "capacity: " << _rawMessage->capacity() << std::endl;
 		// CHECK SI BOUNDRY EN DEBUT DE BLOCK ET L'EFFACE
 		if (_rawMessage->find(boundry) != 0)
 			throw MessageException(BAD_REQUEST);
 		_rawMessage->erase(0, boundrylen);
+		
 		// FIND NEXT BOUDRY OR BREAK
 		next = _rawMessage->find(boundry);
 		if (next == -1)
 			break;
+		
 		// TREATE DATA UNTIL NEXT BOUNDRY (attention au CRCL dans les boundry block)
 		ssize_t start_secondline = _rawMessage->find('\n', 2) + 1;
 		std::string first_line = _rawMessage->substr(2, start_secondline - 4);
-		std::cout << std::endl << "name=|" << _find_value_from_boundry_block(first_line, "name=", "name=\"", '"') << "|" << std::endl;
 		std::string name = _find_value_from_boundry_block(first_line, "name=", "name=\"", '"');
-		MultipartData *multi = new MultipartData();
-		if (first_line.find("filename=") != -1)
+		MultipartData *multi = new MultipartData(name);
+		if (first_line.find("filename=") != -1)	// FILE SPECIFIC
 		{
 			multi->set_fileName(_find_value_from_boundry_block(first_line, "filename=", "filename=\"", '"'));
 			if (multi->get_fileName().size())
@@ -247,10 +247,10 @@ void Request::_parse_multipartDataType(mapit type)
 		size_t valuelen = next - start_value - 2;
 		multi->set_valueLen(valuelen);
 		if (valuelen > 0)
-			multi->set_value(valueptr);
+			multi->set_value(std::string(valueptr, valuelen));
+		
 		// INSERT ET EFFACE LE CONTENU DU BODY JUSQUAU NEXT BOUNDRY
-		multi->print_data();
-		_postMultipart.insert(std::make_pair(name, multi));
+		_postMultipart.push_back(multi);
 		_rawMessage->erase(0, next);
 	}
 	// CLEAR LAST FLAG
@@ -276,55 +276,6 @@ void Request::_parse_body() {
 		_parse_multipartDataType(type);
 	else
 		_parse_defaultDataType();
-
-	_print_defaultDatas();
-	_print_multipartDatas();
-	std::cout << "CAPACITY: " << _rawMessage->capacity() << std::endl;
-}
-
-void Request::_print_defaultDatas() const
-{
-	std::cout << "\nPRINT BODY POST APPLICATION DATAS" << std::endl;
-	if (_postNameValue.size() > 0)
-	{
-		std::map<std::string, std::string>::const_iterator it = _postNameValue.cbegin();
-		for (; it != _postNameValue.cend(); it++)
-		{
-			std::cout << "Data:" << std::endl;
-			std::cout << "	name = |" << (*it).first << "|" << std::endl;
-			std::cout << "	value = |" << (*it).second << "|" << std::endl;
-		}
-		std::cout << std::endl;
-	}
-}
-
-void Request::_print_multipartDatas() const
-{
-	std::cout << "\nPRINT BODY POST MULTIPART DATAS" << std::endl;
-	if (_postMultipart.size() > 0)
-	{
-		std::map<std::string, MultipartData *>::const_iterator it = _postMultipart.cbegin();
-		for (; it != _postMultipart.cend(); it++)
-		{
-			std::cout << "Data (" << static_cast<const void *>((*it).second) << "):" << std::endl;
-			std::cout << "	name = |" << (*it).first << "|" << std::endl;
-			if ((*it).second->get_file() == true)
-			{
-				std::cout << "	filename = |" << (*it).second->get_fileName() << "|" << std::endl;
-				std::cout << "	content type = |" << (*it).second->get_contentType() << "|" << std::endl;
-			}
-			if ((*it).second->get_value() != NULL)
-			{
-				size_t len = (*it).second->get_valueLen();
-				const char * ptr = (*it).second->get_value();
-				std::cout << "	value (" << static_cast<const void *>(ptr) << ") = |";
-				for (int i = 0; i < len; i++)
-					std::cout << ptr[i];
-				std::cout << "|" << std::endl;
-			}
-		}
-		std::cout << std::endl;
-	}
 }
 
 // delete les Multipart * alloues dans map de _postMultipart
@@ -332,9 +283,9 @@ void Request::_free_multipartDatas()
 {
 	if (_postMultipart.size() > 0)
 	{
-		std::map<std::string, MultipartData *>::const_iterator it = _postMultipart.cbegin();
+		std::list<MultipartData *>::const_iterator it = _postMultipart.cbegin();
 		for (; it != _postMultipart.cend(); it++)
-			delete (*it).second;
+			delete (*it);
 	}
 }
 
@@ -352,4 +303,51 @@ Request &Request::operator=(const Request &instance) {
     this->_body = instance._body;
     this->_fields.insert(instance._fields.begin(), instance._fields.end());
     return *this;
+}
+
+// --------- Print post data ------------
+
+void Request::_print_defaultDatas() const
+{
+	std::cout << "\nPOST APPLICATION DATAS" << std::endl;
+	if (_postNameValue.size() > 0)
+	{
+		std::map<std::string, std::string>::const_iterator it = _postNameValue.cbegin();
+		for (; it != _postNameValue.cend(); it++)
+		{
+			std::cout << "Data:" << std::endl;
+			std::cout << "	name = |" << (*it).first << "|" << std::endl;
+			std::cout << "	value = |" << (*it).second << "|" << std::endl;
+		}
+		std::cout << std::endl;
+	}
+}
+
+void Request::_print_multipartDatas() const
+{
+	std::cout << "\nPOST MULTIPART DATAS" << std::endl;
+	if (_postMultipart.size() > 0)
+	{
+		std::list<MultipartData *>::const_iterator it = _postMultipart.cbegin();
+		for (; it != _postMultipart.cend(); it++)
+		{
+			std::cout << "Data (" << static_cast<const void *>(*it) << "):" << std::endl;
+			std::cout << "	name = |" << (*it)->get_name() << "|" << std::endl;
+			if ((*it)->get_file() == true)
+			{
+				std::cout << "	filename = |" << (*it)->get_fileName() << "|" << std::endl;
+				std::cout << "	content type = |" << (*it)->get_contentType() << "|" << std::endl;
+			}
+			if ((*it)->get_value() != NULL)
+			{
+				size_t len = (*it)->get_valueLen();
+				const char * ptr = (*it)->get_value();
+				std::cout << "	value = |";
+				for (int i = 0; i < len; i++)
+					std::cout << ptr[i];
+				std::cout << "|" << std::endl;
+			}
+		}
+		std::cout << std::endl;
+	}
 }
