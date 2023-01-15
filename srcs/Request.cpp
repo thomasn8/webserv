@@ -5,7 +5,7 @@
 
 Request::Request(std::string *rawMessage, Server *server) : 
 _rawMessage(rawMessage), _server(server) {
-	// std::cout << *rawMessage << std::endl;
+	std::cout << *rawMessage << std::endl;
 	ssize_t i = this->_rawMessage->find_first_of('\n');
     std::string start_line = this->_rawMessage->substr(0, i); // prend le /r avant /n
 	_rawMessage->erase(0, i+1);
@@ -222,13 +222,18 @@ void Request::_parse_multipartDataType(mapit type)
 		MultipartData *multi = new MultipartData();
 		if (first_line.find("filename=") != -1)
 		{
-			multi->set_file(true);
 			multi->set_fileName(_find_value_from_boundry_block(first_line, "filename=", "filename=\"", '"'));
+			// std::cout << "filename=|" << _find_value_from_boundry_block(first_line, "filename=", "filename=\"", '"') << "|" << std::endl;
+			if (multi->get_fileName().size())
+				multi->set_file(true);
 			ssize_t end_secondline = _rawMessage->find('\r', start_secondline);
 			std::string second_line = _rawMessage->substr(start_secondline, end_secondline);
-			multi->set_contentType(_find_value_from_boundry_block(second_line, "Content-Type:", "Content-Type: ", '\r'));
-			if (_check_filetype(multi->get_contentType()) == false)
-				throw MessageException(MEDIA_UNSUPPORTED);
+			if (multi->get_file())
+			{
+				multi->set_contentType(_find_value_from_boundry_block(second_line, "Content-Type:", "Content-Type: ", '\r'));
+				if (_check_filetype(multi->get_contentType()) == false)
+					throw MessageException(MEDIA_UNSUPPORTED);
+			}
 			ssize_t start_fourthline = end_secondline + 4;
 			start_value = start_fourthline;
 			valueptr = &_rawMessage->c_str()[start_value];
@@ -240,11 +245,12 @@ void Request::_parse_multipartDataType(mapit type)
 			valueptr = &_rawMessage->c_str()[start_value];
 		}
 		size_t valuelen = next - start_value - 2;
-		std::cout << "value=|" << std::string(valueptr, valuelen) << "|" << std::endl;
+		// std::cout << "value=|" << std::string(valueptr, valuelen) << "|" << std::endl;
 		multi->set_valueLen(valuelen);
 		if (valuelen > 0)
 			multi->set_value(valueptr);
 		// INSERT ET EFFACE LE CONTENU DU BODY JUSQUAU NEXT BOUNDRY
+		multi->print_data();
 		_postMultipart.insert(std::make_pair(name, multi));
 		_rawMessage->erase(0, next);
 	}

@@ -3,7 +3,7 @@
 /* 
 	************ CONST/DESTR
 */
-MultipartData::MultipartData() : _value(NULL), _valueLen(0), _file(false), _fileName(std::string()), _contentType(std::string()){}
+MultipartData::MultipartData() : _value(NULL), _valueLen(0), _file(false), _fileName(std::string()), _contentType(std::string()) {}
 
 MultipartData::MultipartData(MultipartData const &instance) { *this = instance; }
 
@@ -40,3 +40,22 @@ bool MultipartData::get_file() const { return _file; }
 std::string MultipartData::get_fileName() const { return _fileName; }
 
 std::string MultipartData::get_contentType() const { return _contentType; }
+
+/* 
+	************ OTHERS
+*/
+void MultipartData::print_data() const
+{
+	std::cout << "Multipart data:" << std::endl;
+	if (get_file())
+	{
+		std::cout << "filename = " << get_fileName() << std::endl;
+		std::cout << "content type = " << get_contentType() << std::endl;
+	}
+	std::cout << "value len = " << get_valueLen() << std::endl;
+	std::cout << "value = ";
+	const char * ptr = get_value();
+	for (int i = 0; i < get_valueLen(); i++)
+		std::cout << ptr[i];
+	std::cout << std::endl;
+}
