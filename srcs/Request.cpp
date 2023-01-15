@@ -206,6 +206,7 @@ void Request::_parse_multipartDataType(mapit type)
 	_rawMessage->erase(0, first); // efface les \r \n jusqu au 1er boundry
 	while (1)
 	{
+		std::cout << "capacity: " << _rawMessage->capacity() << std::endl;
 		// CHECK SI BOUNDRY EN DEBUT DE BLOCK ET L'EFFACE
 		if (_rawMessage->find(boundry) != 0)
 			throw MessageException(BAD_REQUEST);
@@ -223,7 +224,6 @@ void Request::_parse_multipartDataType(mapit type)
 		if (first_line.find("filename=") != -1)
 		{
 			multi->set_fileName(_find_value_from_boundry_block(first_line, "filename=", "filename=\"", '"'));
-			// std::cout << "filename=|" << _find_value_from_boundry_block(first_line, "filename=", "filename=\"", '"') << "|" << std::endl;
 			if (multi->get_fileName().size())
 				multi->set_file(true);
 			ssize_t end_secondline = _rawMessage->find('\r', start_secondline);
@@ -245,7 +245,6 @@ void Request::_parse_multipartDataType(mapit type)
 			valueptr = &_rawMessage->c_str()[start_value];
 		}
 		size_t valuelen = next - start_value - 2;
-		// std::cout << "value=|" << std::string(valueptr, valuelen) << "|" << std::endl;
 		multi->set_valueLen(valuelen);
 		if (valuelen > 0)
 			multi->set_value(valueptr);
@@ -280,6 +279,7 @@ void Request::_parse_body() {
 
 	_print_defaultDatas();
 	_print_multipartDatas();
+	std::cout << "CAPACITY: " << _rawMessage->capacity() << std::endl;
 }
 
 void Request::_print_defaultDatas() const
@@ -306,7 +306,7 @@ void Request::_print_multipartDatas() const
 		std::map<std::string, MultipartData *>::const_iterator it = _postMultipart.cbegin();
 		for (; it != _postMultipart.cend(); it++)
 		{
-			std::cout << "Data:" << std::endl;
+			std::cout << "Data (" << static_cast<const void *>((*it).second) << "):" << std::endl;
 			std::cout << "	name = |" << (*it).first << "|" << std::endl;
 			if ((*it).second->get_file() == true)
 			{
@@ -317,7 +317,7 @@ void Request::_print_multipartDatas() const
 			{
 				size_t len = (*it).second->get_valueLen();
 				const char * ptr = (*it).second->get_value();
-				std::cout << "	value = |";
+				std::cout << "	value (" << static_cast<const void *>(ptr) << ") = |";
 				for (int i = 0; i < len; i++)
 					std::cout << ptr[i];
 				std::cout << "|" << std::endl;

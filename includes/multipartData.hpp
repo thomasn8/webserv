@@ -27,11 +27,11 @@ class MultipartData
 		void print_data() const;
 
 	private:
-		const char *_value;
-		size_t _valueLen;
-		bool _file;
-		std::string _fileName;
-		std::string _contentType;
+		const char *_value;				// erreur dans la map
+		size_t _valueLen;				// ok
+		bool _file;						// ok
+		std::string _fileName;			// ok
+		std::string _contentType;		// ok
 };
 
 #endif

@@ -46,15 +46,15 @@ std::string MultipartData::get_contentType() const { return _contentType; }
 */
 void MultipartData::print_data() const
 {
-	std::cout << "Multipart data:" << std::endl;
+	std::cout << "Multipart data (" << static_cast<const void *>(this) << "):" << std::endl;
 	if (get_file())
 	{
 		std::cout << "filename = " << get_fileName() << std::endl;
 		std::cout << "content type = " << get_contentType() << std::endl;
 	}
 	std::cout << "value len = " << get_valueLen() << std::endl;
-	std::cout << "value = ";
 	const char * ptr = get_value();
+	std::cout << "value (" << static_cast<const void *>(ptr) << ") = ";
 	for (int i = 0; i < get_valueLen(); i++)
 		std::cout << ptr[i];
 	std::cout << std::endl;
