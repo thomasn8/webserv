@@ -84,11 +84,17 @@ void Location::set_route(std::string value)
 		return;
 	_route = value;
 
-	// if route is a cgi, replace default php cgi extension
+	// if route is a cgi, replace roote value and default php cgi extension
 	if (value[0] == '.' )
+	{
 		_cgiExtension = value.substr(1);
+		_route = _cgiExtension;
+	}
 	else if (value[0] == '*')
+	{
 		_cgiExtension = value.substr(2);
+		_route = _cgiExtension;
+	}
 }
 
 void Location::set_root(std::string & value)

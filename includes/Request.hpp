@@ -5,7 +5,7 @@
 #include "Message.hpp"
 #include "StatusCode.hpp"
 #include "Server.hpp"
-#include "multipartData.hpp"
+#include "MultipartData.hpp"
 #include <algorithm>
 #include <string>
 #include <cstring>
@@ -38,14 +38,19 @@ class Request : public Message {
 		std::string _version;
 		
 		std::map<std::string, std::string> _postNameValue;
-		std::map<std::string, struct multipartData> _postMultipart;
+		std::map<std::string, MultipartData *> _postMultipart;
+		void 		_print_defaultDatas() const;
+		void 		_print_multipartDatas() const;
+		void		_free_multipartDatas();
 
 		void		_check_alone_CR(void);
 		void		_parse_start_line(std::string startLine);
 		void		_split_field(size_t separator, size_t lastchar);
 		int			_parse_header();
 		void		_parse_body();
-		bool		_check_filetype(std::string &contentType);
+		bool		_check_filetype(std::string contentType);
+		std::string _find_value_from_boundry_block(std::string &block, const char *strtofind, const char *strtolen, char stop);
+
 };
 
 #endif

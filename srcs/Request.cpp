@@ -5,22 +5,14 @@
 
 Request::Request(std::string *rawMessage, Server *server) : 
 _rawMessage(rawMessage), _server(server) {
-
 	std::cout << *rawMessage << std::endl;
-
 	ssize_t i = this->_rawMessage->find_first_of('\n');
     std::string start_line = this->_rawMessage->substr(0, i); // prend le /r avant /n
 	_rawMessage->erase(0, i+1);
     _check_alone_CR();
-	std::cout << "TEST PARSE CR OKAY" << std::endl;
     _parse_start_line(start_line);
-	std::cout << "TEST PARSE START LINE OKAY" << std::endl;
     if (_parse_header() > 0)
-	{
-		std::cout << "HAS BODY" << std::endl;
     	_parse_body();
-	}
-	std::cout << "TEST REQUEST OBJECT OKAY" << std::endl;
 }
 
 Request::Request(const Request& instance) {
@@ -28,7 +20,7 @@ Request::Request(const Request& instance) {
 }
 
 Request::~Request() {
-
+	_free_multipartDatas();
 }
 
 // --------- Fonctions ------------
@@ -148,17 +140,19 @@ int Request::_parse_header() {
 		this->_rawMessage->erase(0, i+1); // efface la derniere ligne vide du header
 	else
 		throw MessageException(BAD_REQUEST);
-	std::cout << "TEST PARSE HEADER OKAY" << std::endl;
 	return this->_rawMessage->size(); // retourne la size du body
 }
 
-// regarde dans le location correspondant a l'extension de la targert si le type de fichier uploade est valide etaccepte
-bool Request::_check_filetype(std::string &contentType)
+// regarde dans le location correspondant a l'extension de la targert si le type de fichier uploade est accepte
+bool Request::_check_filetype(std::string contentType)
 {
+	size_t slash = contentType.rfind('/');
+	if (slash != -1)
+		contentType.erase(0, slash + 1);
 	std::string ext = _target.substr(_target.find_last_of('.')+1, std::string::npos);
-	for (std::deque<Location>::iterator it = _server->get_locations().begin(); it != _server->get_locations().end(); it++)
+	for (Server::loc_it it = _server->get_locations().begin(); it != _server->get_locations().end(); it++)
 	{
-		if (ext == (*it).get_cgi())
+		if (ext == (*it).get_route())
 		{
 			for (std::list<std::string>::iterator it2 = (*it).get_contentTypes().begin(); it2 != (*it).get_contentTypes().end(); it2++)
 			{
@@ -171,7 +165,7 @@ bool Request::_check_filetype(std::string &contentType)
 	return false;
 }
 
-std::string find_value_from_boundry_block(std::string &block, const char *strtofind, const char *strtolen, char stop)
+std::string Request::_find_value_from_boundry_block(std::string &block, const char *strtofind, const char *strtolen, char stop)
 {
 	ssize_t valstart = block.find(strtofind) + strlen(strtolen);
 	ssize_t valend = block.find(stop, valstart);
@@ -184,7 +178,7 @@ void Request::_parse_body() {
 	
 	// faire les checks necessaire sur la len
 	mapit contentlen = _fields.find("Content-Length");
-	if ((*contentlen).second.size() != 1)						// SI CONTENT-LENGTH PAS PRECISE, BAD REQUEST ?
+	if ((*contentlen).second.size() != 1)
 		throw MessageException(BAD_REQUEST);
 	size_t contentLength = strtoul((*contentlen).second.front().c_str(), NULL, 0);
 	if (contentLength != _rawMessage->size())
@@ -205,66 +199,46 @@ void Request::_parse_body() {
 		const char *valueptr;
 		if (first == -1)
 			throw MessageException(BAD_REQUEST);
-		this->_rawMessage->erase(0, first); // efface les caracteres jusqu au 1er boundry (\r \n ou whitespace)
+		this->_rawMessage->erase(0, first); // efface les \r \n jusqu au 1er boundry
 		while (1)
 		{
 			// CHECK SI BOUNDRY EN DEBUT DE BLOCK ET L'EFFACE
 			if (this->_rawMessage->find(boundry) != 0)
 				throw MessageException(BAD_REQUEST);
-			else
-				this->_rawMessage->erase(0, boundrylen);
-
+			this->_rawMessage->erase(0, boundrylen);
 			// FIND NEXT BOUDRY OR BREAK
 			next = this->_rawMessage->find(boundry);
 			if (next == -1)
 				break;
-			
 			// TREATE DATA UNTIL NEXT BOUNDRY (attention au CRCL dans les boundry block)
 			ssize_t start_secondline = this->_rawMessage->find('\n', 2) + 1;
 			std::string first_line = this->_rawMessage->substr(2, start_secondline - 4);
-			
-			// name
-			std::string name = find_value_from_boundry_block(first_line, "name=", "name=\"", '"');
-			// std::cout << std::endl << "name=|" << find_value_from_boundry_block(first_line, "name=", "name=\"", '"') << "|" << std::endl;
-			struct multipartData multi;
-			multi.file = false;
-			
-			// si file
+			std::string name = _find_value_from_boundry_block(first_line, "name=", "name=\"", '"');
+			MultipartData *multi = new MultipartData();
 			if (first_line.find("filename=") != -1)
 			{
-				multi.file = true;
-				// filename
-				multi.filename = find_value_from_boundry_block(first_line, "filename=", "filename=\"", '"');
-				// std::cout << "filename=|" << find_value_from_boundry_block(first_line, "filename=", "filename=\"", '"') << "|" << std::endl;
-
-				// contenttype
+				multi->set_file(true);
+				multi->set_fileName(_find_value_from_boundry_block(first_line, "filename=", "filename=\"", '"'));
 				ssize_t end_secondline = this->_rawMessage->find('\r', start_secondline);
 				std::string second_line = this->_rawMessage->substr(start_secondline, end_secondline);
-				multi.contenttype = find_value_from_boundry_block(second_line, "Content-Type:", "Content-Type: ", '\r');
-				// std::cout << "contenttype=|" << find_value_from_boundry_block(second_line, "Content-Type:", "Content-Type: ", '\r') << "|"<< std::endl;
-				// check contenttype if server accept file extension
-				// if (_check_filetype(std::string(...)) == false)	// si upload, choper le filetype
-				// 	throw MessageException(MEDIA_UNSUPPORTED);
-				
-				// value
+				multi->set_contentType(_find_value_from_boundry_block(second_line, "Content-Type:", "Content-Type: ", '\r'));
+				if (_check_filetype(multi->get_contentType()) == false)
+					throw MessageException(MEDIA_UNSUPPORTED);
 				ssize_t start_fourthline = end_secondline + 4;
 				start_value = start_fourthline;
 				valueptr = &this->_rawMessage->c_str()[start_value];
 			}
 			else
 			{
-				// value
 				ssize_t start_thirdline = start_secondline + 2;
 				start_value = start_thirdline;
 				valueptr = &this->_rawMessage->c_str()[start_value];
 			}
-			// value
 			size_t valuelen = next - start_value - 2;
-			// std::cout << "value=|" << std::string(valueptr, valuelen) << "|" << std::endl;
-			multi.value = valueptr;
-			multi.value_len = valuelen;
+			multi->set_valueLen(valuelen);
+			if (valuelen > 0)
+				multi->set_value(valueptr);
 			this->_postMultipart.insert(std::make_pair(name, multi));
-
 			// EFFACE LE CONTENU JUSQUAU NEXT BOUNDRY
 			this->_rawMessage->erase(0, next);
 		}
@@ -289,7 +263,61 @@ void Request::_parse_body() {
 		_postNameValue.insert(std::make_pair(std::string(this->_rawMessage->c_str(), keylen), std::string(this->_rawMessage->c_str()+keylen+1, vallen)));
 		this->_rawMessage->clear();
 	}
-	std::cout << "TEST PARSE BODY OKAY" << std::endl;
+	// _print_defaultDatas();
+	// _print_multipartDatas();
+}
+void Request::_print_defaultDatas() const
+{
+	if (_postNameValue.size() > 0)
+	{
+		std::map<std::string, std::string>::const_iterator it = _postNameValue.cbegin();
+		for (; it != _postNameValue.cend(); it++)
+		{
+			std::cout << "Default data:" << std::endl;
+			std::cout << "	name = |" << (*it).first << "|" << std::endl;
+			std::cout << "	value = |" << (*it).second << "|" << std::endl;
+		}
+		std::cout << std::endl;
+	}
+}
+
+void Request::_print_multipartDatas() const
+{
+	if (_postMultipart.size() > 0)
+	{
+		std::map<std::string, MultipartData *>::const_iterator it = _postMultipart.cbegin();
+		for (; it != _postMultipart.cend(); it++)
+		{
+			std::cout << "Multipart data:" << std::endl;
+			std::cout << "	name = |" << (*it).first << "|" << std::endl;
+			if ((*it).second->get_file() == true)
+			{
+				std::cout << "	filename = |" << (*it).second->get_fileName() << "|" << std::endl;
+				std::cout << "	content type = |" << (*it).second->get_contentType() << "|" << std::endl;
+			}
+			if ((*it).second->get_value() != NULL)
+			{
+				size_t len = (*it).second->get_valueLen();
+				const char * ptr = (*it).second->get_value();
+				std::cout << "	value = |";
+				for (int i = 0; i < len; i++)
+					std::cout << ptr[i];
+				std::cout << "|" << std::endl;
+			}
+		}
+		std::cout << std::endl;
+	}
+}
+
+// delete les Multipart * alloues dans map de _postMultipart
+void Request::_free_multipartDatas()
+{
+	if (_postMultipart.size() > 0)
+	{
+		std::map<std::string, MultipartData *>::const_iterator it = _postMultipart.cbegin();
+		for (; it != _postMultipart.cend(); it++)
+			delete (*it).second;
+	}
 }
 
 // --------- Operator overload ------------

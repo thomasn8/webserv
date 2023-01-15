@@ -45,6 +45,7 @@ class Server
 {
 	public:
 		typedef std::pair<int, std::string> error_page_pair;
+		typedef std::deque<Location>::iterator loc_it;
 
 		// CONST/DESTR
 		Server();
