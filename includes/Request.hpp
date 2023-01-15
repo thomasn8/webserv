@@ -48,6 +48,8 @@ class Request : public Message {
 		void		_split_field(size_t separator, size_t lastchar);
 		int			_parse_header();
 		void		_parse_body();
+		void 		_parse_defaultDataType();
+		void 		_parse_multipartDataType(mapit type);
 		bool		_check_filetype(std::string contentType);
 		std::string _find_value_from_boundry_block(std::string &block, const char *strtofind, const char *strtolen, char stop);
 
