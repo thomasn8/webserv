@@ -42,7 +42,7 @@ std::string Message::get_body() const {
 }
 
 bool Message::has_body() const {
-    return this->_body.size();
+    return !this->_body.empty();
 }
 
 // --------- Operator overload ------------
