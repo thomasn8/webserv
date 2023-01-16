@@ -161,13 +161,13 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 			// std::cout << "alloc" << std::endl;
 			if (_buf.capacity == 0)
 			{
-				std::cout << "malloc" << std::endl;
+				// std::cout << "malloc" << std::endl;
 				_buf.begin = (char *)malloc(CHUNK_SIZE);
 				_buf.capacity = CHUNK_SIZE;
 			}
 			else
 			{
-				std::cout << "realloc" << std::endl;
+				// std::cout << "realloc" << std::endl;
 				_buf.begin = (char *)realloc(_buf.begin, _buf.capacity * 2);
 				_buf.capacity *= 2;
 			}
@@ -178,16 +178,16 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 		size_recv = recv(fd, _buf.current, CHUNK_SIZE, 0); // recv la request jusqu'au bout du client_fd
 		_buf.size += size_recv;
 		_buf.current += size_recv;
-		std::cout << size_recv << " bytes read on socket " << fd << std::endl;
+		// std::cout << size_recv << " bytes read on socket " << fd << std::endl;
 		if (maxrecv && _buf.size > maxrecv) // erreur max body size 413
 		{
-			std::cout << " buffer size (error): " << _buf.size << std::endl;
+			// std::cout << " buffer size (error): " << _buf.size << std::endl;
 			return -1;
 		}
 		if (size_recv < CHUNK_SIZE) // toute la request a été read
 		{
-			std::cout << " buffer size: " << _buf.size << std::endl;
-			std::cout << " buffer capacity: " << _buf.capacity << std::endl;
+			// std::cout << " buffer size: " << _buf.size << std::endl;
+			// std::cout << " buffer capacity: " << _buf.capacity << std::endl;
 			log(get_time(), " Request from    ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(), ": ", _buf.size, " bytes read via socket ", fd, "\n");
 			return _buf.size;
 		}
@@ -277,7 +277,7 @@ void Monitor::handle_connections()
 							Response response("413", _activeSockets[i].server, &responseStr);			// si recvall a atteint le MBS, constuit une response selon le status code
 						if (_buf.capacity > BUFFER_LIMIT)
 						{
-							std::cout << " free buffer, capacity :" << _buf.capacity << std::endl;
+							// std::cout << " free buffer, capacity :" << _buf.capacity << std::endl;
 							free(_buf.begin);
 							_buf.capacity = 0;
 						}
