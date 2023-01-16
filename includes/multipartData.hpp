@@ -29,12 +29,12 @@ class MultipartData
 		void print_data() const;
 
 	private:
-		std::string _name;
-		std::string _value;
-		size_t _valueLen;
-		bool _file;
-		std::string _fileName;
-		std::string _contentType;
+		std::string	_name;
+		std::string	_value;
+		size_t		_valueLen;
+		bool		_file;
+		std::string	_fileName;
+		std::string	_contentType;
 };
 
 #endif

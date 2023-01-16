@@ -3,9 +3,7 @@
 
 // ---------Constructor and destructor ------------
 
-Request::Request(std::string *rawMessage, Server *server) : 
-_rawMessage(rawMessage), _server(server) {
-	// std::cout << *rawMessage << std::endl;
+Request::Request(std::string *rawMessage, Server *server) : _rawMessage(rawMessage), _server(server) {
 	ssize_t i = this->_rawMessage->find_first_of('\n');
     std::string start_line = this->_rawMessage->substr(0, i); // prend le /r avant /n
 	_rawMessage->erase(0, i+1);
@@ -39,6 +37,13 @@ std::string Request::get_target()const {
 
 std::string Request::get_version() const {
     return this->_version;
+}
+
+std::map<std::string, std::string> & Request::get_defaultDatas() {
+	return _postNameValue;
+}
+std::list<MultipartData *> & Request::get_multipartDatas() {
+	return _postMultipart;
 }
 
 // RFC 9112 2.2. Message Parsing 4 paragraph about CR
@@ -144,8 +149,7 @@ int Request::_parse_header() {
 }
 
 // regarde dans le location correspondant a l'extension de la targert si le type de fichier uploade est accepte
-bool Request::_check_filetype(std::string contentType)
-{
+bool Request::_check_filetype(std::string contentType) {
 	size_t slash = contentType.rfind('/');
 	if (slash != -1)
 		contentType.erase(0, slash + 1);
@@ -165,16 +169,14 @@ bool Request::_check_filetype(std::string contentType)
 	return false;
 }
 
-std::string Request::_find_value_from_boundry_block(std::string &block, const char *strtofind, const char *strtolen, char stop)
-{
+std::string Request::_find_value_from_boundry_block(std::string &block, const char *strtofind, const char *strtolen, char stop) {
 	ssize_t valstart = block.find(strtofind) + strlen(strtolen);
 	ssize_t valend = block.find(stop, valstart);
 	ssize_t vallen = valend - valstart;
 	return std::string(block.c_str() + valstart, vallen);
 }
 
-void Request::_parse_defaultDataType()
-{
+void Request::_parse_defaultDataType() {
 	ssize_t i, keylen = 0, vallen = 0;
 	i = _rawMessage->find('&');
 	while (i != -1)
@@ -192,8 +194,7 @@ void Request::_parse_defaultDataType()
 	_rawMessage->clear();
 }
 
-void Request::_parse_multipartDataType(mapit type)
-{
+void Request::_parse_multipartDataType(mapit type) {
 	ssize_t pos = (*type).second.front().find_first_of('=');
 	if (pos == -1)
 		throw MessageException(BAD_REQUEST);
@@ -279,8 +280,7 @@ void Request::_parse_body() {
 }
 
 // delete les Multipart * alloues dans map de _postMultipart
-void Request::_free_multipartDatas()
-{
+void Request::_free_multipartDatas() {
 	if (_postMultipart.size() > 0)
 	{
 		std::list<MultipartData *>::const_iterator it = _postMultipart.cbegin();
@@ -307,8 +307,7 @@ Request &Request::operator=(const Request &instance) {
 
 // --------- Print post data ------------
 
-void Request::_print_defaultDatas() const
-{
+void Request::_print_defaultDatas() const {
 	std::cout << "\nPOST APPLICATION DATAS" << std::endl;
 	if (_postNameValue.size() > 0)
 	{
@@ -323,8 +322,7 @@ void Request::_print_defaultDatas() const
 	}
 }
 
-void Request::_print_multipartDatas() const
-{
+void Request::_print_multipartDatas() const {
 	std::cout << "\nPOST MULTIPART DATAS" << std::endl;
 	if (_postMultipart.size() > 0)
 	{

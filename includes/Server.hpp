@@ -55,7 +55,7 @@ class Server
 		// GETTERS/SETTERS
 		std::deque<Location> & get_locations();
 		Location & get_last_location();
-		void add_location();
+		void add_location(std::string & route);
 		void add_directive(int directiveIndex, std::string value);
 		void set_address_port(std::string & value);
 		void set_servername(std::string & value);

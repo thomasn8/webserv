@@ -43,7 +43,22 @@ std::deque<Location> & Server::get_locations() { return _locations; }
 
 Location & Server::get_last_location() { return get_locations().back(); }
 
-void Server::add_location() { _locations.push_back(Location(get_root(), get_indexes())); }
+void Server::add_location(std::string & route) 
+{
+	if (route[0] == '.' )
+		route.erase(0,1);
+	else if (route[0] == '*')
+		route.erase(0,2);
+	for (loc_it it = get_locations().begin(); it != get_locations().end(); it++)
+	{
+		if ((*it).get_route() == route)
+		{
+			*it = Location(get_root(), get_indexes());
+			return;
+		}
+	}
+	_locations.push_back(Location(get_root(), get_indexes()));
+}
 
 void Server::add_directive(int directiveIndex, std::string value)
 {
