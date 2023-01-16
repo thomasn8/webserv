@@ -9,9 +9,7 @@ request_size(size),
 _server(server) 
 {
 	_request = std::string_view(request, size);
-	std::cout << "TEST1:" << size << std::endl;
 	ssize_t i = _request.find_first_of('\n');
-	std::cout << "TEST2" << std::endl;
     std::string_view start_line = _request.substr(0, i); // prend le /r avant /n
 	_request.remove_prefix(i+1);
 	// _replace_alone_header_cr();
