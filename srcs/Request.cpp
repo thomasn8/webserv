@@ -147,6 +147,8 @@ int Request::_parse_header() {
 	return _rawMessage->size(); // retourne la size du body
 }
 
+// --------- Print BODY ------------
+
 // regarde dans le location correspondant a l'extension de la target si le type de fichier uploade est accepte
 bool Request::_check_filetype(std::string contentType) {
 	size_t slash = contentType.rfind('/');
@@ -253,7 +255,6 @@ void Request::_parse_multipartDataType(fields_it type) {
 	}
 	// CLEAR LAST FLAG
 	_rawMessage->clear();
-	_print_multipartDatas();
 }
 
 void Request::_parse_body() {
