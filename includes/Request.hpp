@@ -22,7 +22,7 @@ class Request {
 
 		Request(std::string *rowMessage, Server *server);
 		Request(const Request &instance);
-		virtual ~Request();
+		~Request();
 
 		std::string get_method() const;
 		std::string get_target() const;
@@ -32,13 +32,13 @@ class Request {
 		std::list<MultipartData *> &get_multipartDatas();
 
 		class MessageException : public std::exception {
-		public:
-			MessageException(int code) : _code(std::to_string(code)) {}
-			virtual const char* what() throw() {
-				return (this->_code).c_str();	
-			}
-		private:
-			std::string _code;
+			public:
+				MessageException(int code) : _code(std::to_string(code)) {}
+				virtual const char* what() throw() {
+					return (this->_code).c_str();	
+				}
+			private:
+				std::string _code;
 		};
 
 	private:
@@ -57,6 +57,7 @@ class Request {
 		void _replace_alone_header_cr(void);
 		void _parse_start_line(std::string startLine);
 		void _split_field(size_t separator, size_t lastchar);
+		void _trim_sides(std::string &str);
 		int _parse_header();
 		void _parse_body();
 		void _display_fields() const;

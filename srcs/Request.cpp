@@ -1,5 +1,4 @@
 #include "../includes/Request.hpp"
-#include "../includes/utils.hpp"
 
 // ---------Constructor and destructor ------------
 
@@ -100,6 +99,13 @@ void Request::_parse_start_line(std::string startLine) {
         throw MessageException(BAD_REQUEST);
 }
 
+void Request::_trim_sides(std::string &str)
+{
+	const char* typeOfWhitespaces = " \t\n\r\f\v";
+	str.erase(str.find_last_not_of(typeOfWhitespaces) + 1);
+	str.erase(0,str.find_first_not_of(typeOfWhitespaces));
+}
+
 void Request::_split_field(size_t separator, size_t lastchar) {
 	std::list<std::string> listValues;
 	std::string key(_rawMessage->c_str(), separator);
@@ -111,7 +117,9 @@ void Request::_split_field(size_t separator, size_t lastchar) {
 	{
 		if (*values == ',')
 		{
-			listValues.push_back(trim_sides(std::string(newvalue, len)));
+			std::string strtotrim(newvalue, len);
+			trim_sides(strtotrim);
+			listValues.push_back(strtotrim);
 			if (*(values+1))
 				newvalue = values+1;
 			else
@@ -121,7 +129,9 @@ void Request::_split_field(size_t separator, size_t lastchar) {
 		values++;
 		len++;
 	}
-	listValues.push_back(trim_sides(std::string(newvalue, len)));
+	std::string strtotrim(newvalue, len);
+	trim_sides(strtotrim);
+	listValues.push_back(strtotrim);
 	_fields.insert(std::make_pair(key, listValues));
 }
 
