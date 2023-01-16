@@ -7,51 +7,50 @@ Request::Request(std::string *rawMessage, Server *server) : _rawMessage(rawMessa
 	ssize_t i = this->_rawMessage->find_first_of('\n');
     std::string start_line = this->_rawMessage->substr(0, i); // prend le /r avant /n
 	_rawMessage->erase(0, i+1);
-    _check_alone_CR();
+    _replace_alone_header_cr();
     _parse_start_line(start_line);
     if (_parse_header() > 0)
     	_parse_body();
 }
 
-Request::Request(const Request& instance) {
-    *this = instance;
-}
+Request::Request(const Request& instance) :
+_rawMessage(instance._rawMessage),
+_server(instance._server),
+_method(instance._method),
+_target(instance._target),
+_version(instance._version),
+_body(instance._body),
+_body_len(instance._body_len),
+_fields(instance._fields),
+_postNameValue(instance._postNameValue),
+_postMultipart(instance._postMultipart) 
+{}
 
 Request::~Request() {
 	_free_multipartDatas();
 }
 
-// --------- Fonctions ------------
+// --------- Getters/Setters ------------
 
-std::string Request::get_message() const {
-    return *this->_rawMessage;
-}
+std::string Request::get_method() const { return _method; }
 
-std::string Request::get_method() const {
-    return this->_method;
-}
+std::string Request::get_target()const { return _target; }
 
-std::string Request::get_target()const {
-    return this->_target;
-}
+std::string Request::get_version() const { return _version; }
 
-std::string Request::get_version() const {
-    return this->_version;
-}
+std::map<std::string, std::list<std::string>> Request::get_fields() const { return _fields; }
 
-std::map<std::string, std::string> & Request::get_defaultDatas() {
-	return _postNameValue;
-}
-std::list<MultipartData *> & Request::get_multipartDatas() {
-	return _postMultipart;
-}
+std::map<std::string, std::string> & Request::get_defaultDatas() { return _postNameValue; }
 
-// RFC 9112 2.2. Message Parsing 4 paragraph about CR
-void Request::_check_alone_CR() { // parse que le header
+std::list<MultipartData *> & Request::get_multipartDatas() { return _postMultipart; }
+
+// --------- Parse HEADER ------------
+
+void Request::_replace_alone_header_cr() {
     std::string::iterator it;
 	size_t len = 0;
-	const void * lastChar = static_cast<const void *>(&(*(this->_rawMessage->rbegin()))); // chope l'adresse du dernier char de _rawMessage (protection)
-    for (it = this->_rawMessage->begin(); it != this->_rawMessage->end() && len < MHS; it++) {
+	const void * lastChar = static_cast<const void *>(&(*(_rawMessage->rbegin()))); // chope l'adresse du dernier char de _rawMessage (protection)
+    for (it = _rawMessage->begin(); it != _rawMessage->end() && len < MHS; it++) {
         if (*it == '\r')
 		{
 			if (static_cast<const void *>(&(*(it+3))) > lastChar) // protection pour voir si memoire est accessible vu qu'on teste *(it + 3) en bas
@@ -75,7 +74,7 @@ void Request::_parse_start_line(std::string startLine) {
 	std::string token;
     ssize_t pos = 0;
 
-	if (*(startLine.end()-1) != '\r')
+	if (startLine.back() != '\r')
 		 throw MessageException(BAD_REQUEST);
 	else
 		startLine.pop_back();
@@ -84,15 +83,15 @@ void Request::_parse_start_line(std::string startLine) {
         if (i < 2 && pos == std::string::npos)
             throw MessageException(BAD_REQUEST);
         if (i == 0) {
-            this->_method = startLine.substr(0, pos);
-            if (!(this->_method == "GET" || this->_method == "POST" || this->_method == "DELETE"))
+            _method = startLine.substr(0, pos);
+            if (!(_method == "GET" || _method == "POST" || _method == "DELETE"))
                 throw MessageException(METHOD_NOT_ALLOWED);
         }
         else if (i == 1)
-            this->_target = startLine.substr(0, pos);
+            _target = startLine.substr(0, pos);
         else if (i == 2) {
-            this->_version = startLine.substr(0, pos);
-            if (this->_version.compare("HTTP/1.1") != 0)
+            _version = startLine.substr(0, pos);
+            if (_version.compare("HTTP/1.1") != 0)
                 throw MessageException(HTTP_VERSION_UNSUPPORTED);
         }
         startLine.erase(0, pos + 1);
@@ -158,7 +157,8 @@ bool Request::_check_filetype(std::string contentType) {
 	{
 		if (ext == (*it).get_route())
 		{
-			for (std::list<std::string>::iterator it2 = (*it).get_contentTypes().begin(); it2 != (*it).get_contentTypes().end(); it2++)
+			std::list<std::string>::iterator it2 = (*it).get_contentTypes().begin();
+			for (; it2 != (*it).get_contentTypes().end(); it2++)
 			{
 				if (contentType == (*it2))
 					return true;
@@ -194,14 +194,13 @@ void Request::_parse_defaultDataType() {
 	_rawMessage->clear();
 }
 
-void Request::_parse_multipartDataType(mapit type) {
+void Request::_parse_multipartDataType(fields_it type) {
 	ssize_t pos = (*type).second.front().find_first_of('=');
 	if (pos == -1)
 		throw MessageException(BAD_REQUEST);
 	std::string boundry = ((*type).second.front().substr(pos+1, std::string::npos)).insert(0, "--");
 	ssize_t next = 0, boundrylen = boundry.size(), first = _rawMessage->find(boundry);
 	size_t start_value = 0;
-	const char *valueptr;
 	if (first == -1)
 		throw MessageException(BAD_REQUEST);
 	_rawMessage->erase(0, first); // efface les \r \n jusqu au 1er boundry
@@ -237,18 +236,16 @@ void Request::_parse_multipartDataType(mapit type) {
 			}
 			ssize_t start_fourthline = end_secondline + 4;
 			start_value = start_fourthline;
-			valueptr = &_rawMessage->c_str()[start_value];
 		}
 		else
 		{
 			ssize_t start_thirdline = start_secondline + 2;
 			start_value = start_thirdline;
-			valueptr = &_rawMessage->c_str()[start_value];
 		}
 		size_t valuelen = next - start_value - 2;
 		multi->set_valueLen(valuelen);
 		if (valuelen > 0)
-			multi->set_value(std::string(valueptr, valuelen));
+			multi->set_value(std::string(&_rawMessage->c_str()[start_value], valuelen));
 		
 		// INSERT ET EFFACE LE CONTENU DU BODY JUSQUAU NEXT BOUNDRY
 		_postMultipart.push_back(multi);
@@ -256,21 +253,23 @@ void Request::_parse_multipartDataType(mapit type) {
 	}
 	// CLEAR LAST FLAG
 	_rawMessage->clear();
+	_print_multipartDatas();
 }
 
 void Request::_parse_body() {
-	_body = _rawMessage;
-	
 	// faire les checks necessaire sur la len
-	mapit contentlen = _fields.find("Content-Length");
+	fields_it contentlen = _fields.find("Content-Length");
+	_display_fields();
 	if ((*contentlen).second.size() != 1)
 		throw MessageException(BAD_REQUEST);
 	size_t contentLength = strtoul((*contentlen).second.front().c_str(), NULL, 0);
 	if (contentLength != _rawMessage->size())
 		throw MessageException(BAD_REQUEST);
+	_body = _rawMessage->c_str();
+	_body_len = contentLength;
 
 	// choper le type de donner et parser en fonction
-	mapit type = _fields.find("Content-Type");
+	fields_it type = _fields.find("Content-Type");
 	if ((*type).second.size() > 1)
 		throw MessageException(BAD_REQUEST);
 	if ((*type).second.front().c_str()[0] == 'm')
@@ -283,35 +282,34 @@ void Request::_parse_body() {
 void Request::_free_multipartDatas() {
 	if (_postMultipart.size() > 0)
 	{
-		std::list<MultipartData *>::const_iterator it = _postMultipart.cbegin();
-		for (; it != _postMultipart.cend(); it++)
+		std::list<MultipartData *>::iterator it = _postMultipart.begin();
+		for (; it != _postMultipart.end(); it++)
 			delete (*it);
 	}
 }
 
-// --------- Operator overload ------------
+// --------- Print datas ------------
 
-Request &Request::operator=(const Request &instance) {
-    this->_server = instance._server;
-    this->_rawMessage = instance._rawMessage;
-    this->_method = instance._method;
-    this->_target = instance._target;
-    this->_version = instance._version;
-	this->_postNameValue = instance._postNameValue;
-	this->_postMultipart = instance._postMultipart;
-
-    this->_body = instance._body;
-    this->_fields.insert(instance._fields.begin(), instance._fields.end());
-    return *this;
+void Request::_display_fields() const {
+    fields_it it;
+    fields_values_it it2;
+    for (it = _fields.begin(); it != _fields.end(); it++) {
+        std::cout << it->first;
+        std::cout << ": ";
+        for (it2 = it->second.begin(); it2 != it->second.end(); it2++) {
+            std::cout << *it2;
+            if (it2 != std::prev(it->second.end()))
+                std::cout << ", ";
+        }
+        std::cout << ";" << std::endl;
+    }
 }
-
-// --------- Print post data ------------
 
 void Request::_print_defaultDatas() const {
 	std::cout << "\nPOST APPLICATION DATAS" << std::endl;
 	if (_postNameValue.size() > 0)
 	{
-		std::map<std::string, std::string>::const_iterator it = _postNameValue.cbegin();
+		post_mapit it = _postNameValue.cbegin();
 		for (; it != _postNameValue.cend(); it++)
 		{
 			std::cout << "Data:" << std::endl;
@@ -326,7 +324,7 @@ void Request::_print_multipartDatas() const {
 	std::cout << "\nPOST MULTIPART DATAS" << std::endl;
 	if (_postMultipart.size() > 0)
 	{
-		std::list<MultipartData *>::const_iterator it = _postMultipart.cbegin();
+		post_listit it = _postMultipart.cbegin();
 		for (; it != _postMultipart.cend(); it++)
 		{
 			std::cout << "Data (" << static_cast<const void *>(*it) << "):" << std::endl;
