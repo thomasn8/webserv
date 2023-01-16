@@ -260,7 +260,6 @@ void Request::_parse_multipartDataType(fields_it type) {
 void Request::_parse_body() {
 	// faire les checks necessaire sur la len
 	fields_it contentlen = _fields.find("Content-Length");
-	_display_fields();
 	if ((*contentlen).second.size() != 1)
 		throw MessageException(BAD_REQUEST);
 	size_t contentLength = strtoul((*contentlen).second.front().c_str(), NULL, 0);
