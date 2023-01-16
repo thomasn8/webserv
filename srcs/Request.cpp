@@ -118,7 +118,7 @@ void Request::_split_field(size_t separator, size_t lastchar) {
 		if (*values == ',')
 		{
 			std::string strtotrim(newvalue, len);
-			trim_sides(strtotrim);
+			_trim_sides(strtotrim);
 			listValues.push_back(strtotrim);
 			if (*(values+1))
 				newvalue = values+1;
@@ -130,7 +130,7 @@ void Request::_split_field(size_t separator, size_t lastchar) {
 		len++;
 	}
 	std::string strtotrim(newvalue, len);
-	trim_sides(strtotrim);
+	_trim_sides(strtotrim);
 	listValues.push_back(strtotrim);
 	_fields.insert(std::make_pair(key, listValues));
 }
@@ -157,7 +157,7 @@ int Request::_parse_header() {
 	return _rawMessage->size(); // retourne la size du body
 }
 
-// --------- Print BODY ------------
+// --------- Parse BODY ------------
 
 // regarde dans le location correspondant a l'extension de la target si le type de fichier uploade est accepte
 bool Request::_check_filetype(std::string contentType) {
@@ -305,9 +305,9 @@ void Request::_display_fields() const {
     fields_values_it it2;
     for (it = _fields.begin(); it != _fields.end(); it++) {
         std::cout << it->first;
-        std::cout << ": ";
+        std::cout << ": |";
         for (it2 = it->second.begin(); it2 != it->second.end(); it2++) {
-            std::cout << *it2;
+            std::cout << *it2 << "|";
             if (it2 != std::prev(it->second.end()))
                 std::cout << ", ";
         }
