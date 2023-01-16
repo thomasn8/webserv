@@ -4,8 +4,8 @@
 // ---------Constructor and destructor ------------
 
 Request::Request(std::string *rawMessage, Server *server) : _rawMessage(rawMessage), _server(server) {
-	ssize_t i = this->_rawMessage->find_first_of('\n');
-    std::string start_line = this->_rawMessage->substr(0, i); // prend le /r avant /n
+	ssize_t i = _rawMessage->find_first_of('\n');
+    std::string start_line = _rawMessage->substr(0, i); // prend le /r avant /n
 	_rawMessage->erase(0, i+1);
     _replace_alone_header_cr();
     _parse_start_line(start_line);
