@@ -20,7 +20,6 @@ std::map<std::string, std::list<std::string>> Message::get_fields() const {
     return this->_fields;
 }
 
-// display fields in the terminal
 void Message::display_fields() const {
     std::map<std::string, std::list<std::string>>::const_iterator it;
     std::list<std::string>::const_iterator it2;
