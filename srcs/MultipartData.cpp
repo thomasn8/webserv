@@ -4,7 +4,7 @@
 	************ CONST/DESTR
 */
 MultipartData::MultipartData(std::string & name) : 
-_name(name), _value(std::string()), _valueLen(0),
+_name(name), _value(NULL), _valueLen(0),
 _file(false), _fileName(std::string()), _contentType(std::string()) {}
 
 MultipartData::MultipartData(MultipartData const &instance) :
@@ -28,7 +28,7 @@ MultipartData & MultipartData::operator=(MultipartData const &instance) {
 */
 void MultipartData::set_name(std::string name) { _name = name; }
 
-void MultipartData::set_value(std::string value) { _value = value; }
+void MultipartData::set_value(const char *value) { _value = value; }
 
 void MultipartData::set_valueLen(size_t value_len) { _valueLen = value_len; }
 
@@ -40,7 +40,7 @@ void MultipartData::set_contentType(std::string contenttype) { _contentType = co
 
 std::string MultipartData::get_name() const { return _name; }
 
-const char * MultipartData::get_value() const { return _value.c_str(); }
+const char * MultipartData::get_value() const { return _value; }
 
 size_t MultipartData::get_valueLen() const { return _valueLen; }
 

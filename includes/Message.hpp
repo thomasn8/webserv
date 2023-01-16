@@ -20,7 +20,7 @@ class Message {
 
 		std::map<std::string, std::list<std::string>>	get_fields() const;
 		void											display_fields() const;
-		std::string										*get_body() const;
+		std::string										get_body() const;
 		bool											has_body() const;
 
 		Message		&operator=(const Message &instance);
@@ -37,7 +37,7 @@ class Message {
 
 	protected:
 		std::map<std::string, std::list<std::string>>	_fields;
-		std::string										*_body;
+		std::string										_body;    // UTILISER QUE DANS REPONSE
 };
 
 #endif

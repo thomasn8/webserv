@@ -2,7 +2,7 @@
 
 // ---------Constructor and destructor ------------
 
-Message::Message() : _body(NULL){
+Message::Message() : _body(){
     
 }
 
@@ -37,12 +37,12 @@ void Message::display_fields() const {
     }
 }
 
-std::string *Message::get_body() const {
+std::string Message::get_body() const {
     return this->_body;
 }
 
 bool Message::has_body() const {
-    return this->_body;
+    return this->_body.size();
 }
 
 // --------- Operator overload ------------

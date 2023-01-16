@@ -13,7 +13,7 @@ class MultipartData
 		MultipartData &operator=(MultipartData const &instance);
 
 		void set_name(std::string name);
-		void set_value(std::string value);
+		void set_value(const char *value);
 		void set_valueLen(size_t value_len);
 		void set_file(bool file);
 		void set_fileName(std::string filename);
@@ -30,7 +30,7 @@ class MultipartData
 
 	private:
 		std::string	_name;
-		std::string	_value;
+		const char * _value;
 		size_t		_valueLen;
 		bool		_file;
 		std::string	_fileName;
