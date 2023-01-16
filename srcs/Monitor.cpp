@@ -89,7 +89,7 @@ struct socket * Monitor::_add_to_pfds(int new_fd, struct sockaddr_in * remoteAdd
 		_activeSockets = (struct socket *)realloc(_activeSockets, sizeof(*_activeSockets) * (_fd_capacity));
 		if (_pfds == NULL)
 		{
-			log("Error: impossible to allocate", _fd_capacity ," struct pollfd\n");
+			log("Error: impossible to allocate", _fd_capacity ," pollfd structs\n");
 			_exit_cerr_msg("Fatal error: allocation\n", 1);
 		}
 	}
@@ -155,10 +155,8 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 	_buf.current = _buf.begin;
 	while (1)
 	{
-		// std::cout << _buf.size + CHUNK_SIZE << " vs " << _buf.capacity << std::endl;
 		if (_buf.size + CHUNK_SIZE > _buf.capacity)
 		{
-			// std::cout << "alloc" << std::endl;
 			if (_buf.capacity == 0)
 			{
 				// std::cout << "malloc" << std::endl;
@@ -172,7 +170,10 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 				_buf.capacity *= 2;
 			}
 			if (_buf.begin == NULL)
-				_exit_cerr_msg("Fatal error: realloc failed", 1);
+			{
+				log("Error: allocation for read buffer failed\n");
+				return -1;
+			}
 			_buf.current = _buf.begin + _buf.size;
 		}
 		size_recv = recv(fd, _buf.current, CHUNK_SIZE, 0); // recv la request jusqu'au bout du client_fd
@@ -180,10 +181,7 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 		_buf.current += size_recv;
 		// std::cout << size_recv << " bytes read on socket " << fd << std::endl;
 		if (maxrecv && _buf.size > maxrecv) // erreur max body size 413
-		{
-			// std::cout << " buffer size (error): " << _buf.size << std::endl;
 			return -1;
-		}
 		if (size_recv < CHUNK_SIZE) // toute la request a été read
 		{
 			// std::cout << " buffer size: " << _buf.size << std::endl;
