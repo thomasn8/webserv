@@ -26,7 +26,7 @@
 # define DEFAULT_INDEX "index.html"
 # define MHS 8000
 # define MBS 1000000 // 1M
-# define MAX_MBS 1000000000 // 100M
+# define MAX_MBS 5000000000 // 5GB
 
 // DIRECTIVE INDEX
 // (pour en rajouter/modifier: modifier le tableau + definir une macro pour l'index + modifier le switch-case dans add_directive() et creer les getter/setter)

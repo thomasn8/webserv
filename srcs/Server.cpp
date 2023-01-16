@@ -238,7 +238,7 @@ void Server::set_client_max_body_size(std::string & value)
 			else if (unit.compare("MB") == 0 || unit.compare("MO") == 0 || unit.compare("M") == 0)
 				mbs *= 1000 * 1000;
 			else if (unit.compare("GB") == 0 || unit.compare("GO") == 0 || unit.compare("G") == 0)
-				_exit_cerr_msg("Error: client_max_body_size too large: maximum of 500MB\n", 1);
+				mbs *= 1000 * 1000 * 1000;
 			else
 				_exit_cerr_msg("Error: invalid client_max_body_size format. Examples: 4000, 300KB, 2M\n", 1);
 		}
@@ -247,7 +247,7 @@ void Server::set_client_max_body_size(std::string & value)
 		_exit_cerr_msg("Error: invalid client_max_body_size format. Examples: 4000, 300KB, 2M\n", 1);
 	}
 	if (mbs > MAX_MBS)
-		_exit_cerr_msg("Error: client_max_body_size too large: maximum of 500MB\n", 1);
+		_exit_cerr_msg("Error: client_max_body_size too large: maximum of 5GB\n", 1);
 	_clientMaxBodySize = mbs;
 	_clientMaxBodySize ? _maxrecv = _clientMaxBodySize + MHS : _maxrecv = 0;
 }

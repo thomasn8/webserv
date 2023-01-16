@@ -41,7 +41,7 @@ class Request
 		{
 			public:
 				MessageException(int code) : _code(std::to_string(code)) {}
-				virtual const char* what() throw() { return (this->_code).c_str(); }
+				virtual const char* what() throw() { return (_code).c_str(); }
 			private:
 				std::string _code;
 		};
