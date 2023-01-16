@@ -221,7 +221,7 @@ void Monitor::handle_connections()
 		{
 			if (_pfds[i].revents & POLLIN)						// event sur fd[i] si poll a debloqué pour un fd prêt à read
 			{
-				// uint64_t ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+/* START CHRONO */uint64_t ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 				for (int j = 0; j < server_count; j++)
 				{
 					if (_pfds[i].fd == _master_sockets[j])		// si fd correspond a un socket de server en ecoute
@@ -233,7 +233,6 @@ void Monitor::handle_connections()
 					{
 						if (_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]) != -1)
 						{
-							// std::cout << requestStr << std::endl;
 							try {
 								Request request(&requestStr, _activeSockets[i].server);					// essaie de constr une requeste depuis les donnees recues
 								Response response(&request, _activeSockets[i].server, &responseStr);	// essaie de constr une response si on a une request
@@ -248,10 +247,9 @@ void Monitor::handle_connections()
 						_pfds[i].events = POLLOUT;
 						poll_index = i; // permet de revenir dans la main loop avec l'index du pfds à écrire
 						i = _fd_count;  // break la while loop
-
-						// uint64_t ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-						// uint64_t ms3 = ms2 - ms1;
-						// std::cout << ms3 << " ms\n";
+/* STOP CHRONO */		uint64_t ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+						uint64_t ms3 = ms2 - ms1;
+						std::cout << ms3 << " ms\n";
 					}
 				}
 			}

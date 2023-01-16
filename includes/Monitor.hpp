@@ -23,7 +23,12 @@
 #include "socket.hpp"
 
 # define LOG_PATH "logs/access.log"
-# define CHUNK_SIZE 512
+# define CHUNK_SIZE 1024
+
+struct buffer_read {
+	char *begin;
+	size_t len;
+};
 
 class Monitor
 {
