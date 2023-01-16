@@ -24,10 +24,13 @@
 
 # define LOG_PATH "logs/access.log"
 # define CHUNK_SIZE 1024
+# define BUFFER_LIMIT 10000000 // 10MO
 
 struct buffer_read {
 	char *begin;
-	size_t len;
+	char *current;
+	size_t size;
+	size_t capacity;
 };
 
 class Monitor
@@ -78,8 +81,11 @@ class Monitor
 		struct socket * _add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, Server * server);
 		void _del_from_pfds(int i);
 		void _accept_new_connection(int master_index);
-		int _recv_all(int fd, std::string & request, struct socket & activeSocket);
-		int _send_all(int i, const char * response, int size, struct socket & activeSocket);
+		ssize_t _recv_all(int fd, struct socket & activeSocket, char *static_chunk);
+		ssize_t _send_all(int i, const char * response, int size, struct socket & activeSocket);
+
+		// RECV
+		struct buffer_read _buf;
 
 		// LOG
 		void _create_log_file(std::string const & filename, std::ofstream & stream);

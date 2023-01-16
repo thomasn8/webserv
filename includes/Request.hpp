@@ -23,12 +23,12 @@ class Request
 		typedef std::list<MultipartData *>::const_iterator						post_listit;
 
 		// CONST/DESTR
-		Request(std::string *requestStr, Server *server);
+		Request(const char *request, size_t size, Server *server);
 		Request(const Request &instance);
 		~Request();
 		
 		// GETTERS/SETTERS
-		std::string get_message() const;
+		const char *get_request() const;
 		std::string get_method() const;
 		std::string get_target() const;
 		std::string get_version() const;
@@ -50,7 +50,8 @@ class Request
 		Request();
 
 		// PARSE ALL
-		std::string *_requestStr;
+		const char * request;
+		size_t request_size;
 		std::string_view _request;
 		Server *_server;
 		

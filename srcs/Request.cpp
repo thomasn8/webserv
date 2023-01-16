@@ -3,12 +3,15 @@
 /* 
 	************ CONST/DESTR
 */
-Request::Request(std::string *requestStr, Server *server) : 
-_requestStr(requestStr),
+Request::Request(const char *request, size_t size, Server *server) : 
+request(request),
+request_size(size),
 _server(server) 
 {
-	_request = std::string_view(requestStr->c_str(), requestStr->size());
+	_request = std::string_view(request, size);
+	std::cout << "TEST1:" << size << std::endl;
 	ssize_t i = _request.find_first_of('\n');
+	std::cout << "TEST2" << std::endl;
     std::string_view start_line = _request.substr(0, i); // prend le /r avant /n
 	_request.remove_prefix(i+1);
 	// _replace_alone_header_cr();
@@ -18,7 +21,8 @@ _server(server)
 }
 
 Request::Request(const Request& instance) :
-_requestStr(instance._requestStr),
+request(instance.request),
+request_size(instance.request_size),
 _request(instance._request),
 _server(instance._server),
 _method(instance._method),
@@ -36,7 +40,7 @@ Request::~Request() { _free_multipartDatas(); }
 /* 
 	************ GETTERS/SETTERS
 */
-std::string Request::get_message() const { return *_requestStr; }
+const char * Request::get_request() const { return request; }
 
 std::string Request::get_method() const { return _method; }
 
