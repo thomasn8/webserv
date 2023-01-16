@@ -1,9 +1,12 @@
 #include "../includes/Request.hpp"
-#include "../includes/utils.hpp"
 
-// ---------Constructor and destructor ------------
-
-Request::Request(std::string *rawMessage, Server *server) : _rawMessage(rawMessage), _server(server) {
+/* 
+	************ CONST/DESTR
+*/
+Request::Request(std::string *rawMessage, Server *server) : 
+_requestStr(rawMessage),
+_server(server) 
+{
 	_request = std::string_view(rawMessage->c_str(), rawMessage->size());
 	ssize_t i = _request.find_first_of('\n');
     std::string_view start_line = _request.substr(0, i); // prend le /r avant /n
@@ -15,7 +18,7 @@ Request::Request(std::string *rawMessage, Server *server) : _rawMessage(rawMessa
 }
 
 Request::Request(const Request& instance) :
-_rawMessage(instance._rawMessage),
+_requestStr(instance._requestStr),
 _request(instance._request),
 _server(instance._server),
 _method(instance._method),
@@ -28,13 +31,12 @@ _postNameValue(instance._postNameValue),
 _postMultipart(instance._postMultipart) 
 {}
 
-Request::~Request() {
-	_free_multipartDatas();
-}
+Request::~Request() { _free_multipartDatas(); }
 
-// --------- Getters/Setters ------------
-
-std::string Request::get_message() const { return *_rawMessage; }
+/* 
+	************ GETTERS/SETTERS
+*/
+std::string Request::get_message() const { return *_requestStr; }
 
 std::string Request::get_method() const { return _method; }
 
@@ -48,13 +50,15 @@ std::map<std::string, std::string> & Request::get_defaultDatas() { return _postN
 
 std::list<MultipartData *> & Request::get_multipartDatas() { return _postMultipart; }
 
-// --------- Parse HEADER ------------
-
-void Request::_replace_alone_header_cr() {
+/* 
+	************ Parse HEADER
+*/
+void Request::_replace_alone_header_cr() 
+{
     std::string::iterator it;
 	size_t len = 0;
-	const void * lastChar = static_cast<const void *>(&(*(this->_rawMessage->rbegin()))); // chope l'adresse du dernier char de _rawMessage (protection)
-    for (it = this->_rawMessage->begin(); it != this->_rawMessage->end() && len < MHS; it++) {
+	const void * lastChar = static_cast<const void *>(&(*(_requestStr->rbegin()))); // chope l'adresse du dernier char de _requestStr (protection)
+    for (it = _requestStr->begin(); it != _requestStr->end() && len < MHS; it++) {
         if (*it == '\r')
 		{
 			if (static_cast<const void *>(&(*(it+3))) > lastChar) // protection pour voir si memoire est accessible vu qu'on teste *(it + 3) en bas
@@ -74,7 +78,8 @@ void Request::_replace_alone_header_cr() {
 		throw MessageException(HEADERS_TOO_LARGE);
 }
 
-void Request::_parse_start_line(std::string_view startLine) {
+void Request::_parse_start_line(std::string_view startLine) 
+{
 	std::string token;
     ssize_t pos = 0;
 
@@ -87,15 +92,15 @@ void Request::_parse_start_line(std::string_view startLine) {
         if (i < 2 && pos == std::string::npos)
             throw MessageException(BAD_REQUEST);
         if (i == 0) {
-            this->_method = startLine.substr(0, pos);
-            if (!(this->_method == "GET" || this->_method == "POST" || this->_method == "DELETE"))
+            _method = startLine.substr(0, pos);
+            if (!(_method == "GET" || _method == "POST" || _method == "DELETE"))
                 throw MessageException(METHOD_NOT_ALLOWED);
         }
         else if (i == 1)
-            this->_target = startLine.substr(0, pos);
+            _target = startLine.substr(0, pos);
         else if (i == 2) {
-            this->_version = startLine.substr(0, pos);
-            if (this->_version.compare("HTTP/1.1") != 0)
+            _version = startLine.substr(0, pos);
+            if (_version.compare("HTTP/1.1") != 0)
                 throw MessageException(HTTP_VERSION_UNSUPPORTED);
         }
         startLine.remove_prefix(pos + 1);
@@ -104,7 +109,15 @@ void Request::_parse_start_line(std::string_view startLine) {
         throw MessageException(BAD_REQUEST);
 }
 
-void Request::_split_field(size_t separator, size_t lastchar) {
+void Request::_trim_sides(std::string & str)
+{
+	const char* typeOfWhitespaces = " \t\n\r\f\v";
+	str.erase(str.find_last_not_of(typeOfWhitespaces) + 1);
+	str.erase(0,str.find_first_not_of(typeOfWhitespaces));
+}
+
+void Request::_split_field(size_t separator, size_t lastchar) 
+{
 	std::list<std::string> listValues;
 	std::string key(_request.data(), separator);
 	const char *values = _request.data()+separator+1;
@@ -115,7 +128,9 @@ void Request::_split_field(size_t separator, size_t lastchar) {
 	{
 		if (*values == ',')
 		{
-			listValues.push_back(trim_sides(std::string(newvalue, len)));
+			std::string val_to_trim(newvalue, len);
+			_trim_sides(val_to_trim);
+			listValues.push_back(val_to_trim);
 			if (*(values+1))
 				newvalue = values+1;
 			else
@@ -125,11 +140,14 @@ void Request::_split_field(size_t separator, size_t lastchar) {
 		values++;
 		len++;
 	}
-	listValues.push_back(trim_sides(std::string(newvalue, len)));
+	std::string val_to_trim(newvalue, len);
+	_trim_sides(val_to_trim);
+	listValues.push_back(val_to_trim);
 	_fields.insert(std::make_pair(key, listValues));
 }
 
-int Request::_parse_header() {
+int Request::_parse_header() 
+{
 	ssize_t pos = 0, i;
 	i = _request.find_first_of('\n');
 	while (i != std::string_view::npos && _request[0] != '\r')
@@ -151,10 +169,12 @@ int Request::_parse_header() {
 	return _request.size(); // retourne la size du body
 }
 
-// --------- Parse BODY ------------
-
+/* 
+	************ Parse BODY
+*/
 // regarde dans le location correspondant a l'extension de la target si le type de fichier uploade est accepte
-bool Request::_check_filetype(std::string contentType) {
+bool Request::_check_filetype(std::string contentType) 
+{
 	size_t slash = contentType.rfind('/');
 	if (slash != -1)
 		contentType.erase(0, slash + 1);
@@ -175,14 +195,16 @@ bool Request::_check_filetype(std::string contentType) {
 	return false;
 }
 
-std::string Request::_find_value_from_boundry_block(std::string_view &block, const char *strtofind, const char *strtolen, char stop) {
+std::string Request::_find_value_from_boundry_block(std::string_view &block, const char *strtofind, const char *strtolen, char stop) 
+{
 	ssize_t valstart = block.find(strtofind) + strlen(strtolen);
 	ssize_t valend = block.find(stop, valstart);
 	ssize_t vallen = valend - valstart;
 	return std::string(block.data() + valstart, vallen);
 }
 
-void Request::_parse_defaultDataType() {
+void Request::_parse_defaultDataType() 
+{
 	ssize_t i, keylen = 0, vallen = 0;
 	i = _request.find('&');
 	while (i != -1)
@@ -199,7 +221,8 @@ void Request::_parse_defaultDataType() {
 	_postNameValue.insert(std::make_pair(std::string(_request.data(), keylen), std::string(_request.data()+keylen+1, vallen)));
 }
 
-void Request::_parse_multipartDataType(fields_it type) {
+void Request::_parse_multipartDataType(fields_it type) 
+{
 	ssize_t pos = (*type).second.front().find_first_of('=');
 	if (pos == -1)
 		throw MessageException(BAD_REQUEST);
@@ -258,7 +281,8 @@ void Request::_parse_multipartDataType(fields_it type) {
 	}
 }
 
-void Request::_parse_body() {
+void Request::_parse_body() 
+{
 	// faire les checks necessaire sur la len
 	fields_it contentlen = _fields.find("Content-Length");
 	if ((*contentlen).second.size() != 1)
@@ -280,7 +304,8 @@ void Request::_parse_body() {
 }
 
 // delete les Multipart * alloues dans map de _postMultipart
-void Request::_free_multipartDatas() {
+void Request::_free_multipartDatas() 
+{
 	if (_postMultipart.size() > 0)
 	{
 		std::list<MultipartData *>::iterator it = _postMultipart.begin();
@@ -289,9 +314,11 @@ void Request::_free_multipartDatas() {
 	}
 }
 
-// --------- Print datas ------------
-
-void Request::_display_fields() const {
+/* 
+	************ Print datas
+*/
+void Request::_print_fields() const 
+{
     fields_it it;
     fields_values_it it2;
     for (it = _fields.begin(); it != _fields.end(); it++) {
@@ -306,7 +333,8 @@ void Request::_display_fields() const {
     }
 }
 
-void Request::_print_defaultDatas() const {
+void Request::_print_defaultDatas() const 
+{
 	std::cout << "\nPOST APPLICATION DATAS" << std::endl;
 	if (_postNameValue.size() > 0)
 	{
@@ -321,7 +349,8 @@ void Request::_print_defaultDatas() const {
 	}
 }
 
-void Request::_print_multipartDatas() const {
+void Request::_print_multipartDatas() const 
+{
 	std::cout << "\nPOST MULTIPART DATAS" << std::endl;
 	if (_postMultipart.size() > 0)
 	{

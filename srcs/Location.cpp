@@ -4,7 +4,6 @@
 	************ CONST/DESTR
 */
 Location::Location(std::string const & server_root, std::list<std::string> const & server_indexes) :
-_route(),
 _root(server_root),
 _autoindex(false),
 _indexFiles(std::list<std::string>(server_indexes)),
@@ -12,23 +11,17 @@ _defaultIndex(true),
 _methods(std::list<std::string>(1, std::string(GET))),
 _defaultMethods(true),
 _uploadsDir(_root),
-_redirections(std::list<Trio>()),
-_cgiExtension(std::string(DEFAULT_CGI_EXT)),
-_contentType(std::list<std::string>())
+_cgiExtension(std::string(DEFAULT_CGI_EXT))
 {}
 
 Location::Location() :
-_route(),
 _root(std::string(_webserv_bin_path().append("/").append(DEFAULT_ROOT))),
 _autoindex(false),
-_indexFiles(std::list<std::string>()),
 _defaultIndex(true),
 _methods(std::list<std::string>(1, std::string(GET))),
 _defaultMethods(true),
 _uploadsDir(_root),
-_redirections(std::list<Trio>()),
-_cgiExtension(std::string(DEFAULT_CGI_EXT)),
-_contentType(std::list<std::string>())
+_cgiExtension(std::string(DEFAULT_CGI_EXT))
 {}
 
 Location::Location(const Location & src) :

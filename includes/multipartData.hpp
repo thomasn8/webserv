@@ -10,7 +10,6 @@ class MultipartData
 		MultipartData(std::string &name);
 		MultipartData(MultipartData const &instance);
 		~MultipartData();
-		MultipartData &operator=(MultipartData const &instance);
 
 		void set_name(std::string name);
 		void set_value(const char *value);

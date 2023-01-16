@@ -3,7 +3,6 @@
 	************ CONST/DESTR
 */
 Server::Server() :
-_locations(std::deque<Location>()),
 _ipv4(INADDR_ANY),
 _port(htons(DEFAULT_PORT)),  
 _serverNames(std::list<std::string>(1, std::string(DEFAULT_SERVERNAME))),
@@ -13,9 +12,7 @@ _indexFiles(std::list<std::string>(1, std::string(DEFAULT_INDEX))),
 _defaultIndex(true),
 _clientMaxBodySize(MBS),
 _maxrecv(MHS + MBS),
-_errorPages(std::list<error_page_pair>()),
-_socket_fd(-1),
-_address()
+_socket_fd(-1)
 {}
 
 Server::Server(const Server & src) :

@@ -4,24 +4,15 @@
 	************ CONST/DESTR
 */
 MultipartData::MultipartData(std::string & name) : 
-_name(name), _value(NULL), _valueLen(0),
-_file(false), _fileName(std::string()), _contentType(std::string()) {}
+_name(name), _value(NULL), _valueLen(0), _file(false) 
+{}
 
 MultipartData::MultipartData(MultipartData const &instance) :
 _name(instance._name), _value(instance._value), _valueLen(instance._valueLen),
-_file(instance._file), _fileName(instance._fileName), _contentType(instance._contentType) {}
+_file(instance._file), _fileName(instance._fileName), _contentType(instance._contentType) 
+{}
 
 MultipartData::~MultipartData() {}
-
-MultipartData & MultipartData::operator=(MultipartData const &instance) {
-	_name = instance._name;
-	_value = instance._value;
-	_valueLen = instance._valueLen;
-	_file = instance._file;
-	_fileName = instance._fileName;
-	_contentType = instance._contentType;
-    return *this;
-}
 
 /* 
 	************ GETTERS/SETTERS
