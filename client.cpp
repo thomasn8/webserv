@@ -332,8 +332,12 @@ ssize_t recv_all(int fd, struct buffer_read *buf, bool last)
 	}
 }
 
-// ameliorations: ajouter la possibilite de passer des args sans specifier l'option pour le port et pour le requestArg
+// ameliorations:
+// - ajouter la possibilite de passer des args sans specifier l'option pour le port et pour le requestArg
 // exemple: ./client 8080 "GET /index.html HTTP/1.1"
+// - ajouter un poll pour verifier si on peut manier le socket_fd 
+//		- entre connect() et send()
+//		- entre send et recv()
 int main(int ac, const char **av) {
 
 	// PARSE ARGS
@@ -351,16 +355,9 @@ int main(int ac, const char **av) {
 	server_addr.sin_len = sizeof(server_addr);
 
 	// REQUESTS n TIMES THE SERVER (depends on args)
-	// socket option
-	int opt = 1;
-	struct timeval timeout;      
-	timeout.tv_sec = 10;
-	timeout.tv_usec = 0;
-	// recv
 	ssize_t send_size, recv_size;
 	struct buffer_read buf;
 	buf.capacity = 0;
-	// print
 	bool last = false;
 	for (int i = 0; i < test.repeatcount; i++) {
 		i == test.repeatcount-1 ? last = true : false; // print just last response
@@ -370,12 +367,6 @@ int main(int ac, const char **av) {
 		socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 		if (socket_fd < 0)
 			error("Error: socket() failed: ", strerror(errno), 1);
-		if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, (void *)&opt, sizeof(opt)) < 0)
-			error("Error: setsockopt(1): ", strerror(errno), 1);
-		if (setsockopt (socket_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) < 0)
-			error("Error: setsockopt(2): ", strerror(errno), 1);
-		if (setsockopt (socket_fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout) < 0)
-			error("Error: setsockopt(3): ", strerror(errno), 1);
 
 		// CONNECT
 		if (connect(socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
