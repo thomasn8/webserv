@@ -74,17 +74,8 @@ int port_check(const char *av1) {
 	return port;
 }
 
-// void highlight_crlf(const char *block, ssize_t size)
-// {
-// 	// std::cout << "Block with CRLF highlighted:" << std::endl << "|";
-// 	for (ssize_t j = 0 ; j < size ; j++)
-// 		block[j] == '\r' ? std::cout << "\\r" : (block[j] == '\n' ? std::cout << "\\n\n" : std::cout << block[j]);
-// 	// std::cout << "|" << std::endl;
-// }
-
 void highlight_crlf(const char *block, ssize_t size, const char *highlightcolor, const char *defaultcolor)
 {
-	// std::cout << "Block with CRLF highlighted:" << std::endl << "|";
 	if (highlightcolor != NULL && defaultcolor != NULL)
 	{
 		for (ssize_t j = 0 ; j < size ; j++)
@@ -95,7 +86,6 @@ void highlight_crlf(const char *block, ssize_t size, const char *highlightcolor,
 		for (ssize_t j = 0 ; j < size ; j++)
 			block[j] == '\r' ? std::cout << "\\r" : (block[j] == '\n' ? std::cout << "\\n\n" : std::cout << block[j]);
 	}
-	// std::cout << "|" << std::endl;
 }
 
 void add_carriageReturn_to_header(struct tester * test)
