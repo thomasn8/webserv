@@ -60,7 +60,6 @@ class Request
 		std::string _target;
 		std::string _version;
 		std::map<std::string, std::list<std::string> > _fields;
-		// void _replace_alone_header_cr(void);
 		void _parse_start_line(std::string_view startLine);
 		void _trim_sides(std::string & str);
 		void _split_field(size_t separator, size_t lastchar);

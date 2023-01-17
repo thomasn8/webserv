@@ -81,6 +81,7 @@ class Monitor
 		struct socket * _add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, Server * server);
 		void _del_from_pfds(int i);
 		void _accept_new_connection(int master_index);
+		void _replace_alone_header_cr(void);
 		ssize_t _recv_all(int fd, struct socket & activeSocket);
 		ssize_t _send_all(int i, const char * response, int size, struct socket & activeSocket);
 

@@ -64,7 +64,7 @@ void Monitor::_prepare_master_sockets()
 	_activeSockets = (struct socket *)malloc(sizeof(*_activeSockets) * _fd_capacity);
 	if (_pfds == NULL)
 	{
-		log("Error: impossible to allocate", _fd_capacity ," struct pollfd\n");
+		log("Error: impossible to allocate", _fd_capacity ," pollfd structs\n");
 		_exit_cerr_msg("Fatal error: allocation\n", 1);
 	}
 	for (int i = 0; i < _fd_count; i++)
@@ -147,6 +147,31 @@ void Monitor::_accept_new_connection(int master_index)
 		log(get_time(), " New connection  ", client_socket->client, " on server port ", _servers[master_index].get_port_str(), " via socket ", new_fd, "\n");
 	}
 }
+
+// void Monitor::_replace_alone_header_cr() 
+// {
+//     std::string::iterator it;
+// 	size_t len = 0;
+// 	const void * lastChar = static_cast<const void *>(&(*(_requestStr->rbegin()))); // chope l'adresse du dernier char de _requestStr (protection)
+//     for (it = _requestStr->begin(); it != _requestStr->end() && len < MHS; it++) {
+//         if (*it == '\r')
+// 		{
+// 			if (static_cast<const void *>(&(*(it+3))) > lastChar) // protection pour voir si memoire est accessible vu qu'on teste *(it + 3) en bas
+// 				throw MessageException(BAD_REQUEST);
+// 			if (*(it + 1) != '\n') 
+// 				*it = ' ';
+// 			else
+// 			{
+// 				// si on trouve le pattern /r/n/r/n c'est qu'on est plus dans le header
+// 				if (*(it + 1) == '\n' && *(it + 2) == '\r' && *(it + 3) == '\n')
+// 					return;
+// 			}
+// 		}
+// 		len++;
+//     }
+// 	if (len == MHS)
+// 		throw MessageException(HEADERS_TOO_LARGE);
+// }
 
 ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 {
@@ -264,7 +289,8 @@ void Monitor::handle_connections()
 							// 	std::cout << _buf.begin[i];
 							// std::cout << std::endl;
 							try {
-								Request request(_buf.begin, _buf.size, _activeSockets[i].server);					// essaie de constr une requeste depuis les donnees recues
+								// _replace_alone_header_cr();
+								Request request(_buf.begin, _buf.size, _activeSockets[i].server);		// essaie de constr une requeste depuis les donnees recues
 								Response response(&request, _activeSockets[i].server, &responseStr);	// essaie de constr une response si on a une request
 							}
 							catch (Request::MessageException & e) {
