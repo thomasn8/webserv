@@ -83,7 +83,7 @@ class Monitor
 		void _accept_new_connection(int master_index);
 		void _replace_alone_header_cr(void);
 		ssize_t _recv_all(int fd, struct socket & activeSocket);
-		ssize_t _send_all(int i, const char * response, int size, struct socket & activeSocket);
+		ssize_t _send_all(int i, const char * response, ssize_t size, struct socket & activeSocket);
 
 		// RECV
 		struct buffer_read _buf;

@@ -209,12 +209,12 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 	}
 }
 
-ssize_t Monitor::_send_all(int i, const char * response, int size, struct socket & activeSocket)
+ssize_t Monitor::_send_all(int i, const char * response, ssize_t size, struct socket & activeSocket)
 {
 	int fd = _pfds[i].fd;
 	const char * chunk_send = response;
 	ssize_t response_size = size, size_sent = 0, total_sent = 0;
-	if (response_size < CHUNK_SIZE)	// cas où response initiale fait < 512
+	if (response_size < CHUNK_SIZE)	// cas où response initiale fait < CHUNK_SIZE
 	{
 		size_sent = send(fd, chunk_send, response_size, 0);
 		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
@@ -222,7 +222,7 @@ ssize_t Monitor::_send_all(int i, const char * response, int size, struct socket
 		chunk_send += size_sent;
 		total_sent += size_sent;
 	}
-	while (response_size > CHUNK_SIZE && size_sent != -1) // cas où response initiale > 512
+	while (response_size > CHUNK_SIZE && size_sent != -1) // cas où response initiale > CHUNK_SIZE
 	{
 		size_sent = send(fd, chunk_send, CHUNK_SIZE, 0);
 		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
@@ -230,7 +230,7 @@ ssize_t Monitor::_send_all(int i, const char * response, int size, struct socket
 		chunk_send += size_sent;
 		total_sent += size_sent;
 	}
-	while (response_size > 0 && size_sent != -1) // envoie les derniers bytes lorsque response initiale était > 512 bytes ou lorsque send a pas fonctionné comme prévu
+	while (response_size > 0 && size_sent != -1) // envoie les derniers bytes lorsque response initiale était > CHUNK_SIZE bytes ou lorsque send a pas fonctionné comme prévu
 	{
 		size_sent = send(fd, chunk_send, response_size, 0);
 		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;

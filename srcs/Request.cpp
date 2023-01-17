@@ -268,7 +268,7 @@ void Request::_parse_body()
 	size_t contentLength = strtoul((*contentlen).second.front().c_str(), NULL, 0);
 	if (contentLength != _request.size())
 	{
-		std::cout << "CONTENT LENGTH ERROR: header=" << contentLength << " vs real=" << _request.size() << std::endl;
+		// std::cout << "CONTENT LENGTH ERROR: header=" << contentLength << " vs real=" << _request.size() << std::endl;
 		throw MessageException(BAD_REQUEST);
 	}
 	_body = _request.data();

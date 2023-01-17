@@ -5,7 +5,6 @@
 
 #include <iostream>
 #include <cstdlib>
-#include <string>
 #include <cstring>
 #include <unistd.h>
 #include <errno.h>
@@ -20,14 +19,19 @@
 # define PORT 80
 # define MIN_PORT_NO 1024
 # define MAX_PORT_NO 65535
+# define FILE 1
+# define ARGUMENT 2
 # define FILE_MAX_LEN 1000000 // 1 MO
-# define BUFFER_SIZE 1024
+# define CHUNK_SEND 8192
+# define CHUNK_RECV 1024
+// # define CHUNK_SEND 512
+// # define CHUNK_RECV 512
+# define BUFFER_LIMIT 200000 // 200KO
+# define MAXRECV 100000000 // 100MO
 # define EQUAL 0
 # define RED "\033[0;31m"
 # define BLU "\033[0;34m"
 # define WHI "\033[0m"
-# define FILE 1
-# define ARGUMENT 2
 
 const char option1[] = "-i";
 const char option2[] = "-p";
@@ -36,7 +40,6 @@ const char option4[] = "-s";
 const char option5[] = "-f";
 const char *options[5] = {option1, option2, option3, option4, option5};
 const int len = 5;
-
 
 struct request {
 	const char	*ip;
@@ -49,24 +52,22 @@ struct request {
 	ssize_t		size;
 };
 
+struct buffer_read {
+	char *begin;
+	char *current;
+	size_t size;
+	size_t capacity;
+};
+
 void error(const char *msg, const char *precision, int code) {
 	std::cerr << msg << precision << std::endl;
 	exit(code);
 }
 
-int port_check(const char *av1) {
-	int port = PORT;
-	std::string str = av1;
-	size_t idx;
-
-	try {
-		port = std::stoi(str, &idx);
-		if (str.substr(idx).size() != 0)
-			error("Error: port invalid", "", 1);
-	}
-	catch (const std::invalid_argument &ia) {
+int port_check(const char *arg) {
+	int port = atoi(arg);
+	if (port == 0)
 		error("Error: port invalid", "", 1);
-	}
 	if (port != 80 && port < MIN_PORT_NO)
 		error("Error: invalid port: port number below 1024 (except default port 80) are not available", "", 1);
 	if (port > MAX_PORT_NO)
@@ -86,6 +87,15 @@ void highlight_crlf(const char *block, ssize_t size, const char *highlightcolor,
 		for (ssize_t j = 0 ; j < size ; j++)
 			block[j] == '\r' ? std::cout << "\\r" : (block[j] == '\n' ? std::cout << "\\n\n" : std::cout << block[j]);
 	}
+}
+
+void print_chunk(const char *chunk, ssize_t size, const char *color)
+{
+	if (color != NULL)
+		std::cout << color;
+	for (ssize_t j = 0 ; j < size ; j++)
+		std::cout << chunk[j];
+	std::cout << WHI;
 }
 
 void add_carriageReturn_to_header(struct request * test)
@@ -142,15 +152,12 @@ void add_carriageReturn_to_header(struct request * test)
 		test->size += 1;
 		memcpy(test->request, tmp, body);
 		test->request[body-1] = '\r';
-		std::string teststr( &tmp[body-1], test->size-body);
 		memcpy(&test->request[body], &tmp[body-1], test->size-body);
 		free(tmp);
 	}
 	// highlight_crlf(test->request, test->size);
 }
 
-// ameliorations: ajoute la possibilite de passer des args sans specifier l'option pour le port et pour le requestArg
-// exemple: ./client 8080 "GET /index.html HTTP/1.1"
 void parse(int ac, const char **av, struct request * test) {
 	if (ac > len*2-1)
 		error(USAGE, "", 1);
@@ -246,15 +253,93 @@ void parse(int ac, const char **av, struct request * test) {
 	add_carriageReturn_to_header(test);
 }
 
+ssize_t send_all(int fd, const char * message, ssize_t size, bool last)
+{
+	ssize_t size_sent = 0, total_sent = 0;
+	if (size < CHUNK_SEND)	// cas où message initiale fait < 512
+	{
+		size_sent = send(fd, message, size, 0);
+		// std::cout << RED << "\nsent(1) " << size_sent << " bytes" << WHI << std::endl;
+		// highlight_crlf(message, size_sent, WHI, BLU);
+		if (last)
+			print_chunk(message, size_sent, BLU);
+		size -= size_sent;
+		message += size_sent;
+		total_sent += size_sent;
+	}
+	while (size > CHUNK_SEND && size_sent != -1) // cas où message initiale > 512
+	{
+		size_sent = send(fd, message, CHUNK_SEND, 0);
+		// std::cout << RED << "\nsent(2) " << size_sent << " bytes" << WHI << std::endl;
+		// highlight_crlf(message, size_sent, WHI, BLU);
+		if (last)
+			print_chunk(message, size_sent, BLU);
+		size -= size_sent;
+		message += size_sent;
+		total_sent += size_sent;
+	}
+	while (size > 0 && size_sent != -1) // envoie les derniers bytes lorsque message initiale était > 512 bytes ou lorsque send a pas fonctionné comme prévu
+	{
+		size_sent = send(fd, message, size, 0);
+		// std::cout << RED << "\nsent(3) " << size_sent << " bytes" << WHI << std::endl;
+		// highlight_crlf(message, size_sent, WHI, BLU);
+		if (last)
+			print_chunk(message, size_sent, BLU);
+		size -= size_sent;
+		message += size_sent;
+		total_sent += size_sent;
+	}
+	// std::cout << RED << "SEND END" << WHI << std::endl;
+	return total_sent;
+}
+
+ssize_t recv_all(int fd, struct buffer_read *buf, bool last)
+{
+	ssize_t size_recv = 0;
+	buf->size = 0;
+	buf->current = buf->begin;
+	while (1)
+	{
+		if (buf->size + CHUNK_RECV > buf->capacity)
+		{
+			if (buf->capacity == 0)
+			{
+				buf->begin = (char *)malloc(CHUNK_RECV);
+				buf->capacity = CHUNK_RECV;
+			}
+			else
+			{
+				buf->begin = (char *)realloc(buf->begin, buf->capacity * 2);
+				buf->capacity *= 2;
+			}
+			if (buf->begin == NULL)
+				error("Error: allocation for read buffer failed: ", strerror(errno), 1);
+			buf->current = buf->begin + buf->size;
+		}
+		size_recv = recv(fd, buf->current, CHUNK_RECV, 0);
+		if (last == true)
+		{
+			std::cout << BLU;
+			for (ssize_t i = 0; i < size_recv; i++)
+				std::cout << buf->current[i];
+		}
+		buf->size += size_recv;
+		buf->current += size_recv;
+		if (buf->size > MAXRECV)
+			return -1;
+		if (size_recv < CHUNK_RECV) // toute la request a été read
+			return buf->size;
+	}
+}
+
+// ameliorations: ajouter la possibilite de passer des args sans specifier l'option pour le port et pour le requestArg
+// exemple: ./client 8080 "GET /index.html HTTP/1.1"
 int main(int ac, const char **av) {
 
 	// PARSE ARGS
 	struct request test;
 	parse(ac, av, &test);
-	std::cout << "Summary\nYou asked to request " << test.repeatcount << " times on ip " << test.ip << ":" << test.port << " with the message:\n";
-	std::cout << BLU;
-	highlight_crlf(test.request, test.size, WHI, BLU);
-	std::cout << WHI << "\nResult" << std::endl;
+	std::cout << "Summary\nYou asked to send " << test.repeatcount << " request(s) on ip " << test.ip << ":" << test.port << std::endl;
 
 	// SERVER INFOS
 	struct sockaddr_in server_addr;
@@ -266,9 +351,13 @@ int main(int ac, const char **av) {
 	server_addr.sin_len = sizeof(server_addr);
 
 	// REQUESTS n TIMES THE SERVER (depends on args)
+	bool last = false;
 	ssize_t recv_size;
-	char buffer[BUFFER_SIZE];
+	struct buffer_read buf;
+	buf.capacity = 0;
 	for (int i = 0; i < test.repeatcount; i++) {
+		i == test.repeatcount-1 ? last = true : false; // print just last response
+
 		// GET FD
 		int socket_fd = -1;
 		socket_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -280,34 +369,39 @@ int main(int ac, const char **av) {
 			error("Error: connect(): ", strerror(errno), 1);
 
 		// SEND
-		ssize_t send_size = send(socket_fd, test.request, test.size, 0);
+		if (test.repeatcount > 1 && last)
+			std::cout << "\nLAST EXCHANGE:" << std::endl << std::endl;
+		ssize_t send_size = send_all(socket_fd, test.request, test.size, last);
 		if (send_size == test.size)
-			std::cout << "Success: request sent\n" << std::endl;
+			std::cout << RED << "Success: " << send_size << " bytes sent" << WHI << std::endl;
 		else if (send_size > 0)
-			std::cout << "Error: request partially sent\n" << std::endl;
+			std::cout << RED << "Error: request partially sent: " << send_size << " / " << test.size << "bytes" << WHI << std::endl;
 		else
 			error("Error: send() failed: ", strerror(errno), 1);
 
 		// RECV
-		recv_size = recv(socket_fd, buffer, BUFFER_SIZE, 0);
-		if (recv_size > 0)
-			std::cout << "Response received:";
-		else if(recv_size == 0)
-			std::cout << "Empty response received\n";
+		if (last)
+			std::cout << std::endl;
+		recv_size = recv_all(socket_fd, &buf, last);
+		if (last)
+			std::cout << std::endl;
+		if (recv_size > -1)
+			std::cout << RED << recv_size << " bytes received in total" << WHI << std::endl;
 		else
 			error("Error: recv() failed: ", strerror(errno), 1);
 		
-		// CLOSE
+		// FREE RESPONSE MEMORY
+		if (buf.capacity > BUFFER_LIMIT)
+		{
+			free(buf.begin);
+			buf.capacity = 0;
+		}
+
+		// CLOSE SOCKET 
 		close(socket_fd);
 	}
-
-	// PRINT ONLY LAST RESPONSE	(THATS WHY OUTSIDE OF LOOP)
-	int i = -1;
-	std::cout << BLU << std::endl;
-	while (++i < recv_size)
-		write(STDOUT_FILENO, &buffer[i], 1);
-	std::cout << WHI << std::endl;
-
+	
+	// FREE REQUEST MEMORY
 	if (test.type == FILE)
 		delete[] test.request;
 	else if (test.type == ARGUMENT)
