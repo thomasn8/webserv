@@ -24,7 +24,8 @@
 
 # define LOG_PATH "logs/access.log"
 
-# define CHUNK_SIZE 1024
+# define CHUNK_RECV 1024
+# define CHUNK_SEND 1024
 # define BUFFER_LIMIT 200000 // 200KO
 struct buffer_read {
 	char *begin;

@@ -172,13 +172,13 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 	_buf.current = _buf.begin;
 	while (1)
 	{
-		if (_buf.size + CHUNK_SIZE > _buf.capacity)
+		if (_buf.size + CHUNK_RECV > _buf.capacity)
 		{
 			if (_buf.capacity == 0)
 			{
 				// std::cout << "malloc" << std::endl;
-				_buf.begin = (char *)malloc(CHUNK_SIZE);
-				_buf.capacity = CHUNK_SIZE;
+				_buf.begin = (char *)malloc(CHUNK_RECV);
+				_buf.capacity = CHUNK_RECV;
 			}
 			else
 			{
@@ -193,13 +193,13 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 			}
 			_buf.current = _buf.begin + _buf.size;
 		}
-		size_recv = recv(fd, _buf.current, CHUNK_SIZE, 0); // recv la request jusqu'au bout du client_fd
+		size_recv = recv(fd, _buf.current, CHUNK_RECV, 0); // recv la request jusqu'au bout du client_fd
 		_buf.size += size_recv;
 		_buf.current += size_recv;
 		// std::cout << size_recv << " bytes read on socket " << fd << std::endl;
 		if (maxrecv && _buf.size > maxrecv) // erreur max body size 413
 			return -1;
-		if (size_recv < CHUNK_SIZE) // toute la request a été read
+		if (size_recv < CHUNK_RECV) // toute la request a été read
 		{
 			// std::cout << " buffer size: " << _buf.size << std::endl;
 			// std::cout << " buffer capacity: " << _buf.capacity << std::endl;
@@ -214,7 +214,7 @@ ssize_t Monitor::_send_all(int i, const char * response, ssize_t size, struct so
 	int fd = _pfds[i].fd;
 	const char * chunk_send = response;
 	ssize_t response_size = size, size_sent = 0, total_sent = 0;
-	if (response_size < CHUNK_SIZE)	// cas où response initiale fait < CHUNK_SIZE
+	if (response_size < CHUNK_SEND)	// cas où response initiale fait < CHUNK_SEND
 	{
 		size_sent = send(fd, chunk_send, response_size, 0);
 		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
@@ -222,15 +222,15 @@ ssize_t Monitor::_send_all(int i, const char * response, ssize_t size, struct so
 		chunk_send += size_sent;
 		total_sent += size_sent;
 	}
-	while (response_size > CHUNK_SIZE && size_sent != -1) // cas où response initiale > CHUNK_SIZE
+	while (response_size > CHUNK_SEND && size_sent != -1) // cas où response initiale > CHUNK_SEND
 	{
-		size_sent = send(fd, chunk_send, CHUNK_SIZE, 0);
+		size_sent = send(fd, chunk_send, CHUNK_SEND, 0);
 		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
 		response_size -= size_sent;
 		chunk_send += size_sent;
 		total_sent += size_sent;
 	}
-	while (response_size > 0 && size_sent != -1) // envoie les derniers bytes lorsque response initiale était > CHUNK_SIZE bytes ou lorsque send a pas fonctionné comme prévu
+	while (response_size > 0 && size_sent != -1) // envoie les derniers bytes lorsque response initiale était > CHUNK_SEND bytes ou lorsque send a pas fonctionné comme prévu
 	{
 		size_sent = send(fd, chunk_send, response_size, 0);
 		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
