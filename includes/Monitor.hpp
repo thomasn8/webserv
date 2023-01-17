@@ -86,6 +86,7 @@ class Monitor
 
 		// RECV
 		struct buffer_read _buf;
+		void _replace_alone_header_cr(void);
 
 		// LOG
 		void _create_log_file(std::string const & filename, std::ofstream & stream);

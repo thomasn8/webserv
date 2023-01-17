@@ -6,7 +6,6 @@ Request::Request(std::string *rawMessage, Server *server) : _rawMessage(rawMessa
 	ssize_t i = _rawMessage->find_first_of('\n');
     std::string start_line = _rawMessage->substr(0, i); // prend le /r avant /n
 	_rawMessage->erase(0, i+1);
-    _replace_alone_header_cr();
     _parse_start_line(start_line);
     if (_parse_header() > 0)
     	_parse_body();
@@ -44,30 +43,6 @@ std::map<std::string, std::string> & Request::get_defaultDatas() { return _postN
 std::list<MultipartData *> & Request::get_multipartDatas() { return _postMultipart; }
 
 // --------- Parse HEADER ------------
-
-void Request::_replace_alone_header_cr() {
-    std::string::iterator it;
-	size_t len = 0;
-	const void * lastChar = static_cast<const void *>(&(*(_rawMessage->rbegin()))); // chope l'adresse du dernier char de _rawMessage (protection)
-    for (it = _rawMessage->begin(); it != _rawMessage->end() && len < MHS; it++) {
-        if (*it == '\r')
-		{
-			if (static_cast<const void *>(&(*(it+3))) > lastChar) // protection pour voir si memoire est accessible vu qu'on teste *(it + 3) en bas
-				throw MessageException(BAD_REQUEST);
-			if (*(it + 1) != '\n') 
-				*it = ' ';
-			else
-			{
-				// si on trouve le pattern /r/n/r/n c'est qu'on est plus dans le header
-				if (*(it + 1) == '\n' && *(it + 2) == '\r' && *(it + 3) == '\n')
-					return;
-			}
-		}
-		len++;
-    }
-	if (len == MHS)
-		throw MessageException(HEADERS_TOO_LARGE);
-}
 
 void Request::_parse_start_line(std::string startLine) {
 	std::string token;

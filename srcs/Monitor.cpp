@@ -148,6 +148,23 @@ void Monitor::_accept_new_connection(int master_index)
 	}
 }
 
+void Monitor::_replace_alone_header_cr() 
+{
+	char *ptr = _buf.begin;
+	size_t len = _buf.size, i = 0;
+	while (i < len)
+	{
+		if (ptr[i] == '\r')
+		{
+			if ((i+1 < len && ptr[i+1] != '\n') || (i+1 == len))
+				ptr[i] = ' ';
+			else if (i+3 < len && ptr[i+1] == '\n' && ptr[i+2] == '\r' && ptr[i+3] == '\n')
+				return;
+		}
+		i++;
+	}
+}
+
 ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 {
 	ssize_t size_recv = 0, maxrecv = activeSocket.server->get_maxrecv();
@@ -255,6 +272,7 @@ void Monitor::handle_connections()
 					{
 						if (_recv_all(_pfds[i].fd, _activeSockets[i]) != -1)
 						{
+							_replace_alone_header_cr();
 							std::string requestStr(_buf.begin, _buf.size);
 							try {
 								Request request(&requestStr, _activeSockets[i].server);					// essaie de constr une requeste depuis les donnees recues
