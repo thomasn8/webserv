@@ -332,8 +332,12 @@ ssize_t recv_all(int fd, struct buffer_read *buf, bool last)
 	}
 }
 
-// ameliorations: ajouter la possibilite de passer des args sans specifier l'option pour le port et pour le requestArg
+// ameliorations:
+// - ajouter la possibilite de passer des args sans specifier l'option pour le port et pour le requestArg
 // exemple: ./client 8080 "GET /index.html HTTP/1.1"
+// - ajouter un poll pour verifier si on peut manier le socket_fd 
+//		- entre connect() et send()
+//		- entre send et recv()
 int main(int ac, const char **av) {
 
 	// PARSE ARGS
@@ -351,18 +355,18 @@ int main(int ac, const char **av) {
 	server_addr.sin_len = sizeof(server_addr);
 
 	// REQUESTS n TIMES THE SERVER (depends on args)
-	bool last = false;
-	ssize_t recv_size;
+	ssize_t send_size, recv_size;
 	struct buffer_read buf;
 	buf.capacity = 0;
+	bool last = false;
 	for (int i = 0; i < test.repeatcount; i++) {
 		i == test.repeatcount-1 ? last = true : false; // print just last response
 
-		// GET FD
+		// SOCKET
 		int socket_fd = -1;
 		socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 		if (socket_fd < 0)
-		error("Error: socket() failed: ", strerror(errno), 1);
+			error("Error: socket() failed: ", strerror(errno), 1);
 
 		// CONNECT
 		if (connect(socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
@@ -371,7 +375,7 @@ int main(int ac, const char **av) {
 		// SEND
 		if (test.repeatcount > 1 && last)
 			std::cout << "\nLAST EXCHANGE:" << std::endl << std::endl;
-		ssize_t send_size = send_all(socket_fd, test.request, test.size, last);
+		send_size = send_all(socket_fd, test.request, test.size, last);
 		if (send_size == test.size)
 			std::cout << RED << "Success: " << send_size << " bytes sent" << WHI << std::endl;
 		else if (send_size > 0)
