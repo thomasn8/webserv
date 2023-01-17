@@ -148,30 +148,22 @@ void Monitor::_accept_new_connection(int master_index)
 	}
 }
 
-// void Monitor::_replace_alone_header_cr() 
-// {
-//     std::string::iterator it;
-// 	size_t len = 0;
-// 	const void * lastChar = static_cast<const void *>(&(*(_requestStr->rbegin()))); // chope l'adresse du dernier char de _requestStr (protection)
-//     for (it = _requestStr->begin(); it != _requestStr->end() && len < MHS; it++) {
-//         if (*it == '\r')
-// 		{
-// 			if (static_cast<const void *>(&(*(it+3))) > lastChar) // protection pour voir si memoire est accessible vu qu'on teste *(it + 3) en bas
-// 				throw MessageException(BAD_REQUEST);
-// 			if (*(it + 1) != '\n') 
-// 				*it = ' ';
-// 			else
-// 			{
-// 				// si on trouve le pattern /r/n/r/n c'est qu'on est plus dans le header
-// 				if (*(it + 1) == '\n' && *(it + 2) == '\r' && *(it + 3) == '\n')
-// 					return;
-// 			}
-// 		}
-// 		len++;
-//     }
-// 	if (len == MHS)
-// 		throw MessageException(HEADERS_TOO_LARGE);
-// }
+void Monitor::_replace_alone_header_cr() 
+{
+	char *ptr = _buf.begin;
+	size_t len = _buf.size, i = 0;
+	while (i < len)
+	{
+		if (ptr[i] == '\r')
+		{
+			if ((i+1 < len && ptr[i+1] != '\n') || (i+1 == len))
+				ptr[i] = ' ';
+			else if (i+3 < len && ptr[i+1] == '\n' && ptr[i+2] == '\r' && ptr[i+3] == '\n')
+				return;
+		}
+		i++;
+	}
+}
 
 ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 {
@@ -289,7 +281,7 @@ void Monitor::handle_connections()
 							// 	std::cout << _buf.begin[i];
 							// std::cout << std::endl;
 							try {
-								// _replace_alone_header_cr();
+								_replace_alone_header_cr();
 								Request request(_buf.begin, _buf.size, _activeSockets[i].server);		// essaie de constr une requeste depuis les donnees recues
 								Response response(&request, _activeSockets[i].server, &responseStr);	// essaie de constr une response si on a une request
 							}
