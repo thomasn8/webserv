@@ -38,7 +38,7 @@ const char *options[5] = {option1, option2, option3, option4, option5};
 const int len = 5;
 
 
-struct tester {
+struct request {
 	const char	*ip;
 	int			port;
 	int			repeatcount;
@@ -88,7 +88,7 @@ void highlight_crlf(const char *block, ssize_t size, const char *highlightcolor,
 	}
 }
 
-void add_carriageReturn_to_header(struct tester * test)
+void add_carriageReturn_to_header(struct request * test)
 {
 	// highlight_crlf(test->request, test->size);
 	char *tmp = NULL;
@@ -151,7 +151,7 @@ void add_carriageReturn_to_header(struct tester * test)
 
 // ameliorations: ajoute la possibilite de passer des args sans specifier l'option pour le port et pour le requestArg
 // exemple: ./client 8080 "GET /index.html HTTP/1.1"
-void parse(int ac, const char **av, struct tester * test) {
+void parse(int ac, const char **av, struct request * test) {
 	if (ac > len*2-1)
 		error(USAGE, "", 1);
 	test->ip = IP;
@@ -249,7 +249,7 @@ void parse(int ac, const char **av, struct tester * test) {
 int main(int ac, const char **av) {
 
 	// PARSE ARGS
-	struct tester test;
+	struct request test;
 	parse(ac, av, &test);
 	std::cout << "Summary\nYou asked to request " << test.repeatcount << " times on ip " << test.ip << ":" << test.port << " with the message:\n";
 	std::cout << BLU;
@@ -293,7 +293,7 @@ int main(int ac, const char **av) {
 		if (recv_size > 0)
 			std::cout << "Response received:";
 		else if(recv_size == 0)
-			std::cout << "Error: empty response received\n";
+			std::cout << "Empty response received\n";
 		else
 			error("Error: recv() failed: ", strerror(errno), 1);
 		
