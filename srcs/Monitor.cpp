@@ -25,6 +25,8 @@ Monitor::~Monitor()
 		free(_activeSockets);
 	if (_master_size)
 		free(_master_sockets);
+	if (_buf.capacity > 0)
+		free(_buf.begin);
 	_accessStream.close();
 	log(get_time(), " Server shut down\n");
 	std::cout << "Server shut down" << std::endl;
@@ -62,7 +64,7 @@ void Monitor::_prepare_master_sockets()
 	_activeSockets = (struct socket *)malloc(sizeof(*_activeSockets) * _fd_capacity);
 	if (_pfds == NULL)
 	{
-		log("Error: impossible to allocate", _fd_capacity ," struct pollfd\n");
+		log("Error: impossible to allocate", _fd_capacity ," pollfd structs\n");
 		_exit_cerr_msg("Fatal error: allocation\n", 1);
 	}
 	for (int i = 0; i < _fd_count; i++)
@@ -87,7 +89,7 @@ struct socket * Monitor::_add_to_pfds(int new_fd, struct sockaddr_in * remoteAdd
 		_activeSockets = (struct socket *)realloc(_activeSockets, sizeof(*_activeSockets) * (_fd_capacity));
 		if (_pfds == NULL)
 		{
-			log("Error: impossible to allocate", _fd_capacity ," struct pollfd\n");
+			log("Error: impossible to allocate", _fd_capacity ," pollfd structs\n");
 			_exit_cerr_msg("Fatal error: allocation\n", 1);
 		}
 	}
@@ -146,23 +148,42 @@ void Monitor::_accept_new_connection(int master_index)
 	}
 }
 
-int Monitor::_recv_all(int fd, std::string & request, struct socket & activeSocket)
+ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 {
-	char chunk_read[CHUNK_SIZE];
-	ssize_t size_recv = 0, total_recv = 0, maxrecv = activeSocket.server->get_maxrecv();
+	ssize_t size_recv = 0, maxrecv = activeSocket.server->get_maxrecv();
+	_buf.size = 0;
+	_buf.current = _buf.begin;
 	while (1)
 	{
-		size_recv = recv(fd, chunk_read, CHUNK_SIZE, 0); // recv la request jusqu'au bout du client_fd
-		total_recv += size_recv;
-		if (maxrecv && total_recv > maxrecv) // erreur max body size 413
-			return -1;
+		if (_buf.size + CHUNK_SIZE > _buf.capacity)
+		{
+			if (_buf.capacity == 0)
+			{
+				_buf.begin = (char *)malloc(CHUNK_SIZE);
+				_buf.capacity = CHUNK_SIZE;
+			}
+			else
+			{
+				_buf.begin = (char *)realloc(_buf.begin, _buf.capacity * 2);
+				_buf.capacity *= 2;
+			}
+			if (_buf.begin == NULL)
+			{
+				log("Error: allocation for read buffer failed\n");
+				return -1;
+			}
+			_buf.current = _buf.begin + _buf.size;
+		}
+		size_recv = recv(fd, _buf.current, CHUNK_SIZE, 0); // recv la request jusqu'au bout du client_fd
+		_buf.size += size_recv;
+		_buf.current += size_recv;
 		// std::cout << size_recv << " bytes read on socket " << fd << std::endl;
-		if (size_recv > 0)
-			request.append(chunk_read, size_recv);
+		if (maxrecv && _buf.size > maxrecv) // erreur max body size 413
+			return -1;
 		if (size_recv < CHUNK_SIZE) // toute la request a été read
 		{
-			log(get_time(), " Request from    ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(), ": ", total_recv, " bytes read via socket ", fd, "\n");
-			return total_recv;
+			log(get_time(), " Request from    ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(), ": ", _buf.size, " bytes read via socket ", fd, "\n");
+			return _buf.size;
 		}
 	}
 }
@@ -210,7 +231,8 @@ void Monitor::handle_connections()
 {
 	_prepare_master_sockets(); // socket, bind, listen pour chaque port/server + creer les struct pollfd dédiées
 	int i, poll_index = 0, poll_count = 0, server_count = _servers.size();
-	std::string requestStr, responseStr;
+	_buf.capacity = 0;
+	std::string responseStr;
 	while (1)													// Main loop
 	{
 		poll_count = poll(_pfds, _fd_count, -1);				// bloque tant qu'aucun fd est prêt à read ou write
@@ -231,8 +253,9 @@ void Monitor::handle_connections()
 					}
 					if (j == server_count - 1)					// sinon fd correspond a un client qui fait une request
 					{
-						if (_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]) != -1)
+						if (_recv_all(_pfds[i].fd, _activeSockets[i]) != -1)
 						{
+							std::string requestStr(_buf.begin, _buf.size);
 							try {
 								Request request(&requestStr, _activeSockets[i].server);					// essaie de constr une requeste depuis les donnees recues
 								Response response(&request, _activeSockets[i].server, &responseStr);	// essaie de constr une response si on a une request
@@ -243,7 +266,11 @@ void Monitor::handle_connections()
 						}
 						else
 							Response response("413", _activeSockets[i].server, &responseStr);			// si recvall a atteint le MBS, constuit une response selon le status code
-						requestStr.clear();
+						if (_buf.capacity > BUFFER_LIMIT)
+						{
+							free(_buf.begin);
+							_buf.capacity = 0;
+						}
 						_pfds[i].events = POLLOUT;
 						poll_index = i; // permet de revenir dans la main loop avec l'index du pfds à écrire
 						i = _fd_count;  // break la while loop
@@ -288,6 +315,8 @@ void Monitor::_exit_cerr_msg(const std::string message, int code)
 		free(_activeSockets);
 	if (_master_size)
 		free(_master_sockets);
+	if (_buf.capacity > 0)
+		free(_buf.begin);
 	_accessStream.close();
 	exit(code);
 }
