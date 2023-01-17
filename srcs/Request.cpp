@@ -9,6 +9,7 @@ request_size(size),
 _server(server) 
 {
 	_request = std::string_view(request, size);
+	// std::cout << _request << std::endl;
 	ssize_t i = _request.find_first_of('\n');
     std::string_view start_line = _request.substr(0, i); // prend le /r avant /n
 	_request.remove_prefix(i+1);
@@ -266,7 +267,10 @@ void Request::_parse_body()
 		throw MessageException(BAD_REQUEST);
 	size_t contentLength = strtoul((*contentlen).second.front().c_str(), NULL, 0);
 	if (contentLength != _request.size())
+	{
+		std::cout << "CONTENT LENGTH ERROR: header=" << contentLength << " vs real=" << _request.size() << std::endl;
 		throw MessageException(BAD_REQUEST);
+	}
 	_body = _request.data();
 	_body_len = contentLength;
 

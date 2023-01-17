@@ -1,11 +1,11 @@
-POST /form.html HTTP/1.1
+POST /test.php HTTP/1.1
 Host: localhost
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:108.0) Gecko/20100101 Firefox/108.0
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
 Accept-Language: fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3
 Accept-Encoding: gzip, deflate, br
-Content-Type: multipart/form-data; boundary=---------------------------110492394223042056841644057171
-Content-Length: 6457
+Content-Type: multipart/form-data; boundary=---------------------------177619161210617282421603911847
+Content-Length: 2885
 Origin: http://localhost
 DNT: 1
 Connection: keep-alive
@@ -16,72 +16,45 @@ Sec-Fetch-Mode: navigate
 Sec-Fetch-Site: same-origin
 Sec-Fetch-User: ?1
 
------------------------------110492394223042056841644057171
+-----------------------------177619161210617282421603911847
 Content-Disposition: form-data; name="firstname"
 
 Thomas
------------------------------110492394223042056841644057171
+-----------------------------177619161210617282421603911847
 Content-Disposition: form-data; name="lastname"
 
 Nanchen
------------------------------110492394223042056841644057171
-Content-Disposition: form-data; name="age"
-
-12
------------------------------110492394223042056841644057171
+-----------------------------177619161210617282421603911847
 Content-Disposition: form-data; name="story"
 
 It was a dark and stormy night...
------------------------------110492394223042056841644057171
-Content-Disposition: form-data; name="fileToUpload"; filename="Screenshot 2023-01-14 at 01.09.28.png"
+-----------------------------177619161210617282421603911847
+Content-Disposition: form-data; name="age"
+
+12
+-----------------------------177619161210617282421603911847
+Content-Disposition: form-data; name="fileToUpload"; filename="screenshot.png"
 Content-Type: image/png
 
 �PNG
 
-R�ĭ��Ѭ40!Xs�����:�p���L5՟�J5�����-�ǜ�-��^����y�p=7�O��dK%D��VeXIfMM�i��D����ASCIIScreenshot:����iTXtXML:com.adobe.xmp<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 6.0.0">
+4DA$����������iѹΏ��\>��S3���LĦ��+)����Eܪf����ɂ��^�GrS=�����;��=��yj�`r����V]��h~P�5fڀ$V�l&x��ߤPć��M>�n�uó����j95C�BH�����W�ާ�4��0�������qj����n�DR�ĭ��Ѭ40!Xs�����:�p���L5՟�J5�����-�ǜ�-��^����y�p=7�O��dK%D��beXIfMM�i&��P�.�-ASCIIScreenshot'��=iTXtXML:com.adobe.xmp<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 6.0.0">
    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
       <rdf:Description rdf:about=""
-            xmlns:exif="http://ns.adobe.com/exif/1.0/">
+            xmlns:exif="http://ns.adobe.com/exif/1.0/"
+            xmlns:tiff="http://ns.adobe.com/tiff/1.0/">
          <exif:PixelYDimension>144</exif:PixelYDimension>
-         <exif:PixelXDimension>179</exif:PixelXDimension>
          <exif:UserComment>Screenshot</exif:UserComment>
+         <exif:PixelXDimension>179</exif:PixelXDimension>
+         <tiff:Orientation>1</tiff:Orientation>
       </rdf:Description>
    </rdf:RDF>
 </x:xmpmeta>
-Q2+�A@�l�)�!Jf�(��1�6Dɬ��,%���톭1g|7DG����U�Ϣ[eϸnL���5�x{P7�[�}K�͈{��Y9`Ok���8�{�m��{�s�^{������]k}�:���a!E�,h�6A��JkP2[cJm��Y9`
-������2�[�d�{
-����[�}K��qO{P2�c˸o��9�)`Jf{l�-Q2�=�@�l�-�%J渧�=(���eܷD���%�=����(����d�ǖq�%s�S��i���B�7�+ڸq+����
-ٿ?-Z�(f����o���=���#_ꮅ��Q��s��T�n]��x��� ���/z��'�ꫯ�^x!(7��ҥK�J�*T�Z5��矣���ᜫ˗/�?���^�^�u��%K���}u��7ߤ�{.��ʖ-��{<c!�kצ�{��z�)JL<�Yê��p�=M�R�JT����+U�L���IW\qE�k/ff��<����t�����PR�Bjذa���:���,����?y�W�^����GFg�:u�*/�첳�Er"6��FR}@����F���i�ڵl�}�t��ܹ#�n�"b&��LJH�a�F�Q�z��;�/��B�*�;p����G�uڴi��rE�%�7a���t��7���ӹw�Cy��v������w��9�r���w�}�V��GQ˖-顇���
-                                                                                                                      �y?��5mڔ�W�N%K�������'�|"e6o�,�.\�ʔ)C�f�r��`D:t(A�n��>��c�^�b�z�t�-��^
-                                                                                                                                                                                             ����.�
-�g�}F����!���=Jo�������ϋN!�V���d�޽�������6m+S>6г{��b�:u�аa��2C�'
-�k֬1՝����#؞#��O�ь�i��4�<���۷��ŋ
-(��ܹS�ǌ#i�*�                   s�jӦ�t��q��V�2Yt��        ���ю�麥8�����<yJ������C���C��>���3��ҥK;LD�G?9F�S"a'))I��o|c���o�2'O�tv���<���F���w�}�]I_w�uO��'O�
-           y���;�tP��iӤ,��a����A�LP����e��z�� �$�u��I}s�̑s܉$�q�[�{���K���       -i�\�߫��*�"E�8S�Nuz��!��n�ͭ�F��Is��(Q�A�P�B�#96�x�ߡC�$=a����,�ශ�9{�8�r�7Rϼy
-                                                                                                                                                         ���k�nNj�n�n��v�-��=����C�v�:�Y�r9?p�$�<�j֬�v�*y��ovʖ-?j��[�n���;�����{?�T�XIғ'���зo_j֬�ʕK�^&O)��~����j�r
-                           �eƉ������r��wS׮]%��ɽ6Y�_y�2�V�ZU�Ѓ�(�x�����Y�J8� 
-��H��ə�2
-!޼3��^Ay#/��qg���f&�;j�(b"�b�'=�f#лy�撄O�c�?���^9r�u?�
-                                                      Lz9�Q�S�N�~�z��@�IMM=1��6a�����m۶2�b&�V0�a)S�Z�n-�G_���9���l�!<;so���m$&!�v}O����W^ȸ�c<��֭[���GJ�^��F`�����MOqk�E*��W�\�%$��g�}6�N��fJ3y&�0�<�6�-�/_>���_�l���ܸ�B�/����C�����T�X��'��@V�^M�@<b�
-              ��Q�4h ��z���+5k֔$�����6_~��oҌ.hW�������GS��΅4$��N����/^:<���m�2�gW�1�Rո�M��0�݂����:v|�mW@*�J
-                                                                                                         ��N�:s�K�R�J�W_-���c��oq-�u�!�l���o�n͚ա�
-                                                                                                                                                ��ٳI���7��}���}&�%♳�����u�����}�7dd2e1�=��2��0�P�-$�x�?�O��۶m
-                                                                                                                                                                                                             �<��8�:#$w��g]iD�!�+W�O�l�PؘQ
-    B<���?@�>h���L:ضm[�&��'.Q�$�ǽ�ɱwKMM���H@�|�N�r��A����Z7?11++V�G�4hk�����}%I8s�L!�)��k���ÇMR�;7���'O�)S�1U��^���~�,7��q��٥H�R�hٲeԙk`���~�$�~�x�҉@&#;v�Ê+�Sg}�[.�Q     b:�7�!Ĕ���?�G3kI"��L8t�;��ׁ���*������'���d�r;6�
-�w��ku�7�p�䧗p�|&�ς�v��Ҹq�U�V��
-iܸ�����                         �d�Y}0@{k�*�����\�;v,�s`��?�\����"z�`�@�_����a@��
-��?t��s`9~z�������˲V- ����&     ~��s�ΕX�
-+Eݺusu�ׯ��ס<wH��� ���b�Ĵ�ˁ��p8�p+s'u~���P��X�f�+/��/���lַo�~���4hP��}��7l؈�~{�,���ٳ��z���uv&�Wtɒ��JNO�~X@�Ϲ�b&�����*�<&���      �G�!�7��q�,���Ӿ}{I#����a"H��k�#�7���=z��Gd��z�n��/VN �
-                                             ~
-                                              �����W3��ǪU�:�?�m���_r�p�"Y�>Ӧ%���nҤ�l�2�5�<��II�%eRRv�����@��ՋѣǹyXQiҤ�cVI�jFZ�^���7^�4^A��7Bb%
-Ĩx.�9s�oƠ�#����9�)%�a�m�����k�i�.�V��                                                                                                        ��Q�{c�ʑ#��#2�b�~7Fj�9r�H  �t�"*��1�$�����/P#�
-]Xe��zyc`hp�^��A����e���pEs��ɘG�E�˕+7�3�Y��`����Fi/>�JN;$|&�H]ƒȸ��6$�`G��������0��X�
-                                                                                    `΅�4ӽ7��MC���ʫ�����]�8W� ��=���1�J/����&#��>uy�
-                                                                                                                                   �\�+=
-                                                                                                                                        L/�=����k����÷�7̊�2O���#�        ������WJ)�_�?�/�.�e�u3|�+��_�������K@�G]X�
-                                                                                                                                                                                                                  #Xj��,���3b����s8�|>A@��C��#�d�C��(�}U#z���c�5�%�O��]%��D����:�'Ch[�G@�=�Z�OP2���F(���Pk�  Jf�BՈ%s�j
-                               �jD���9z
-                                       �� �d��!T��P2G������>1��=J��1�|����'�P5�G@�=�Z�OP2���F$�6���\���$����P<,�8�����GW%S۶���X�uۃ@��l�JN��O��MGh�~f8��3�!#x6��"+2���/����Zo� ���       ���F���<g�,���b�4���k�"�\0��T�J��tw����6a�Z�y��;#@f<}������;�l�cһv�r���O0oժ�<��d�G��)��/O�WQ2�_|��{�Z���Κ���#�|�����ZR>)i���oOu�7o)���'ӟ����
-                                                                                               {h�(�B �b45����;K��/9Rم�V65LJ��e�����i������9d�0��o�X�w6�Hu�����"�$`��իW��k���f��'�F��BP�_Hz��~��(~B �P�¼�`���w�����j��b=P."     �w���2B��RFԥu(狀�fԮ��[�HQڼy�V��f�竇�W�F aȐwȻ ��ֈM���/@M�4���u��"�d���ƌM"ӓ�c�P�~����s�@|ium\A("gD�Z�"�
-�=JfߛH�%s�Hi9�#�d���T�HP2G����=JfߛH�%s�Hi9�#�d���T�HP2G����=JfߛH�%s�Hi9�#�d���T�HP2G����=JfߛH������ڐ��IEND�B`��@��y߾����2�h�ja%1'3F���TJKK���k�k+-ǍJDPK�kQ�|�Q������Ъ$����� �
------------------------------110492394223042056841644057171--
+:MK�IDATh�W[(ma����(���($)r{qIQ.%y��^��]I�B!B�[J�I�)�<x�K���6��Fk���>g�l'����Z���53�7�o
+               +����`����Μ����A�R���Lĝ�AC&��r����Ӡ4h��E���666
+                                                             ��D5���
+                                                                    ������7���}��k���aqq����(..�j����SRR~*����[�����������ڗ��~}}�����^V�q||�\���|qq����Ȇ<!�H[[[\SS�����777����<22�iiiRF|zz����b+$$����ts������#��955��NNlLNNrkk��yl������`����:�H��>66�],//�F�9~pp�%%%�
+��YYYbj_�����qdd�������>�����l&��4����&a8�����-,?>>.<npVZZ����i-�1M�Z\\,�����*//g++&&F�~'4�J����b����j�������EWS��V��ǇT�"��򢉉   ���%UZ433�ˠ���Ksss����N*[E�uuuU�n�N��꽶G:������ACCC���i�V[[K��ۤ��ZZZH� �~x\���D�?hhh ՜:�:Z_;{188(766����]𕜜Ljh6����
+����U�gddPOO������!��@��󴾾N{{{�����΄=??��Vj��j�6�P�����D�}?::J83�=�:���ߟ�$���A�����Ni˕���h�:xd�@�6��l{{��y�U�yii�ccc�Ntt�����B�1I:;;e�b�o*++���X�����]]]"�HE�®���8�OΫ�+i 4�-aw�����*R������JOO���f)dq��x�᭬�L7�1���#�Uh~����4�:1),,��+�#Ub��ǦѼ�z�)44T����;ʘ���H�7��I177��Y*�r����Ӡ4h�D� PNS�
+JԤ���IEND�B`�
+-----------------------------177619161210617282421603911847--
