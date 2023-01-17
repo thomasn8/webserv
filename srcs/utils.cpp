@@ -32,3 +32,10 @@ char *Rfc1123_DateTimeNow()
     return buf;
 }
 
+void highlight_crlf(const char *block, ssize_t size)
+{
+	std::cout << "Block with CRLF highlighted:" << std::endl << "|";
+	for (ssize_t j = 0 ; j < size ; j++)
+		block[j] == '\r' ? std::cout << "\\r" : (block[j] == '\n' ? std::cout << "\\n\n" : std::cout << block[j]);
+	std::cout << "|" << std::endl;
+}

@@ -15,7 +15,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-# define USAGE "Usage: ./client [-i ipv4] [-p port] [-n repeat] [[-s requeststring] or [-f requestfile]]"
+# define USAGE "Usage: ./client [-i ipv4] [-p port] [-n repeat] request[[-s arg] or [-f filename]]"
 # define IP "127.0.0.1"
 # define PORT 80
 # define MIN_PORT_NO 1024
@@ -26,6 +26,8 @@
 # define RED "\033[0;31m"
 # define BLU "\033[0;34m"
 # define WHI "\033[0m"
+# define FILE 1
+# define ARGUMENT 2
 
 const char option1[] = "-i";
 const char option2[] = "-p";
@@ -40,9 +42,10 @@ struct tester {
 	const char	*ip;
 	int			port;
 	int			repeatcount;
-	const char	*requeststring;
+	int 		type;
+	const char	*requestArg;
 	const char	*filename;
-	char 		*requestfile;
+	char 		*request;
 	ssize_t		size;
 };
 
@@ -71,20 +74,93 @@ int port_check(const char *av1) {
 	return port;
 }
 
-// ameliorations: ajoute la possibilite de passer des args sans specifier l'option
+void highlight_crlf(const char *block, ssize_t size, const char *highlightcolor, const char *defaultcolor)
+{
+	if (highlightcolor != NULL && defaultcolor != NULL)
+	{
+		for (ssize_t j = 0 ; j < size ; j++)
+			block[j] == '\r' ? std::cout << highlightcolor << "\\r" << defaultcolor : (block[j] == '\n' ? std::cout << highlightcolor << "\\n\n" << defaultcolor : std::cout << block[j]);
+	}
+	else
+	{
+		for (ssize_t j = 0 ; j < size ; j++)
+			block[j] == '\r' ? std::cout << "\\r" : (block[j] == '\n' ? std::cout << "\\n\n" : std::cout << block[j]);
+	}
+}
+
+void add_carriageReturn_to_header(struct tester * test)
+{
+	// highlight_crlf(test->request, test->size);
+	char *tmp = NULL;
+	ssize_t i = 0, body = 0;
+	while (i < test->size)
+	{
+		if (test->request[i] == '\n')
+		{
+			// empty line == end of header
+			if (test->size > 2 && test->request[i-1] == '\n' && test->request[i-2] == '\r')
+			{
+				body = i + 1;
+				break;
+			}
+
+			// ajouter un \r avant le \n
+			tmp = test->request;
+			test->request = (char *)malloc(test->size + 1);
+			test->size += 1;
+			memcpy(test->request, tmp, i);
+			test->request[i] = '\r';
+			memcpy(&test->request[i+1], &tmp[i], test->size-i-1);
+			free(tmp);
+
+			i++; // shift le \r pour rester sur le \n detecté
+		}
+		i++;
+	}
+
+	if (body == 0)
+	{
+		if (test->request[test->size - 1] != '\n')
+		{
+			test->request = (char *)realloc(test->request, test->size + 4);
+			test->size += 4;
+		}
+		else
+		{
+			test->request = (char *)realloc(test->request, test->size + 3);
+			test->size += 3;
+		}
+		test->request[test->size-4] = '\r';
+		test->request[test->size-3] = '\n';
+		test->request[test->size-2] = '\r';
+		test->request[test->size-1] = '\n';
+	}
+	else
+	{
+		tmp = test->request;
+		test->request = (char *)malloc(test->size + 1);
+		test->size += 1;
+		memcpy(test->request, tmp, body);
+		test->request[body-1] = '\r';
+		std::string teststr( &tmp[body-1], test->size-body);
+		memcpy(&test->request[body], &tmp[body-1], test->size-body);
+		free(tmp);
+	}
+	// highlight_crlf(test->request, test->size);
+}
+
+// ameliorations: ajoute la possibilite de passer des args sans specifier l'option pour le port et pour le requestArg
 // exemple: ./client 8080 "GET /index.html HTTP/1.1"
-// mettre option facultative pour le port et pour le requeststring
 void parse(int ac, const char **av, struct tester * test) {
 	if (ac > len*2-1)
 		error(USAGE, "", 1);
 	test->ip = IP;
 	test->port = PORT;
 	test->repeatcount = 1;
+	test->type = 0;
+	test->requestArg = NULL;
 	test->filename = NULL;
-	test->requestfile = NULL;
-	test->requeststring = NULL;
-	if (ac == 1)
-		return;
+	test->request = NULL;
 	for (int i = 1; i < ac; i++) { 		// itere sur tous les av (sauf le prog)
 		if ((i % 2) > 0) {				// si i est impair compare av aux options
 			int j = -1;
@@ -119,7 +195,7 @@ void parse(int ac, const char **av, struct tester * test) {
 							if (ac < i+2)
 								error("Error: incomplete option ", av[i], 1);
 							else
-								test->requeststring = av[i+1];
+								test->requestArg = av[i+1];
 							j = len+1;
 							break;
 						case 4:
@@ -136,11 +212,12 @@ void parse(int ac, const char **av, struct tester * test) {
 	}
 	if (test->repeatcount < 1)
 		error("Error: repeatcount must be set at least to 1 in order to send any request", "", 1);
-	if (test->requeststring == NULL && test->filename == NULL)
-		error("Error: no request to send: either -f or -s option must be specified", "", 1);
-	if (test->requeststring != NULL && test->filename != NULL)
-		error("Error: either -f or -s option must be specified, not both", "", 1);
+	if (test->requestArg == NULL && test->filename == NULL)
+		error("Error: no request to send: either -f or -s option must be specified\n", USAGE, 1);
+	if (test->requestArg != NULL && test->filename != NULL)
+		error("Error: either -f or -s option must be specified, not both\n", USAGE, 1);
 	if (test->filename != NULL) {
+		test->type = FILE;
 		// open file
 		std::ifstream ifs(test->filename, std::ifstream::binary);
 		if (!ifs.is_open())
@@ -153,14 +230,20 @@ void parse(int ac, const char **av, struct tester * test) {
 		if (size > FILE_MAX_LEN)
 			error("Error: input file is too large: maximum is 1MO", "", 1);
 		// allocate memory to contain file data
-		test->requestfile = new char[size];
+		test->request = new char[size];
 		test->size = size;
 		// get file data
-		pbuf->sgetn(test->requestfile, size);
+		pbuf->sgetn(test->request, size);
 		ifs.close();
 	}
 	else
-		test->size = strlen(test->requeststring);
+	{
+		test->type = ARGUMENT;
+		test->size = strlen(test->requestArg);
+		test->request = (char *)malloc(test->size);
+		memcpy(test->request, test->requestArg, test->size);
+	}
+	add_carriageReturn_to_header(test);
 }
 
 int main(int ac, const char **av) {
@@ -169,11 +252,9 @@ int main(int ac, const char **av) {
 	struct tester test;
 	parse(ac, av, &test);
 	std::cout << "Summary\nYou asked to request " << test.repeatcount << " times on ip " << test.ip << ":" << test.port << " with the message:\n";
-	if (test.requeststring)
-		std::cout << BLU << test.requeststring << WHI << std::endl;
-	if (test.requestfile)
-		std::cout << BLU << test.requestfile << WHI << std::endl;
-	std::cout << "\nResult\n";
+	std::cout << BLU;
+	highlight_crlf(test.request, test.size, WHI, BLU);
+	std::cout << WHI << "\nResult" << std::endl;
 
 	// SERVER INFOS
 	struct sockaddr_in server_addr;
@@ -199,9 +280,7 @@ int main(int ac, const char **av) {
 			error("Error: connect(): ", strerror(errno), 1);
 
 		// SEND
-		const char *request;
-		test.requeststring ? request = test.requeststring : test.requestfile;
-		ssize_t send_size = send(socket_fd, request, test.size, 0);
+		ssize_t send_size = send(socket_fd, test.request, test.size, 0);
 		if (send_size == test.size)
 			std::cout << "Success: request sent\n" << std::endl;
 		else if (send_size > 0)
@@ -229,7 +308,9 @@ int main(int ac, const char **av) {
 		write(STDOUT_FILENO, &buffer[i], 1);
 	std::cout << WHI << std::endl;
 
-	if (test.requestfile)
-		delete[] test.requestfile;
+	if (test.type == FILE)
+		delete[] test.request;
+	else if (test.type == ARGUMENT)
+		free(test.request);
 	return 0;
 }
