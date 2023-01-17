@@ -276,12 +276,8 @@ void Monitor::handle_connections()
 					{
 						if (_recv_all(_pfds[i].fd, _activeSockets[i]) != -1)
 						{
-							// std::cout << "Received:" << std::endl;
-							// for (int i = 0; i < _buf.size ; i++)
-							// 	std::cout << _buf.begin[i];
-							// std::cout << std::endl;
+							_replace_alone_header_cr();
 							try {
-								_replace_alone_header_cr();
 								Request request(_buf.begin, _buf.size, _activeSockets[i].server);		// essaie de constr une requeste depuis les donnees recues
 								Response response(&request, _activeSockets[i].server, &responseStr);	// essaie de constr une response si on a une request
 							}
