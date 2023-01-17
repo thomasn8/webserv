@@ -4,8 +4,8 @@ User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:108.0) Gecko/201001
 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
 Accept-Language: fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3
 Accept-Encoding: gzip, deflate, br
-Content-Type: multipart/form-data; boundary=---------------------------177619161210617282421603911847
-Content-Length: 2885
+Content-Type: multipart/form-data; boundary=---------------------------276150563815627229851180919319
+Content-Length: 560
 Origin: http://localhost
 DNT: 1
 Connection: keep-alive
@@ -16,45 +16,20 @@ Sec-Fetch-Mode: navigate
 Sec-Fetch-Site: same-origin
 Sec-Fetch-User: ?1
 
------------------------------177619161210617282421603911847
+-----------------------------276150563815627229851180919319
 Content-Disposition: form-data; name="firstname"
 
 Thomas
------------------------------177619161210617282421603911847
+-----------------------------276150563815627229851180919319
 Content-Disposition: form-data; name="lastname"
 
 Nanchen
------------------------------177619161210617282421603911847
+-----------------------------276150563815627229851180919319
 Content-Disposition: form-data; name="story"
 
 It was a dark and stormy night...
------------------------------177619161210617282421603911847
+-----------------------------276150563815627229851180919319
 Content-Disposition: form-data; name="age"
 
 12
------------------------------177619161210617282421603911847
-Content-Disposition: form-data; name="fileToUpload"; filename="screenshot.png"
-Content-Type: image/png
-
-�PNG
-
-4DA$����������iѹΏ��\>��S3���LĦ��+)����Eܪf����ɂ��^�GrS=�����;��=��yj�`r����V]��h~P�5fڀ$V�l&x��ߤPć��M>�n�uó����j95C�BH�����W�ާ�4��0�������qj����n�DR�ĭ��Ѭ40!Xs�����:�p���L5՟�J5�����-�ǜ�-��^����y�p=7�O��dK%D��beXIfMM�i&��P�.�-ASCIIScreenshot'��=iTXtXML:com.adobe.xmp<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="XMP Core 6.0.0">
-   <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-      <rdf:Description rdf:about=""
-            xmlns:exif="http://ns.adobe.com/exif/1.0/"
-            xmlns:tiff="http://ns.adobe.com/tiff/1.0/">
-         <exif:PixelYDimension>144</exif:PixelYDimension>
-         <exif:UserComment>Screenshot</exif:UserComment>
-         <exif:PixelXDimension>179</exif:PixelXDimension>
-         <tiff:Orientation>1</tiff:Orientation>
-      </rdf:Description>
-   </rdf:RDF>
-</x:xmpmeta>
-:MK�IDATh�W[(ma����(���($)r{qIQ.%y��^��]I�B!B�[J�I�)�<x�K���6��Fk���>g�l'����Z���53�7�o
-               +����`����Μ����A�R���Lĝ�AC&��r����Ӡ4h��E���666
-                                                             ��D5���
-                                                                    ������7���}��k���aqq����(..�j����SRR~*����[�����������ڗ��~}}�����^V�q||�\���|qq����Ȇ<!�H[[[\SS�����777����<22�iiiRF|zz����b+$$����ts������#��955��NNlLNNrkk��yl������`����:�H��>66�],//�F�9~pp�%%%�
-��YYYbj_�����qdd�������>�����l&��4����&a8�����-,?>>.<npVZZ����i-�1M�Z\\,�����*//g++&&F�~'4�J����b����j�������EWS��V��ǇT�"��򢉉   ���%UZ433�ˠ���Ksss����N*[E�uuuU�n�N��꽶G:������ACCC���i�V[[K��ۤ��ZZZH� �~x\���D�?hhh ՜:�:Z_;{188(766����]𕜜Ljh6����
-����U�gddPOO������!��@��󴾾N{{{�����΄=??��Vj��j�6�P�����D�}?::J83�=�:���ߟ�$���A�����Ni˕���h�:xd�@�6��l{{��y�U�yii�ccc�Ntt�����B�1I:;;e�b�o*++���X�����]]]"�HE�®���8�OΫ�+i 4�-aw�����*R������JOO���f)dq��x�᭬�L7�1���#�Uh~����4�:1),,��+�#Ub��ǦѼ�z�)44T����;ʘ���H�7��I177��Y*�r����Ӡ4h�D� PNS�
-JԤ���IEND�B`�
------------------------------177619161210617282421603911847--
+-----------------------------276150563815627229851180919319--
