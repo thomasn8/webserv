@@ -258,7 +258,11 @@ uint32_t Server::get_ipv4() const { return _ipv4; }
 
 std::string Server::get_port_str() const { return std::to_string(ntohs(_port)); }
 
-std::string Server::get_ipv4_str() const { return std::string(inet_ntoa(_address.sin_addr)); }
+std::string Server::get_ipv4_str() const
+{
+	// return std::string(inet_ntoa(_address.sin_addr)); // fonction inet_ntoa a l'air d'etre mal implementee (vu avec Valgrind)
+	return std::string("ip(provisory)");
+}
 
 std::string Server::get_ipv4_port_str() const { return get_ipv4_str().append(":").append(get_port_str()); }
 

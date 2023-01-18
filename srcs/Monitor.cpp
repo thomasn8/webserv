@@ -49,7 +49,7 @@ void Monitor::_prepare_master_sockets()
 	int socket_fd;
 	int i = 0;
 	_master_size = _servers.size();
-	_master_sockets = (int *)malloc(_master_size);
+	_master_sockets = (int *)malloc(_master_size * sizeof(int *));
 	while (it != ite)
 	{
 		socket_fd = (*it).create_socket();
@@ -60,8 +60,8 @@ void Monitor::_prepare_master_sockets()
 		i++;
 	}
 	_fd_capacity = _fd_count + 5;
-	_pfds = (struct pollfd *)malloc(sizeof(*_pfds) * _fd_capacity);
-	_activeSockets = (struct socket *)malloc(sizeof(*_activeSockets) * _fd_capacity);
+	_pfds = (struct pollfd *)malloc(sizeof(struct pollfd) * _fd_capacity);
+	_activeSockets = (struct socket *)malloc(sizeof(struct socket) * _fd_capacity);
 	if (_pfds == NULL)
 	{
 		log("Error: impossible to allocate", _fd_capacity ," pollfd structs\n");
