@@ -40,6 +40,8 @@ const std::string	g_server_directives[] = {"listen", "server_name", "root", "ind
 
 // SOCKET
 # define BACKLOG 10
+# define SEND_TIMEOUT_SEC 0
+# define SEND_TIMEOUT_USEC 500
 
 class Server
 {
