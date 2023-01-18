@@ -309,6 +309,12 @@ void Monitor::handle_connections()
 				_send_all(i, responseStr.c_str(), responseStr.size(), _activeSockets[i]);				// send la response construite dans response
 				poll_index = 0; // reset l'index au debut des fds
 			}
+			else if (_pfds[i].revents & POLLHUP) 				// event sur fd[i], connection perdue sur le socket en question
+			{
+				close(_pfds[i].fd);
+				_del_from_pfds(i);
+				poll_index = 0;
+			}
 			i++;
 		}
 	}

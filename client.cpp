@@ -266,7 +266,7 @@ ssize_t send_all(int fd, const char * message, ssize_t size, struct pollfd *pfds
 		ready = poll(pfds, 1, POLLTIMEOUT_MS);
 		if (pfds[0].revents & POLLHUP)
 		{
-			std::cerr << "\nError: Connection lost while sending request no " << request_no << std::endl;
+			std::cerr << "\nError: connection lost while sending request no " << request_no << std::endl;
 			return total_sent;
 		}
 		if (ready == 0)
@@ -292,7 +292,7 @@ ssize_t send_all(int fd, const char * message, ssize_t size, struct pollfd *pfds
 		ready = poll(pfds, 1, POLLTIMEOUT_MS);
 		if (pfds[0].revents & POLLHUP)
 		{
-			std::cerr << "\nError: Connection lost while sending request no " << request_no << std::endl;
+			std::cerr << "\nError: connection lost while sending request no " << request_no << std::endl;
 			return total_sent;
 		}
 		if (ready == 0)
@@ -318,7 +318,7 @@ ssize_t send_all(int fd, const char * message, ssize_t size, struct pollfd *pfds
 		ready = poll(pfds, 1, POLLTIMEOUT_MS);
 		if (pfds[0].revents & POLLHUP)
 		{
-			std::cerr << "\nError: Connection lost while sending request no " << request_no << std::endl;
+			std::cerr << "\nError: connection lost while sending request no " << request_no << std::endl;
 			return total_sent;
 		}
 		if (ready == 0)
