@@ -85,6 +85,7 @@ class Server
 		// CONFIG
 		std::deque<Location> _locations;
 		uint32_t _ipv4;
+		std::string _ip;
 		uint16_t _port;
 		int _port_check(std::string & value);
 		std::list<std::string> _serverNames;

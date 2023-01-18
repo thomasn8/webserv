@@ -5,6 +5,7 @@
 Server::Server() :
 _locations(std::deque<Location>()),
 _ipv4(INADDR_ANY),
+_ip(std::string("0.0.0.0")),
 _port(htons(DEFAULT_PORT)),  
 _serverNames(std::list<std::string>(1, std::string(DEFAULT_SERVERNAME))),
 _defaultServerNames(true),
@@ -21,6 +22,7 @@ _address()
 Server::Server(const Server & src) :
 _locations(src._locations),
 _ipv4(src._ipv4),
+_ip(src._ip),
 _port(src._port),  
 _serverNames(src._serverNames),
 _defaultServerNames(src._defaultServerNames),
@@ -261,11 +263,7 @@ uint32_t Server::get_ipv4() const { return _ipv4; }
 
 std::string Server::get_port_str() const { return std::to_string(ntohs(_port)); }
 
-std::string Server::get_ipv4_str() const
-{
-	// return std::string(inet_ntoa(_address.sin_addr)); // fonction inet_ntoa a l'air d'etre mal implementee (vu avec Valgrind)
-	return std::string("ip(provisory)");
-}
+std::string Server::get_ipv4_str() const { return _ip; }
 
 std::string Server::get_ipv4_port_str() const { return get_ipv4_str().append(":").append(get_port_str()); }
 
@@ -320,6 +318,7 @@ int Server::create_socket()
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = _ipv4;
 	_address.sin_port = _port;
+	_ip = std::string(inet_ntoa(_address.sin_addr));
 
 	if (bind(_socket_fd, (struct sockaddr *) &_address, sizeof(_address)) < 0)
 		_exit_cerr_msg("Error: impossible to run server(s): bind() failed\n", 1);
