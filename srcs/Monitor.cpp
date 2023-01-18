@@ -172,12 +172,12 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 	_buf.current = _buf.begin;
 	while (1)
 	{
-		if (_buf.size + CHUNK_SIZE > _buf.capacity)
+		if (_buf.size + CHUNK_RECV > _buf.capacity)
 		{
 			if (_buf.capacity == 0)
 			{
-				_buf.begin = (char *)malloc(CHUNK_SIZE);
-				_buf.capacity = CHUNK_SIZE;
+				_buf.begin = (char *)malloc(CHUNK_RECV);
+				_buf.capacity = CHUNK_RECV;
 			}
 			else
 			{
@@ -191,13 +191,13 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 			}
 			_buf.current = _buf.begin + _buf.size;
 		}
-		size_recv = recv(fd, _buf.current, CHUNK_SIZE, 0); // recv la request jusqu'au bout du client_fd
+		size_recv = recv(fd, _buf.current, CHUNK_RECV, 0); // recv la request jusqu'au bout du client_fd
 		_buf.size += size_recv;
 		_buf.current += size_recv;
 		// std::cout << size_recv << " bytes read on socket " << fd << std::endl;
 		if (maxrecv && _buf.size > maxrecv) // erreur max body size 413
 			return -1;
-		if (size_recv < CHUNK_SIZE) // toute la request a été read
+		if (size_recv < CHUNK_RECV) // toute la request a été read
 		{
 			log(get_time(), " Request from    ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(), ": ", _buf.size, " bytes read via socket ", fd, "\n");
 			return _buf.size;
@@ -210,7 +210,7 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 	int fd = _pfds[i].fd;
 	const char * chunk_send = response;
 	ssize_t response_size = size, size_sent = 0, total_sent = 0;
-	if (response_size < CHUNK_SIZE)	// cas où response initiale fait < 512
+	if (response_size < CHUNK_SEND)	// cas où response initiale fait < CHUNK_SEND
 	{
 		size_sent = send(fd, chunk_send, response_size, 0);
 		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
@@ -218,15 +218,15 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 		chunk_send += size_sent;
 		total_sent += size_sent;
 	}
-	while (response_size > CHUNK_SIZE && size_sent != -1) // cas où response initiale > 512
+	while (response_size > CHUNK_SEND && size_sent != -1) // cas où response initiale > CHUNK_SEND
 	{
-		size_sent = send(fd, chunk_send, CHUNK_SIZE, 0);
+		size_sent = send(fd, chunk_send, CHUNK_SEND, 0);
 		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
 		response_size -= size_sent;
 		chunk_send += size_sent;
 		total_sent += size_sent;
 	}
-	while (response_size > 0 && size_sent != -1) // envoie les derniers bytes lorsque response initiale était > 512 bytes ou lorsque send a pas fonctionné comme prévu
+	while (response_size > 0 && size_sent != -1) // envoie les derniers bytes lorsque response initiale était > CHUNK_SEND bytes ou lorsque send a pas fonctionné comme prévu
 	{
 		size_sent = send(fd, chunk_send, response_size, 0);
 		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
@@ -243,7 +243,8 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 	return total_sent;
 }
 
-// VOIR SI LA HEAP GROSSI PAS A L'INFINI SANS LIBERE DE L'ESPACE AVEC REALLOC ?
+// si on était pas en NON-BLOCKING mode, accept() bloquerait le server et le server pourrait gérer qu'1 seule connection simultanée.
+// Pareil pour le read() de recv() (comme quand on veut écrire dans un pipe et que l'autre process est bloqué par le read tant que rien est write dans le pipe)
 void Monitor::handle_connections()
 {
 	_prepare_master_sockets(); // socket, bind, listen pour chaque port/server + creer les struct pollfd dédiées
@@ -252,7 +253,7 @@ void Monitor::handle_connections()
 	std::string responseStr;
 	while (1)													// Main loop
 	{
-		poll_count = poll(_pfds, _fd_count, -1);				// bloque tant qu'aucun fd est prêt à read ou write
+		poll_count = poll(_pfds, _fd_count, POLL_TIMEOUT);		// bloque tant qu'aucun fd est prêt à read ou write
         if (poll_count < 0)
 			log(get_time(), " Error: poll failed\n");
 		i = poll_index;
@@ -302,6 +303,12 @@ void Monitor::handle_connections()
 			{
 				_send_all(i, responseStr.c_str(), responseStr.size(), _activeSockets[i]);				// send la response construite dans response
 				poll_index = 0; // reset l'index au debut des fds
+			}
+			else if (_pfds[i].revents & POLLHUP) 				// event sur fd[i], connection perdue sur le socket en question
+			{
+				close(_pfds[i].fd);
+				_del_from_pfds(i);
+				poll_index = 0;
 			}
 			i++;
 		}

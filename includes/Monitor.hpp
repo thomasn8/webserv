@@ -24,7 +24,12 @@
 
 # define LOG_PATH "logs/access.log"
 
-# define CHUNK_SIZE 1024
+// If timeout is greater than zero, it specifies a maximum interval (in milliseconds) to wait for any file descriptor to become ready.
+// If timeout is zero, then poll() will return without blocking. If the value of timeout is -1, the poll blocks indefinitely.
+# define POLL_TIMEOUT -1
+
+# define CHUNK_SEND 1024
+# define CHUNK_RECV 1024
 # define BUFFER_LIMIT 200000 // 200KO
 struct buffer_read {
 	char *begin;
