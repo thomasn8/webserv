@@ -4,6 +4,7 @@
 #include <fstream>
 #include <streambuf>
 #include <unistd.h>
+#include <sys/wait.h>
 #include "Message.hpp"
 #include "Request.hpp"
 #include "Server.hpp"

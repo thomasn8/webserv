@@ -313,7 +313,6 @@ int Server::create_socket()
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = _ipv4;
 	_address.sin_port = _port;
-	_address.sin_len = sizeof(_address);
 
 	if (bind(_socket_fd, (struct sockaddr *) &_address, sizeof(_address)) < 0)
 		_exit_cerr_msg("Error: impossible to run server(s): bind() failed\n", 1);

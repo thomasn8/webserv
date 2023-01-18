@@ -398,7 +398,6 @@ int main(int ac, const char **av) {
 	if(inet_pton(AF_INET, test.ip, &server_addr.sin_addr) <= 0)
 		error("Error: inet_pton(): ", strerror(errno), 1);
 	server_addr.sin_port = htons(test.port);
-	server_addr.sin_len = sizeof(server_addr);
 
 	// REQUESTS n TIMES THE SERVER (depends on args)
 	struct timeval timeout;      

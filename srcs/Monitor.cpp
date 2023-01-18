@@ -138,7 +138,8 @@ void Monitor::_accept_new_connection(int master_index)
 {
 	struct sockaddr_in remoteAddr;
 	remoteAddr.sin_len = sizeof(remoteAddr);
-	int new_fd = accept(_master_sockets[master_index], (struct sockaddr *)&remoteAddr, (socklen_t *)&remoteAddr.sin_len);
+	socklen_t remoteAddr_size = sizeof(remoteAddr);
+	int new_fd = accept(_master_sockets[master_index], (struct sockaddr *)&remoteAddr, &remoteAddr_size);
 	if (new_fd < 0)
 		log(get_time(), " Error: accept: new connexion on port ", _servers[master_index].get_port_str(), " failed\n");
 	else
