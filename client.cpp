@@ -13,6 +13,8 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
+#include <poll.h>
 
 # define USAGE "Usage: ./client [-i ipv4] [-p port] [-n repeat] request[[-s arg] or [-f filename]]"
 # define IP "127.0.0.1"
@@ -22,7 +24,9 @@
 # define FILE 1
 # define ARGUMENT 2
 # define FILE_MAX_LEN 1000000 // 1 MO
-# define CHUNK_SEND 8192
+# define POLLTIMEOUT_MS -1
+// # define CHUNK_SEND 8192
+# define CHUNK_SEND 200
 # define CHUNK_RECV 1024
 // # define CHUNK_SEND 512
 // # define CHUNK_RECV 512
@@ -253,43 +257,113 @@ void parse(int ac, const char **av, struct request * test) {
 	add_carriageReturn_to_header(test);
 }
 
-ssize_t send_all(int fd, const char * message, ssize_t size, bool last)
+ssize_t send_all(int fd, const char * message, ssize_t size, struct pollfd *pfds, bool last)
 {
 	ssize_t size_sent = 0, total_sent = 0;
+	int ready;
 	if (size < CHUNK_SEND)	// cas où message initiale fait < 512
 	{
-		size_sent = send(fd, message, size, 0);
-		// std::cout << RED << "\nsent(1) " << size_sent << " bytes" << WHI << std::endl;
-		// highlight_crlf(message, size_sent, WHI, BLU);
-		if (last)
-			print_chunk(message, size_sent, BLU);
-		size -= size_sent;
-		message += size_sent;
-		total_sent += size_sent;
+		std::cout << "POLL 1 locked" << std::endl;
+		ready = poll(pfds, 1, POLLTIMEOUT_MS);
+		if (pfds[0].revents & POLLHUP)
+		{
+			perror("Error: POLLHUP(1)");
+			return total_sent;
+		}
+		if (ready == 0)
+			error("Error: poll(1) timeout", "", 1);
+		else if (ready == -1)
+			error("Error: poll(1) failed: ", strerror(errno), 1);
+		else if (ready > 0 && pfds[0].revents & POLLOUT)
+		{
+			std::cout << "POLL 1 unlocked" << std::endl;
+			size_sent = send(fd, message, size, 0);
+			// std::cout << RED << "\nsent(1) " << size_sent << " bytes" << WHI << std::endl;
+			// highlight_crlf(message, size_sent, WHI, BLU);
+			if (last)
+				print_chunk(message, size_sent, BLU);
+			size -= size_sent;
+			message += size_sent;
+			total_sent += size_sent;			
+		}
 	}
+	int count = 0;
 	while (size > CHUNK_SEND && size_sent != -1) // cas où message initiale > 512
 	{
-		size_sent = send(fd, message, CHUNK_SEND, 0);
-		// std::cout << RED << "\nsent(2) " << size_sent << " bytes" << WHI << std::endl;
-		// highlight_crlf(message, size_sent, WHI, BLU);
-		if (last)
-			print_chunk(message, size_sent, BLU);
-		size -= size_sent;
-		message += size_sent;
-		total_sent += size_sent;
+		count++;
+		ready = poll(pfds, 1, POLLTIMEOUT_MS);
+		std::cout << "POLL 2 locked: ready = " << ready << " size = " << size << " / size_sent = "<< size_sent << std::endl;
+		if (pfds[0].revents & POLLHUP)
+		{
+			perror("Error: POLLHUP(2)");
+			return total_sent;
+		}
+		if (ready == 0)
+		{
+			std::cout << "ready = 0" << std::endl;
+			error("Error: poll(2) timeout", "", 1);
+		}
+		else if (ready == -1)
+		{
+			std::cout << "ready = -1" << std::endl;
+			error("Error: poll(2) failed: ", strerror(errno), 1);
+		}
+		else if (ready > 0 && pfds[0].revents & POLLOUT)
+		{
+			std::cout << "POLL 2 unlocked" << std::endl;
+			size_sent = send(fd, message, CHUNK_SEND, 0);
+			if (size_sent <= 0)
+				error("Error: send(2) failed", strerror(errno), 1);
+			std::cout << "size_sent = " << size_sent << std::endl;
+			// std::cout << RED << "\nsent(2) " << size_sent << " bytes" << WHI << std::endl;
+			// highlight_crlf(message, size_sent, WHI, BLU);
+			if (last)
+				print_chunk(message, size_sent, BLU);
+			size -= size_sent;
+			message += size_sent;
+			total_sent += size_sent;
+		}
+		if (count == 25)
+			error("Error: LOCKED IN 2ND BLOCK: ", strerror(errno), 1);
 	}
 	while (size > 0 && size_sent != -1) // envoie les derniers bytes lorsque message initiale était > 512 bytes ou lorsque send a pas fonctionné comme prévu
 	{
-		size_sent = send(fd, message, size, 0);
-		// std::cout << RED << "\nsent(3) " << size_sent << " bytes" << WHI << std::endl;
-		// highlight_crlf(message, size_sent, WHI, BLU);
-		if (last)
-			print_chunk(message, size_sent, BLU);
-		size -= size_sent;
-		message += size_sent;
-		total_sent += size_sent;
+		count++;
+		ready = poll(pfds, 1, POLLTIMEOUT_MS);
+		std::cout << "POLL 3 locked: ready = " << ready << " size = " << size << " / size_sent = "<< size_sent << std::endl;
+		if (pfds[0].revents & POLLHUP)
+		{
+			perror("Error: POLLHUP(3)");
+			return total_sent;
+		}
+		if (ready == 0)
+		{
+			std::cout << "ready = 0" << std::endl;
+			error("Error: poll(3) timeout", "", 1);
+		}
+		else if (ready == -1)
+		{
+			std::cout << "ready = -1" << std::endl;
+			error("Error: poll(3) failed: ", strerror(errno), 1);
+		}
+		else if (ready > 0 && pfds[0].revents & POLLOUT)
+		{
+			std::cout << "POLL 3 unlocked: " << std::endl;
+			size_sent = send(fd, message, size, 0);
+			if (size_sent < 0)
+				error("Error: send(3) failed", strerror(errno), 1);
+			std::cout << "size_sent = " << size_sent << std::endl;
+			// std::cout << RED << "\nsent(3) " << size_sent << " bytes" << WHI << std::endl;
+			// highlight_crlf(message, size_sent, WHI, BLU);
+			if (last)
+				print_chunk(message, size_sent, BLU);
+			size -= size_sent;
+			message += size_sent;
+			total_sent += size_sent;
+		}
+		if (count == 25)
+			error("Error: LOCKED IN 3ND BLOCK: ", strerror(errno), 1);
 	}
-	// std::cout << RED << "SEND END" << WHI << std::endl;
 	return total_sent;
 }
 
@@ -355,6 +429,10 @@ int main(int ac, const char **av) {
 	server_addr.sin_len = sizeof(server_addr);
 
 	// REQUESTS n TIMES THE SERVER (depends on args)
+	struct timeval timeout;      
+	timeout.tv_sec = 2;
+	timeout.tv_usec = 0;
+	struct pollfd pfds[1];
 	ssize_t send_size, recv_size;
 	struct buffer_read buf;
 	buf.capacity = 0;
@@ -365,34 +443,52 @@ int main(int ac, const char **av) {
 		// SOCKET
 		int socket_fd = -1;
 		socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+		fcntl(socket_fd, F_SETFL, O_NONBLOCK);
 		if (socket_fd < 0)
 			error("Error: socket() failed: ", strerror(errno), 1);
+		if (setsockopt (socket_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) < 0)
+			error("Error: setsockopt(1) failed: ", strerror(errno), 1);
+		if (setsockopt (socket_fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout) < 0)
+			error("Error: setsockopt(2) failed: ", strerror(errno), 1);
 
-		// CONNECT
-		if (connect(socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
-			error("Error: connect(): ", strerror(errno), 1);
+		connect(socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+		// if (connect(socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
+			// error("Error: connect(): ", strerror(errno), 1);
+			// 	error("Error: connect(): ", std::to_string(errno).c_str(), 1);
+		pfds[0].fd = socket_fd;
+    	pfds[0].events = POLLOUT;
+    	pfds[0].revents = 0;
 
 		// SEND
 		if (test.repeatcount > 1 && last)
 			std::cout << "\nLAST EXCHANGE:" << std::endl << std::endl;
-		send_size = send_all(socket_fd, test.request, test.size, last);
+		send_size = send_all(socket_fd, test.request, test.size, pfds, last);
 		if (send_size == test.size)
 			std::cout << RED << "Success: " << send_size << " bytes sent" << WHI << std::endl;
-		else if (send_size > 0)
-			std::cout << RED << "Error: request partially sent: " << send_size << " / " << test.size << "bytes" << WHI << std::endl;
+		else if (send_size > 0) // >= 0
+		{
+			std::cout << RED << "Error: request partially sent: " << send_size << " / " << test.size << " bytes" << WHI << std::endl;
+			exit(1);
+		}
 		else
 			error("Error: send() failed: ", strerror(errno), 1);
+		pfds[0].events = POLLIN;
+		// pfds[0].revents = 0;
 
 		// RECV
-		if (last)
-			std::cout << std::endl;
-		recv_size = recv_all(socket_fd, &buf, last);
-		if (last)
-			std::cout << std::endl;
-		if (recv_size > -1)
-			std::cout << RED << recv_size << " bytes received in total" << WHI << std::endl;
-		else
-			error("Error: recv() failed: ", strerror(errno), 1);
+		poll(pfds, 1, -1);
+		// if (pfds[0].revents & POLLIN)
+		// {
+			if (last)
+				std::cout << std::endl;
+			recv_size = recv_all(socket_fd, &buf, last);
+			if (last)
+				std::cout << std::endl;
+			if (recv_size > -1)
+				std::cout << RED << recv_size << " bytes received in total" << WHI << std::endl;
+			else
+				error("Error: recv() failed: ", strerror(errno), 1);
+		// }
 		
 		// FREE RESPONSE MEMORY
 		if (buf.capacity > BUFFER_LIMIT)
@@ -412,3 +508,25 @@ int main(int ac, const char **av) {
 		free(test.request);
 	return 0;
 }
+
+
+/*	Notes a propos de l'implementation des sockets
+
+	connect:
+	If the connection cannot be established immediately and O_NONBLOCK is set for the file descriptor for the socket, 
+	connect() shall fail and set errno to [EINPROGRESS], but the connection request shall not be aborted, and the connection shall be established asynchronously.
+	Subsequent calls to connect() for the same socket, before the connection is established, shall fail and set errno to [EALREADY].
+	When the connection has been established asynchronously, select() and poll() shall indicate that the file descriptor for the socket is ready for writing.
+	EINPROGRESS = 36
+	EALREADY = 37
+
+	send :
+	If space is not available at the sending socket to hold the message to be transmitted, and the socket file descriptor does not have O_NONBLOCK set, send() shall block until space is available. 
+	If space is not available at the sending socket to hold the message to be transmitted, and the socket file descriptor does have O_NONBLOCK set, send() shall fail. 
+	The select() and poll() functions can be used to determine when it is possible to send more data.
+	
+	poll :
+	If timeout is greater than zero, it specifies a maximum interval (in milliseconds) to wait
+	for any file descriptor to become ready.  If timeout is zero, then poll() will return
+	without blocking. If the value of timeout is -1, the poll blocks indefinitely.
+*/
