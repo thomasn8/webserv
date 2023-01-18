@@ -247,7 +247,8 @@ ssize_t Monitor::_send_all(int i, const char * response, ssize_t size, struct so
 	return total_sent;
 }
 
-// VOIR SI LA HEAP GROSSI PAS A L'INFINI SANS LIBERE DE L'ESPACE AVEC REALLOC ?
+// si on était pas en NON-BLOCKING mode, accept() bloquerait le server et le server pourrait gérer qu'1 seule connection simultanée.
+// Pareil pour le read() de recv() (comme quand on veut écrire dans un pipe et que l'autre process est bloqué par le read tant que rien est write dans le pipe)
 void Monitor::handle_connections()
 {
 	_prepare_master_sockets(); // socket, bind, listen pour chaque port/server + creer les struct pollfd dédiées
@@ -267,18 +268,18 @@ void Monitor::handle_connections()
 /* START CHRONO */uint64_t ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 				for (int j = 0; j < server_count; j++)
 				{
-					if (_pfds[i].fd == _master_sockets[j])		// si fd correspond a un socket de server en ecoute
+					if (_pfds[i].fd == _master_sockets[j])		// si fd correspond a un socket de server en ecoute, un nouveau client veut se connecter
 					{
 						_accept_new_connection(j);
 						break;
 					}
-					if (j == server_count - 1)					// sinon fd correspond a un client qui fait une request
+					if (j == server_count - 1)					// sinon fd correspond a un client connecté qui fait une request
 					{
 						if (_recv_all(_pfds[i].fd, _activeSockets[i]) != -1)
 						{
 							_replace_alone_header_cr();
 							try {
-								Request request(_buf.begin, _buf.size, _activeSockets[i].server);		// essaie de constr une requeste depuis les donnees recues
+								Request request(_buf.begin, _buf.size, _activeSockets[i].server);		// essaie de constr une request depuis les donnees recues
 								Response response(&request, _activeSockets[i].server, &responseStr);	// essaie de constr une response si on a une request
 							}
 							catch (Request::MessageException & e) {
