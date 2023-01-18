@@ -428,9 +428,6 @@ int main(int ac, const char **av) {
 
 		// CONNECT
 		connect(socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
-		// if (connect(socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
-			// error("Error: connect(): ", strerror(errno), 1);
-			// 	error("Error: connect(): ", std::to_string(errno).c_str(), 1);
 		pfds[0].fd = socket_fd;
     	pfds[0].events = POLLOUT;
     	pfds[0].revents = 0;
