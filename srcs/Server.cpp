@@ -332,4 +332,3 @@ void Server::_exit_cerr_msg(const std::string message, int code) const
 	std::cerr << message;
 	exit(code);
 }
- 
