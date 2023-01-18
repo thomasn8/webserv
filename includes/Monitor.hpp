@@ -28,8 +28,11 @@
 // If timeout is zero, then poll() will return without blocking. If the value of timeout is -1, the poll blocks indefinitely.
 # define POLL_TIMEOUT -1
 
-# define CHUNK_RECV 1024
+// write
 # define CHUNK_SEND 1024
+
+// read
+# define CHUNK_RECV 1024
 # define BUFFER_LIMIT 200000 // 200KO
 struct buffer_read {
 	char *begin;
