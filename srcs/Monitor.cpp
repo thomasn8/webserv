@@ -137,7 +137,6 @@ void Monitor::_del_from_pfds(int i)
 void Monitor::_accept_new_connection(int master_index)
 {
 	struct sockaddr_in remoteAddr;
-	remoteAddr.sin_len = sizeof(remoteAddr);
 	socklen_t remoteAddr_size = sizeof(remoteAddr);
 	int new_fd = accept(_master_sockets[master_index], (struct sockaddr *)&remoteAddr, &remoteAddr_size);
 	if (new_fd < 0)
