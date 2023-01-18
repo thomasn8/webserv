@@ -384,9 +384,6 @@ ssize_t recv_all(int fd, struct buffer_read *buf, bool last)
 // ameliorations:
 // - ajouter la possibilite de passer des args sans specifier l'option pour le port et pour le requestArg
 // exemple: ./client 8080 "GET /index.html HTTP/1.1"
-// - ajouter un poll pour verifier si on peut manier le socket_fd 
-//		- entre connect() et send()
-//		- entre send et recv()
 int main(int ac, const char **av) {
 
 	// PARSE ARGS
