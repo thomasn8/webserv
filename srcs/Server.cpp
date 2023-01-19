@@ -307,8 +307,8 @@ int Server::create_socket()
 		_exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 1 failed\n", 1);
 	
 	struct timeval timeout;      
-    timeout.tv_sec = 10;
-    timeout.tv_usec = 0;
+    timeout.tv_sec = SEND_TIMEOUT_SEC;
+    timeout.tv_usec = SEND_TIMEOUT_USEC;
     if (setsockopt (_socket_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) < 0)
         _exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 2 failed\n", 1);
     if (setsockopt (_socket_fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout) < 0)
