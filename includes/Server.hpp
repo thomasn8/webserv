@@ -39,7 +39,7 @@ const std::string	g_server_directives[] = {"listen", "server_name", "root", "ind
 # define I_CLIENT_MAX_BODY_SIZE_C 5
 
 // SOCKET
-# define BACKLOG 10
+# define BACKLOG 20
 # define SEND_TIMEOUT_SEC 2
 # define SEND_TIMEOUT_USEC 0
 
