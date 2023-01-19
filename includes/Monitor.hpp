@@ -30,10 +30,12 @@
 
 // write
 # define CHUNK_SEND 1024
+# define SEND_TIEMOUT_MS 2000
 
 // read
 # define CHUNK_RECV 1024
 # define BUFFER_LIMIT 200000 // 200KO
+# define RECV_TIEMOUT_MS 2000
 struct buffer_read {
 	char *begin;
 	char *current;
@@ -92,6 +94,8 @@ class Monitor
 		void _replace_alone_header_cr(void);
 		ssize_t _recv_all(int fd, struct socket & activeSocket);
 		ssize_t _send_all(int i, const char * response, ssize_t size, struct socket & activeSocket);
+		uint64_t _recv_timeout[2];
+		uint64_t _sent_timeout[2];
 
 		// RECV
 		struct buffer_read _buf;

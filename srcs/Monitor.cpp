@@ -170,8 +170,12 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 	ssize_t size_recv = 0, maxrecv = activeSocket.server->get_maxrecv();
 	_buf.size = 0;
 	_buf.current = _buf.begin;
+	_recv_timeout[0] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	while (1)
 	{
+		_recv_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+		if (_recv_timeout[1] - _recv_timeout[0] > RECV_TIEMOUT_MS)
+			return -1;	// A VOIR SI ON VEUT PAS RETOURNER UNE AUTRE VALEUR POUR ADAPTER LE CODE D'ERREUR RETRANSMIS DANS LE MONITOR
 		if (_buf.size + CHUNK_RECV > _buf.capacity)
 		{
 			if (_buf.capacity == 0)
@@ -214,6 +218,7 @@ ssize_t Monitor::_send_all(int i, const char * response, ssize_t size, struct so
 	int fd = _pfds[i].fd;
 	const char * chunk_send = response;
 	ssize_t response_size = size, size_sent = 0, total_sent = 0;
+	_sent_timeout[0] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	if (response_size < CHUNK_SEND)	// cas où response initiale fait < CHUNK_SEND
 	{
 		size_sent = send(fd, chunk_send, response_size, 0);
@@ -224,6 +229,9 @@ ssize_t Monitor::_send_all(int i, const char * response, ssize_t size, struct so
 	}
 	while (response_size > CHUNK_SEND && size_sent != -1) // cas où response initiale > CHUNK_SEND
 	{
+		_sent_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+		if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIEMOUT_MS)
+			break;
 		size_sent = send(fd, chunk_send, CHUNK_SEND, 0);
 		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
 		response_size -= size_sent;
@@ -232,6 +240,9 @@ ssize_t Monitor::_send_all(int i, const char * response, ssize_t size, struct so
 	}
 	while (response_size > 0 && size_sent != -1) // envoie les derniers bytes lorsque response initiale était > CHUNK_SEND bytes ou lorsque send a pas fonctionné comme prévu
 	{
+		_sent_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+		if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIEMOUT_MS)
+			break;
 		size_sent = send(fd, chunk_send, response_size, 0);
 		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
 		response_size -= size_sent;
@@ -309,7 +320,7 @@ void Monitor::handle_connections()
 				_send_all(i, responseStr.c_str(), responseStr.size(), _activeSockets[i]);				// send la response construite dans response
 				poll_index = 0; // reset l'index au debut des fds
 			}
-			else if (_pfds[i].revents & POLLHUP) 				// event sur fd[i], connection perdue sur le socket en question
+			else if (_pfds[i].revents & POLLHUP || _pfds[i].revents & POLLERR) 				// event sur fd[i], connection perdue sur le socket en question
 			{
 				close(_pfds[i].fd);
 				_del_from_pfds(i);
