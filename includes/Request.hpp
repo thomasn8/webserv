@@ -37,10 +37,10 @@ class Request
 		std::list<MultipartData *> &get_multipartDatas();
 
 		// EXCEPTIONS
-		class MessageException : public std::exception 
+		class RequestException : public std::exception 
 		{
 			public:
-				MessageException(int code) : _code(std::to_string(code)) {}
+				RequestException(int code) : _code(std::to_string(code)) {}
 				virtual const char* what() throw() { return (_code).c_str(); }
 			private:
 				std::string _code;

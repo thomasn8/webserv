@@ -293,7 +293,7 @@ void Monitor::handle_connections()
 								Request request(_buf.begin, _buf.size, _activeSockets[i].server);		// essaie de constr une request depuis les donnees recues
 								Response response(&request, _activeSockets[i].server, &responseStr);	// essaie de constr une response si on a une request
 							}
-							catch (Request::MessageException & e) {
+							catch (Request::RequestException & e) {
 								Response response(e.what(), _activeSockets[i].server, &responseStr);	// si request a un probleme, construit une response selon son status code
 							}
 						}
