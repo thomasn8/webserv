@@ -49,29 +49,29 @@ void Request::_parse_start_line(std::string startLine) {
     ssize_t pos = 0;
 
 	if (startLine.back() != '\r')
-		 throw MessageException(BAD_REQUEST);
+		 throw RequestException(BAD_REQUEST);
 	else
 		startLine.pop_back();
 	for(int i = 0; i < 3; i++) {
         pos = startLine.find(' ');
         if (i < 2 && pos == std::string::npos)
-            throw MessageException(BAD_REQUEST);
+            throw RequestException(BAD_REQUEST);
         if (i == 0) {
             _method = startLine.substr(0, pos);
             if (!(_method == "GET" || _method == "POST" || _method == "DELETE"))
-                throw MessageException(METHOD_NOT_ALLOWED);
+                throw RequestException(METHOD_NOT_ALLOWED);
         }
         else if (i == 1)
             _target = startLine.substr(0, pos);
         else if (i == 2) {
             _version = startLine.substr(0, pos);
             if (_version.compare("HTTP/1.1") != 0)
-                throw MessageException(HTTP_VERSION_UNSUPPORTED);
+                throw RequestException(HTTP_VERSION_UNSUPPORTED);
         }
         startLine.erase(0, pos + 1);
     }
     if (pos != std::string::npos)
-        throw MessageException(BAD_REQUEST);
+        throw RequestException(BAD_REQUEST);
 }
 
 void Request::_trim_sides(std::string &str)
@@ -117,10 +117,10 @@ int Request::_parse_header() {
 	{
 		// firstchar = 0, lastchar (before \n) = i-1, \n = i, len to erase = i+1
 		if (_rawMessage->c_str()[i-1] != '\r')
-            throw MessageException(BAD_REQUEST);
+            throw RequestException(BAD_REQUEST);
 		pos = _rawMessage->find(':');
 		if (pos == std::string::npos)
-            throw MessageException(BAD_REQUEST);
+            throw RequestException(BAD_REQUEST);
 		_split_field(pos, i-1);	// prend pas le /r
 		_rawMessage->erase(0, i+1);
 		i = _rawMessage->find_first_of('\n');
@@ -128,7 +128,7 @@ int Request::_parse_header() {
 	if ((*_rawMessage).c_str()[0] == '\r')
 		_rawMessage->erase(0, i+1); // efface la derniere ligne vide du header
 	else
-		throw MessageException(BAD_REQUEST);
+		throw RequestException(BAD_REQUEST);
 	return _rawMessage->size(); // retourne la size du body
 }
 
@@ -184,18 +184,18 @@ void Request::_parse_defaultDataType() {
 void Request::_parse_multipartDataType(fields_it type) {
 	ssize_t pos = (*type).second.front().find_first_of('=');
 	if (pos == -1)
-		throw MessageException(BAD_REQUEST);
+		throw RequestException(BAD_REQUEST);
 	std::string boundry = ((*type).second.front().substr(pos+1, std::string::npos)).insert(0, "--");
 	ssize_t next = 0, boundrylen = boundry.size(), first = _rawMessage->find(boundry);
 	size_t start_value = 0;
 	if (first == -1)
-		throw MessageException(BAD_REQUEST);
+		throw RequestException(BAD_REQUEST);
 	_rawMessage->erase(0, first); // efface les \r \n jusqu au 1er boundry
 	while (1)
 	{
 		// CHECK SI BOUNDRY EN DEBUT DE BLOCK ET L'EFFACE
 		if (_rawMessage->find(boundry) != 0)
-			throw MessageException(BAD_REQUEST);
+			throw RequestException(BAD_REQUEST);
 		_rawMessage->erase(0, boundrylen);
 		
 		// FIND NEXT BOUDRY OR BREAK
@@ -219,7 +219,7 @@ void Request::_parse_multipartDataType(fields_it type) {
 			{
 				multi->set_contentType(_find_value_from_boundry_block(second_line, "Content-Type:", "Content-Type: ", '\r'));
 				if (_check_filetype(multi->get_contentType()) == false)
-					throw MessageException(MEDIA_UNSUPPORTED);
+					throw RequestException(MEDIA_UNSUPPORTED);
 			}
 			ssize_t start_fourthline = end_secondline + 4;
 			start_value = start_fourthline;
@@ -246,17 +246,17 @@ void Request::_parse_body() {
 	// faire les checks necessaire sur la len
 	fields_it contentlen = _fields.find("Content-Length");
 	if ((*contentlen).second.size() != 1)
-		throw MessageException(BAD_REQUEST);
+		throw RequestException(BAD_REQUEST);
 	size_t contentLength = strtoul((*contentlen).second.front().c_str(), NULL, 0);
 	if (contentLength != _rawMessage->size())
-		throw MessageException(BAD_REQUEST);
+		throw RequestException(BAD_REQUEST);
 	_body = _rawMessage->c_str();
 	_body_len = contentLength;
 
 	// choper le type de donner et parser en fonction
 	fields_it type = _fields.find("Content-Type");
 	if ((*type).second.size() > 1)
-		throw MessageException(BAD_REQUEST);
+		throw RequestException(BAD_REQUEST);
 	if ((*type).second.front().c_str()[0] == 'm')
 		_parse_multipartDataType(type);
 	else
