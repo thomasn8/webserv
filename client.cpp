@@ -16,7 +16,7 @@
 #include <fcntl.h>
 #include <poll.h>
 
-# define USAGE "Usage: ./client [-i ipv4] [-p port] [-n repeat] request[[-s arg] or [-f filename]]"
+# define USAGE "usage: ./client [-i ipv4] [-p port] [-n repeat] request[[-s arg] or [-f filename]]"
 # define IP "127.0.0.1"
 # define PORT 80
 # define MIN_PORT_NO 1024
