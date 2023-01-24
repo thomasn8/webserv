@@ -63,27 +63,25 @@ void Request::_parse_start_line(std::string startLine) {
                 throw RequestException(METHOD_NOT_ALLOWED);
         }
         else if (i == 1) {
-			query = startLine.find('?');
+			query = startLine.find('?'); // check if form data in url
 			if (query == std::string::npos)
             	_target = startLine.substr(0, pos);
 			else {
 				_target = startLine.substr(0, query);
-				// std::string tmp = startLine;			// on a plus besoin de startline, non? ou est ce qu il faut laisser pour le erase en ligne 82 ?
-				startLine.erase(0, query + 1);
+				startLine.erase(0, query + 1); // query + version
+				ssize_t version = startLine.find(' ') + 1;
+				if (version == std::string::npos)
+                	throw RequestException(BAD_REQUEST);
+				_version = startLine.substr(version, std::string::npos);
+				if (_version.compare("HTTP/1.1") != 0)
+                	throw RequestException(HTTP_VERSION_UNSUPPORTED);
+				startLine.erase(version - 1, std::string::npos);
 				_parse_defaultDataType(&startLine);
-				// startLine = tmp;						// pas rajouter des copies qui servent a rien
+				return;
 			}
 		}
-        else if (i == 2) {
-            _version = startLine.substr(0, pos);
-			std::cout << _version << std::endl;
-            if (_version.compare("HTTP/1.1") != 0)
-                throw RequestException(HTTP_VERSION_UNSUPPORTED);
-        }
         startLine.erase(0, pos + 1);
     }
-    if (pos != std::string::npos)
-        throw RequestException(BAD_REQUEST);
 }
 
 void Request::_trim_sides(std::string &str)
