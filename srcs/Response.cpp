@@ -1,14 +1,14 @@
 #include "../includes/Response.hpp"
 
 //TO DO Michele
-// 1. default index
-// 2. method POST
-// 3. methos DELETE
-// finetuner le parsing des requêtes?
-
+// 1. default index et autoindex ++ rechecker les routes
+// 2. GET avec des query? (?fav_language=CSS)
+// 3. method POST
+// 4. methos DELETE
 
 // ---------Constructor and destructor ------------
 
+// constructor for error response
 Response::Response(std::string code, Server *server, std::string * finalMessage) : _server(server), _version(std::string("HTTP/1.1")), _finalMessage(finalMessage) {
     char            *date;
     std::string     body;
@@ -43,6 +43,7 @@ Response::Response(std::string code, Server *server, std::string * finalMessage)
     }
 }
 
+// constructor for normal response
 Response::Response(Request *request, Server *server, std::string * finalMessage) : 
     _request(request), 
     _server(server),
@@ -153,14 +154,6 @@ void Response::_make_response() {
         std:: cout << *this->_finalMessage << std::endl;
 }
 
-void Response::_response_post() {
-
-}
-
-void Response::_response_delete() {
-
-}
-
 int Response::_check_redirections(std::string &target, std::deque<Location> &locations) {
     std::string                     redir = target;
     std::deque<Location>::iterator  it;
@@ -255,6 +248,37 @@ void Response::_check_target_in_get(std::string target) {
         _check_root(target);
     if (this->_targetFound == false)
         throw MessageException(NOT_FOUND);
+    if (PRINT_FINAL_TARGET)
+        std::cout << "path found: " << this->_path << std::endl;
+}
+
+void Response::_decript_img() {
+    
+}
+
+void Response::_response_post() {
+    // std::string body = this->_request->get_body();
+    // size_t pos = body.find("image/jpeg\r\n") + 14;
+    // std::cout << "pos: " <<pos << std::endl;;
+    // body.erase(0, pos);
+    // pos = body.find("------");
+    // body.erase(pos, body.length());
+    // // std::cout << "body:" << body << std::endl;
+    // // std::cout << "body length: " << body.length() << std::endl;
+    // // std::cout << "content-length: " << *this->_request->get_fields()["Content-Length"].begin() << std::endl;
+
+    // std::ofstream file("text.txt", std::ofstream::binary | std::ofstream::out);
+
+    // char buffer[body.length()];
+    // int bodySize = body.length();
+
+    // file.write(body.c_str(), bodySize);
+    // memset(buffer, 0, body.length());
+    // file.close();
+}
+
+void Response::_response_delete() {
+
 }
 
 Response::Response(const Response& instance) : _request(instance._request), _server(instance._server) {

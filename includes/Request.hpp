@@ -9,6 +9,7 @@
 #include <exception>
 
 #include "utils.hpp"
+#include "debug.hpp"
 #include "StatusCode.hpp"
 #include "Server.hpp"
 #include "MultipartData.hpp"
@@ -63,7 +64,7 @@ class Request {
 
 		// parse default type
 		std::map<std::string, std::string> _postNameValue;
-		void _parse_defaultDataType();
+		void _parse_defaultDataType(std::string *formDatas);
 		void _print_defaultDatas() const;
 
 		// parse multipart type

@@ -3,6 +3,8 @@
 // ---------Constructor and destructor ------------
 
 Request::Request(std::string *rawMessage, Server *server) : _rawMessage(rawMessage), _server(server) {
+	if (PRINT_HTTP_RESPONSE)
+		std::cout << *rawMessage << std::endl;
 	ssize_t i = _rawMessage->find_first_of('\n');
     std::string start_line = _rawMessage->substr(0, i); // prend le /r avant /n
 	_rawMessage->erase(0, i+1);
@@ -45,8 +47,7 @@ std::list<MultipartData *> & Request::get_multipartDatas() { return _postMultipa
 // --------- Parse HEADER ------------
 
 void Request::_parse_start_line(std::string startLine) {
-	std::string token;
-    ssize_t pos = 0;
+    ssize_t pos = 0, query = 0;
 
 	if (startLine.back() != '\r')
 		 throw RequestException(BAD_REQUEST);
@@ -61,10 +62,21 @@ void Request::_parse_start_line(std::string startLine) {
             if (!(_method == "GET" || _method == "POST" || _method == "DELETE"))
                 throw RequestException(METHOD_NOT_ALLOWED);
         }
-        else if (i == 1)
-            _target = startLine.substr(0, pos);
+        else if (i == 1) {
+			query = startLine.find('?');
+			if (query == std::string::npos)
+            	_target = startLine.substr(0, pos);
+			else {
+				_target = startLine.substr(0, query);
+				// std::string tmp = startLine;			// on a plus besoin de startline, non? ou est ce qu il faut laisser pour le erase en ligne 82 ?
+				startLine.erase(0, query + 1);
+				_parse_defaultDataType(&startLine);
+				// startLine = tmp;						// pas rajouter des copies qui servent a rien
+			}
+		}
         else if (i == 2) {
             _version = startLine.substr(0, pos);
+			std::cout << _version << std::endl;
             if (_version.compare("HTTP/1.1") != 0)
                 throw RequestException(HTTP_VERSION_UNSUPPORTED);
         }
@@ -163,22 +175,22 @@ std::string Request::_find_value_from_boundry_block(std::string &block, const ch
 	return std::string(block.c_str() + valstart, vallen);
 }
 
-void Request::_parse_defaultDataType() {
+void Request::_parse_defaultDataType(std::string *formDatas) {
 	ssize_t i, keylen = 0, vallen = 0;
-	i = _rawMessage->find('&');
+	i = formDatas->find('&');
 	while (i != -1)
 	{
 		// firstchar = 0, lastchar (before \n) = i-1, \n = i, len to erase = i+1
-		keylen = _rawMessage->find('=');
-		vallen = _rawMessage->find('&') - keylen - 1;
-		_postNameValue.insert(std::make_pair(std::string(_rawMessage->c_str(), keylen), std::string(_rawMessage->c_str()+keylen+1, vallen)));
-		_rawMessage->erase(0, i+1);
-		i = _rawMessage->find('&');
+		keylen = formDatas->find('=');
+		vallen = formDatas->find('&') - keylen - 1;
+		_postNameValue.insert(std::make_pair(std::string(formDatas->c_str(), keylen), std::string(formDatas->c_str()+keylen+1, vallen)));
+		formDatas->erase(0, i+1);
+		i = formDatas->find('&');
 	}
-	keylen = _rawMessage->find('=');
-	vallen = _rawMessage->size() - keylen - 1;
-	_postNameValue.insert(std::make_pair(std::string(_rawMessage->c_str(), keylen), std::string(_rawMessage->c_str()+keylen+1, vallen)));
-	_rawMessage->clear();
+	keylen = formDatas->find('=');
+	vallen = formDatas->size() - keylen - 1;
+	_postNameValue.insert(std::make_pair(std::string(formDatas->c_str(), keylen), std::string(formDatas->c_str()+keylen+1, vallen)));
+	formDatas->clear();
 }
 
 void Request::_parse_multipartDataType(fields_it type) {
@@ -260,7 +272,7 @@ void Request::_parse_body() {
 	if ((*type).second.front().c_str()[0] == 'm')
 		_parse_multipartDataType(type);
 	else
-		_parse_defaultDataType();
+		_parse_defaultDataType(_rawMessage);
 }
 
 // delete les Multipart * alloues dans map de _postMultipart
