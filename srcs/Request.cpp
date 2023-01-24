@@ -58,7 +58,9 @@ void Request::_parse_start_line(std::string startLine) {
 			ssize_t query = startLine.find('?'); // check if form data in url
 			if (query == std::string::npos) {
             	_target = startLine.substr(0, pos);
-// Y AURAIT PAS UNE VALIDATION A FAIRE SUR L'URL ????
+				if (_target.size() > URL_MAX_LEN)
+					throw RequestException(URI_TOO_LONG);
+// Y AURAIT PAS UNE VALIDATION EN + A FAIRE SUR LES CARACTERE DE L'URL ????
 				if (startLine.substr(pos + 1, std::string::npos).compare("HTTP/1.1") != 0)
 					throw RequestException(HTTP_VERSION_UNSUPPORTED);
 				return;

@@ -14,6 +14,8 @@
 #include "Server.hpp"
 #include "MultipartData.hpp"
 
+# define URL_MAX_LEN 2083
+
 class Request {
 	public:
 		typedef std::map<std::string, std::list<std::string>>::const_iterator	fields_it;
