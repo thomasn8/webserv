@@ -4,59 +4,39 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fill the form</title>
+	<link rel="apple-touch-icon" sizes="180x180" href="/favicon_package/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon_package/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon_package/favicon-16x16.png">
+	<link rel="manifest" href="/favicon_package/site.webmanifest">
+	<link rel="mask-icon" href="/favicon_package/safari-pinned-tab.svg" color="#5bbad5">
+	<meta name="msapplication-TileColor" content="#da532c">
+	<meta name="theme-color" content="#ffffff">
+    <title>TEST FORM</title>
 </head>
 <body>
-  <!-- form with file upload -->
-    <!-- <form method="post" enctype="multipart/form-data">
-        <fieldset style="background: #f6f8ff; border: 2px solid #4238ca;">
-          <legend>Who are you?</legend>
-          <input type="text" name="firstname" placeholder="First name"><br /><br />
-          <input type="text" name="lastname" placeholder="Last name"><br /><br />
 
-          Select image to upload:
-            <input type="file" name="fileToUpload" id="fileToUpload">
-      
-          <button type="submit">Submit</button>
-        </fieldset>
-      
-      </form> -->
-
-      <!-- radio button formular -->
-      <!-- <form method="post">
-        <input type="radio" id="html" name="fav_language" value="HTML">
-        <label for="html">HTML</label><br>
-        <input type="radio" id="css" name="fav_language" value="CSS">
-        <label for="css">CSS</label><br>
-        <input type="radio" id="javascript" name="fav_language" value="JavaScript">
-        <label for="javascript">JavaScript</label>
+      <!-- <form action="test.php" method="get">
+		<input type="text" name="firstname" placeholder="First name"><br /><br />
+		<input type="text" name="lastname" placeholder="Last name"><br /><br />
+        <textarea type="text" name="story" rows="5" cols="33">It was a dark and stormy night...</textarea><br /><br />
+		<input type="number" name="age" placeholder="age"><br /><br />
         <button type="submit">Submit</button>
       </form> -->
 
-
-      <form method="post">
-        <textarea id="story" name="story" rows="5" cols="33">
-          It was a dark and stormy night...
-          </textarea>
+      <form action="test.php" method="post">
+		<input type="text" name="firstname" placeholder="First name"><br /><br />
+		<input type="text" name="lastname" placeholder="Last name"><br /><br />
+        <textarea type="text" name="story" rows="5" cols="33">It was a dark and stormy night...</textarea><br /><br />
+		<input type="number" name="age" placeholder="age"><br /><br />
         <button type="submit">Submit</button>
       </form>
+ 
+	  <!-- <form  method="post" enctype="multipart/form-data">
+		<input type="text" name="firstname" placeholder="First name"><br /><br />
+		<input type="text" name="lastname" placeholder="Last name"><br /><br />
+		Select image to upload:
+		<input type="file" name="fileToUpload"><br /><br />
+        <button type="submit">Submit</button>
+      </form> -->
 </body>
 </html>
-
-<!-- <!DOCTYPE html>
-<html>
-  <head>
-    <title>imgae upload and display</title>
-  </head>
-  <body>
-    <form enctype="multipart/form-data">
-      <div>
-        <label for="example">Veuillez saisir un texte</label>
-        <input id="example" type="file" name="f">
-      </div>
-      <div>
-        <input type="submit" value="Envoyer">
-      </div>
-    </form>
-  </body>
-</html> -->

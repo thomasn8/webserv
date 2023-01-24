@@ -7,6 +7,7 @@ SRCS		=	srcs/main.cpp							\
 			  	srcs/Monitor.cpp						\
 			  	srcs/Server.cpp							\
 			  	srcs/Request.cpp						\
+			  	srcs/MultipartData.cpp					\
 			  	srcs/Message.cpp						\
 			  	srcs/Location.cpp						\
 			  	srcs/Response.cpp						\

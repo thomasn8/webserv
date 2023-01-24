@@ -13,7 +13,8 @@ _methods(std::list<std::string>(1, std::string(GET))),
 _defaultMethods(true),
 _uploadsDir(_root),
 _redirections(std::list<Trio>()),
-_cgiExtension(std::string(DEFAULT_CGI_EXT))
+_cgiExtension(std::string(DEFAULT_CGI_EXT)),
+_contentType(std::list<std::string>())
 {}
 
 Location::Location() :
@@ -26,7 +27,8 @@ _methods(std::list<std::string>(1, std::string(GET))),
 _defaultMethods(true),
 _uploadsDir(_root),
 _redirections(std::list<Trio>()),
-_cgiExtension(std::string(DEFAULT_CGI_EXT))
+_cgiExtension(std::string(DEFAULT_CGI_EXT)),
+_contentType(std::list<std::string>())
 {}
 
 Location::Location(const Location & src) :
@@ -69,6 +71,9 @@ void Location::add_directive(int directiveIndex, std::string value)
 		case I_REDIRECTION_L:
 			set_redirection(value);
 			break;
+		case I_CONTENT:
+			set_contentType(value);
+			break;
 	}
 }
 
@@ -79,11 +84,17 @@ void Location::set_route(std::string value)
 		return;
 	_route = value;
 
-	// if route is a cgi, replace default php cgi extension
+	// if route is a cgi, replace roote value and default php cgi extension
 	if (value[0] == '.' )
+	{
 		_cgiExtension = value.substr(1);
+		_route = _cgiExtension;
+	}
 	else if (value[0] == '*')
+	{
 		_cgiExtension = value.substr(2);
+		_route = _cgiExtension;
+	}
 }
 
 void Location::set_root(std::string & value)
@@ -204,6 +215,19 @@ void Location::set_redirection(std::string & line)
 	_redirections.push_back(trio);
 }
 
+void Location::set_contentType(std::string & value)
+{
+	if (value.empty())
+		return;
+	std::list<std::string>::iterator it = _contentType.begin();
+	for(; it !=_contentType.end(); it++)
+	{
+		if (*it == value)
+			return;
+	}
+	_contentType.push_back(value);
+}
+
 std::string Location::get_route() const { return _route; }
 
 // path du directory
@@ -222,6 +246,8 @@ std::string Location::get_uploadsdir() const { return _uploadsDir; }
 std::list<Trio> & Location::get_redirections() { return _redirections; }
 
 std::string Location::get_cgi() const { return _cgiExtension; }
+
+std::list<std::string> & Location::get_contentTypes() { return _contentType; }
 
 std::string Location::_webserv_bin_path() const
 {

@@ -39,7 +39,8 @@ Response::Response(std::string code, Server *server, std::string * finalMessage)
             </body> \
             </html>";
 
-        *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
+        // *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
+        *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(body.size()) + "\r\n\r\n" + body;
         free(date);
     }
 }
