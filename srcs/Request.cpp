@@ -47,7 +47,6 @@ std::list<MultipartData *> & Request::get_multipartDatas() { return _postMultipa
 // --------- Parse HEADER ------------
 
 void Request::_parse_start_line(std::string startLine) {
-    ssize_t pos = 0;
 	if (startLine.back() != '\r')
 		 throw RequestException(BAD_REQUEST);
 	else
