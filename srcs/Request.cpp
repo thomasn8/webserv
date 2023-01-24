@@ -53,10 +53,8 @@ void Request::_parse_start_line(std::string startLine) {
 		 throw RequestException(BAD_REQUEST);
 	else
 		startLine.pop_back();
-	for(int i = 0; i < 3; i++) {
+	for (int i = 0; i < 2; i++) {
         pos = startLine.find(' ');
-        if (i < 2 && pos == std::string::npos)
-            throw RequestException(BAD_REQUEST);
         if (i == 0) {
             _method = startLine.substr(0, pos);
             if (!(_method == "GET" || _method == "POST" || _method == "DELETE"))
