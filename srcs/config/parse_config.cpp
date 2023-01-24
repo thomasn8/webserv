@@ -106,7 +106,7 @@ void parse_config(std::string & configFile, Monitor & monitor)
 						compare = true;
 						if (location_context == 2)
 						{
-							monitor.get_servers().back().add_location();
+							monitor.get_servers().back().add_location(route);
 							monitor.get_servers().back().get_last_location().set_route(route);
 						}
 					}

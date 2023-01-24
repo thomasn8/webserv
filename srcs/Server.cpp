@@ -5,6 +5,7 @@
 Server::Server() :
 _locations(std::deque<Location>()),
 _ipv4(INADDR_ANY),
+_ip(std::string("0.0.0.0")),
 _port(htons(DEFAULT_PORT)),  
 _serverNames(std::list<std::string>(1, std::string(DEFAULT_SERVERNAME))),
 _defaultServerNames(true),
@@ -21,6 +22,7 @@ _address()
 Server::Server(const Server & src) :
 _locations(src._locations),
 _ipv4(src._ipv4),
+_ip(src._ip),
 _port(src._port),  
 _serverNames(src._serverNames),
 _defaultServerNames(src._defaultServerNames),
@@ -43,7 +45,22 @@ std::deque<Location> & Server::get_locations() { return _locations; }
 
 Location & Server::get_last_location() { return get_locations().back(); }
 
-void Server::add_location() { _locations.push_back(Location(get_root(), get_indexes())); }
+void Server::add_location(std::string & route) 
+{
+	if (route[0] == '.' )
+		route.erase(0,1);
+	else if (route[0] == '*')
+		route.erase(0,2);
+	for (loc_it it = get_locations().begin(); it != get_locations().end(); it++)
+	{
+		if ((*it).get_route() == route)
+		{
+			*it = Location(get_root(), get_indexes());
+			return;
+		}
+	}
+	_locations.push_back(Location(get_root(), get_indexes()));
+}
 
 void Server::add_directive(int directiveIndex, std::string value)
 {
@@ -246,7 +263,7 @@ uint32_t Server::get_ipv4() const { return _ipv4; }
 
 std::string Server::get_port_str() const { return std::to_string(ntohs(_port)); }
 
-std::string Server::get_ipv4_str() const { return std::string(inet_ntoa(_address.sin_addr)); }
+std::string Server::get_ipv4_str() const { return _ip; }
 
 std::string Server::get_ipv4_port_str() const { return get_ipv4_str().append(":").append(get_port_str()); }
 
@@ -258,8 +275,10 @@ std::string Server::get_root() const { return _root; }
 
 std::list<std::string> & Server::get_indexes() { return _indexFiles; }
 
+// max body size
 size_t Server::get_client_max_body_size() const { return _clientMaxBodySize; }
 
+// max body size + max header size
 size_t Server::get_maxrecv() const { return _maxrecv; }
 
 std::list<Server::error_page_pair> & Server::get_errorpages() { return _errorPages; }
@@ -288,8 +307,8 @@ int Server::create_socket()
 		_exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 1 failed\n", 1);
 	
 	struct timeval timeout;      
-    timeout.tv_sec = 10;
-    timeout.tv_usec = 0;
+    timeout.tv_sec = SEND_TIMEOUT_SEC;
+    timeout.tv_usec = SEND_TIMEOUT_USEC;
     if (setsockopt (_socket_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) < 0)
         _exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 2 failed\n", 1);
     if (setsockopt (_socket_fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout) < 0)
@@ -299,7 +318,7 @@ int Server::create_socket()
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = _ipv4;
 	_address.sin_port = _port;
-	_address.sin_len = sizeof(_address);
+	_ip = std::string(inet_ntoa(_address.sin_addr));
 
 	if (bind(_socket_fd, (struct sockaddr *) &_address, sizeof(_address)) < 0)
 		_exit_cerr_msg("Error: impossible to run server(s): bind() failed\n", 1);

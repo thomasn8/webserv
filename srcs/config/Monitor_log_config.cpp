@@ -39,6 +39,9 @@ void Monitor::log_server_info()
 			std::list<std::string>::iterator it3 = (*it2).get_methods().begin();
 			for (; it3 != (*it2).get_methods().end(); it3++)
 				_accessStream << "		" << "method: " << (*it3) << std::endl;
+			std::list<std::string>::iterator it10 = (*it2).get_contentTypes().begin();
+			for (; it10 != (*it2).get_contentTypes().end(); it10++)
+				_accessStream << "		" << "content: " << (*it10) << std::endl;
 			if ((*it2).get_autoindex() == true)
 				_accessStream << "		" << "autoindex: " << "on" << std::endl;
 			else

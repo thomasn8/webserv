@@ -39,12 +39,15 @@ const std::string	g_server_directives[] = {"listen", "server_name", "root", "ind
 # define I_CLIENT_MAX_BODY_SIZE_C 5
 
 // SOCKET
-# define BACKLOG 10
+# define BACKLOG 20
+# define SEND_TIMEOUT_SEC 2
+# define SEND_TIMEOUT_USEC 0
 
 class Server
 {
 	public:
 		typedef std::pair<int, std::string> error_page_pair;
+		typedef std::deque<Location>::iterator loc_it;
 
 		// CONST/DESTR
 		Server();
@@ -54,7 +57,7 @@ class Server
 		// GETTERS/SETTERS
 		std::deque<Location> & get_locations();
 		Location & get_last_location();
-		void add_location();
+		void add_location(std::string & route);
 		void add_directive(int directiveIndex, std::string value);
 		void set_address_port(std::string & value);
 		void set_servername(std::string & value);
@@ -84,6 +87,7 @@ class Server
 		// CONFIG
 		std::deque<Location> _locations;
 		uint32_t _ipv4;
+		std::string _ip;
 		uint16_t _port;
 		int _port_check(std::string & value);
 		std::list<std::string> _serverNames;

@@ -25,6 +25,8 @@ Monitor::~Monitor()
 		free(_activeSockets);
 	if (_master_size)
 		free(_master_sockets);
+	if (_buf.capacity > 0)
+		free(_buf.begin);
 	_accessStream.close();
 	log(get_time(), " Server shut down\n");
 	std::cout << "Server shut down" << std::endl;
@@ -47,7 +49,7 @@ void Monitor::_prepare_master_sockets()
 	int socket_fd;
 	int i = 0;
 	_master_size = _servers.size();
-	_master_sockets = (int *)malloc(_master_size);
+	_master_sockets = (int *)malloc(_master_size * sizeof(int *));
 	while (it != ite)
 	{
 		socket_fd = (*it).create_socket();
@@ -58,11 +60,11 @@ void Monitor::_prepare_master_sockets()
 		i++;
 	}
 	_fd_capacity = _fd_count + 5;
-	_pfds = (struct pollfd *)malloc(sizeof(*_pfds) * _fd_capacity);
-	_activeSockets = (struct socket *)malloc(sizeof(*_activeSockets) * _fd_capacity);
+	_pfds = (struct pollfd *)malloc(sizeof(struct pollfd) * _fd_capacity);
+	_activeSockets = (struct socket *)malloc(sizeof(struct socket) * _fd_capacity);
 	if (_pfds == NULL)
 	{
-		log("Error: impossible to allocate", _fd_capacity ," struct pollfd\n");
+		log("Error: impossible to allocate", _fd_capacity ," pollfd structs\n");
 		_exit_cerr_msg("Fatal error: allocation\n", 1);
 	}
 	for (int i = 0; i < _fd_count; i++)
@@ -87,7 +89,7 @@ struct socket * Monitor::_add_to_pfds(int new_fd, struct sockaddr_in * remoteAdd
 		_activeSockets = (struct socket *)realloc(_activeSockets, sizeof(*_activeSockets) * (_fd_capacity));
 		if (_pfds == NULL)
 		{
-			log("Error: impossible to allocate", _fd_capacity ," struct pollfd\n");
+			log("Error: impossible to allocate", _fd_capacity ," pollfd structs\n");
 			_exit_cerr_msg("Fatal error: allocation\n", 1);
 		}
 	}
@@ -135,8 +137,8 @@ void Monitor::_del_from_pfds(int i)
 void Monitor::_accept_new_connection(int master_index)
 {
 	struct sockaddr_in remoteAddr;
-	remoteAddr.sin_len = sizeof(remoteAddr);
-	int new_fd = accept(_master_sockets[master_index], (struct sockaddr *)&remoteAddr, (socklen_t *)&remoteAddr.sin_len);
+	socklen_t remoteAddr_size = sizeof(remoteAddr);
+	int new_fd = accept(_master_sockets[master_index], (struct sockaddr *)&remoteAddr, &remoteAddr_size);
 	if (new_fd < 0)
 		log(get_time(), " Error: accept: new connexion on port ", _servers[master_index].get_port_str(), " failed\n");
 	else
@@ -146,23 +148,63 @@ void Monitor::_accept_new_connection(int master_index)
 	}
 }
 
-int Monitor::_recv_all(int fd, std::string & request, struct socket & activeSocket)
+void Monitor::_replace_alone_header_cr() 
 {
-	char chunk_read[CHUNK_SIZE];
-	ssize_t size_recv = 0, total_recv = 0, maxrecv = activeSocket.server->get_maxrecv();
+	char *ptr = _buf.begin;
+	size_t len = _buf.size, i = 0;
+	while (i < len)
+	{
+		if (ptr[i] == '\r')
+		{
+			if ((i+1 < len && ptr[i+1] != '\n') || (i+1 == len))
+				ptr[i] = ' ';
+			else if (i+3 < len && ptr[i+1] == '\n' && ptr[i+2] == '\r' && ptr[i+3] == '\n')
+				return;
+		}
+		i++;
+	}
+}
+
+ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
+{
+	ssize_t size_recv = 0, maxrecv = activeSocket.server->get_maxrecv();
+	_buf.size = 0;
+	_buf.current = _buf.begin;
+	_recv_timeout[0] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	while (1)
 	{
-		size_recv = recv(fd, chunk_read, CHUNK_SIZE, 0); // recv la request jusqu'au bout du client_fd
-		total_recv += size_recv;
-		if (maxrecv && total_recv > maxrecv) // erreur max body size 431
-			return -1;
-		// std::cout << size_recv << " bytes read on socket " << fd << std::endl;
-		if (size_recv > 0)
-			request.append(chunk_read, size_recv);
-		if (size_recv < CHUNK_SIZE) // toute la request a été read
+		_recv_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+		if (_recv_timeout[1] - _recv_timeout[0] > RECV_TIEMOUT_MS)
+			return -1;	// A VOIR SI ON VEUT PAS RETOURNER UNE AUTRE VALEUR POUR ADAPTER LE CODE D'ERREUR RETRANSMIS DANS LE MONITOR
+		if (_buf.size + CHUNK_RECV > _buf.capacity)
 		{
-			log(get_time(), " Request from    ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(), ": ", total_recv, " bytes read via socket ", fd, "\n");
-			return total_recv;
+			if (_buf.capacity == 0)
+			{
+				_buf.begin = (char *)malloc(CHUNK_RECV);
+				_buf.capacity = CHUNK_RECV;
+			}
+			else
+			{
+				_buf.begin = (char *)realloc(_buf.begin, _buf.capacity * 2);
+				_buf.capacity *= 2;
+			}
+			if (_buf.begin == NULL)
+			{
+				log("Error: allocation for read buffer failed\n");
+				return -1;
+			}
+			_buf.current = _buf.begin + _buf.size;
+		}
+		size_recv = recv(fd, _buf.current, CHUNK_RECV, 0); // recv la request jusqu'au bout du client_fd
+		_buf.size += size_recv;
+		_buf.current += size_recv;
+		// std::cout << size_recv << " bytes read on socket " << fd << std::endl;
+		if (maxrecv && _buf.size > maxrecv) // erreur max body size 413
+			return -1;
+		if (size_recv < CHUNK_RECV) // toute la request a été read
+		{
+			log(get_time(), " Request from    ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(), ": ", _buf.size, " bytes read via socket ", fd, "\n");
+			return _buf.size;
 		}
 	}
 }
@@ -172,7 +214,8 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 	int fd = _pfds[i].fd;
 	const char * chunk_send = response;
 	ssize_t response_size = size, size_sent = 0, total_sent = 0;
-	if (response_size < CHUNK_SIZE)	// cas où response initiale fait < 512
+	_sent_timeout[0] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	if (response_size < CHUNK_SEND)	// cas où response initiale fait < CHUNK_SEND
 	{
 		size_sent = send(fd, chunk_send, response_size, 0);
 		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
@@ -180,16 +223,22 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 		chunk_send += size_sent;
 		total_sent += size_sent;
 	}
-	while (response_size > CHUNK_SIZE && size_sent != -1) // cas où response initiale > 512
+	while (response_size > CHUNK_SEND && size_sent != -1) // cas où response initiale > CHUNK_SEND
 	{
-		size_sent = send(fd, chunk_send, CHUNK_SIZE, 0);
+		_sent_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+		if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIEMOUT_MS)
+			break;
+		size_sent = send(fd, chunk_send, CHUNK_SEND, 0);
 		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
 		response_size -= size_sent;
 		chunk_send += size_sent;
 		total_sent += size_sent;
 	}
-	while (response_size > 0 && size_sent != -1) // envoie les derniers bytes lorsque response initiale était > 512 bytes ou lorsque send a pas fonctionné comme prévu
+	while (response_size > 0 && size_sent != -1) // envoie les derniers bytes lorsque response initiale était > CHUNK_SEND bytes ou lorsque send a pas fonctionné comme prévu
 	{
+		_sent_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+		if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIEMOUT_MS)
+			break;
 		size_sent = send(fd, chunk_send, response_size, 0);
 		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
 		response_size -= size_sent;
@@ -205,15 +254,17 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 	return total_sent;
 }
 
-// VOIR SI LA HEAP GROSSI PAS A L'INFINI SANS LIBERE DE L'ESPACE AVEC REALLOC ?
+// si on était pas en NON-BLOCKING mode, accept() bloquerait le server et le server pourrait gérer qu'1 seule connection simultanée.
+// Pareil pour le read() de recv() (comme quand on veut écrire dans un pipe et que l'autre process est bloqué par le read tant que rien est write dans le pipe)
 void Monitor::handle_connections()
 {
 	_prepare_master_sockets(); // socket, bind, listen pour chaque port/server + creer les struct pollfd dédiées
 	int i, poll_index = 0, poll_count = 0, server_count = _servers.size();
-	std::string requestStr, responseStr;
+	_buf.capacity = 0;
+	std::string responseStr;
 	while (1)													// Main loop
 	{
-		poll_count = poll(_pfds, _fd_count, -1);				// bloque tant qu'aucun fd est prêt à read ou write
+		poll_count = poll(_pfds, _fd_count, POLL_TIMEOUT);		// bloque tant qu'aucun fd est prêt à read ou write
         if (poll_count < 0)
 			log(get_time(), " Error: poll failed\n");
 		i = poll_index;
@@ -221,6 +272,7 @@ void Monitor::handle_connections()
 		{
 			if (_pfds[i].revents & POLLIN)						// event sur fd[i] si poll a debloqué pour un fd prêt à read
 			{
+/* START CHRONO */uint64_t ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 				for (int j = 0; j < server_count; j++)
 				{
 					if (_pfds[i].fd == _master_sockets[j])		// si fd correspond a un socket de server en ecoute
@@ -230,22 +282,31 @@ void Monitor::handle_connections()
 					}
 					if (j == server_count - 1)					// sinon fd correspond a un client qui fait une request
 					{
-						if (_recv_all(_pfds[i].fd, requestStr, _activeSockets[i]) != -1)
+						if (_recv_all(_pfds[i].fd, _activeSockets[i]) != -1)
 						{
+							_replace_alone_header_cr();
+							std::string requestStr(_buf.begin, _buf.size);
 							try {
-								Request request(&requestStr);									// essaie de constr une requeste depuis les donnees recues
+								Request request(&requestStr, _activeSockets[i].server);					// essaie de constr une requeste depuis les donnees recues
 								Response response(&request, _activeSockets[i].server, &responseStr);	// essaie de constr une response si on a une request
 							}
-							catch (Request::MessageException & e) {
+							catch (Request::RequestException & e) {
 								Response response(e.what(), _activeSockets[i].server, &responseStr);	// si request a un probleme, construit une response selon son status code
 							}
 						}
 						else
-							Response response("431", _activeSockets[i].server, &responseStr);			// si recvall a atteint le MBS, constuit une response selon le status code
-						requestStr.clear();
+							Response response("413", _activeSockets[i].server, &responseStr);			// si recvall a atteint le MBS, constuit une response selon le status code
+						if (_buf.capacity > BUFFER_LIMIT)
+						{
+							free(_buf.begin);
+							_buf.capacity = 0;
+						}
 						_pfds[i].events = POLLOUT;
 						poll_index = i; // permet de revenir dans la main loop avec l'index du pfds à écrire
 						i = _fd_count;  // break la while loop
+/* STOP CHRONO */		uint64_t ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+						uint64_t ms3 = ms2 - ms1;
+						std::cout << ms3 << " ms\n";
 					}
 				}
 			}
@@ -253,6 +314,12 @@ void Monitor::handle_connections()
 			{
 				_send_all(i, responseStr.c_str(), responseStr.size(), _activeSockets[i]);				// send la response construite dans response
 				poll_index = 0; // reset l'index au debut des fds
+			}
+			else if (_pfds[i].revents & POLLHUP || _pfds[i].revents & POLLERR) 	// event sur fd[i], connection perdue sur le socket en question
+			{
+				close(_pfds[i].fd);
+				_del_from_pfds(i);
+				poll_index = 0;
 			}
 			i++;
 		}
@@ -284,6 +351,8 @@ void Monitor::_exit_cerr_msg(const std::string message, int code)
 		free(_activeSockets);
 	if (_master_size)
 		free(_master_sockets);
+	if (_buf.capacity > 0)
+		free(_buf.begin);
 	_accessStream.close();
 	exit(code);
 }
