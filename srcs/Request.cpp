@@ -82,6 +82,7 @@ void Request::_parse_start_line(std::string startLine) {
 		}
         startLine.erase(0, pos + 1);
     }
+	throw RequestException(BAD_REQUEST);
 }
 
 void Request::_trim_sides(std::string &str)
