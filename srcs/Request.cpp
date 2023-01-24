@@ -46,8 +46,7 @@ std::list<MultipartData *> & Request::get_multipartDatas() { return _postMultipa
 void Request::_parse_start_line(std::string startLine) {
 	if (startLine.back() != '\r')
 		 throw RequestException(BAD_REQUEST);
-	else
-		startLine.pop_back();
+	startLine.pop_back();
 	for (int i = 0; i < 2; i++) {
         ssize_t pos = startLine.find(' ');
         if (i == 0) {
