@@ -38,6 +38,7 @@ class Response : public Message {
 		void		_check_root(std::string &target);
 		int			_make_CGI();
 		void		_make_response();
+		void		_decript_img();
 		
 		Request						*_request;
 		Server						*_server;
