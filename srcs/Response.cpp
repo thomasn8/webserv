@@ -8,8 +8,6 @@
 
 // ---------Constructor and destructor ------------
 
-std::map<std::string, std::string> meta_var;
-
 // constructor for error response
 Response::Response(std::string code, Server *server, std::string * finalMessage) : _server(server), _version(std::string("HTTP/1.1")), _finalMessage(finalMessage) {
     char            *date;
