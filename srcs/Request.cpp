@@ -18,7 +18,6 @@ _rawMessage(instance._rawMessage),
 _server(instance._server),
 _method(instance._method),
 _target(instance._target),
-_version(instance._version),
 _body(instance._body),
 _body_len(instance._body_len),
 _fields(instance._fields),
@@ -35,8 +34,6 @@ Request::~Request() {
 std::string Request::get_method() const { return _method; }
 
 std::string Request::get_target()const { return _target; }
-
-std::string Request::get_version() const { return _version; }
 
 std::map<std::string, std::list<std::string>> Request::get_fields() const { return _fields; }
 
@@ -62,7 +59,9 @@ void Request::_parse_start_line(std::string startLine) {
 			ssize_t query = startLine.find('?'); // check if form data in url
 			if (query == std::string::npos) {
             	_target = startLine.substr(0, pos);
-	// Y AURAIT PAS UNE VALIDATION A FAIRE SUR L'URL ????
+// Y AURAIT PAS UNE VALIDATION A FAIRE SUR L'URL ????
+				if (startLine.substr(pos + 1, std::string::npos).compare("HTTP/1.1") != 0)
+					throw RequestException(HTTP_VERSION_UNSUPPORTED);
 				return;
 			}
 			else {
@@ -71,8 +70,7 @@ void Request::_parse_start_line(std::string startLine) {
 				ssize_t version = startLine.find(' ') + 1;
 				if (version == std::string::npos)
                 	throw RequestException(BAD_REQUEST);
-				_version = startLine.substr(version, std::string::npos);
-				if (_version.compare("HTTP/1.1") != 0)
+				if (startLine.substr(version, std::string::npos).compare("HTTP/1.1") != 0)
                 	throw RequestException(HTTP_VERSION_UNSUPPORTED);
 				startLine.erase(version - 1, std::string::npos);
 				_parse_defaultDataType(&startLine);
