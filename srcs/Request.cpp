@@ -69,8 +69,10 @@ void Request::_parse_start_line(std::string startLine) {
             	_target = startLine.substr(0, pos);
 			else {
 				_target = startLine.substr(0, query);
+				std::string tmp = startLine;
 				startLine.erase(0, query + 1);
 				_parse_defaultDataType(&startLine);
+				startLine = tmp;
 			}
 		}
         else if (i == 2) {
