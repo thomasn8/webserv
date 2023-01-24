@@ -363,6 +363,6 @@ std::string Monitor::get_time()
     struct tm tstruct;
     char buf[80] = {0};
     tstruct = *localtime(&now);
-    strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
+    strftime(buf, sizeof(buf), "%Y/%m/%d %X", &tstruct);
 	return std::string(buf);
 }
