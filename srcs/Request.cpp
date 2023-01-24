@@ -18,7 +18,6 @@ _rawMessage(instance._rawMessage),
 _server(instance._server),
 _method(instance._method),
 _target(instance._target),
-_version(instance._version),
 _body(instance._body),
 _body_len(instance._body_len),
 _fields(instance._fields),
@@ -36,8 +35,6 @@ std::string Request::get_method() const { return _method; }
 
 std::string Request::get_target()const { return _target; }
 
-std::string Request::get_version() const { return _version; }
-
 std::map<std::string, std::list<std::string>> Request::get_fields() const { return _fields; }
 
 std::map<std::string, std::string> & Request::get_defaultDatas() { return _postNameValue; }
@@ -47,43 +44,43 @@ std::list<MultipartData *> & Request::get_multipartDatas() { return _postMultipa
 // --------- Parse HEADER ------------
 
 void Request::_parse_start_line(std::string startLine) {
-    ssize_t pos = 0, query = 0;
-
 	if (startLine.back() != '\r')
 		 throw RequestException(BAD_REQUEST);
-	else
-		startLine.pop_back();
-	for(int i = 0; i < 3; i++) {
-        pos = startLine.find(' ');
-        if (i < 2 && pos == std::string::npos)
-            throw RequestException(BAD_REQUEST);
+	startLine.pop_back();
+	for (int i = 0; i < 2; i++) {
+        ssize_t pos = startLine.find(' ');
         if (i == 0) {
             _method = startLine.substr(0, pos);
             if (!(_method == "GET" || _method == "POST" || _method == "DELETE"))
                 throw RequestException(METHOD_NOT_ALLOWED);
         }
         else if (i == 1) {
-			query = startLine.find('?');
-			if (query == std::string::npos)
+			ssize_t query = startLine.find('?'); // check if form data in url
+			if (query == std::string::npos) {
             	_target = startLine.substr(0, pos);
+				if (_target.size() > URL_MAX_LEN)
+					throw RequestException(URI_TOO_LONG);
+// Y AURAIT PAS UNE VALIDATION EN + A FAIRE SUR LES CARACTERE DE L'URL ????
+				if (startLine.substr(pos + 1, std::string::npos).compare("HTTP/1.1") != 0)
+					throw RequestException(HTTP_VERSION_UNSUPPORTED);
+				return;
+			}
 			else {
 				_target = startLine.substr(0, query);
-				// std::string tmp = startLine;			// on a plus besoin de startline, non? ou est ce qu il faut laisser pour le erase en ligne 82 ?
-				startLine.erase(0, query + 1);
+				startLine.erase(0, query + 1); // query + version
+				ssize_t version = startLine.find(' ') + 1;
+				if (version == std::string::npos)
+                	throw RequestException(BAD_REQUEST);
+				if (startLine.substr(version, std::string::npos).compare("HTTP/1.1") != 0)
+                	throw RequestException(HTTP_VERSION_UNSUPPORTED);
+				startLine.erase(version - 1, std::string::npos);
 				_parse_defaultDataType(&startLine);
-				// startLine = tmp;						// pas rajouter des copies qui servent a rien
+				return;
 			}
 		}
-        else if (i == 2) {
-            _version = startLine.substr(0, pos);
-			std::cout << _version << std::endl;
-            if (_version.compare("HTTP/1.1") != 0)
-                throw RequestException(HTTP_VERSION_UNSUPPORTED);
-        }
         startLine.erase(0, pos + 1);
     }
-    if (pos != std::string::npos)
-        throw RequestException(BAD_REQUEST);
+	throw RequestException(BAD_REQUEST);
 }
 
 void Request::_trim_sides(std::string &str)

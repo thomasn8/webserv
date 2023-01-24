@@ -148,7 +148,7 @@ void Monitor::_accept_new_connection(int master_index)
 	}
 }
 
-void Monitor::_replace_alone_header_cr() 
+int Monitor::_replace_alone_header_cr() 
 {
 	char *ptr = _buf.begin;
 	size_t len = _buf.size, i = 0;
@@ -159,10 +159,13 @@ void Monitor::_replace_alone_header_cr()
 			if ((i+1 < len && ptr[i+1] != '\n') || (i+1 == len))
 				ptr[i] = ' ';
 			else if (i+3 < len && ptr[i+1] == '\n' && ptr[i+2] == '\r' && ptr[i+3] == '\n')
-				return;
+				return 0;
 		}
 		i++;
 	}
+	if (i > MHS)
+		return -1;
+	return 0;
 }
 
 ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
@@ -284,17 +287,21 @@ void Monitor::handle_connections()
 					{
 						if (_recv_all(_pfds[i].fd, _activeSockets[i]) != -1)
 						{
-							_replace_alone_header_cr();
-							std::string requestStr(_buf.begin, _buf.size);
-							try {
-								Request request(&requestStr, _activeSockets[i].server);					// essaie de constr une requeste depuis les donnees recues
-								Response response(&request, _activeSockets[i].server, &responseStr);	// essaie de constr une response si on a une request
+							if (_replace_alone_header_cr() != -1)
+							{
+								std::string requestStr(_buf.begin, _buf.size);
+								try {
+									Request request(&requestStr, _activeSockets[i].server);					// essaie de constr une requeste depuis les donnees recues
+									Response response(&request, _activeSockets[i].server, &responseStr);	// essaie de constr une response si on a une request
+								}
+								catch (Request::RequestException & e) {
+									Response response(e.what(), _activeSockets[i].server, &responseStr);	// si request a un probleme, construit une response selon son status code
+								}
 							}
-							catch (Request::RequestException & e) {
-								Response response(e.what(), _activeSockets[i].server, &responseStr);	// si request a un probleme, construit une response selon son status code
-							}
+							else // Header too large
+								Response response("431", _activeSockets[i].server, &responseStr);
 						}
-						else
+						else // Payload too large
 							Response response("413", _activeSockets[i].server, &responseStr);			// si recvall a atteint le MBS, constuit une response selon le status code
 						if (_buf.capacity > BUFFER_LIMIT)
 						{
@@ -363,6 +370,6 @@ std::string Monitor::get_time()
     struct tm tstruct;
     char buf[80] = {0};
     tstruct = *localtime(&now);
-    strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
+    strftime(buf, sizeof(buf), "%Y/%m/%d %X", &tstruct);
 	return std::string(buf);
 }
