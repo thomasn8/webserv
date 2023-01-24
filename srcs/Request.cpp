@@ -60,7 +60,6 @@ void Request::_parse_start_line(std::string startLine) {
             	_target = startLine.substr(0, pos);
 				if (_target.size() > URL_MAX_LEN)
 					throw RequestException(URI_TOO_LONG);
-// Y AURAIT PAS UNE VALIDATION EN + A FAIRE SUR LES CARACTERE DE L'URL ????
 				if (startLine.substr(pos + 1, std::string::npos).compare("HTTP/1.1") != 0)
 					throw RequestException(HTTP_VERSION_UNSUPPORTED);
 				return;
