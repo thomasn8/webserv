@@ -47,23 +47,25 @@ std::list<MultipartData *> & Request::get_multipartDatas() { return _postMultipa
 // --------- Parse HEADER ------------
 
 void Request::_parse_start_line(std::string startLine) {
-    ssize_t pos = 0, query = 0;
-
+    ssize_t pos = 0;
 	if (startLine.back() != '\r')
 		 throw RequestException(BAD_REQUEST);
 	else
 		startLine.pop_back();
 	for (int i = 0; i < 2; i++) {
-        pos = startLine.find(' ');
+        ssize_t pos = startLine.find(' ');
         if (i == 0) {
             _method = startLine.substr(0, pos);
             if (!(_method == "GET" || _method == "POST" || _method == "DELETE"))
                 throw RequestException(METHOD_NOT_ALLOWED);
         }
         else if (i == 1) {
-			query = startLine.find('?'); // check if form data in url
-			if (query == std::string::npos)
+			ssize_t query = startLine.find('?'); // check if form data in url
+			if (query == std::string::npos) {
             	_target = startLine.substr(0, pos);
+	// Y AURAIT PAS UNE VALIDATION A FAIRE SUR L'URL ????
+				return;
+			}
 			else {
 				_target = startLine.substr(0, query);
 				startLine.erase(0, query + 1); // query + version
