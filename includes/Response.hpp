@@ -50,7 +50,6 @@ class Response : public Message {
 		std::string 				_reason;
 		std::string 				_path;
 		bool						_isCGI;
-		bool						_redirFound;
 		bool						_targetFound;
 };
 

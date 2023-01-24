@@ -52,7 +52,6 @@ Response::Response(Request *request, Server *server, std::string * finalMessage)
 	_finalMessage(finalMessage),
     _version(std::string("HTTP/1.1")),
     _isCGI(false),
-    _redirFound(false),
     _targetFound(false) {
     if (request->get_method() == GET)
         _response_get();
@@ -158,10 +157,9 @@ void Response::_make_response() {
 }
 
 int Response::_check_redirections(std::string &target, std::deque<Location> &locations) {
-    // std::string                     redir = target;
+    std::string                     redir = target;
     std::deque<Location>::iterator  it;
     std::list<Trio>::iterator       it2;
-    int                             target_is_changed = 0;
 
     if (PRINT_RESPONSE_PARSING) {
         std::cout << "________check redirections_____" << std::endl;
@@ -170,31 +168,27 @@ int Response::_check_redirections(std::string &target, std::deque<Location> &loc
     for (it = locations.begin(); it != locations.end(); it++) {
         std::list<Trio> &trio = (*it).get_redirections();
         for (it2 = trio.begin(); it2 != trio.end(); it2++) {
-            if (this->_redirFound ? target == (*it2).first : (*it).get_root() + target == (*it2).first) {
+            if (&target[1] == (*it2).first) {
                 if (!((*it2).second.empty()))
-                    target =  (*it2).second;
+                    redir =  (*it2).second;
                 else
-                    target = std::to_string((*it2).third);
-                target_is_changed = 1;
-                this->_redirFound = true;
+                    redir = std::to_string((*it2).third);
             }
         }
     }
     if (PRINT_RESPONSE_PARSING)
-        std::cout << "target: " << target << std::endl;
-    if (is_number(target))
-        throw MessageException(stoi(target));
-    // if (target != redir) {
-    //     target.erase(target.begin()+1, target.end());
-    //     target.replace(1, redir.length(), redir);
-    //     if (PRINT_RESPONSE_PARSING)
-    //         std::cout << "Target after: " << target << std::endl;
-    //     return 1;
-    // }
+        std::cout << "Redir: " << redir << std::endl;
+    if (is_number(redir))
+        throw MessageException(stoi(redir));
+    if (target != redir) {
+        target.erase(target.begin()+1, target.end());
+        target.replace(1, redir.length(), redir);
+        if (PRINT_RESPONSE_PARSING)
+            std::cout << "Target after: " << target << std::endl;
+        return 1;
+    }
     if (PRINT_RESPONSE_PARSING)
             std::cout << "Target after: " << target << std::endl;
-    if (target_is_changed)
-         return 1;
     return 0;
 }
 
@@ -206,8 +200,6 @@ void Response::_check_locations(std::string &target, std::deque<Location> &locat
     if (PRINT_RESPONSE_PARSING)
         std::cout << "________check locations_____" << std::endl;
     for (it = locations.begin(); it != locations.end(); it++) {
-        if (!this->_redirFound)
-            target = (*it).get_root() + target;
         root = (*it).get_root();
         path = root + target;
         if (PRINT_RESPONSE_PARSING) {
@@ -260,7 +252,6 @@ void Response::_check_target_in_get(std::string target) {
         throw MessageException(NOT_FOUND);
     if (PRINT_FINAL_TARGET)
         std::cout << "path found: " << this->_path << std::endl;
-
 }
 
 void Response::_decript_img() {

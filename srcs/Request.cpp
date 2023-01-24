@@ -3,6 +3,8 @@
 // ---------Constructor and destructor ------------
 
 Request::Request(std::string *rawMessage, Server *server) : _rawMessage(rawMessage), _server(server) {
+	if (PRINT_HTTP_RESPONSE)
+		std::cout << *rawMessage << std::endl;
 	ssize_t i = _rawMessage->find_first_of('\n');
     std::string start_line = _rawMessage->substr(0, i); // prend le /r avant /n
 	_rawMessage->erase(0, i+1);
@@ -45,8 +47,8 @@ std::list<MultipartData *> & Request::get_multipartDatas() { return _postMultipa
 // --------- Parse HEADER ------------
 
 void Request::_parse_start_line(std::string startLine) {
-	std::string token;
     ssize_t pos = 0;
+	ssize_t query = 0;
 
 	if (startLine.back() != '\r')
 		 throw RequestException(BAD_REQUEST);
@@ -61,8 +63,16 @@ void Request::_parse_start_line(std::string startLine) {
             if (!(_method == "GET" || _method == "POST" || _method == "DELETE"))
                 throw RequestException(METHOD_NOT_ALLOWED);
         }
-        else if (i == 1)
-            _target = startLine.substr(0, pos);
+        else if (i == 1) {
+			query = startLine.find('?');
+			if (query < 0)
+            	_target = startLine.substr(0, pos);
+			else {
+				_target = startLine.substr(0, query);
+				startLine.erase(0, query + 1);
+				_parse_defaultDataType(&startLine);
+			}
+		}
         else if (i == 2) {
             _version = startLine.substr(0, pos);
             if (_version.compare("HTTP/1.1") != 0)
@@ -163,23 +173,41 @@ std::string Request::_find_value_from_boundry_block(std::string &block, const ch
 	return std::string(block.c_str() + valstart, vallen);
 }
 
-void Request::_parse_defaultDataType() {
+void Request::_parse_defaultDataType(std::string *stringToParse) {
 	ssize_t i, keylen = 0, vallen = 0;
-	i = _rawMessage->find('&');
+	i = stringToParse->find('&');
 	while (i != -1)
 	{
 		// firstchar = 0, lastchar (before \n) = i-1, \n = i, len to erase = i+1
-		keylen = _rawMessage->find('=');
-		vallen = _rawMessage->find('&') - keylen - 1;
-		_postNameValue.insert(std::make_pair(std::string(_rawMessage->c_str(), keylen), std::string(_rawMessage->c_str()+keylen+1, vallen)));
-		_rawMessage->erase(0, i+1);
-		i = _rawMessage->find('&');
+		keylen = stringToParse->find('=');
+		vallen = stringToParse->find('&') - keylen - 1;
+		_postNameValue.insert(std::make_pair(std::string(stringToParse->c_str(), keylen), std::string(stringToParse->c_str()+keylen+1, vallen)));
+		stringToParse->erase(0, i+1);
+		i = stringToParse->find('&');
 	}
-	keylen = _rawMessage->find('=');
-	vallen = _rawMessage->size() - keylen - 1;
-	_postNameValue.insert(std::make_pair(std::string(_rawMessage->c_str(), keylen), std::string(_rawMessage->c_str()+keylen+1, vallen)));
-	_rawMessage->clear();
+	keylen = stringToParse->find('=');
+	vallen = stringToParse->size() - keylen - 1;
+	_postNameValue.insert(std::make_pair(std::string(stringToParse->c_str(), keylen), std::string(stringToParse->c_str()+keylen+1, vallen)));
+	stringToParse->clear();
 }
+
+// void Request::_parse_defaultDataType() {
+// 	ssize_t i, keylen = 0, vallen = 0;
+// 	i = _rawMessage->find('&');
+// 	while (i != -1)
+// 	{
+// 		// firstchar = 0, lastchar (before \n) = i-1, \n = i, len to erase = i+1
+// 		keylen = _rawMessage->find('=');
+// 		vallen = _rawMessage->find('&') - keylen - 1;
+// 		_postNameValue.insert(std::make_pair(std::string(_rawMessage->c_str(), keylen), std::string(_rawMessage->c_str()+keylen+1, vallen)));
+// 		_rawMessage->erase(0, i+1);
+// 		i = _rawMessage->find('&');
+// 	}
+// 	keylen = _rawMessage->find('=');
+// 	vallen = _rawMessage->size() - keylen - 1;
+// 	_postNameValue.insert(std::make_pair(std::string(_rawMessage->c_str(), keylen), std::string(_rawMessage->c_str()+keylen+1, vallen)));
+// 	_rawMessage->clear();
+// }
 
 void Request::_parse_multipartDataType(fields_it type) {
 	ssize_t pos = (*type).second.front().find_first_of('=');
@@ -260,7 +288,7 @@ void Request::_parse_body() {
 	if ((*type).second.front().c_str()[0] == 'm')
 		_parse_multipartDataType(type);
 	else
-		_parse_defaultDataType();
+		_parse_defaultDataType(_rawMessage);
 }
 
 // delete les Multipart * alloues dans map de _postMultipart
