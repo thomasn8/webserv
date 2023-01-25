@@ -56,12 +56,10 @@ void Request::_parse_start_line(std::string startLine) {
 	
 	// METHOD
 	_method = startLine.substr(0, space1);
-	std::cout << "method|" << _method << "|" << std::endl;
 	if (!(_method == "GET" || _method == "POST" || _method == "DELETE"))
 		throw RequestException(METHOD_NOT_ALLOWED);
 	
 	// VERSION
-	std::cout << "version|" << startLine.substr(space2 + 1, std::string::npos) << "|" << std::endl;
 	if (startLine.substr(space2 + 1, std::string::npos).compare("HTTP/1.1") != 0)
 		throw RequestException(HTTP_VERSION_UNSUPPORTED);
 
@@ -70,7 +68,6 @@ void Request::_parse_start_line(std::string startLine) {
 	startLine.erase(0, space1 + 1);	// erase method
 
 	// URL (target + ?query)
-	std::cout << "url|" << startLine << "|" << std::endl;
 	query = startLine.find('?'); // check if form data in url
 	if (query == std::string::npos) {
 		_target = startLine;
@@ -80,7 +77,6 @@ void Request::_parse_start_line(std::string startLine) {
 	else {
 		_target = startLine.substr(0, query);
 		startLine.erase(0, query + 1); // erase target
-		std::cout << "query|" << startLine << "|" << std::endl;
 		_parse_defaultDataType(&startLine);
 	}
 }
