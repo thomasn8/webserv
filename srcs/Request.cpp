@@ -139,7 +139,6 @@ int Request::_parse_header() {
 		_rawMessage->erase(0, i+1); // efface la derniere ligne vide du header
 	else
 		throw RequestException(BAD_REQUEST);
-	// _display_fields();
 	if (_fields.find("Host") == _fields.end() || (*_fields.find("Host")).second.size() > 1)
 		throw RequestException(BAD_REQUEST);
 	return _rawMessage->size(); // retourne la size du body
