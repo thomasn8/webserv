@@ -52,7 +52,7 @@ void Request::_parse_start_line(std::string startLine) {
 	space1 = startLine.find(' ');
 	space2 = startLine.find(' ', space1 + 1);
 	space3 = startLine.find(' ', space2 + 1);
-	if (space1 == std::string::npos || space2 == std::string::npos || space3 > -1) // check si
+	if (space1 == std::string::npos || space2 == std::string::npos || space3 > -1)
 		throw RequestException(BAD_REQUEST);
 	
 	// METHOD
