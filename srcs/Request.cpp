@@ -47,40 +47,39 @@ void Request::_parse_start_line(std::string startLine) {
 	if (startLine.back() != '\r')
 		 throw RequestException(BAD_REQUEST);
 	startLine.pop_back();
-	for (int i = 0; i < 2; i++) {
-        ssize_t pos = startLine.find(' ');
-        if (i == 0) {
-            _method = startLine.substr(0, pos);
-            if (!(_method == "GET" || _method == "POST" || _method == "DELETE"))
-                throw RequestException(METHOD_NOT_ALLOWED);
-        }
-        else if (i == 1) {
-			ssize_t query = startLine.find('?'); // check if form data in url
-			if (query == std::string::npos) {
-            	_target = startLine.substr(0, pos);
-				if (_target.size() > URL_MAX_LEN)
-					throw RequestException(URI_TOO_LONG);
-// Y AURAIT PAS UNE VALIDATION EN + A FAIRE SUR LES CARACTERE DE L'URL ????
-				if (startLine.substr(pos + 1, std::string::npos).compare("HTTP/1.1") != 0)
-					throw RequestException(HTTP_VERSION_UNSUPPORTED);
-				return;
-			}
-			else {
-				_target = startLine.substr(0, query);
-				startLine.erase(0, query + 1); // query + version
-				ssize_t version = startLine.find(' ') + 1;
-				if (version == std::string::npos)
-                	throw RequestException(BAD_REQUEST);
-				if (startLine.substr(version, std::string::npos).compare("HTTP/1.1") != 0)
-                	throw RequestException(HTTP_VERSION_UNSUPPORTED);
-				startLine.erase(version - 1, std::string::npos);
-				_parse_defaultDataType(&startLine);
-				return;
-			}
-		}
-        startLine.erase(0, pos + 1);
-    }
-	throw RequestException(BAD_REQUEST);
+
+	ssize_t space1, space2, space3, query;
+	space1 = startLine.find(' ');
+	space2 = startLine.find(' ', space1 + 1);
+	space3 = startLine.find(' ', space2 + 1);
+	if (space1 == std::string::npos || space2 == std::string::npos || space3 > -1)
+		throw RequestException(BAD_REQUEST);
+	
+	// METHOD
+	_method = startLine.substr(0, space1);
+	if (!(_method == "GET" || _method == "POST" || _method == "DELETE"))
+		throw RequestException(METHOD_NOT_ALLOWED);
+	
+	// VERSION
+	if (startLine.substr(space2 + 1, std::string::npos).compare("HTTP/1.1") != 0)
+		throw RequestException(HTTP_VERSION_UNSUPPORTED);
+
+	// refresh
+	startLine.erase(space2, std::string::npos); // erase version
+	startLine.erase(0, space1 + 1);	// erase method
+
+	// URL (target + ?query)
+	query = startLine.find('?'); // check if form data in url
+	if (query == std::string::npos) {
+		_target = startLine;
+		if (_target.size() > URL_MAX_LEN)
+			throw RequestException(URI_TOO_LONG);
+	}
+	else {
+		_target = startLine.substr(0, query);
+		startLine.erase(0, query + 1); // erase target
+		_parse_defaultDataType(&startLine);
+	}
 }
 
 void Request::_trim_sides(std::string &str)
@@ -93,6 +92,8 @@ void Request::_trim_sides(std::string &str)
 void Request::_split_field(size_t separator, size_t lastchar) {
 	std::list<std::string> listValues;
 	std::string key(_rawMessage->c_str(), separator);
+	if (key == "Host" && _fields.find("Host") != _fields.end())
+		throw RequestException(BAD_REQUEST);
 	const char *values = _rawMessage->c_str()+separator+1;
 	const char *newvalue = values;
 	size_t newlastchar = lastchar - separator - 1;
@@ -137,6 +138,8 @@ int Request::_parse_header() {
 	if ((*_rawMessage).c_str()[0] == '\r')
 		_rawMessage->erase(0, i+1); // efface la derniere ligne vide du header
 	else
+		throw RequestException(BAD_REQUEST);
+	if (_fields.find("Host") == _fields.end() || (*_fields.find("Host")).second.size() > 1)
 		throw RequestException(BAD_REQUEST);
 	return _rawMessage->size(); // retourne la size du body
 }
