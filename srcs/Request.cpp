@@ -47,39 +47,42 @@ void Request::_parse_start_line(std::string startLine) {
 	if (startLine.back() != '\r')
 		 throw RequestException(BAD_REQUEST);
 	startLine.pop_back();
-	for (int i = 0; i < 2; i++) {
-        ssize_t pos = startLine.find(' ');
-        if (i == 0) {
-            _method = startLine.substr(0, pos);
-            if (!(_method == "GET" || _method == "POST" || _method == "DELETE"))
-                throw RequestException(METHOD_NOT_ALLOWED);
-        }
-        else if (i == 1) {
-			ssize_t query = startLine.find('?'); // check if form data in url
-			if (query == std::string::npos) {
-            	_target = startLine.substr(0, pos);
-				if (_target.size() > URL_MAX_LEN)
-					throw RequestException(URI_TOO_LONG);
-				if (startLine.substr(pos + 1, std::string::npos).compare("HTTP/1.1") != 0)
-					throw RequestException(HTTP_VERSION_UNSUPPORTED);
-				return;
-			}
-			else {
-				_target = startLine.substr(0, query);
-				startLine.erase(0, query + 1); // query + version
-				ssize_t version = startLine.find(' ') + 1;
-				if (version == std::string::npos)
-                	throw RequestException(BAD_REQUEST);
-				if (startLine.substr(version, std::string::npos).compare("HTTP/1.1") != 0)
-                	throw RequestException(HTTP_VERSION_UNSUPPORTED);
-				startLine.erase(version - 1, std::string::npos);
-				_parse_defaultDataType(&startLine);
-				return;
-			}
-		}
-        startLine.erase(0, pos + 1);
-    }
-	throw RequestException(BAD_REQUEST);
+
+	ssize_t space1, space2, query;
+	space1 = startLine.find(' ');
+	space2 = startLine.find(' ', space1+1);
+	if (space1 == std::string::npos || space2 == std::string::npos)
+		throw RequestException(BAD_REQUEST);
+	
+	// METHOD
+	_method = startLine.substr(0, space1);
+	std::cout << "method|" << _method << "|" << std::endl;
+	if (!(_method == "GET" || _method == "POST" || _method == "DELETE"))
+		throw RequestException(METHOD_NOT_ALLOWED);
+	
+	// VERSION
+	std::cout << "version|" << startLine.substr(space2 + 1, std::string::npos) << "|" << std::endl;
+	if (startLine.substr(space2 + 1, std::string::npos).compare("HTTP/1.1") != 0)
+		throw RequestException(HTTP_VERSION_UNSUPPORTED);
+
+	// refresh
+	startLine.erase(space2, std::string::npos); // erase version
+	startLine.erase(0, space1 + 1);	// erase method
+
+	// URL (target + ?query)
+	std::cout << "url|" << startLine << "|" << std::endl;
+	query = startLine.find('?'); // check if form data in url
+	if (query == std::string::npos) {
+		_target = startLine;
+		if (_target.size() > URL_MAX_LEN)
+			throw RequestException(URI_TOO_LONG);
+	}
+	else {
+		_target = startLine.substr(0, query);
+		startLine.erase(0, query + 1); // erase target
+		std::cout << "query|" << startLine << "|" << std::endl;
+		_parse_defaultDataType(&startLine);
+	}
 }
 
 void Request::_trim_sides(std::string &str)
