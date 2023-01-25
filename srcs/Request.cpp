@@ -92,6 +92,8 @@ void Request::_trim_sides(std::string &str)
 void Request::_split_field(size_t separator, size_t lastchar) {
 	std::list<std::string> listValues;
 	std::string key(_rawMessage->c_str(), separator);
+	if (key == "Host" && _fields.find("Host") != _fields.end())
+		throw RequestException(BAD_REQUEST);
 	const char *values = _rawMessage->c_str()+separator+1;
 	const char *newvalue = values;
 	size_t newlastchar = lastchar - separator - 1;
@@ -136,6 +138,9 @@ int Request::_parse_header() {
 	if ((*_rawMessage).c_str()[0] == '\r')
 		_rawMessage->erase(0, i+1); // efface la derniere ligne vide du header
 	else
+		throw RequestException(BAD_REQUEST);
+	// _display_fields();
+	if (_fields.find("Host") == _fields.end() || (*_fields.find("Host")).second.size() > 1)
 		throw RequestException(BAD_REQUEST);
 	return _rawMessage->size(); // retourne la size du body
 }
