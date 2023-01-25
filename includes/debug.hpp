@@ -1,10 +1,10 @@
 #ifndef DEBUG_HPP
 # define DEBUG_HPP
 
-# define PRINT_RESPONSE_PARSING 0
 # define PRINT_HTTP_RESPONSE 0
 # define PRINT_HTTP_REQUEST 0
 # define PRINT_CGI_GET 0
-# define PRINT_FINAL_TARGET 0
+# define PRINT_FINAL_TARGET 1
+# define PRINT_RECIEVED_TARGET 1
 
 #endif

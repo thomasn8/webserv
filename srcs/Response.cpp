@@ -2,7 +2,6 @@
 
 //TO DO Michele
 // 1. default index et autoindex ++ rechecker les routes
-// 2. GET avec des query? (?fav_language=CSS)
 // 3. method POST
 // 4. methos DELETE
 
@@ -15,7 +14,7 @@ Response::Response(std::string code, Server *server, std::string * finalMessage)
     
     _error_messages();
     date = Rfc1123_DateTimeNow();
-    this->_header = this->_version + " " + code + " " + this->_errorMsg[stoi(code)] + "\r\n" +
+    this->_header = "HTTP/1.1 " + code + " " + this->_errorMsg[stoi(code)] + "\r\n" +
             "Content-Type: text/html, charset=utf-8\r\n" +
             "Server: pizzabrownie\r\n" +
             "Date: " + date + "\r\n";
@@ -159,34 +158,25 @@ int Response::_check_redirections(std::string &target, std::deque<Location> &loc
     std::deque<Location>::iterator  it;
     std::list<Trio>::iterator       it2;
 
-    if (PRINT_RESPONSE_PARSING) {
-        std::cout << "________check redirections_____" << std::endl;
-        std::cout << "Target before: " << target << std::endl;
-    }
     for (it = locations.begin(); it != locations.end(); it++) {
         std::list<Trio> &trio = (*it).get_redirections();
         for (it2 = trio.begin(); it2 != trio.end(); it2++) {
-            if (&target[1] == (*it2).first) {
-                if (!((*it2).second.empty()))
-                    redir =  (*it2).second;
+            if (target.compare((*it2).first) == 0) {
+                if (!((*it2).second.empty())) {
+                    size_t last = (*it2).second.find_last_of("/") + 1;
+                    redir = (*it2).second.substr(last, (*it2).second.length() - 1);
+                }
                 else
                     redir = std::to_string((*it2).third);
             }
         }
     }
-    if (PRINT_RESPONSE_PARSING)
-        std::cout << "Redir: " << redir << std::endl;
     if (is_number(redir))
         throw MessageException(stoi(redir));
     if (target != redir) {
-        target.erase(target.begin()+1, target.end());
-        target.replace(1, redir.length(), redir);
-        if (PRINT_RESPONSE_PARSING)
-            std::cout << "Target after: " << target << std::endl;
+        target = redir;
         return 1;
     }
-    if (PRINT_RESPONSE_PARSING)
-            std::cout << "Target after: " << target << std::endl;
     return 0;
 }
 
@@ -195,23 +185,14 @@ void Response::_check_locations(std::string &target, std::deque<Location> &locat
     std::string                     root;
     std::deque<Location>::iterator  it;
 
-    if (PRINT_RESPONSE_PARSING)
-        std::cout << "________check locations_____" << std::endl;
     for (it = locations.begin(); it != locations.end(); it++) {
         root = (*it).get_root();
         path = root + target;
-        if (PRINT_RESPONSE_PARSING) {
-            std::cout << "location root: " << root << std::endl;
-            std::cout << "target: " << target << std::endl;
-            std::cout << "path: " << path << std::endl;
-        }
         if (access( path.c_str(), F_OK ) != -1) {
             if (root.find("cgi_bin", root.length() - 7) != std::string::npos)
                 this->_isCGI = true;
             this->_targetFound = true;
             this->_path = path;
-            if (PRINT_RESPONSE_PARSING)
-                std::cout << "path found: " << this->_path << std::endl;
         }
     }
 }
@@ -220,19 +201,13 @@ void Response::_check_root(std::string &target) {
     std::string path;
     std::string root;
 
-    if (PRINT_RESPONSE_PARSING)
-        std::cout << "________check root_____" << std::endl;
     root = this->_server->get_root();
     path = root + target;
-    if (PRINT_RESPONSE_PARSING)
-        std::cout << "path: " << path << std::endl;
     if (access( path.c_str(), F_OK ) != -1) {
         if (root.find("cgi_bin", root.length() - 7) != std::string::npos)
             this->_isCGI = true;
         this->_targetFound = true;
         this->_path = path;
-        if (PRINT_RESPONSE_PARSING)
-            std::cout << "path found: " << this->_path << std::endl;
     }
 }
 
@@ -240,16 +215,28 @@ void Response::_check_target_in_get(std::string target) {
     std::string                     redir = target;
     std::deque<Location>            &locations = this->_server->get_locations();
 
+    // ICI
+    if (PRINT_RECIEVED_TARGET)
+        std::cout << "Target at begin: " << target << std::endl;
     if (*target.begin() != '/')
         throw MessageException(BAD_REQUEST);
-    while (_check_redirections(target, locations)) {};
-    _check_locations(target, locations);
-    if (this->_targetFound == false)
-        _check_root(target);
-    if (this->_targetFound == false)
-        throw MessageException(NOT_FOUND);
+    target = this->_server->get_root() + target;
+    if (target.find('.') == std::string::npos) { // if it's a directory
+         while (_check_redirections(target, locations)) {};
+         //index.html?
+         //autoindex?
+    }
+    else { // else it's a file
+
+    }
+   
+    // _check_locations(target, locations);
+    // if (this->_targetFound == false)
+    //     _check_root(target);
+    // if (this->_targetFound == false)
+    //     throw MessageException(NOT_FOUND);
     if (PRINT_FINAL_TARGET)
-        std::cout << "path found: " << this->_path << std::endl;
+        std::cout << "final target: " << this->_path << std::endl;
 }
 
 void Response::_decript_img() {
