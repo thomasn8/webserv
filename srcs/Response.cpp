@@ -161,7 +161,7 @@ int Response::_check_redirections(std::string &target, std::deque<Location> &loc
     for (it = locations.begin(); it != locations.end(); it++) {
         std::list<Trio> &trio = (*it).get_redirections();
         for (it2 = trio.begin(); it2 != trio.end(); it2++) {
-            if (target.compare((*it2).first) == 0) {
+            if (redir.compare((*it2).first) == 0) {
                 if (!((*it2).second.empty())) {
                     size_t last = (*it2).second.find_last_of("/") + 1;
                     redir = (*it2).second.substr(last, (*it2).second.length() - 1);
@@ -221,8 +221,8 @@ void Response::_check_target_in_get(std::string target) {
     if (*target.begin() != '/')
         throw MessageException(BAD_REQUEST);
     target = this->_server->get_root() + target;
+    while (_check_redirections(target, locations)) {};
     if (target.find('.') == std::string::npos) { // if it's a directory
-         while (_check_redirections(target, locations)) {};
          //index.html?
          //autoindex?
     }
