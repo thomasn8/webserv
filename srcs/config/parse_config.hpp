@@ -10,13 +10,15 @@
 #include "../../includes/Server.hpp"
 #include "../../includes/Location.hpp"
 
+# define ROUTE_SYNTAX_INVALID 2
 # define INVALID 1
 # define VALID 0
 # define EQUAL 0
 # define BRACKET_CLOSED 0
 # define ERROR_MSG "Error: configuration file invalid:\n"
-# define ERROR_SERVER_BLOCK "server{} directive error"
-# define ERROR_LOCATION_BLOCK "location{} directive error"
+# define ERROR_SERVER_BLOCK "server block brackets unclosed"
+# define ERROR_LOCATION_BLOCK "location block brackets unclosed"
+# define ERROR_LOCATION_SYNTAX "Error: location blocks must begin with /[...] for routes or with .[...] for cgi:\n"
 
 typedef	int (*f_ptr_s)(std::string & line, bool *x_block, int *x_count);
 typedef	int (*f_ptr_l)(std::string & line, std::string & route, int *x_block, int *x_count);
