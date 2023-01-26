@@ -287,19 +287,19 @@ void Request::_free_multipartDatas() {
 
 // --------- Print datas ------------
 
-void Request::_display_fields() const {
-    fields_it it;
-    fields_values_it it2;
-    for (it = _fields.begin(); it != _fields.end(); it++) {
-        std::cout << it->first;
-        std::cout << ": |";
-        for (it2 = it->second.begin(); it2 != it->second.end(); it2++) {
-            std::cout << *it2 << "|";
-            if (it2 != std::prev(it->second.end()))
-                std::cout << ", ";
-        }
-        std::cout << ";" << std::endl;
-    }
+void Request::_print_fields() const {
+	fields_it it;
+	fields_values_it it2;
+	for (it = _fields.begin(); it != _fields.end(); it++) {
+		std::cout << it->first;
+		std::cout << ": |";
+		for (it2 = it->second.begin(); it2 != it->second.end(); it2++) {
+			std::cout << *it2 << "|";
+			if (it2 != std::prev(it->second.end()))
+				std::cout << ", ";
+		}
+		std::cout << ";" << std::endl;
+	}
 }
 
 void Request::_print_defaultDatas() const {

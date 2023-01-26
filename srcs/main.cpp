@@ -5,7 +5,7 @@ int main(int ac, char **av, char **env)
 {
 	if (ac != 1 && ac != 2)
 	{
-		perror("usage: ./webserv [configuration_file]");
+		std::cerr << "usage: ./webserv [config_file]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 	std::string configFile;
