@@ -65,10 +65,10 @@ class Request
 		// PARSE BODY
 		const char *_body;
 		size_t _body_len;
+		void _parse_body();
 		// parse default type
 		std::map<std::string, std::string> _postNameValue;
 		void _parse_defaultDataType(std::string_view &formDatas);
-		void _parse_body();
 		// parse multipart type
 		std::list<MultipartData *> _postMultipart;
 		void _parse_multipartDataType(fields_it type);

@@ -9,9 +9,8 @@ request_size(size),
 _server(server) 
 {
 	_request = std::string_view(request, size);
-	// std::cout << _request << std::endl;
 	ssize_t i = _request.find_first_of('\n');
-	std::string start_line = std::string(_request.substr(0, i).begin(), _request.substr(0, i).end());
+	std::string start_line = std::string(_request.data(), i);
 	_request.remove_prefix(i+1);
     _parse_start_line(start_line);
 	if (_parse_header() > 0)
