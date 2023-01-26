@@ -2,9 +2,6 @@
 # define STATUSCODEEXCEPTION_HPP
 
 #include <exception>
-#include <string>
-
-#include "methods.hpp"
 
 class StatusCodeException : public std::exception {
 	public:
