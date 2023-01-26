@@ -11,8 +11,8 @@ _server(server)
 	_request = std::string_view(request, size);
 	ssize_t i = _request.find_first_of('\n');
 	std::string start_line = std::string(_request.data(), i);
-	_request.remove_prefix(i+1);
     _parse_start_line(start_line);
+	_request.remove_prefix(i+1);
 	if (_parse_header() > 0)
 		_parse_body();
 }
