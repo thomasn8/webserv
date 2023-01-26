@@ -2,7 +2,7 @@
 
 // ---------Constructor and destructor ------------
 
-Message::Message() : _body(){
+Message::Message() {
     
 }
 

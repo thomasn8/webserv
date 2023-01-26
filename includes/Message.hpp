@@ -25,16 +25,6 @@ class Message {
 
 		Message		&operator=(const Message &instance);
 
-		class MessageException : public std::exception {
-            public:
-				MessageException(int code) : _code(std::to_string(code)) {}
-                virtual const char* what() throw() {
-                    return (this->_code).c_str();	
-                }
-			private:
-				std::string _code;
-        };
-
 	protected:
 		std::map<std::string, std::list<std::string>>	_fields;
 		std::string										_body;    // UTILISER QUE DANS REPONSE

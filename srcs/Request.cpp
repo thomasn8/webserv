@@ -11,7 +11,7 @@ _server(server)
 	_request = std::string_view(request, size);
 	// std::cout << _request << std::endl;
 	ssize_t i = _request.find_first_of('\n');
-    std::string_view start_line = _request.substr(0, i); // prend le /r avant /n
+	std::string start_line = std::string(_request.substr(0, i).begin(), _request.substr(0, i).end());
 	_request.remove_prefix(i+1);
     _parse_start_line(start_line);
 	if (_parse_header() > 0)
@@ -25,7 +25,6 @@ _request(instance._request),
 _server(instance._server),
 _method(instance._method),
 _target(instance._target),
-_version(instance._version),
 _body(instance._body),
 _body_len(instance._body_len),
 _fields(instance._fields),
@@ -44,8 +43,6 @@ std::string Request::get_method() const { return _method; }
 
 std::string Request::get_target()const { return _target; }
 
-std::string Request::get_version() const { return _version; }
-
 std::map<std::string, std::list<std::string>> Request::get_fields() const { return _fields; }
 
 std::map<std::string, std::string> & Request::get_defaultDatas() { return _postNameValue; }
@@ -56,35 +53,45 @@ std::list<MultipartData *> & Request::get_multipartDatas() { return _postMultipa
 	************ Parse HEADER
 */
 
-void Request::_parse_start_line(std::string_view startLine) 
+void Request::_parse_start_line(std::string startLine) 
 {
-	std::string token;
-    ssize_t pos = 0;
-
 	if (startLine.back() != '\r')
 		 throw RequestException(BAD_REQUEST);
-	else
-		startLine.remove_suffix(1);
-	for(int i = 0; i < 3; i++) {
-        pos = startLine.find(' ');
-        if (i < 2 && pos == std::string::npos)
-            throw RequestException(BAD_REQUEST);
-        if (i == 0) {
-            _method = startLine.substr(0, pos);
-            if (!(_method == "GET" || _method == "POST" || _method == "DELETE"))
-                throw RequestException(METHOD_NOT_ALLOWED);
-        }
-        else if (i == 1)
-            _target = startLine.substr(0, pos);
-        else if (i == 2) {
-            _version = startLine.substr(0, pos);
-            if (_version.compare("HTTP/1.1") != 0)
-                throw RequestException(HTTP_VERSION_UNSUPPORTED);
-        }
-        startLine.remove_prefix(pos + 1);
-    }
-    if (pos != std::string_view::npos)
-        throw RequestException(BAD_REQUEST);
+	startLine.pop_back();
+
+	ssize_t space1, space2, space3, query;
+	space1 = startLine.find(' ');
+	space2 = startLine.find(' ', space1 + 1);
+	space3 = startLine.find(' ', space2 + 1);
+	if (space1 == std::string::npos || space2 == std::string::npos || space3 > -1)
+		throw RequestException(BAD_REQUEST);
+	
+	// METHOD
+	_method = startLine.substr(0, space1);
+	if (!(_method == "GET" || _method == "POST" || _method == "DELETE"))
+		throw RequestException(METHOD_NOT_ALLOWED);
+	
+	// VERSION
+	if (startLine.substr(space2 + 1, std::string::npos).compare("HTTP/1.1") != 0)
+		throw RequestException(HTTP_VERSION_UNSUPPORTED);
+
+	// refresh
+	startLine.erase(space2, std::string::npos); // erase version
+	startLine.erase(0, space1 + 1);	// erase method
+
+	// URL (target + ?query)
+	query = startLine.find('?'); // check if form data in url
+	if (query == std::string::npos) {
+		_target = startLine;
+		if (_target.size() > URL_MAX_LEN)
+			throw RequestException(URI_TOO_LONG);
+	}
+	else {
+		_target = startLine.substr(0, query);
+		startLine.erase(0, query + 1); // erase target
+		std::string_view datas = std::string_view(startLine.c_str(), startLine.size());
+		_parse_defaultDataType(datas);
+	}
 }
 
 void Request::_trim_sides(std::string & str)
@@ -98,6 +105,8 @@ void Request::_split_field(size_t separator, size_t lastchar)
 {
 	std::list<std::string> listValues;
 	std::string key(_request.data(), separator);
+	if (key == "Host" && _fields.find("Host") != _fields.end())
+		throw RequestException(BAD_REQUEST);
 	const char *values = _request.data()+separator+1;
 	const char *newvalue = values;
 	size_t newlastchar = lastchar - separator - 1;
@@ -144,6 +153,8 @@ int Request::_parse_header()
 		_request.remove_prefix(i+1); // efface la derniere ligne vide du header
 	else
 		throw RequestException(BAD_REQUEST);
+	if (_fields.find("Host") == _fields.end() || (*_fields.find("Host")).second.size() > 1)
+		throw RequestException(BAD_REQUEST);
 	return _request.size(); // retourne la size du body
 }
 
@@ -181,22 +192,22 @@ std::string Request::_find_value_from_boundry_block(std::string_view &block, con
 	return std::string(block.data() + valstart, vallen);
 }
 
-void Request::_parse_defaultDataType() 
+void Request::_parse_defaultDataType(std::string_view &formDatas) 
 {
 	ssize_t i, keylen = 0, vallen = 0;
-	i = _request.find('&');
+	i = formDatas.find('&');
 	while (i != -1)
 	{
 		// firstchar = 0, lastchar (before \n) = i-1, \n = i, len to erase = i+1
-		keylen = _request.find('=');
-		vallen = _request.find('&') - keylen - 1;
-		_postNameValue.insert(std::make_pair(std::string(_request.data(), keylen), std::string(_request.data()+keylen+1, vallen)));
-		_request.remove_prefix(i+1);
-		i = _request.find('&');
+		keylen = formDatas.find('=');
+		vallen = formDatas.find('&') - keylen - 1;
+		_postNameValue.insert(std::make_pair(std::string(formDatas.data(), keylen), std::string(formDatas.data()+keylen+1, vallen)));
+		formDatas.remove_prefix(i+1);
+		i = formDatas.find('&');
 	}
-	keylen = _request.find('=');
-	vallen = _request.size() - keylen - 1;
-	_postNameValue.insert(std::make_pair(std::string(_request.data(), keylen), std::string(_request.data()+keylen+1, vallen)));
+	keylen = formDatas.find('=');
+	vallen = formDatas.size() - keylen - 1;
+	_postNameValue.insert(std::make_pair(std::string(formDatas.data(), keylen), std::string(formDatas.data()+keylen+1, vallen)));
 }
 
 void Request::_parse_multipartDataType(fields_it type) 
@@ -267,10 +278,7 @@ void Request::_parse_body()
 		throw RequestException(BAD_REQUEST);
 	size_t contentLength = strtoul((*contentlen).second.front().c_str(), NULL, 0);
 	if (contentLength != _request.size())
-	{
-		// std::cout << "CONTENT LENGTH ERROR: header=" << contentLength << " vs real=" << _request.size() << std::endl;
 		throw RequestException(BAD_REQUEST);
-	}
 	_body = _request.data();
 	_body_len = contentLength;
 
@@ -281,7 +289,7 @@ void Request::_parse_body()
 	if ((*type).second.front().c_str()[0] == 'm')
 		_parse_multipartDataType(type);
 	else
-		_parse_defaultDataType();
+		_parse_defaultDataType(_request);
 }
 
 // delete les Multipart * alloues dans map de _postMultipart
@@ -300,18 +308,18 @@ void Request::_free_multipartDatas()
 */
 void Request::_print_fields() const 
 {
-    fields_it it;
-    fields_values_it it2;
-    for (it = _fields.begin(); it != _fields.end(); it++) {
-        std::cout << it->first;
-        std::cout << ": ";
-        for (it2 = it->second.begin(); it2 != it->second.end(); it2++) {
-            std::cout << *it2;
-            if (it2 != std::prev(it->second.end()))
-                std::cout << ", ";
-        }
-        std::cout << ";" << std::endl;
-    }
+	fields_it it;
+	fields_values_it it2;
+	for (it = _fields.begin(); it != _fields.end(); it++) {
+		std::cout << it->first;
+		std::cout << ": |";
+		for (it2 = it->second.begin(); it2 != it->second.end(); it2++) {
+			std::cout << *it2 << "|";
+			if (it2 != std::prev(it->second.end()))
+				std::cout << ", ";
+		}
+		std::cout << ";" << std::endl;
+	}
 }
 
 void Request::_print_defaultDatas() const 

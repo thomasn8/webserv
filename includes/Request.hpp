@@ -13,6 +13,9 @@
 #include "StatusCode.hpp"
 #include "Server.hpp"
 #include "MultipartData.hpp"
+#include "StatusCodeException.hpp"
+
+# define URL_MAX_LEN 2083
 
 class Request 
 {
@@ -36,14 +39,9 @@ class Request
 		std::map<std::string, std::string> &get_defaultDatas();
 		std::list<MultipartData *> &get_multipartDatas();
 
-		// EXCEPTIONS
-		class RequestException : public std::exception 
-		{
+		class RequestException : public StatusCodeException {
 			public:
-				RequestException(int code) : _code(std::to_string(code)) {}
-				virtual const char* what() throw() { return (_code).c_str(); }
-			private:
-				std::string _code;
+				RequestException(const int code) : StatusCodeException(code) {}
 		};
 
 	private:
@@ -58,9 +56,8 @@ class Request
 		// PARSE HEADER
 		std::string _method;
 		std::string _target;
-		std::string _version;
 		std::map<std::string, std::list<std::string> > _fields;
-		void _parse_start_line(std::string_view startLine);
+		void _parse_start_line(std::string startLine);
 		void _trim_sides(std::string & str);
 		void _split_field(size_t separator, size_t lastchar);
 		int _parse_header();
@@ -70,7 +67,7 @@ class Request
 		size_t _body_len;
 		// parse default type
 		std::map<std::string, std::string> _postNameValue;
-		void _parse_defaultDataType();
+		void _parse_defaultDataType(std::string_view &formDatas);
 		void _parse_body();
 		// parse multipart type
 		std::list<MultipartData *> _postMultipart;

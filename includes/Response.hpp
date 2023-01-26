@@ -10,10 +10,11 @@
 #include "Server.hpp"
 #include "Location.hpp"
 #include "debug.hpp"
+#include "StatusCodeException.hpp"
 
 class Response : public Message {
 	public:
-		Response(std::string code, Server *server, std::string * finalMessage);
+		Response(const int code, Server *server, std::string * finalMessage);
 		Response(Request *request, Server *server, std::string * finalMessage);
 		Response(const Response &instance);
 		virtual ~Response();
@@ -25,6 +26,11 @@ class Response : public Message {
 
 		Response	&operator=(const Response &instance);
 
+		class ResponseException : public StatusCodeException {
+			public:
+				ResponseException(const int code) : StatusCodeException(code) {}
+		};
+
 	private:
 		Response();
 
@@ -32,13 +38,14 @@ class Response : public Message {
 		void		_response_post();
 		void		_response_delete();
 		void		_error_messages();
-		int			_check_error_pages(std::string code);
+		int			_check_error_pages(const int code);
 		void		_check_target_in_get(std::string target);
 		int			_check_redirections(std::string &target, std::deque<Location> &locations);
 		void		_check_locations(std::string &target, std::deque<Location> &locations);
 		void		_check_root(std::string &target);
 		int			_make_CGI();
 		void		_make_response();
+		void		_decript_img();
 		
 		Request						*_request;
 		Server						*_server;

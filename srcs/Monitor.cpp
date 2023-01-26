@@ -148,7 +148,7 @@ void Monitor::_accept_new_connection(int master_index)
 	}
 }
 
-void Monitor::_replace_alone_header_cr() 
+int Monitor::_replace_alone_header_cr() 
 {
 	char *ptr = _buf.begin;
 	size_t len = _buf.size, i = 0;
@@ -159,10 +159,13 @@ void Monitor::_replace_alone_header_cr()
 			if ((i+1 < len && ptr[i+1] != '\n') || (i+1 == len))
 				ptr[i] = ' ';
 			else if (i+3 < len && ptr[i+1] == '\n' && ptr[i+2] == '\r' && ptr[i+3] == '\n')
-				return;
+				return 0;
 		}
 		i++;
 	}
+	if (i > MHS)
+		return -1;
+	return 0;
 }
 
 ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
@@ -180,13 +183,11 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 		{
 			if (_buf.capacity == 0)
 			{
-				// std::cout << "malloc" << std::endl;
 				_buf.begin = (char *)malloc(CHUNK_RECV);
 				_buf.capacity = CHUNK_RECV;
 			}
 			else
 			{
-				// std::cout << "realloc" << std::endl;
 				_buf.begin = (char *)realloc(_buf.begin, _buf.capacity * 2);
 				_buf.capacity *= 2;
 			}
@@ -205,8 +206,6 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 			return -1;
 		if (size_recv < CHUNK_RECV) // toute la request a été read
 		{
-			// std::cout << " buffer size: " << _buf.size << std::endl;
-			// std::cout << " buffer capacity: " << _buf.capacity << std::endl;
 			log(get_time(), " Request from    ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(), ": ", _buf.size, " bytes read via socket ", fd, "\n");
 			return _buf.size;
 		}
@@ -288,27 +287,29 @@ void Monitor::handle_connections()
 					{
 						if (_recv_all(_pfds[i].fd, _activeSockets[i]) != -1)
 						{
-							_replace_alone_header_cr();
-							try {
-								Request request(_buf.begin, _buf.size, _activeSockets[i].server);		// essaie de constr une request depuis les donnees recues
-								Response response(&request, _activeSockets[i].server, &responseStr);	// essaie de constr une response si on a une request
+							if (_replace_alone_header_cr() != -1)
+							{
+								try {
+									Request request(_buf.begin, _buf.size, _activeSockets[i].server);		// essaie de constr une request depuis les donnees recues
+									Response response(&request, _activeSockets[i].server, &responseStr);	// essaie de constr une response si on a une request
+								}
+								catch (StatusCodeException & e) {
+									Response response(e.what(), _activeSockets[i].server, &responseStr);	// si request a un probleme, construit une response selon son status code
+								}
 							}
-							catch (Request::RequestException & e) {
-								Response response(e.what(), _activeSockets[i].server, &responseStr);	// si request a un probleme, construit une response selon son status code
-							}
+							else
+								Response response(HEADERS_TOO_LARGE, _activeSockets[i].server, &responseStr);
 						}
 						else
-							Response response("413", _activeSockets[i].server, &responseStr);			// si recvall a atteint le MBS, constuit une response selon le status code
+							Response response(PAYLOAD_TOO_LARGE, _activeSockets[i].server, &responseStr);	// si recvall a atteint le MBS, constuit une response selon le status code
 						if (_buf.capacity > BUFFER_LIMIT)
 						{
-							// std::cout << " free buffer, capacity :" << _buf.capacity << std::endl;
 							free(_buf.begin);
 							_buf.capacity = 0;
 						}
 						_pfds[i].events = POLLOUT;
 						poll_index = i; // permet de revenir dans la main loop avec l'index du pfds à écrire
 						i = _fd_count;  // break la while loop
-
 /* STOP CHRONO */		uint64_t ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 						uint64_t ms3 = ms2 - ms1;
 						std::cout << ms3 << " ms\n";
@@ -320,7 +321,7 @@ void Monitor::handle_connections()
 				_send_all(i, responseStr.c_str(), responseStr.size(), _activeSockets[i]);				// send la response construite dans response
 				poll_index = 0; // reset l'index au debut des fds
 			}
-			else if (_pfds[i].revents & POLLHUP || _pfds[i].revents & POLLERR) 				// event sur fd[i], connection perdue sur le socket en question
+			else if (_pfds[i].revents & POLLHUP || _pfds[i].revents & POLLERR) 	// event sur fd[i], connection perdue sur le socket en question
 			{
 				close(_pfds[i].fd);
 				_del_from_pfds(i);
