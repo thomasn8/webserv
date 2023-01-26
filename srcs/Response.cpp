@@ -48,6 +48,7 @@ Response::Response(Request *request, Server *server, std::string * finalMessage)
     _server(server),
 	_finalMessage(finalMessage),
     _version(std::string("HTTP/1.1")),
+    _autoindex(false),
     _isCGI(false),
     _targetFound(false) {
     if (request->get_method() == GET)
@@ -62,6 +63,7 @@ Response::Response(Request *request, Server *server, std::string * finalMessage)
 
 void Response::_error_messages() {
     this->_errorMsg[400] = "BAD_REQUEST";
+    this->_errorMsg[403] = "FORBIDDEN";
     this->_errorMsg[404] = "NOT_FOUND";
     this->_errorMsg[405] = "METHOD_NOT_ALLOWED";
     this->_errorMsg[500] = "INTERNAL_SERVER_ERROR";
@@ -162,10 +164,8 @@ int Response::_check_redirections(std::string &target, std::deque<Location> &loc
         std::list<Trio> &trio = (*it).get_redirections();
         for (it2 = trio.begin(); it2 != trio.end(); it2++) {
             if (redir.compare((*it2).first) == 0) {
-                if (!((*it2).second.empty())) {
-                    size_t last = (*it2).second.find_last_of("/") + 1;
-                    redir = (*it2).second.substr(last, (*it2).second.length() - 1);
-                }
+                if (!((*it2).second.empty()))
+                    redir = (*it2).second;
                 else
                     redir = std::to_string((*it2).third);
             }
@@ -176,6 +176,60 @@ int Response::_check_redirections(std::string &target, std::deque<Location> &loc
     if (target != redir) {
         target = redir;
         return 1;
+    }
+    return 0;
+}
+
+int Response::_check_redirections_directory(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound) {
+    std::deque<Location>::iterator  it;
+    std::list<Trio>::iterator       it2;
+
+    for (it = locations.begin(); it != locations.end(); it++) {
+        std::list<Trio> &trio = (*it).get_redirections();
+        for (it2 = trio.begin(); it2 != trio.end(); it2++) {
+            if (target.compare((*it2).first) == 0) {
+                // change target with redirection
+                if (!((*it2).second.empty()))
+                    target = (*it2).second;
+                else {
+                    target = std::to_string((*it2).third);
+                    if (is_number(target))
+                        throw MessageException(stoi(target));
+                }
+                this->_targetFound = true;
+                locationFound = it;
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+void Response::_add_root_to_target(std::string &target, std::deque<Location> &locations) {
+    std::deque<Location>::iterator  it;
+    int                             len;
+    
+    for (it = locations.begin(); it != locations.end(); it++) {
+        len = (*it).get_route().length();
+        if (!(*(*it).get_route().begin() == '/')) {
+            if (target.compare(target.length() - len, target.length(),(*it).get_route()) == 0) {
+                target = (*it).get_root() + target;
+                return;
+            }
+
+        }
+    }
+    target = this->_server->get_root() + target;
+}
+
+int Response::_is_index_file(std::string &target, std::list<std::string> indexes) {
+    std::list<std::string>::iterator      it;
+    
+    for (it = indexes.begin(); it != indexes.end(); it++) {
+        if (access((target + "/" + *it).c_str(), F_OK) != -1) {
+            target = target + "/" + *it;
+            return 1;
+        }
     }
     return 0;
 }
@@ -197,46 +251,74 @@ void Response::_check_locations(std::string &target, std::deque<Location> &locat
     }
 }
 
-void Response::_check_root(std::string &target) {
-    std::string path;
-    std::string root;
+void Response::_check_locations_directory(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound) {
+    std::deque<Location>::iterator  it;
 
-    root = this->_server->get_root();
-    path = root + target;
-    if (access( path.c_str(), F_OK ) != -1) {
-        if (root.find("cgi_bin", root.length() - 7) != std::string::npos)
-            this->_isCGI = true;
-        this->_targetFound = true;
-        this->_path = path;
+    for (it = locations.begin(); it != locations.end(); it++) {
+        if (target.compare((*it).get_root()) == 0) {
+            this->_targetFound = true;
+            locationFound = it;
+        }
     }
 }
+
+// void Response::_check_root(std::string &target) {
+//     std::string path;
+//     std::string root;
+
+//     root = this->_server->get_root();
+//     path = root + target;
+//     if (access( path.c_str(), F_OK ) != -1) {
+//         if (root.find("cgi_bin", root.length() - 7) != std::string::npos)
+//             this->_isCGI = true;
+//         this->_targetFound = true;
+//         this->_path = path;
+//     }
+// }
 
 void Response::_check_target_in_get(std::string target) {
     std::string                     redir = target;
     std::deque<Location>            &locations = this->_server->get_locations();
 
-    // ICI
     if (PRINT_RECIEVED_TARGET)
         std::cout << "Target at begin: " << target << std::endl;
     if (*target.begin() != '/')
         throw MessageException(BAD_REQUEST);
-    target = this->_server->get_root() + target;
-    while (_check_redirections(target, locations)) {};
     if (target.find('.') == std::string::npos) { // if it's a directory
-         //index.html?
-         //autoindex?
+        std::deque<Location>::iterator locationFound;
+        target = this->_server->get_root() + target;
+        while (_check_redirections_directory(target, locations, locationFound)) {};
+        if (!this->_targetFound)
+            _check_locations_directory(target, locations, locationFound);
+        if (this->_targetFound) {
+            if (!_is_index_file(target, locationFound->get_indexes())) {
+                if (locationFound->get_autoindex())
+                    this->_autoindex = true;
+                else {
+                    throw MessageException(FORBIDDEN);
+                }
+            }
+        }
+        else {
+            if (target.compare(this->_server->get_root() + "/") == 0) {
+                // ici on a pas de location alors il faut checker la base
+                if (!_is_index_file(target, this->_server->get_indexes()))
+                    throw MessageException(FORBIDDEN);
+            }
+            else
+                throw MessageException(NOT_FOUND);
+        }
     }
     else { // else it's a file
-
+        // ICI
+        _add_root_to_target(target, locations);
+        while (_check_redirections(target, locations)) {};
     }
    
-    // _check_locations(target, locations);
-    // if (this->_targetFound == false)
-    //     _check_root(target);
-    // if (this->_targetFound == false)
-    //     throw MessageException(NOT_FOUND);
     if (PRINT_FINAL_TARGET)
-        std::cout << "final target: " << this->_path << std::endl;
+        std::cout << "final target: " << target << std::endl;
+    if (PRINT_FINAL_TARGET)
+        std::cout << "final index: " << this->_autoindex << std::endl;
 }
 
 void Response::_decript_img() {

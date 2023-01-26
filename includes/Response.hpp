@@ -34,7 +34,11 @@ class Response : public Message {
 		int			_check_error_pages(std::string code);
 		void		_check_target_in_get(std::string target);
 		int			_check_redirections(std::string &target, std::deque<Location> &locations);
+		int			_check_redirections_directory(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
+		void		_add_root_to_target(std::string &target, std::deque<Location> &locations);
+		int			_is_index_file(std::string &target, std::list<std::string> indexes);
 		void		_check_locations(std::string &target, std::deque<Location> &locations);
+		void		_check_locations_directory(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
 		void		_check_root(std::string &target);
 		int			_make_CGI();
 		void		_make_response();
@@ -49,6 +53,7 @@ class Response : public Message {
 		std::string 				_statusCode;
 		std::string 				_reason;
 		std::string 				_path;
+		bool 						_autoindex;
 		bool						_isCGI;
 		bool						_targetFound;
 };
