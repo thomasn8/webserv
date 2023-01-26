@@ -294,15 +294,15 @@ void Monitor::handle_connections()
 									Request request(&requestStr, _activeSockets[i].server);					// essaie de constr une requeste depuis les donnees recues
 									Response response(&request, _activeSockets[i].server, &responseStr);	// essaie de constr une response si on a une request
 								}
-								catch (std::exception & e) {
+								catch (StatusCodeException & e) {
 									Response response(e.what(), _activeSockets[i].server, &responseStr);	// si request a un probleme, construit une response selon son status code
 								}
 							}
-							else // Header too large
-								Response response("431", _activeSockets[i].server, &responseStr);
+							else
+								Response response(HEADERS_TOO_LARGE, _activeSockets[i].server, &responseStr);
 						}
-						else // Payload too large
-							Response response("413", _activeSockets[i].server, &responseStr);			// si recvall a atteint le MBS, constuit une response selon le status code
+						else
+							Response response(PAYLOAD_TOO_LARGE, _activeSockets[i].server, &responseStr);			// si recvall a atteint le MBS, constuit une response selon le status code
 						if (_buf.capacity > BUFFER_LIMIT)
 						{
 							free(_buf.begin);

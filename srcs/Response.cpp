@@ -9,13 +9,14 @@
 // ---------Constructor and destructor ------------
 
 // constructor for error response
-Response::Response(std::string code, Server *server, std::string * finalMessage) : _server(server), _version(std::string("HTTP/1.1")), _finalMessage(finalMessage) {
+Response::Response(const int code, Server *server, std::string * finalMessage) : _server(server), _version(std::string("HTTP/1.1")), _finalMessage(finalMessage) {
     char            *date;
     std::string     body;
+	std::string 	codestr = std::to_string(code);
     
     _error_messages();
     date = Rfc1123_DateTimeNow();
-    this->_header = this->_version + " " + code + " " + this->_errorMsg[stoi(code)] + "\r\n" +
+    this->_header = this->_version + " " + codestr + " " + this->_errorMsg[code] + "\r\n" +
             "Content-Type: text/html, charset=utf-8\r\n" +
             "Server: pizzabrownie\r\n" +
             "Date: " + date + "\r\n";
@@ -29,11 +30,11 @@ Response::Response(std::string code, Server *server, std::string * finalMessage)
                 <meta charset=\"UTF-8\"> \
                 <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> \
                 <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> \
-                <title>" + code + "</title> \
+                <title>" + codestr + "</title> \
             </head> \
             <body> \
-                <h1>Error " + code + "</h1> \
-                <p>" + this->_errorMsg[stoi(code)] + "</p> \
+                <h1>Error " + codestr + "</h1> \
+                <p>" + this->_errorMsg[code] + "</p> \
             </body> \
             </html>";
 
@@ -58,7 +59,7 @@ Response::Response(Request *request, Server *server, std::string * finalMessage)
     else if (request->get_method() == DELETE)
         _response_delete();
     else
-        throw MessageException(HTTP_VERSION_UNSUPPORTED);
+        throw ResponseException(HTTP_VERSION_UNSUPPORTED);
 }
 
 void Response::_error_messages() {
@@ -69,12 +70,12 @@ void Response::_error_messages() {
     this->_errorMsg[505] = "HTTP_VERSION_UNSUPPORTED";
 }
 
-int Response::_check_error_pages(std::string code) {
+int Response::_check_error_pages(const int code) {
     std::list<std::pair<int, std::string>> &errorPages = this->_server->get_errorpages();
     std::list<std::pair<int, std::string>>::iterator  it;
 
     for (it = errorPages.begin(); it != errorPages.end(); it++) {
-        if ((*it).first == stoi(code)) {
+        if ((*it).first == code) {
             if (access( (*it).second.c_str(), F_OK ) != -1) {
                 this->_path = (*it).second;
                 return 1;
@@ -129,7 +130,7 @@ int Response::_make_CGI() {
         }
         waitpid(pid, &status, 0);
         if (is_number(cgi))
-            throw MessageException(atoi(cgi));
+            throw ResponseException(atoi(cgi));
         if (PRINT_CGI_GET)
             std:: cout << "cgi recieve:" << cgi << std::endl;
        *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(cgi).length()) + "\r\n\r\n" + cgi;
@@ -177,7 +178,7 @@ int Response::_check_redirections(std::string &target, std::deque<Location> &loc
     if (PRINT_RESPONSE_PARSING)
         std::cout << "Redir: " << redir << std::endl;
     if (is_number(redir))
-        throw MessageException(stoi(redir));
+        throw ResponseException(stoi(redir));
     if (target != redir) {
         target.erase(target.begin()+1, target.end());
         target.replace(1, redir.length(), redir);
@@ -241,13 +242,13 @@ void Response::_check_target_in_get(std::string target) {
     std::deque<Location>            &locations = this->_server->get_locations();
 
     if (*target.begin() != '/')
-        throw MessageException(BAD_REQUEST);
+        throw ResponseException(BAD_REQUEST);
     while (_check_redirections(target, locations)) {};
     _check_locations(target, locations);
     if (this->_targetFound == false)
         _check_root(target);
     if (this->_targetFound == false)
-        throw MessageException(NOT_FOUND);
+        throw ResponseException(NOT_FOUND);
     if (PRINT_FINAL_TARGET)
         std::cout << "path found: " << this->_path << std::endl;
 }
