@@ -295,7 +295,7 @@ void Monitor::handle_connections()
 									Response response(&request, _activeSockets[i].server, &responseStr);	// essaie de constr une response si on a une request
 								}
 								catch (StatusCodeException & e) {
-									Response response(e.what(), _activeSockets[i].server, &responseStr);	// si request a un probleme, construit une response selon son status code
+									Response response(e.statuscode(), _activeSockets[i].server, &responseStr);	// si request a un probleme, construit une response selon son status code
 								}
 							}
 							else

@@ -2,7 +2,8 @@
 
 // ---------Constructor and destructor ------------
 
-Request::Request(std::string *rawMessage, Server *server) : _rawMessage(rawMessage), _server(server) {
+Request::Request(std::string *rawMessage, Server *server) : _rawMessage(rawMessage), _server(server)
+{
 	if (PRINT_HTTP_RESPONSE)
 		std::cout << *rawMessage << std::endl;
 	ssize_t i = _rawMessage->find_first_of('\n');
@@ -25,7 +26,8 @@ _postNameValue(instance._postNameValue),
 _postMultipart(instance._postMultipart) 
 {}
 
-Request::~Request() {
+Request::~Request()
+{
 	_free_multipartDatas();
 }
 
@@ -43,7 +45,8 @@ std::list<MultipartData *> & Request::get_multipartDatas() { return _postMultipa
 
 // --------- Parse HEADER ------------
 
-void Request::_parse_start_line(std::string startLine) {
+void Request::_parse_start_line(std::string startLine)
+{
 	if (startLine.back() != '\r')
 		 throw RequestException(BAD_REQUEST);
 	startLine.pop_back();
@@ -89,7 +92,8 @@ void Request::_trim_sides(std::string &str)
 	str.erase(0,str.find_first_not_of(typeOfWhitespaces));
 }
 
-void Request::_split_field(size_t separator, size_t lastchar) {
+void Request::_split_field(size_t separator, size_t lastchar)
+{
 	std::list<std::string> listValues;
 	std::string key(_rawMessage->c_str(), separator);
 	if (key == "Host" && _fields.find("Host") != _fields.end())
@@ -120,7 +124,8 @@ void Request::_split_field(size_t separator, size_t lastchar) {
 	_fields.insert(std::make_pair(key, listValues));
 }
 
-int Request::_parse_header() {
+int Request::_parse_header()
+{
 	ssize_t pos = 0, i;
 	i = _rawMessage->find_first_of('\n');
 	while (i != std::string::npos && (*_rawMessage).c_str()[0] != '\r')
@@ -147,7 +152,8 @@ int Request::_parse_header() {
 // --------- Parse BODY ------------
 
 // regarde dans le location correspondant a l'extension de la target si le type de fichier uploade est accepte
-bool Request::_check_filetype(std::string contentType) {
+bool Request::_check_filetype(std::string contentType)
+{
 	size_t slash = contentType.rfind('/');
 	if (slash != -1)
 		contentType.erase(0, slash + 1);
@@ -168,14 +174,16 @@ bool Request::_check_filetype(std::string contentType) {
 	return false;
 }
 
-std::string Request::_find_value_from_boundry_block(std::string &block, const char *strtofind, const char *strtolen, char stop) {
+std::string Request::_find_value_from_boundry_block(std::string &block, const char *strtofind, const char *strtolen, char stop)
+{
 	ssize_t valstart = block.find(strtofind) + strlen(strtolen);
 	ssize_t valend = block.find(stop, valstart);
 	ssize_t vallen = valend - valstart;
 	return std::string(block.c_str() + valstart, vallen);
 }
 
-void Request::_parse_defaultDataType(std::string *formDatas) {
+void Request::_parse_defaultDataType(std::string *formDatas)
+{
 	ssize_t i, keylen = 0, vallen = 0;
 	i = formDatas->find('&');
 	while (i != -1)
@@ -193,7 +201,8 @@ void Request::_parse_defaultDataType(std::string *formDatas) {
 	formDatas->clear();
 }
 
-void Request::_parse_multipartDataType(fields_it type) {
+void Request::_parse_multipartDataType(fields_it type)
+{
 	ssize_t pos = (*type).second.front().find_first_of('=');
 	if (pos == -1)
 		throw RequestException(BAD_REQUEST);
@@ -254,7 +263,8 @@ void Request::_parse_multipartDataType(fields_it type) {
 	_rawMessage->clear();
 }
 
-void Request::_parse_body() {
+void Request::_parse_body()
+{
 	// faire les checks necessaire sur la len
 	fields_it contentlen = _fields.find("Content-Length");
 	if ((*contentlen).second.size() != 1)
@@ -276,7 +286,8 @@ void Request::_parse_body() {
 }
 
 // delete les Multipart * alloues dans map de _postMultipart
-void Request::_free_multipartDatas() {
+void Request::_free_multipartDatas()
+{
 	if (_postMultipart.size() > 0)
 	{
 		std::list<MultipartData *>::iterator it = _postMultipart.begin();
@@ -287,7 +298,8 @@ void Request::_free_multipartDatas() {
 
 // --------- Print datas ------------
 
-void Request::_print_fields() const {
+void Request::_print_fields() const
+{
 	fields_it it;
 	fields_values_it it2;
 	for (it = _fields.begin(); it != _fields.end(); it++) {
@@ -302,7 +314,8 @@ void Request::_print_fields() const {
 	}
 }
 
-void Request::_print_defaultDatas() const {
+void Request::_print_defaultDatas() const
+{
 	std::cout << "\nPOST APPLICATION DATAS" << std::endl;
 	if (_postNameValue.size() > 0)
 	{
@@ -317,7 +330,8 @@ void Request::_print_defaultDatas() const {
 	}
 }
 
-void Request::_print_multipartDatas() const {
+void Request::_print_multipartDatas() const
+{
 	std::cout << "\nPOST MULTIPART DATAS" << std::endl;
 	if (_postMultipart.size() > 0)
 	{
