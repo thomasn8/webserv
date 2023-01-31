@@ -70,7 +70,7 @@ int open_location_block(std::string & line, std::string & route, int *location_c
 		return INVALID;
 	route = p_trim_sides(line.substr(pos + 8));
 	if (p_route_syntax(route) == false)
-		return INVALID;
+		return ROUTE_SYNTAX_INVALID;
 	*location_context = 1;
 	return VALID;
 }

@@ -266,7 +266,7 @@ ssize_t send_all(int fd, const char * message, ssize_t size, struct pollfd *pfds
 		ready = poll(pfds, 1, POLLTIMEOUT_MS);
 		if (pfds[0].revents & POLLHUP)
 		{
-			std::cerr << "\nError: Connection lost while sending request no " << request_no << std::endl;
+			std::cerr << "\nError: connection lost while sending request no " << request_no << std::endl;
 			return total_sent;
 		}
 		if (ready == 0)
@@ -292,7 +292,7 @@ ssize_t send_all(int fd, const char * message, ssize_t size, struct pollfd *pfds
 		ready = poll(pfds, 1, POLLTIMEOUT_MS);
 		if (pfds[0].revents & POLLHUP)
 		{
-			std::cerr << "\nError: Connection lost while sending request no " << request_no << std::endl;
+			std::cerr << "\nError: connection lost while sending request no " << request_no << std::endl;
 			return total_sent;
 		}
 		if (ready == 0)
@@ -318,7 +318,7 @@ ssize_t send_all(int fd, const char * message, ssize_t size, struct pollfd *pfds
 		ready = poll(pfds, 1, POLLTIMEOUT_MS);
 		if (pfds[0].revents & POLLHUP)
 		{
-			std::cerr << "\nError: Connection lost while sending request no " << request_no << std::endl;
+			std::cerr << "\nError: connection lost while sending request no " << request_no << std::endl;
 			return total_sent;
 		}
 		if (ready == 0)
@@ -497,4 +497,21 @@ int main(int ac, const char **av) {
 	If timeout is greater than zero, it specifies a maximum interval (in milliseconds) to wait
 	for any file descriptor to become ready.  If timeout is zero, then poll() will return
 	without blocking. If the value of timeout is -1, the poll blocks indefinitely.
+
+	BLOCKING vs NON-BLOCKING:
+	// si on était pas en NON-BLOCKING mode, accept() bloquerait le server et le server pourrait gérer qu'1 seule connection simultanée.
+	// Pareil pour le read() de recv() (comme quand on veut écrire dans un pipe et que l'autre process est bloqué par le read tant que rien est write dans le pipe)
+
+	https://www.ibm.com/docs/en/zos/2.2.0?topic=otap-clientserver-socket-programs-blocking-nonblocking-asynchronous-socket-calls
+	A socket is in blocking mode when an I/O call waits for an event to complete. If the blocking mode is set for a socket, the calling program is suspended until the expected event completes.
+	If nonblocking is set by the FCNTL() or IOCTL() calls, the calling program continues even though the I/O call might not have completed. 
+	If the I/O call could not be completed, it returns with ERRNO EWOULDBLOCK. (The calling program should use SELECT() or POll() to test for completion of any socket call returning an EWOULDBLOCK.)
+	Blocking:
+    The default mode of socket calls is blocking. A blocking call does not return to your program until the event you requested has been completed. 
+	For example, if you issue a blocking recvfrom() call, the call does not return to your program until data is available from the other socket application. 
+	A blocking accept() call does not return to your program until a client connects to your socket program.
+	Nonblocking:
+	Nonblocking calls return to your program immediately to reveal whether the requested service was completed. An error number may mean that your call would have blocked had it been a blocking call.
+	If the call was, for example, a recv() call, your program might have implemented its own wait logic and reissued the nonblocking recv() call at a later time. 
+	By using this technique, your program might have implemented its own timeout rules and closed the socket, failing receipt of data from the partner program, within an application-determined period of time.
 */

@@ -3,6 +3,7 @@
 *.log
 logs/access.log
 webserv
+client
 
 # Prerequisites
 *.d

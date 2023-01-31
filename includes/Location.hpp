@@ -65,7 +65,7 @@ class Location
 		std::string _uploadsDir;
 		std::list<Trio> _redirections;
 		std::string _webserv_bin_path() const;
-		std::string _cgiExtension;
+		std::string _cgi;
 		std::list<std::string> _contentType;
 };
 

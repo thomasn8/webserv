@@ -9,10 +9,11 @@
 #include "Server.hpp"
 #include "Location.hpp"
 #include "debug.hpp"
+#include "StatusCodeException.hpp"
 
 class Response : public Message {
 	public:
-		Response(std::string code, Server *server, std::string * finalMessage);
+		Response(const int code, Server *server, std::string * finalMessage);
 		Response(Request *request, Server *server, std::string * finalMessage);
 		Response(const Response &instance);
 		virtual ~Response();
@@ -24,6 +25,11 @@ class Response : public Message {
 
 		Response	&operator=(const Response &instance);
 
+		class ResponseException : public StatusCodeException {
+			public:
+				ResponseException(const int code) : StatusCodeException(code) {}
+		};
+
 	private:
 		Response();
 
@@ -31,13 +37,15 @@ class Response : public Message {
 		void		_response_post();
 		void		_response_delete();
 		void		_error_messages();
-		int			_check_error_pages(std::string code);
-		void		_check_target_in_get(std::string target);
-		int			_check_redirections(std::string &target, std::deque<Location> &locations);
+		int			_check_error_pages(const int code);
+		void		_check_target(std::string target);
+		int			_check_redirections(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
 		int			_check_redirections_directory(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
+		void 		_check_methods_in_location(std::deque<Location>::iterator &locationFound);
 		void		_add_root_to_target(std::string &target, std::deque<Location> &locations);
 		int			_is_index_file(std::string &target, std::list<std::string> indexes);
-		void		_check_locations(std::string &target, std::deque<Location> &locations);
+		std::string		_what_kind_of_cgi(std::string &target);
+		void		_check_locations(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
 		void		_check_locations_directory(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
 		void		_check_root(std::string &target);
 		int			_make_CGI();
@@ -53,8 +61,10 @@ class Response : public Message {
 		std::string 				_statusCode;
 		std::string 				_reason;
 		std::string 				_path;
+		std::string 				_uploadsDir;
+		std::list<std::string>		_contentType;
+		std::string					_cgi;
 		bool 						_autoindex;
-		bool						_isCGI;
 		bool						_targetFound;
 };
 
