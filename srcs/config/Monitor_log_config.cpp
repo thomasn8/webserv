@@ -34,7 +34,10 @@ void Monitor::log_server_info()
 		for (; it2 != (*it).get_locations().end(); it2++)
 		{	
 			//LOCATION BLOCK OF SERVER
-			_accessStream << "	" << "Location " << (*it2).get_route() << std::endl;
+			if ((*it2).get_cgi().empty())
+				_accessStream << "	" << "Location " << (*it2).get_route() << std::endl;
+			else
+				_accessStream << "	" << "Location ." << (*it2).get_route() << std::endl;
 			_accessStream << "		" << "root: " << (*it2).get_root() << std::endl;
 			std::list<std::string>::iterator it3 = (*it2).get_methods().begin();
 			for (; it3 != (*it2).get_methods().end(); it3++)
@@ -56,6 +59,7 @@ void Monitor::log_server_info()
 				for (; it5 != (*it2).get_redirections().end(); it5++)
 					_accessStream << "		" << "redirect: " << (*it5).first << " " << (*it5).second << " " << (*it5).third << std::endl;
 			}
+			if ((*it2).get_cgi().size())
 			_accessStream << "		" << "cgi: " << (*it2).get_cgi() << std::endl;
 		}
 	}
