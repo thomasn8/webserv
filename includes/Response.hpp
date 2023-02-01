@@ -4,14 +4,13 @@
 #include <fstream>
 #include <streambuf>
 #include <unistd.h>
-#include "Message.hpp"
 #include "Request.hpp"
 #include "Server.hpp"
 #include "Location.hpp"
 #include "debug.hpp"
 #include "StatusCodeException.hpp"
 
-class Response : public Message {
+class Response {
 	public:
 		Response(const int code, Server *server, std::string * finalMessage);
 		Response(Request *request, Server *server, std::string * finalMessage);
