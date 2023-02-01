@@ -58,7 +58,7 @@ void parse_config(std::string & configFile, Monitor & monitor)
 	// variables word et route utilisees pour remplir les objets Config et Location
 	std::string line, word, route;
 	std::istringstream iss_l(buffer), iss_w;
-	int server_count = 0, location_count = 0, server_directive_index = -1, location_context = 0, location_directive_index = -1;
+	int server_count = 0, location_count = 0, server_directive_index = -1, location_context = 0, location_directive_index = -1, ret = 0;
 	bool first_word = true, server_context = false, compare = false;
 	f_ptr_s f_server_block[] = {&open_server_block, &open_server_block_2, &close_server_block};
 	f_ptr_l f_location_block[] = {&open_location_block, &open_location_block_2, &close_location_block};
@@ -99,8 +99,13 @@ void parse_config(std::string & configFile, Monitor & monitor)
 				{
 					if (word.compare(0, std::string::npos, location_block[i].c_str(), word.length()) == EQUAL)
 					{
-						if (f_location_block[i](line, route, &location_context, &location_count) == INVALID)
-							p_exit_cerr_msg(ERROR_MSG, line, 1);
+						if ((ret = f_location_block[i](line, route, &location_context, &location_count)) >= INVALID)
+						{
+							if (ret == ROUTE_SYNTAX_INVALID)
+								p_exit_cerr_msg(ERROR_LOCATION_SYNTAX, line, 1);
+							else
+								p_exit_cerr_msg(ERROR_MSG, line, 1);
+						}
 						if (i == 0)
 							iss_w >> word;
 						compare = true;

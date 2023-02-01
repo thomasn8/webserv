@@ -11,7 +11,8 @@ _defaultIndex(true),
 _methods(std::list<std::string>(1, std::string(GET))),
 _defaultMethods(true),
 _uploadsDir(_root),
-_cgiExtension(std::string(DEFAULT_CGI_EXT))
+_redirections(std::list<Trio>()),
+_contentType(std::list<std::string>())
 {}
 
 Location::Location() :
@@ -21,7 +22,8 @@ _defaultIndex(true),
 _methods(std::list<std::string>(1, std::string(GET))),
 _defaultMethods(true),
 _uploadsDir(_root),
-_cgiExtension(std::string(DEFAULT_CGI_EXT))
+_redirections(std::list<Trio>()),
+_contentType(std::list<std::string>())
 {}
 
 Location::Location(const Location & src) :
@@ -34,7 +36,7 @@ _methods(src._methods),
 _defaultMethods(src._defaultMethods),
 _uploadsDir(src._uploadsDir),
 _redirections(src._redirections),
-_cgiExtension(src._cgiExtension) 
+_cgi(src._cgi) 
 {}
 
 Location::~Location() {}
@@ -77,17 +79,15 @@ void Location::set_route(std::string value)
 		return;
 	_route = value;
 
-	// if route is a cgi, replace roote value and default php cgi extension
-	if (value[0] == '.' )
-	{
-		_cgiExtension = value.substr(1);
-		_route = _cgiExtension;
-	}
-	else if (value[0] == '*')
-	{
-		_cgiExtension = value.substr(2);
-		_route = _cgiExtension;
-	}
+	// // if route is a cgi, set cgi filename
+	// if (value[0] != '/' )
+	// 	_cgi = _root.append("/").append(get_indexes().front());
+	// else if (value.back() != '/')
+	// 	_root.append("/");
+	// if route is a cgi, set cgi filename
+
+	if (value[0] == '/' && value.back() != '/')
+		_route.append("/");
 }
 
 void Location::set_root(std::string & value)
@@ -105,6 +105,13 @@ void Location::set_root(std::string & value)
 	if (_root[_root.size() - 1] == '/')
 		_root.erase(_root.size() - 1);
 	_uploadsDir = _root;
+
+	// if route is a cgi, set cgi filename
+	if (_route[0] != '/')
+	{
+		_cgi = _root;
+		_cgi.append("/").append(get_indexes().front());
+	}
 }
 
 void Location::set_method(std::string & value)
@@ -143,6 +150,13 @@ void Location::set_index(std::string & value)
 	}
 	else
 		_indexFiles.push_back(value);
+	
+	// if route is a cgi, set cgi filename
+	if (_route[0] != '/')
+	{
+		_cgi = _root;
+		_cgi.append("/").append(get_indexes().front());
+	}
 }
 
 void Location::set_autoindex(std::string & value)
@@ -238,7 +252,7 @@ std::string Location::get_uploadsdir() const { return _uploadsDir; }
 
 std::list<Trio> & Location::get_redirections() { return _redirections; }
 
-std::string Location::get_cgi() const { return _cgiExtension; }
+std::string Location::get_cgi() const { return _cgi; }
 
 std::list<std::string> & Location::get_contentTypes() { return _contentType; }
 

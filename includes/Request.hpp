@@ -34,7 +34,6 @@ class Request
 		const char *get_request() const;
 		std::string get_method() const;
 		std::string get_target() const;
-		std::string get_version() const;
 		std::map<std::string, std::list<std::string>> get_fields() const;
 		std::map<std::string, std::string> &get_defaultDatas();
 		std::list<MultipartData *> &get_multipartDatas();
