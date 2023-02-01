@@ -1,0 +1,719 @@
+/*STYLESHEET POUR PAGE MON-COMPTE.PHP */
+
+/* before login */
+span#errorMsg {
+    color: #a7332b;
+}
+#errorLog {
+    margin-top: 20px;
+    top: -10px;
+}
+#log-btn {
+    margin-top: 6px;
+}
+a.recup-mdp:hover {
+    color: #FFBF40 !important;
+}
+
+.avantages {
+    margin: 4rem auto 4rem auto;
+    max-width: 500px;
+    border: 2px solid rgb(100, 100, 100);
+    background: rgb(248, 248, 248);
+}
+.avantages h5 {
+    position: static;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-size: 1.35em!important;
+}
+.avantages ol {
+    margin-top: 0;
+    padding-left: 20px;
+    text-align: left;
+    list-style: none;
+}
+.avantages ol li {
+    margin-top : 0.75rem;
+    color: rgb(30, 30, 30);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 1.15em;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+.avantages ol li img {
+    opacity: 0.6;
+    width: 4%!important;
+}
+.avantages ol li p {
+    margin: 0;
+    padding-right: 10px;
+    padding-left: 10px;
+    width: 85%;
+}
+
+/* section layout */
+.connection, .se-connecter {
+    width: 100%;
+}
+
+/* ------ Balises ------ */
+.cadre1 {
+    margin-bottom: 0;
+}
+.balises {
+    display: flex;
+    flex-direction: column;
+    font-family: "Gilroy-med", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    font-size: 1.25rem;
+    line-height: 1.5em;
+    color: rgba(0, 0, 0, 0.75);
+    position: relative;
+    top: -10px;
+}
+a.balise-monCompte {
+    padding: 10px;
+    margin-bottom: 2px;
+    background: rgba(0, 0, 0, 0.07);
+}
+a.balise-monCompte:hover {
+    background: #FFBF40;
+    color: rgba(0, 0, 0, 0.8);
+}
+a.balise-monCompte:active {
+    background: #b88725;
+    color: rgba(0, 0, 0, 0.85);
+}
+@media only screen and (min-width: 700px)   {
+    .balises {
+        flex-direction: row;
+        justify-content: center;
+        font-size: 1.35rem;
+    }
+    a.balise-monCompte {
+        padding: 15px 30px;
+        width: 205px;
+        margin: 0 2px 0 2px;
+    }
+}
+@media only screen and (min-width: 1000px)   {
+    .balises {
+        font-size: 1.45rem;
+    }
+    a.balise-monCompte {
+        padding: 15px 60px;
+        width: 275px;
+    }
+}
+
+/* ------ MES ANNONCES ------ */
+.mes-annonces {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    background: white;
+}
+.mes-annonces .mon-annonce {
+    border: 0px solid rgba(0, 0, 0, 0.7);
+    margin: 2rem auto;
+    width: 100%;
+    background: rgb(240, 240, 240);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.mes-annonces .mon-annonce:nth-child(1) {
+    margin-top: 0;
+}
+.mes-annonces .mon-annonce .annonce-titre {
+    width: 100%;
+    font-family: "Helvetica Neue", Arial, Helvetica, "Trebuchet MS", sans-serif !important;
+    font-size: 1.5rem;
+    font-weight: 700;
+    padding: 0.5rem 1rem;
+}
+.mes-annonces .mon-annonce .champAnnonce {
+    display: block;
+    width: 100%;
+    font-size: 1rem;
+}
+.mes-annonces .mon-annonce .champAnnonce .label {
+    display: inline-block;
+    width: 40%;
+    text-align: right;
+    padding-right: 10px;
+    cursor: default;
+    font-size: 1.1rem;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.mes-annonces .mon-annonce .champAnnonce .champ {
+    display: inline-block;
+    width: 40%;
+    text-align: left;
+    color: rgba(0, 0, 0, 0.7);
+    border: 2px solid rgba(0, 0, 0, 0.7);
+    background-color: white;
+    margin: 0.5em 10px;
+    padding: 5px;
+    border-radius: 3px;
+    font-family: "Helvetica Neue", Arial, Helvetica, "Trebuchet MS", sans-serif !important;
+    font-weight: 400;
+    font-size: 1.2rem;
+}
+.mes-annonces .mon-annonce .champ-button {
+    display: flex;
+    justify-content: center;
+    position: relative!important;
+    bottom: 0px!important;
+}
+.mes-annonces .mon-annonce .champ-button button {
+    margin: 15px 5px;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 3px;
+    width: auto;
+    transition: border .05s;
+    transition: color .05s;
+    transition: background .05s;
+}
+.mes-annonces .mon-annonce .champ-button button img {
+    height: 35px;
+    display: block;
+    margin: 4px auto;
+    opacity: 0.6;
+}
+button.mon-annonce-btn1, button.mon-annonce-btn2{
+    background: none;
+    border: 0px;
+    color: rgb(96, 96, 96);
+}
+button.mon-annonce-btn1:hover, button.mon-annonce-btn2:hover{
+    background: rgba(0, 0, 0, 0.25);
+    border: 0px;
+    color: rgb(71, 71, 71);
+    transition: color 0s;
+    transition: background 0s;
+}
+button.mon-annonce-btn1:active, button.mon-annonce-btn2:active{
+    background: rgba(0, 0, 0, 0.25);
+    border: 0px;
+    color: rgb(71, 71, 71);
+    transition: color 0s;
+    transition: background 0s;
+}
+button.supprimer-annonce-non {
+    background-color: #122E6F!important;
+    border-top: 2px solid #2f509c!important;
+    border-left: 2px solid #2f509c!important;
+    border-right: 2px solid #092157!important;
+    border-bottom: 2px solid #092157!important;
+}
+button.supprimer-annonce-non:hover {
+    background-color: #35508f!important;
+    border-top: 2px solid #5e78b6!important;
+    border-left: 2px solid #5e78b6!important;
+    border-right: 2px solid #2a427a!important;
+    border-bottom: 2px solid #2a427a!important;
+    transition: color 0s!important;
+    transition: background 0s!important;
+}
+button.supprimer-annonce-non:active  {
+    background-color: #4966a8!important;
+    border-top: 2px solid #7083ad!important;
+    border-left: 2px solid #7083ad!important;
+    border-right: 2px solid #32487e!important;
+    border-bottom: 2px solid #32487e!important;
+}
+
+@media only screen and (min-width: 500px)   {
+    .mes-annonces .mon-annonce {
+        width: 75%;
+    }
+    .mes-annonces {
+        padding-top: 1.5rem;
+    }
+}
+@media only screen and (min-width: 700px)   {
+    section#log.section-sec {
+        align-items: center;
+    }
+    .mes-annonces {
+        min-width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+        padding-top: 0 !important;
+    }
+    .mes-annonces .mon-annonce {
+        width: 46%;
+        margin-top: 0.5rem;
+        margin-left: 2%;
+        margin-right: 2%;
+    }
+    .mes-annonces .mon-annonce:nth-child(1) {
+        margin-top: 0.5rem;
+    }
+    .mes-annonces .mon-annonce .champ-button button {
+        margin: 15px 15px;
+    }
+    .mes-annonces .mon-annonce .champ-button button img {
+        height: 50px;
+    }
+}
+/* pop-up supprimerOui-non sur mes annonces*/
+#ouiOuNon {
+    display: block;
+    text-align: center!important;
+    margin: 2rem auto!important;
+}
+.supprimer-annonce-oui {
+    display: block;
+    text-align: center!important;
+    margin: 1rem auto!important;
+}
+.supprimer-annonce-non {
+    display: block;
+    text-align: center!important;
+    margin: 1rem auto!important;
+}
+
+
+/* -------- MES CONTACTS -------- */
+.conversations {
+    border: 2px solid white;
+    border-radius: 3px;
+    background-color: #ffffff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' viewBox='0 0 192 192'%3E%3Cpath fill='%235e5886' fill-opacity='0.04' d='M192 15v2a11 11 0 0 0-11 11c0 1.94 1.16 4.75 2.53 6.11l2.36 2.36a6.93 6.93 0 0 1 1.22 7.56l-.43.84a8.08 8.08 0 0 1-6.66 4.13H145v35.02a6.1 6.1 0 0 0 3.03 4.87l.84.43c1.58.79 4 .4 5.24-.85l2.36-2.36a12.04 12.04 0 0 1 7.51-3.11 13 13 0 1 1 .02 26 12 12 0 0 1-7.53-3.11l-2.36-2.36a4.93 4.93 0 0 0-5.24-.85l-.84.43a6.1 6.1 0 0 0-3.03 4.87V143h35.02a8.08 8.08 0 0 1 6.66 4.13l.43.84a6.91 6.91 0 0 1-1.22 7.56l-2.36 2.36A10.06 10.06 0 0 0 181 164a11 11 0 0 0 11 11v2a13 13 0 0 1-13-13 12 12 0 0 1 3.11-7.53l2.36-2.36a4.93 4.93 0 0 0 .85-5.24l-.43-.84a6.1 6.1 0 0 0-4.87-3.03H145v35.02a8.08 8.08 0 0 1-4.13 6.66l-.84.43a6.91 6.91 0 0 1-7.56-1.22l-2.36-2.36A10.06 10.06 0 0 0 124 181a11 11 0 0 0-11 11h-2a13 13 0 0 1 13-13c2.47 0 5.79 1.37 7.53 3.11l2.36 2.36a4.94 4.94 0 0 0 5.24.85l.84-.43a6.1 6.1 0 0 0 3.03-4.87V145h-35.02a8.08 8.08 0 0 1-6.66-4.13l-.43-.84a6.91 6.91 0 0 1 1.22-7.56l2.36-2.36A10.06 10.06 0 0 0 107 124a11 11 0 0 0-22 0c0 1.94 1.16 4.75 2.53 6.11l2.36 2.36a6.93 6.93 0 0 1 1.22 7.56l-.43.84a8.08 8.08 0 0 1-6.66 4.13H49v35.02a6.1 6.1 0 0 0 3.03 4.87l.84.43c1.58.79 4 .4 5.24-.85l2.36-2.36a12.04 12.04 0 0 1 7.51-3.11A13 13 0 0 1 81 192h-2a11 11 0 0 0-11-11c-1.94 0-4.75 1.16-6.11 2.53l-2.36 2.36a6.93 6.93 0 0 1-7.56 1.22l-.84-.43a8.08 8.08 0 0 1-4.13-6.66V145H11.98a6.1 6.1 0 0 0-4.87 3.03l-.43.84c-.79 1.58-.4 4 .85 5.24l2.36 2.36a12.04 12.04 0 0 1 3.11 7.51A13 13 0 0 1 0 177v-2a11 11 0 0 0 11-11c0-1.94-1.16-4.75-2.53-6.11l-2.36-2.36a6.93 6.93 0 0 1-1.22-7.56l.43-.84a8.08 8.08 0 0 1 6.66-4.13H47v-35.02a6.1 6.1 0 0 0-3.03-4.87l-.84-.43c-1.59-.8-4-.4-5.24.85l-2.36 2.36A12 12 0 0 1 28 109a13 13 0 1 1 0-26c2.47 0 5.79 1.37 7.53 3.11l2.36 2.36a4.94 4.94 0 0 0 5.24.85l.84-.43A6.1 6.1 0 0 0 47 84.02V49H11.98a8.08 8.08 0 0 1-6.66-4.13l-.43-.84a6.91 6.91 0 0 1 1.22-7.56l2.36-2.36A10.06 10.06 0 0 0 11 28 11 11 0 0 0 0 17v-2a13 13 0 0 1 13 13c0 2.47-1.37 5.79-3.11 7.53l-2.36 2.36a4.94 4.94 0 0 0-.85 5.24l.43.84A6.1 6.1 0 0 0 11.98 47H47V11.98a8.08 8.08 0 0 1 4.13-6.66l.84-.43a6.91 6.91 0 0 1 7.56 1.22l2.36 2.36A10.06 10.06 0 0 0 68 11 11 11 0 0 0 79 0h2a13 13 0 0 1-13 13 12 12 0 0 1-7.53-3.11l-2.36-2.36a4.93 4.93 0 0 0-5.24-.85l-.84.43A6.1 6.1 0 0 0 49 11.98V47h35.02a8.08 8.08 0 0 1 6.66 4.13l.43.84a6.91 6.91 0 0 1-1.22 7.56l-2.36 2.36A10.06 10.06 0 0 0 85 68a11 11 0 0 0 22 0c0-1.94-1.16-4.75-2.53-6.11l-2.36-2.36a6.93 6.93 0 0 1-1.22-7.56l.43-.84a8.08 8.08 0 0 1 6.66-4.13H143V11.98a6.1 6.1 0 0 0-3.03-4.87l-.84-.43c-1.59-.8-4-.4-5.24.85l-2.36 2.36A12 12 0 0 1 124 13a13 13 0 0 1-13-13h2a11 11 0 0 0 11 11c1.94 0 4.75-1.16 6.11-2.53l2.36-2.36a6.93 6.93 0 0 1 7.56-1.22l.84.43a8.08 8.08 0 0 1 4.13 6.66V47h35.02a6.1 6.1 0 0 0 4.87-3.03l.43-.84c.8-1.59.4-4-.85-5.24l-2.36-2.36A12 12 0 0 1 179 28a13 13 0 0 1 13-13zM84.02 143a6.1 6.1 0 0 0 4.87-3.03l.43-.84c.8-1.59.4-4-.85-5.24l-2.36-2.36A12 12 0 0 1 83 124a13 13 0 1 1 26 0c0 2.47-1.37 5.79-3.11 7.53l-2.36 2.36a4.94 4.94 0 0 0-.85 5.24l.43.84a6.1 6.1 0 0 0 4.87 3.03H143v-35.02a8.08 8.08 0 0 1 4.13-6.66l.84-.43a6.91 6.91 0 0 1 7.56 1.22l2.36 2.36A10.06 10.06 0 0 0 164 107a11 11 0 0 0 0-22c-1.94 0-4.75 1.16-6.11 2.53l-2.36 2.36a6.93 6.93 0 0 1-7.56 1.22l-.84-.43a8.08 8.08 0 0 1-4.13-6.66V49h-35.02a6.1 6.1 0 0 0-4.87 3.03l-.43.84c-.79 1.58-.4 4 .85 5.24l2.36 2.36a12.04 12.04 0 0 1 3.11 7.51A13 13 0 1 1 83 68a12 12 0 0 1 3.11-7.53l2.36-2.36a4.93 4.93 0 0 0 .85-5.24l-.43-.84A6.1 6.1 0 0 0 84.02 49H49v35.02a8.08 8.08 0 0 1-4.13 6.66l-.84.43a6.91 6.91 0 0 1-7.56-1.22l-2.36-2.36A10.06 10.06 0 0 0 28 85a11 11 0 0 0 0 22c1.94 0 4.75-1.16 6.11-2.53l2.36-2.36a6.93 6.93 0 0 1 7.56-1.22l.84.43a8.08 8.08 0 0 1 4.13 6.66V143h35.02z'%3E%3C/path%3E%3C/svg%3E");
+}
+.conversations .conversation {
+    border-bottom: 4px solid white;
+}
+.conversations .conversation:last-child {
+    border-bottom: 0px!important;
+}
+.conversations .conversation a {
+    display: block;
+    width: 100%;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    background-color: rgba(0, 0, 0, 0.05);
+
+    font-size: 20px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+}
+.conversations .conversation a:hover {
+    background-color: rgba(0, 0, 0, 0.15);
+}
+.conversations .conversation a:active {
+    background-color: rgba(0, 0, 0, 0.22);
+}
+.conversations .conversation a span {
+    display: block;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.conversations .conversation a span.newMsg {
+    font-size: 0.75em;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #a7332b;
+    padding-top: 0;
+}
+/* pop-up chat*/
+#login.chat {
+    position: fixed;
+    top: 0!important;
+    height: 100vh!important;
+}
+div.title.subject {
+    text-align: left;
+    font-size: 18px!important; 
+}
+h5.discipline span#effacerConv {
+    font-size: 0.7em;
+    padding-left: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+    text-decoration: underline;
+    color: #FFBF40!important;
+    white-space: nowrap;
+}
+h5.discipline span#effacerConv a {
+    color: #FFBF40!important;
+}
+h5.discipline span#effacerConv a:hover {
+    color: #b88725!important;
+}
+h5.discipline span#effacerConv a:active {
+    color: #815e18!important;
+}
+div.title.subject span#showProfile {
+    font-size: 0.7em;
+    padding-left: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+    text-decoration: underline;
+    color: #FFBF40;
+    cursor: pointer;
+}
+div.title.subject span#showProfile:hover {
+    color: #b88725;
+}
+div.title.subject span#showProfile:active {
+    color: white;
+}
+div.title.subject span.trait-union {
+    font-size: 0.7em;
+    padding-left: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+}
+h5.discipline {
+    font-size: 18px!important;
+    position: relative!important;
+    top: -10px!important;
+    text-align: left; 
+}
+/*
+.chatZone {
+    background: white!important;
+    height: 60vh;
+    color: rgba(0, 0, 0, 0.85);
+    overflow-y: scroll!important;
+    display: flex;
+    justify-content: start!important;
+    flex-direction: column-reverse;
+}
+*/
+.chatZone { /* avec auto-prefixer*/
+    background: white!important;
+    height: 60vh;
+    color: rgba(0, 0, 0, 0.85);
+    overflow-y: scroll!important;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: start!important;
+    -ms-flex-pack: start!important;
+    /* justify-content: start!important; */ /* corrige un problème de défilement sur firefox */
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: reverse;
+    -ms-flex-direction: column-reverse;
+    flex-direction: column-reverse;
+}
+.chatZone .ligne1 {
+    width: 100%;
+    text-align: right;
+}
+.chatZone .ligne2 {
+    width: 100%;
+    text-align: left;
+}
+.chatZone .ligne1 .right, .chatZone .ligne2 .left {
+    display: inline-block;
+    max-width: 80%;
+    height: auto;
+    text-align: left;
+    border-radius: 20px;
+    padding: 15px!important;
+    margin-bottom: 1rem;
+    margin-top: 0.5rem;
+    background: rgb(240, 240, 240)!important;
+}
+.chatZone .ligne1 .right {
+    text-align: right;
+    margin-right: 5px;
+}
+.chatZone .ligne2 .left {
+    margin-left: 5px;
+}
+.chatZone .ligne1 .right .heureMessage {
+    text-align: right;
+}
+.contenuMessage {
+    font-family: "Gilroy-med", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+.heureMessage {
+    color: rgba(0, 0, 0, 0.35);
+    font-size: 0.75em;
+    padding-top: 0.5em;
+}
+#login form {
+    display: flex;
+    margin-top: 1rem;
+}
+div#login form textarea#message {
+    display: block;
+    width: calc(100% - 80px);
+    border: 0;
+    height: 5rem;
+    padding: 10px;
+    font-family: "Helvetica Neue", Arial, Helvetica, "Trebuchet MS", sans-serif !important;
+    font-size: 1.15rem;
+    text-align: left;
+    margin-top: 0!important;
+}
+button#sendMessage {
+    width: 80px;
+    height: 5rem;
+    margin-top: 0!important;
+    margin-bottom: 0!important;
+    border-radius: 0;
+    background-color: rgb(185,185,185);
+    border: 0;
+    padding-left: 8px;
+    padding-right: 8px;
+    color: white;
+    font-size: 1rem!important;
+    font-family: "Helvetica Neue", Arial, Helvetica, "Trebuchet MS", sans-serif !important;
+    font-weight: 600 !important;
+}
+button#sendMessage:hover {
+    background: rgb(125, 125, 125);
+    border: 0;
+    transition: background .1s;
+}
+button#sendMessage:active {
+    background: rgb(100, 100, 100);
+    transition: background .1s;
+}
+
+@media only screen and (min-width: 700px)   {
+    .chatZone .right, .chatZone .left {
+        font-size: 1.15rem;
+    }
+}
+@media only screen and (max-height: 550px)   {
+    div.title.subject {
+        font-size: 16px!important;
+        position: relative;
+        top: -10px; 
+        text-align: left; 
+    }
+    h5.discipline {
+        font-size: 16px!important;
+        margin-bottom: 0;
+        top: -20px!important;
+        text-align: left; 
+    }
+    .chatZone {
+        height: 60vh;
+        position: relative;
+        top: -20px;
+    }
+    #login form {
+        margin-top: 0rem!important;
+    }
+    div#login form textarea#message {
+        margin-top: 0rem;
+        height: 3rem;
+        text-align: left;
+        font-size: 1rem;
+        padding: 5px;
+    }
+    button#sendMessage {
+        height: 3rem;
+    }
+}
+@media only screen and (max-height: 400px)   {
+    .chatZone {
+        height: 50vh;
+    }
+    #login form {
+        position: relative;
+        top: -10px;
+    }
+    div#login form textarea#message {
+        height: 2rem;
+        font-size: 1rem!important;
+    }
+    button#sendMessage {
+        height: 2rem;
+        font-size: 0.85rem!important;
+        padding: 4px!important;
+    }
+}
+@media only screen and (max-height: 285px)   {
+    .chatZone {
+        height: 40vh;
+    }
+}
+
+@media only screen and (min-width: 700px)   {
+    div#login form textarea#message {
+        font-size: 1.3rem;
+    }
+    div.title.subject {
+        font-size: 22px!important;
+    }
+    h5.discipline {
+        font-size: 22px!important;
+    }
+}
+@media only screen and (min-height: 800px)   {
+    .chatZone {
+        height: 60vh;
+    }
+}
+@media only screen and (min-height: 1000px)   {
+    .chatZone {
+        height: 65vh;
+    }
+}
+
+/* pop-up supprimerConversation*/
+div.title.conversationNO {
+    font-family: "Helvetica Neue", Arial, Helvetica, "Trebuchet MS", sans-serif;
+}
+div.title.conversationNO span.precision {
+    display: block;
+    font-size: 0.7em;
+    margin: 0.4rem auto 0 auto;
+    font-weight: 500;
+    max-width: 80%;
+    line-height: 1.2em;
+}
+div.title.conversationNO span.precision span {
+    color: #FFBF40;
+}
+/* ------ MON PROFIL ------ */
+#userConnected {
+    text-align: center;
+}
+#formProfil img, #formProfil textarea{
+    width: 100%;
+}
+#formProfil textarea {
+    background: rgb(53, 53, 53);
+    border: 2px solid rgb(53, 53, 53);
+    padding: 5px;
+    font-size: 1rem;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: white;
+    height: 10rem;
+    position: relative;
+    top: -7px;
+}
+#formProfil textarea:hover {
+    border: 2px solid #FFBF40;
+    background-color: rgb(53, 53, 53);
+    color: white;
+}
+#formProfil textarea:focus {
+    border: 2px solid #FFBF40;
+    background-color: white;
+    color: black;
+}
+label#changePicture {
+    display: flex;
+    flex-direction: column;
+}
+label#changePicture p {
+    width: 100%;
+    margin: 0;
+    font-family: "Gilroy-med", "Helvetica Neue", Arial, sans-serif;
+    font-size: 1rem;
+    margin-top: 1rem;
+    text-align: left;
+    color: rgba(0, 0, 0, 0.55);
+}
+label#changePicture input {
+    width: 100%;
+    text-align: center;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 1rem;
+    margin-top: 0.25rem;
+    background: rgb(240, 240, 240);
+    border-radius: 0px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem ;
+}
+label#changePicture input:hover {
+    background: #FFBF40;
+    cursor: pointer;
+}
+label#changePicture input:active {
+    background: #997121;
+}
+input#enregistrer {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 5px;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border-top: 2px solid rgb(216, 216, 216);
+    border-left: 2px solid rgb(216, 216, 216);
+    border-right: 2px solid rgb(173, 173, 173);
+    border-bottom: 2px solid rgb(173, 173, 173);
+    border-radius: 5px;
+    background: rgb(240, 240, 240);
+    color: rgb(20, 20, 20);
+    width: 100%;
+}
+input#enregistrer:hover {
+    color: rgb(50, 50, 50);
+    background: #FFBF40;
+    border-top: 2px solid #e2b760;
+    border-left: 2px solid #e2b760;
+    border-right: 2px solid #bb8926;
+    border-bottom: 2px solid #bb8926;
+    cursor: pointer;
+}
+input#enregistrer:active {
+    color: rgb(30, 30, 30);
+    background: #e0a836;
+}
+@media only screen and (min-width: 500px)   {
+    label#changePicture p {
+        font-size: 1.25rem;
+    }
+    #formProfil textarea {
+        font-size: 1.25rem;
+    }
+}
+@media only screen and (min-width: 700px)   {
+    #formProfil {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+    #formProfil img, #formProfil textarea {
+        width: 40%;
+    }
+    #formProfil img {
+        padding: 1px;
+        padding-right: 5px;
+    }
+    #formProfil textarea {
+        height: auto;
+        padding: 10px;
+        position: static;
+        font-size: 1.5rem;
+    }
+    label#changePicture input {
+        width: 80%;
+        margin: 5px auto 2px auto;
+
+        border-top: 2px solid rgb(216, 216, 216);
+        border-left: 2px solid rgb(216, 216, 216);
+        border-right: 2px solid rgb(173, 173, 173);
+        border-bottom: 1px solid rgb(173, 173, 173);
+    }
+    label#changePicture input:hover {
+        border-top: 2px solid #e2b760;
+        border-left: 2px solid #e2b760;
+        border-right: 2px solid #bb8926;
+        border-bottom: 1px solid #bb8926;
+    }
+    label#changePicture p {
+        width: 80%;
+        margin: 0 auto;
+    }
+    input#enregistrer {
+        width: 80%; 
+        height: 3.5rem !important;
+        margin: 2px auto 2rem auto;
+        padding: 10px;
+    }
+}

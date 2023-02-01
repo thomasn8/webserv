@@ -34,7 +34,7 @@ Response::Response(const int code, Server *server, std::string * finalMessage) :
             </html>";
 
         // *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
-        *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(body.size()) + "\r\n\r\n" + body;
+        *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(body.size()) + "\r\n\r\n" + body;						// enlevé une copie superficielle
         free(date);
     }
 }
@@ -104,7 +104,8 @@ void Response::_make_response() {
       ss << f.rdbuf();
       body = ss.str();
    }
-    *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
+    // *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
+    *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + body;						// enlevé une copie superficielle
     if (PRINT_HTTP_RESPONSE)
         std:: cout << *this->_finalMessage << std::endl;
 }
