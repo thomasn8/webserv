@@ -234,27 +234,11 @@ int Response::_check_redirections(std::string &target,
     return 0;
 }
 
-// add the good root before the target
+// add the good root before the target when it's a cgi
 // for exemple for /images/medias.php
 // it's a CGI and must go to www/cgi_bin/media/images/medias.php
 // instead of html/media/images/medias.php
-// void Response::_add_root_to_target(std::string &target, std::deque<Location> &locations) {
-//     std::deque<Location>::iterator  it;
-//     int                             len;
-    
-//     for (it = locations.begin(); it != locations.end(); it++) {
-//         len = (*it).get_route().length();
-//         if (!(*(*it).get_route().begin() == '/')) {
-//             if (target.compare(target.length() - len, target.length(),(*it).get_route()) == 0) {
-//                 target = (*it).get_root() + target;
-//                 std::cout << "target in:" << target << std::endl;
-//                 return;
-//             }
-//         }
-//     }
-//     target = this->_server->get_root() + target;
-// }
-
+// For js it check if its a cgi and if not it's maybe a js file for html
 int Response::_add_root_if_cgi(std::string &target, 
         std::deque<Location> &locations, std::deque<Location>::iterator &locationFound) {
     std::deque<Location>::iterator  it;
@@ -268,7 +252,6 @@ int Response::_add_root_if_cgi(std::string &target,
             if (tmp.compare(tmp.length() - len, tmp.length(),(*it).get_route()) == 0) {
                 tmp = (*it).get_root() + tmp;
                 while (_check_redirections(tmp, locations, locationFound)) {};
-                std::cout << "target in:" << tmp << std::endl;
                 if (access(tmp.c_str(), F_OK) != -1) {
                     target = tmp;
                     return 1;
@@ -425,11 +408,7 @@ void Response::_check_target() {
                 throw  ResponseException(NOT_FOUND);
         }
     }
-    // if (this->_cgi.empty())
-    std::cout << "Target at begin: " << this->_target << std::endl;
     this->_targetType = _what_kind_of_extention(this->_target);
-    // else
-    //     this->_targetType = "text/html";
     if (this->_statusCode.empty())
         this->_statusCode = std::to_string(HTTP_OK);
     if (PRINT_FINAL_TARGET) {
