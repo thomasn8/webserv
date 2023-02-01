@@ -4,7 +4,7 @@
 
 Request::Request(std::string *rawMessage, Server *server) : _rawMessage(rawMessage), _server(server)
 {
-	if (PRINT_HTTP_RESPONSE)
+	if (PRINT_HTTP_REQUEST)
 		std::cout << *rawMessage << std::endl;
 	ssize_t i = _rawMessage->find_first_of('\n');
     std::string start_line = _rawMessage->substr(0, i); // prend le /r avant /n

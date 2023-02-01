@@ -115,8 +115,9 @@ void Response::_response_get() {
     char *date;
 
     date = Rfc1123_DateTimeNow();
+    std::cout << this->_targetType << std::endl;
     this->_header = this->_version + " 200 " + "OK\r\n" +
-        "Content-Type: text/html, charset=utf-8\r\n" +
+        "Content-Type: " + this->_targetType + ", charset=utf-8\r\n" +
         "Server: pizzabrownie\r\n" +
         "Date: " + date + "\r\n";
     free(date);
@@ -237,23 +238,46 @@ int Response::_check_redirections(std::string &target,
 // for exemple for /images/medias.php
 // it's a CGI and must go to www/cgi_bin/media/images/medias.php
 // instead of html/media/images/medias.php
-void Response::_add_root_to_target(std::string &target, std::deque<Location> &locations) {
+// void Response::_add_root_to_target(std::string &target, std::deque<Location> &locations) {
+//     std::deque<Location>::iterator  it;
+//     int                             len;
+    
+//     for (it = locations.begin(); it != locations.end(); it++) {
+//         len = (*it).get_route().length();
+//         if (!(*(*it).get_route().begin() == '/')) {
+//             if (target.compare(target.length() - len, target.length(),(*it).get_route()) == 0) {
+//                 target = (*it).get_root() + target;
+//                 std::cout << "target in:" << target << std::endl;
+//                 return;
+//             }
+//         }
+//     }
+//     target = this->_server->get_root() + target;
+// }
+
+int Response::_add_root_if_cgi(std::string &target, 
+        std::deque<Location> &locations, std::deque<Location>::iterator &locationFound) {
     std::deque<Location>::iterator  it;
     int                             len;
+    std::string                     tmp;
     
+    tmp = target;
     for (it = locations.begin(); it != locations.end(); it++) {
         len = (*it).get_route().length();
         if (!(*(*it).get_route().begin() == '/')) {
-            if (target.compare(target.length() - len, target.length(),(*it).get_route()) == 0) {
-                std::cout << "target else: " << this->_server->get_root() + target << std::endl;  
-                target = (*it).get_root() + target;
-                std::cout << "target inside loop: " << target << std::endl;
-                return;
+            if (tmp.compare(tmp.length() - len, tmp.length(),(*it).get_route()) == 0) {
+                tmp = (*it).get_root() + tmp;
+                while (_check_redirections(tmp, locations, locationFound)) {};
+                std::cout << "target in:" << tmp << std::endl;
+                if (access(tmp.c_str(), F_OK) != -1) {
+                    target = tmp;
+                    return 1;
+                }
             }
         }
     }
     target = this->_server->get_root() + target;
-    std::cout << "target inside: " << target << std::endl;
+    return 0;
 }
 
 // check if there is a default index file
@@ -321,6 +345,22 @@ std::string Response::_what_kind_of_cgi(std::string &target) {
     return "";
 }
 
+// return the file extention type
+std::string Response::_what_kind_of_extention(std::string &target) {
+    int pos = target.find_last_of(".") + 1;
+
+    std::cout << target << std::endl;
+    if (pos != 0) {
+        if (target.compare(pos, 3, "css") == 0) 
+            return "text/css";
+        else if (target.compare(pos, 2, "js") == 0)
+            return "text/javascript";
+        else if (target.compare(pos, 4, "html") == 0)
+            return "text/html";
+    }
+    return "text/plain";
+}
+
 // Main function to make de routes
 void Response::_check_target() {
     std::deque<Location>            &locations = this->_server->get_locations();
@@ -360,10 +400,11 @@ void Response::_check_target() {
         }
     }
     else { // else it's a file
-        _add_root_to_target(this->_target, locations);
-        while (_check_redirections(this->_target, locations, locationFound)) {};
-        if (!this->_targetFound)
-            _check_locations(this->_target, locations, locationFound);
+        if (!_add_root_if_cgi(this->_target, locations, locationFound)) {
+            while (_check_redirections(this->_target, locations, locationFound)) {};
+            if (!this->_targetFound)
+                _check_locations(this->_target, locations, locationFound);
+        }  
         if (this->_targetFound) {
             if (access(this->_target.c_str(), F_OK) == -1)
                 throw  ResponseException(NOT_FOUND);
@@ -384,6 +425,11 @@ void Response::_check_target() {
                 throw  ResponseException(NOT_FOUND);
         }
     }
+    // if (this->_cgi.empty())
+    std::cout << "Target at begin: " << this->_target << std::endl;
+    this->_targetType = _what_kind_of_extention(this->_target);
+    // else
+    //     this->_targetType = "text/html";
     if (this->_statusCode.empty())
         this->_statusCode = std::to_string(HTTP_OK);
     if (PRINT_FINAL_TARGET) {

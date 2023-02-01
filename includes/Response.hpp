@@ -41,7 +41,8 @@ class Response : public Message {
 		void			_check_target();
 		int				_check_redirections(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
 		void 			_check_methods_in_location(std::deque<Location>::iterator &locationFound);
-		void			_add_root_to_target(std::string &target, std::deque<Location> &locations);
+		// void			_add_root_to_target(std::string &target, std::deque<Location> &locations);
+		int				_add_root_if_cgi(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
 		int				_is_index_file(std::string &target, std::list<std::string> indexes);
 		void			_check_locations(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
 		void			_check_locations_directory(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
@@ -49,6 +50,7 @@ class Response : public Message {
 		void			_make_response();
 		void			_decript_img();
 		std::string		_what_kind_of_cgi(std::string &target);
+		std::string		_what_kind_of_extention(std::string &target);
 		
 		Request						*_request;
 		Server						*_server;
@@ -59,6 +61,7 @@ class Response : public Message {
 		std::string 				_statusCode;
 		std::string 				_reason;
 		std::string 				_target;
+		std::string 				_targetType;
 		std::string 				_uploadsDir;
 		std::list<std::string>		_contentType;
 		std::string					_cgi;
