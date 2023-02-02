@@ -3,17 +3,15 @@
 // ---------Constructor and destructor ------------
 
 // constructor for error response
-Response::Response(const int code, Server *server) :
-_server(server), _version(std::string("HTTP/1.1")) {
+Response::Response(const int code, Server *server) : _server(server), _version(std::string("HTTP/1.1")) {
     std::string     body;
 	std::string 	codestr = std::to_string(code);
+    std::string		date = Rfc1123_DateTimeNow();
 
-    _status_messages();
-    std::string date = Rfc1123_DateTimeNow();
-    this->_header = "HTTP/1.1 " + std::to_string(code) + (" " + this->_statusMsg[code]) + "\r\n" +
-            "Content-Type: text/html, charset=utf-8\r\n" +
-            "Server: pizzabrownie\r\n" +
-            "Date: " + date + "\r\n";
+    this->_header = "HTTP/1.1 " + std::to_string(code) + (" " +this->_status_messages(code)) + "\r\n" +
+		"Content-Type: text/html, charset=utf-8\r\n" +
+		"Server: pizzabrownie\r\n" +
+		"Date: " + date + "\r\n";
 
     if (_check_error_pages(code)) {
         _make_response();
@@ -28,10 +26,12 @@ _server(server), _version(std::string("HTTP/1.1")) {
             </head> \
             <body> \
                 <h1>Error " + codestr + "</h1> \
-                <p>" + this->_statusMsg[code] + "</p> \
+                <p>" + this->_status_messages(code) + "</p> \
             </body> \
             </html>";
 		this->_make_final_message(this->_header, body.c_str(), NULL, body.size());
+
+		// std::cout << this->_status_messages(code) << std::endl;
     }
 }
 
@@ -62,15 +62,26 @@ Response::~Response() {
 }
 
 // _______________________   Status code and errors   _____________________________ //
-
-void Response::_status_messages() {
-    this->_statusMsg[200] = "HTTP_OK";
-    this->_statusMsg[400] = "BAD_REQUEST";
-    this->_statusMsg[403] = "FORBIDDEN";
-    this->_statusMsg[404] = "NOT_FOUND";
-    this->_statusMsg[405] = "METHOD_NOT_ALLOWED";
-    this->_statusMsg[500] = "INTERNAL_SERVER_ERROR";
-    this->_statusMsg[505] = "HTTP_VERSION_UNSUPPORTED";
+std::string Response::_status_messages(int code) {
+	switch (code)
+	{
+		case 200:
+			return "HTTP_OK";
+		case 400:
+			return "BAD_REQUEST";
+		case 403:
+			return "FORBIDDEN";
+		case 404:
+			return "NOT_FOUND";
+		case 405:
+			return "METHOD_NOT_ALLOWED";
+		case 500:
+			return "INTERNAL_SERVER_ERROR";
+		case 505:
+			return "HTTP_VERSION_UNSUPPORTED";
+		default:
+			return "NO_CORRESPONDING_ERROR_MESSAGE";
+	}
 }
 
 int Response::_check_error_pages(const int code) {
@@ -142,7 +153,7 @@ void Response::_make_response() {
 
 void Response::_response_get() {
     std::string date = Rfc1123_DateTimeNow();
-    std::cout << this->_targetType << std::endl;
+    // std::cout << this->_targetType << std::endl;
     this->_header = this->_version + " 200 " + "OK\r\n" +
         "Content-Type: " + this->_targetType + ", charset=utf-8\r\n" +
         "Server: pizzabrownie\r\n" +
@@ -362,7 +373,7 @@ std::string Response::_what_kind_of_cgi(std::string &target) {
 std::string Response::_what_kind_of_extention(std::string &target) {
     int pos = target.find_last_of(".") + 1;
 
-    std::cout << target << std::endl;
+    // std::cout << target << std::endl;
     if (pos != 0) {
         if (target.compare(pos, 3, "css") == 0) 
             return "text/css";
@@ -381,7 +392,7 @@ void Response::_check_target() {
 
     this->_target = this->_request->get_target();
     if (PRINT_RECIEVED_TARGET)
-        std::cout << "Target at begin: " << this->_target << std::endl;
+        // std::cout << "Target at begin: " << this->_target << std::endl;
     if (*this->_target.begin() != '/')
         throw  ResponseException(BAD_REQUEST);
     if (this->_target.find('.') == std::string::npos) { // if it's a directory
@@ -482,7 +493,7 @@ std::string Response::getVersion() const {
 
 // --------- Operator overload ------------
 
-Response &Response::operator=(const Response &instance) {
+Response &Response::operator=(const Response &instance) { 		// PAS A JOUR
     this->_request = instance._request;
     this->_server = instance._server;
     this->_finalMessage = instance._finalMessage;

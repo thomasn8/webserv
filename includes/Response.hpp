@@ -39,7 +39,7 @@ class Response {
 		void			_response_get();
 		void			_response_post();
 		void			_response_delete();
-		void			_status_messages();
+		std::string 	_status_messages(int code);
 		int				_check_error_pages(const int code);
 		void			_check_target();
 		int				_check_redirections(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
@@ -58,7 +58,7 @@ class Response {
 		
 		Request						*_request;
 		Server						*_server;
-		std::map<int, std::string> 	_statusMsg;
+		// std::map<int, std::string> 	_statusMsg;
 		std::string 				_version;
 		std::string 				_header;
 		std::string 				_statusCode;
