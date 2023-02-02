@@ -263,7 +263,6 @@ void Monitor::handle_connections()
 	_buf.capacity = 0;
 	char *ptr;
 	char **responseStr = &ptr;
-	// std::cout << "*responseStr = " << static_cast<void *>(*responseStr) << std::endl;
 	size_t responseSize;
 	while (1)																						// Main loop
 	{

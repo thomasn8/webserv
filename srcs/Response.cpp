@@ -31,7 +31,6 @@ _server(server), _version(std::string("HTTP/1.1")), _finalMessage(responseStr), 
             </body> \
             </html>";
 		this->_make_final_message(this->_header, body.c_str(), NULL, body.size());
-
     }
 }
 
