@@ -98,14 +98,14 @@ int Response::_check_error_pages(const int code) {
 void Response::_make_response() {
     std::string body;
 
-    std::ifstream f(this->_target);
-    if(f) {
-      std::ostringstream ss;
+    std::ifstream f(this->_target);			// voir aussi dans client.cpp (methode pour passer par 1 copie en moins)
+    if(f) {									// car ici ifstream -> ostringstream -> body 	= 2 copies
+      std::ostringstream ss;				// possible d'en faire qu'une sauf erreur
       ss << f.rdbuf();
       body = ss.str();
    }
     // *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
-    *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + body;						// enlevé une copie superficielle
+    *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + body;						// enlevé une copie superficielle (possible d'eviter encore une sauf erreur)
     if (PRINT_HTTP_RESPONSE)
         std:: cout << *this->_finalMessage << std::endl;
 }
