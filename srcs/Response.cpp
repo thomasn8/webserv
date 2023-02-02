@@ -127,13 +127,16 @@ void Response::_make_response() {
 	std::ifstream ifs(this->_target, std::ifstream::binary);
 	// if (!ifs.is_open())
 	// 	error("Error: impossible to open input file", "", 1);												// GERER L ERREUR CORRECTEMENT
+
 	// get pointer to associated buffer object
 	std::filebuf *pbuf = ifs.rdbuf();
+
 	// get file size using buffer's members
 	size_t size = pbuf->pubseekoff(0,ifs.end,ifs.in);
 	pbuf->pubseekpos(0,ifs.in);
 	// if (size > FILE_MAX_LEN)
 	// 	error("Error: input file is too large: maximum is 1MO", "", 1);										// GERER L ERREUR CORRECTEMENT
+
 	this->_make_final_message(this->_header, NULL, pbuf, size);
 	ifs.close();
     if (PRINT_HTTP_RESPONSE)
