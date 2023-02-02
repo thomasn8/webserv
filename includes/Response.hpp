@@ -4,6 +4,7 @@
 #include <fstream>
 #include <streambuf>
 #include <unistd.h>
+#include <dirent.h>
 #include "Request.hpp"
 #include "Server.hpp"
 #include "Location.hpp"
@@ -46,6 +47,7 @@ class Response {
 		void			_check_locations(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
 		void			_check_locations_directory(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
 		int				_make_CGI();
+		void			_make_autoindex();
 		void			_make_response();
 		void			_decript_img();
 		std::string		_what_kind_of_cgi(std::string &target);

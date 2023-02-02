@@ -97,19 +97,42 @@ int Response::_check_error_pages(const int code) {
 // _______________________   Final Response Creation   _____________________________ //
 
 void Response::_make_response() {
-    std::ifstream   ifs(this->_target, std::ifstream::binary);
-    std::filebuf    *pbuf = ifs.rdbuf();
-    size_t          size = pbuf->pubseekoff(0,ifs.end,ifs.in);
-    char *          body = new char[size];
+    std::string body;
 
-	pbuf->pubseekpos (0,ifs.in);
-    pbuf->sgetn(body, size);
-    *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(size) + "\r\n\r\n" + body;
-    ifs.close();
-    delete(body);
+    std::ifstream f(this->_target);			
+    if(f) {									
+      std::ostringstream ss;				
+      ss << f.rdbuf();
+      body = ss.str();
+   }
+    *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + body;
     if (PRINT_HTTP_RESPONSE)
         std:: cout << *this->_finalMessage << std::endl;
 }
+
+// void Response::_make_response() {
+//     std::ifstream ifs(this->_target, std::ifstream::binary);
+//     // if (!ifs.is_open())
+//     //     error("Error: impossible to open input file", "", 1);                                                // GERER L ERREUR CORRECTEMENT
+    
+//     // get pointer to associated buffer object
+//     std::filebuf *pbuf = ifs.rdbuf();
+//     // get file size using buffer's members
+//     size_t size = pbuf->pubseekoff(0,ifs.end,ifs.in);
+//     pbuf->pubseekpos(0,ifs.in);
+//     // if (size > FILE_MAX_LEN)
+//     //     error("Error: input file is too large: maximum is 1MO", "", 1);                                        // GERER L ERREUR CORRECTEMENT
+
+//     // allocate memory to contain file data
+//     char *body = new char[size];
+//     // get file data
+//     pbuf->sgetn(body, size);
+//     ifs.close();
+
+//     *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(size) + "\r\n\r\n" + body;        // moyen d eviter de concat body (donc de le recopier)
+//     if (PRINT_HTTP_RESPONSE)
+//         std:: cout << *this->_finalMessage << std::endl;
+// }
 
 // _______________________   GET   _____________________________ //
 
@@ -118,14 +141,48 @@ void Response::_response_get() {
 
     date = Rfc1123_DateTimeNow();
     this->_header = this->_version + this->_statusCode + this->_statusMsg[atoi(this->_statusCode.c_str())] + "\r\n" +
-        "Content-Type: " + this->_targetType + ", charset=utf-8\r\n" +
+        "Content-Type: " + this->_targetType + "\r\n" +
         "Server: pizzabrownie\r\n" +
         "Date: " + date + "\r\n";
     free(date);
     if (!this->_cgi.empty())
         _make_CGI();
+    else if (this->_autoindex)
+        _make_autoindex();
     else
         _make_response();
+}
+
+void Response::_make_autoindex() {
+    std::string     body;
+    std::string     liste;
+    DIR             *dir;
+    struct dirent   *ent;
+
+    if ((dir = opendir (this->_target.c_str())) != NULL) {
+        /* print all the files and directories within directory */
+        while ((ent = readdir (dir)) != NULL) {
+            if (strcmp(ent->d_name, ".") != 0)
+                liste = liste + "<li style=\"list-style-type: none;\"><a href=\"" + this->_request->get_target() + "/" + ent->d_name + "\">" + ent->d_name + "</a></li>\n";
+        }
+        closedir (dir);
+    }
+    body = "<!DOCTYPE html> \
+            <html lang=\"fr\"> \
+            <head> \
+                <meta charset=\"UTF-8\"> \
+                <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> \
+                <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> \
+                <title>Index</title> \
+            </head> \
+            <body> \
+                <h1>Index of " + this->_request->get_target() + "</h1> \
+                <ul>" + liste + "</ul>\
+            </body> \
+            </html>";
+    *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + body;
+    if (PRINT_HTTP_RESPONSE)
+        std:: cout << *this->_finalMessage << std::endl;
 }
 
 // _______________________   POST   _____________________________ //
@@ -173,9 +230,6 @@ int Response::_make_CGI() {
     std::string cgiType;
 
     cgiType = _what_kind_of_cgi(this->_target);
-    std::cout << "cgi: " << this->_cgi << std::endl;
-    std::cout << "target: " << this->_target << std::endl;
-    std::cout << "type: " << cgiType << std::endl;
     cgi = (char *)malloc(sizeof(char) * this->_server->get_client_max_body_size());
     if (pipe(fd) == -1) {return -1;}
 	pid = fork();
@@ -260,6 +314,7 @@ int Response::_add_root_if_cgi(std::string &target,
                 while (_check_redirections(tmp, locations, locationFound)) {};
                 if (access(tmp.c_str(), F_OK) != -1) {
                     target = tmp;
+                    this->_cgi = target;
                     return 1;
                 }
             }
@@ -338,16 +393,15 @@ std::string Response::_what_kind_of_cgi(std::string &target) {
 std::string Response::_what_kind_of_extention(std::string &target) {
     int pos = target.find_last_of(".") + 1;
 
-    std::cout << target << std::endl;
     if (pos != 0) {
         if (target.compare(pos, 3, "css") == 0) 
-            return "text/css";
+            return "text/css, charset=utf-8";
         else if (target.compare(pos, 2, "js") == 0)
-            return "text/javascript";
+            return "text/javascript, charset=utf-8";
         else if (target.compare(pos, 4, "html") == 0)
-            return "text/html";
+            return "text/html, charset=utf-8";
         else if (target.compare(pos, 3, "svg") == 0)
-            return "image/svg+xml";
+            return "image/svg+xml, charset=utf-8";
         else if (target.compare(pos, 4, "woff") == 0)
             return "font/woff";
         else if (target.compare(pos, 4, "woff") == 0)
@@ -361,7 +415,7 @@ std::string Response::_what_kind_of_extention(std::string &target) {
         else if (target.compare(pos, 3, "png") == 0)
             return "image/png";
     }
-    return "text/plain";
+    return "text/html, charset=utf-8";
 }
 
 // Main function to make de routes
@@ -415,14 +469,14 @@ void Response::_check_target() {
             this->_uploadsDir = locationFound->get_uploadsdir();
             if (!locationFound->get_contentTypes().empty())
                 this->_contentType = locationFound->get_contentTypes();
-            if (!locationFound->get_cgi().empty())
-                this->_cgi = this->_target;
+            // if (!locationFound->get_cgi().empty())
+            //     this->_cgi = this->_target;
         }
         else {
             if (access( this->_target.c_str(), F_OK ) != -1) {
                 this->_targetFound = true;
-                if (!_what_kind_of_cgi(this->_target).empty())
-                    this->_cgi = this->_target;
+                // if (!_what_kind_of_cgi(this->_target).empty())
+                //     this->_cgi = this->_target;
             }
             else
                 throw  ResponseException(NOT_FOUND);
