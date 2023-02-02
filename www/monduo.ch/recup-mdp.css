@@ -1,0 +1,94 @@
+.changer {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}.id-priv {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%!important;
+    margin-top: 1.5rem;
+}
+.id1 {
+    width: 20%;
+    text-align: right;
+}
+.id2 {
+    width: 80%;
+    text-align: left;
+    padding-left: 10px;
+}
+.changeId {
+    width: 100%;
+    color: blue;
+    margin-top: 0.5rem;
+}
+.changeId:hover, .changeId:active {
+    text-decoration: underline;
+}
+a.deleteAccount {
+    width: 100%;
+    color: #a7332b;
+    text-align: center;
+    padding: 1rem 0;
+}
+a.deleteAccount:hover,a.deleteAccount:active  {
+    text-decoration: underline;
+}  
+
+@media only screen and (min-width: 375px)   {
+    .id1 {
+        width: 30%;
+    }
+    .id2 {
+        width: 70%;
+    }
+}
+@media only screen and (min-width: 500px)   {
+    .id1 {
+        width: 40%;
+    }
+    .id2 {
+        width: 60%;
+    }
+}
+
+#ouiOuNon {
+    display: block;
+    text-align: center!important;
+    margin: 2rem auto!important;
+}
+#buttonOui, #buttonNon {
+    display: block;
+    text-align: center!important;
+    margin: 1rem auto!important;
+}
+
+#buttonNon {
+    background-color: #122E6F!important;
+    border-top: 2px solid #2f509c!important;
+    border-left: 2px solid #2f509c!important;
+    border-right: 2px solid #092157!important;
+    border-bottom: 2px solid #092157!important;
+}
+#buttonNon:hover {
+    background-color: #35508f!important;
+    border-top: 2px solid #5e78b6!important;
+    border-left: 2px solid #5e78b6!important;
+    border-right: 2px solid #2a427a!important;
+    border-bottom: 2px solid #2a427a!important;
+    transition: color 0s!important;
+    transition: background 0s!important;
+}
+#buttonNon:active  {
+    background-color: #4966a8!important;
+    border-top: 2px solid #7083ad!important;
+    border-left: 2px solid #7083ad!important;
+    border-right: 2px solid #32487e!important;
+    border-bottom: 2px solid #32487e!important;
+}
+a.lien-contact {
+    color: #FFBF40;
+    text-decoration: underline;
+}
+a.lien-contact:hover, a.lien-contact:active {
+    color: #4966a8;
+}

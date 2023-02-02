@@ -1,0 +1,30 @@
+CREATE TABLE annonces (
+annonceNo INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+date TIMESTAMP NOT NULL,
+pseudo VARCHAR(40) NOT NULL,
+role INT(1) NOT NULL,
+domaine VARCHAR(60) NOT NULL,
+domaineID INT(4) UNSIGNED NOT NULL,
+matiere VARCHAR(60) NOT NULL,
+matiereID INT(4) UNSIGNED NOT NULL,
+resume VARCHAR(100) NOT NULL,
+region VARCHAR(40) NOT NULL,
+regionID INT(2) UNSIGNED NOT NULL,
+niveau VARCHAR(10) NOT NULL,
+modalite INT(1) NOT NULL,
+INDEX(date),
+INDEX(pseudo),
+INDEX(role),
+INDEX(domaine(4)),
+INDEX(domaineID),
+INDEX(matiere(4)),
+INDEX(matiereID),
+FULLTEXT(resume),
+INDEX(region(3)),
+INDEX(regionID),
+INDEX(niveau(2)),
+INDEX(modalite))
+ENGINE INNODB;
+
+
+ALTER TABLE annonces AUTO_INCREMENT=1000001;
