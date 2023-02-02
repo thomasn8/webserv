@@ -96,43 +96,44 @@ int Response::_check_error_pages(const int code) {
 
 // _______________________   Final Response Creation   _____________________________ //
 
-void Response::_make_response() {
-    std::string body;
-
-    std::ifstream f(this->_target);			
-    if(f) {									
-      std::ostringstream ss;				
-      ss << f.rdbuf();
-      body = ss.str();
-   }
-    *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + body;
-    if (PRINT_HTTP_RESPONSE)
-        std:: cout << *this->_finalMessage << std::endl;
-}
-
 // void Response::_make_response() {
-//     std::ifstream ifs(this->_target, std::ifstream::binary);
-//     // if (!ifs.is_open())
-//     //     error("Error: impossible to open input file", "", 1);                                                // GERER L ERREUR CORRECTEMENT
-    
-//     // get pointer to associated buffer object
-//     std::filebuf *pbuf = ifs.rdbuf();
-//     // get file size using buffer's members
-//     size_t size = pbuf->pubseekoff(0,ifs.end,ifs.in);
-//     pbuf->pubseekpos(0,ifs.in);
-//     // if (size > FILE_MAX_LEN)
-//     //     error("Error: input file is too large: maximum is 1MO", "", 1);                                        // GERER L ERREUR CORRECTEMENT
+//     std::string body;
 
-//     // allocate memory to contain file data
-//     char *body = new char[size];
-//     // get file data
-//     pbuf->sgetn(body, size);
-//     ifs.close();
-
-//     *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(size) + "\r\n\r\n" + body;        // moyen d eviter de concat body (donc de le recopier)
+//     std::ifstream f(this->_target);			
+//     if(f) {									
+//       std::ostringstream ss;				
+//       ss << f.rdbuf();
+//       body = ss.str();
+//    }
+//     *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + body;
 //     if (PRINT_HTTP_RESPONSE)
 //         std:: cout << *this->_finalMessage << std::endl;
 // }
+
+void Response::_make_response() {
+    std::ifstream ifs(this->_target, std::ifstream::binary);
+    // if (!ifs.is_open())
+    //     error("Error: impossible to open input file", "", 1);                                                // GERER L ERREUR CORRECTEMENT
+    
+    // get pointer to associated buffer object
+    std::filebuf *pbuf = ifs.rdbuf();
+    // get file size using buffer's members
+    size_t size = pbuf->pubseekoff(0,ifs.end,ifs.in);
+    pbuf->pubseekpos(0,ifs.in);
+    // if (size > FILE_MAX_LEN)
+    //     error("Error: input file is too large: maximum is 1MO", "", 1);                                        // GERER L ERREUR CORRECTEMENT
+
+    // allocate memory to contain file data
+    char *body = new char[size];
+    // get file data
+    pbuf->sgetn(body, size);
+    ifs.close();
+
+    *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(size) + "\r\n\r\n" + body;        // moyen d eviter de concat body (donc de le recopier)
+    delete[] body;
+    if (PRINT_HTTP_RESPONSE)
+        std:: cout << *this->_finalMessage << std::endl;
+} 
 
 // _______________________   GET   _____________________________ //
 
