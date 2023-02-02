@@ -78,6 +78,7 @@ void Response::_status_messages() {
     this->_statusMsg[505] = "HTTP_VERSION_UNSUPPORTED";
 }
 
+// check if there is an error pages set in conf file
 int Response::_check_error_pages(const int code) {
     std::list<std::pair<int, std::string>> &errorPages = this->_server->get_errorpages();
     std::list<std::pair<int, std::string>>::iterator  it;
@@ -96,16 +97,16 @@ int Response::_check_error_pages(const int code) {
 // _______________________   Final Response Creation   _____________________________ //
 
 void Response::_make_response() {
-    std::string body;
+    std::ifstream   ifs(this->_target, std::ifstream::binary);
+    std::filebuf    *pbuf = ifs.rdbuf();
+    size_t          size = pbuf->pubseekoff(0,ifs.end,ifs.in);
+    char *          body = new char[size];
 
-    std::ifstream f(this->_target);			// voir aussi dans client.cpp (methode pour passer par 1 copie en moins)
-    if(f) {									// car ici ifstream -> ostringstream -> body 	= 2 copies
-      std::ostringstream ss;				// possible d'en faire qu'une sauf erreur
-      ss << f.rdbuf();
-      body = ss.str();
-   }
-    // *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
-    *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + body;						// enlevé une copie superficielle (possible d'eviter encore une sauf erreur)
+	pbuf->pubseekpos (0,ifs.in);
+    pbuf->sgetn(body, size);
+    *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(size) + "\r\n\r\n" + body;
+    ifs.close();
+    delete(body);
     if (PRINT_HTTP_RESPONSE)
         std:: cout << *this->_finalMessage << std::endl;
 }
@@ -116,8 +117,7 @@ void Response::_response_get() {
     char *date;
 
     date = Rfc1123_DateTimeNow();
-    std::cout << this->_targetType << std::endl;
-    this->_header = this->_version + " 200 " + "OK\r\n" +
+    this->_header = this->_version + this->_statusCode + this->_statusMsg[atoi(this->_statusCode.c_str())] + "\r\n" +
         "Content-Type: " + this->_targetType + ", charset=utf-8\r\n" +
         "Server: pizzabrownie\r\n" +
         "Date: " + date + "\r\n";
@@ -170,7 +170,12 @@ int Response::_make_CGI() {
 	pid_t       pid;
     int		    status;
     char        *cgi;
+    std::string cgiType;
 
+    cgiType = _what_kind_of_cgi(this->_target);
+    std::cout << "cgi: " << this->_cgi << std::endl;
+    std::cout << "target: " << this->_target << std::endl;
+    std::cout << "type: " << cgiType << std::endl;
     cgi = (char *)malloc(sizeof(char) * this->_server->get_client_max_body_size());
     if (pipe(fd) == -1) {return -1;}
 	pid = fork();
@@ -181,7 +186,7 @@ int Response::_make_CGI() {
             std:: cout << "path:" << this->_target << std::endl;
         close(fd[0]);
         if (dup2(fd[1], STDOUT_FILENO) == -1) {exit(EXIT_FAILURE);}
-        execlp("php", "php", this->_target.c_str(), NULL);
+        execlp(cgiType.c_str(), cgiType.c_str(), this->_target.c_str(), NULL);
         std::cerr << "Error launching cgi: " << this->_target << std::endl;
         write(1, "500", 3);
         exit(0);
@@ -325,7 +330,7 @@ std::string Response::_what_kind_of_cgi(std::string &target) {
     if (target.find(".php", target.length() - 4) != std::string::npos)
         return "php";
     else if (target.find(".js", target.length() - 3) != std::string::npos)
-        return "js";
+        return "node";
     return "";
 }
 
