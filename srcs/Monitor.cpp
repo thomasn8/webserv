@@ -221,7 +221,6 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 	if (response_size < CHUNK_SEND)	// cas où response initiale fait < CHUNK_SEND
 	{
 		size_sent = send(fd, chunk_send, response_size, 0);
-		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
 		response_size -= size_sent;
 		chunk_send += size_sent;
 		total_sent += size_sent;
@@ -232,7 +231,6 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 		if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIEMOUT_MS)
 			break;
 		size_sent = send(fd, chunk_send, CHUNK_SEND, 0);
-		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
 		response_size -= size_sent;
 		chunk_send += size_sent;
 		total_sent += size_sent;
@@ -243,7 +241,6 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 		if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIEMOUT_MS)
 			break;
 		size_sent = send(fd, chunk_send, response_size, 0);
-		// std::cout << size_sent << " bytes sent on socket " << fd << std::endl;
 		response_size -= size_sent;
 		chunk_send += size_sent;
 		total_sent += size_sent;
@@ -264,7 +261,9 @@ void Monitor::handle_connections()
 	_prepare_master_sockets(); // socket, bind, listen pour chaque port/server + creer les struct pollfd dédiées
 	int i, poll_index = 0, poll_count = 0, server_count = _servers.size();
 	_buf.capacity = 0;
-	char *responseStr;
+	char *ptr;
+	char **responseStr = &ptr;
+	// std::cout << "*responseStr = " << static_cast<void *>(*responseStr) << std::endl;
 	size_t responseSize;
 	while (1)																						// Main loop
 	{
@@ -293,29 +292,17 @@ void Monitor::handle_connections()
 								std::string requestStr(_buf.begin, _buf.size);
 								try {
 									Request request(&requestStr, _activeSockets[i].server);			// essaie de constr une requeste depuis les donnees recues
-									Response response(&request, _activeSockets[i].server);			// essaie de constr une response si on a une request
-									responseStr = response._finalMessage;
-									responseSize = response._finalMessageSize;
+									Response response(&request, _activeSockets[i].server, responseStr, &responseSize);			// essaie de constr une response si on a une request
 								}
 								catch (StatusCodeException & e) {
-									Response response(e.statuscode(), _activeSockets[i].server);	// si request a un probleme, construit une response selon son status code
-									responseStr = response._finalMessage;
-									responseSize = response._finalMessageSize;
+									Response response(e.statuscode(), _activeSockets[i].server, responseStr, &responseSize);	// si request a un probleme, construit une response selon son status code
 								}
 							}
 							else
-							{
-								Response response(HEADERS_TOO_LARGE, _activeSockets[i].server);
-								responseStr = response._finalMessage;
-								responseSize = response._finalMessageSize;
-							}
+								Response response(HEADERS_TOO_LARGE, _activeSockets[i].server, responseStr, &responseSize);
 						}
 						else
-						{
-							Response response(PAYLOAD_TOO_LARGE, _activeSockets[i].server);			// si recvall a atteint le MBS, constuit une response selon le status code
-							responseStr = response._finalMessage;
-							responseSize = response._finalMessageSize;
-						}
+							Response response(PAYLOAD_TOO_LARGE, _activeSockets[i].server, responseStr, &responseSize);			// si recvall a atteint le MBS, constuit une response selon le status code
 						if (_buf.capacity > BUFFER_LIMIT)
 						{
 							free(_buf.begin);
@@ -332,7 +319,8 @@ void Monitor::handle_connections()
 			}
 			else if (_pfds[i].revents & POLLOUT) 													// event sur fd[i] si poll a debloquer pour un fd prêt à write
 			{
-				_send_all(i, responseStr, responseSize, _activeSockets[i]);							// send la response construite dans response
+				_send_all(i, *responseStr, responseSize, _activeSockets[i]);						// send la response construite dans response
+				free(*responseStr);
 				poll_index = 0; // reset l'index au debut des fds
 			}
 			else if (_pfds[i].revents & POLLHUP || _pfds[i].revents & POLLERR) 						// event sur fd[i], connection perdue sur le socket en question

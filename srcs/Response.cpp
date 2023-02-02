@@ -3,7 +3,8 @@
 // ---------Constructor and destructor ------------
 
 // constructor for error response
-Response::Response(const int code, Server *server) : _server(server), _version(std::string("HTTP/1.1")) {
+Response::Response(const int code, Server *server, char **responseStr, size_t *responseSize) : 
+_server(server), _version(std::string("HTTP/1.1")), _finalMessage(responseStr), _finalMessageSize(responseSize) {
     std::string     body;
 	std::string 	codestr = std::to_string(code);
     std::string		date = Rfc1123_DateTimeNow();
@@ -31,17 +32,19 @@ Response::Response(const int code, Server *server) : _server(server), _version(s
             </html>";
 		this->_make_final_message(this->_header, body.c_str(), NULL, body.size());
 
-		// std::cout << this->_status_messages(code) << std::endl;
     }
 }
 
 // constructor for normal response
-Response::Response(Request *request, Server *server) : 
+Response::Response(Request *request, Server *server, char **responseStr, size_t *responseSize) : 
     _request(request), 
     _server(server),
     _version(std::string("HTTP/1.1")),
+	_finalMessage(responseStr),
+	_finalMessageSize(responseSize),
     _autoindex(false),
-    _targetFound(false) {
+    _targetFound(false)
+{
     _check_target();
     if (request->get_method() == GET)
         _response_get();
@@ -57,9 +60,7 @@ Response::Response(const Response& instance) : _request(instance._request), _ser
     *this = instance;
 }
 
-Response::~Response() {
-	delete[] this->_finalMessage;
-}
+Response::~Response() {}
 
 // _______________________   Status code and errors   _____________________________ //
 std::string Response::_status_messages(int code) {
@@ -107,14 +108,14 @@ void Response::_make_final_message(std::string &header, const char *body, std::f
 	int bodysize_len = bodysize.size();
 
 	// calc len + allocate
-	this->_finalMessageSize = header_size;
-	this->_finalMessageSize += 20; // for "Content-Length: \r\n\r\n"
-	this->_finalMessageSize += bodysize_len;
-	this->_finalMessageSize += len;
-	this->_finalMessage = new char[this->_finalMessageSize];
+	*this->_finalMessageSize = header_size;
+	*this->_finalMessageSize += 20; // for "Content-Length: \r\n\r\n"
+	*this->_finalMessageSize += bodysize_len;
+	*this->_finalMessageSize += len;
+	*this->_finalMessage = (char *)malloc(*this->_finalMessageSize * sizeof(char));
 
 	// set memory
-	char *tmp = this->_finalMessage;
+	char *tmp = *this->_finalMessage;
 	memcpy(tmp, header.c_str(), header_size);
 	tmp += header_size;
 	memcpy(tmp, "Content-Length: ", 16);
@@ -239,7 +240,7 @@ int Response::_make_CGI() {
 		this->_make_final_message(this->_header, cgi, NULL, cgi_size);
 		free(cgi);
         if (PRINT_HTTP_RESPONSE)
-            std:: cout << std::string(this->_finalMessage, this->_finalMessageSize) << std::endl;
+            std:: cout << std::string(*this->_finalMessage, *this->_finalMessageSize) << std::endl;
         }
 
     return (0);
@@ -471,11 +472,11 @@ void Response::_check_target() {
 // --------- Fonctions getteur ------------
 
 char * Response::getFinaleMessage() const {
-    return this->_finalMessage;
+    return *this->_finalMessage;
 }
 
 size_t Response::getFinaleMessageSize() const {
-    return this->_finalMessageSize;
+    return *this->_finalMessageSize;
 }
 
 std::string Response::getStatusCode() const {
@@ -493,7 +494,7 @@ std::string Response::getVersion() const {
 
 // --------- Operator overload ------------
 
-Response &Response::operator=(const Response &instance) { 		// PAS A JOUR
+Response &Response::operator=(const Response &instance) { 						// PAS A JOUR, copie pas toutes les variables
     this->_request = instance._request;
     this->_server = instance._server;
     this->_finalMessage = instance._finalMessage;

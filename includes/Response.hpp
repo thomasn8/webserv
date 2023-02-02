@@ -12,13 +12,13 @@
 
 class Response {
 	public:
-		Response(const int code, Server *server);
-		Response(Request *request, Server *server);
+		Response(const int code, Server *server, char **responseStr, size_t *responseSize);
+		Response(Request *request, Server *server, char **responseStr, size_t *responseSize);
 		Response(const Response &instance);
 		virtual ~Response();
 
-		char	*_finalMessage;
-		size_t	_finalMessageSize;
+		char	**_finalMessage;
+		size_t	*_finalMessageSize;
 
 		char * getFinaleMessage() const;
 		size_t getFinaleMessageSize() const;
@@ -58,7 +58,6 @@ class Response {
 		
 		Request						*_request;
 		Server						*_server;
-		// std::map<int, std::string> 	_statusMsg;
 		std::string 				_version;
 		std::string 				_header;
 		std::string 				_statusCode;
