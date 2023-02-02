@@ -47,6 +47,7 @@ Response::Response(Request *request, Server *server) :
     _version(std::string("HTTP/1.1")),
     _autoindex(false),
     _targetFound(false) {
+    _status_messages();
     _check_target();
     if (request->get_method() == GET)
         _response_get();
@@ -63,13 +64,13 @@ Response::Response(const Response& instance) : _request(instance._request), _ser
 }
 
 Response::~Response() {
-	delete[] this->_finalMessage;
+	// delete[] this->_finalMessage;
 }
 
 // _______________________   Status code and errors   _____________________________ //
 
 void Response::_status_messages() {
-    this->_statusMsg[200] = "HTTP_OK";
+    this->_statusMsg[200] = "OK";
     this->_statusMsg[400] = "BAD_REQUEST";
     this->_statusMsg[403] = "FORBIDDEN";
     this->_statusMsg[404] = "NOT_FOUND";
@@ -124,24 +125,39 @@ void Response::_make_final_message(std::string &header, const char *body, std::f
 		pbuf->sgetn(tmp, len);
 }
 
+
 void Response::_make_response() {
-	std::ifstream ifs(this->_target, std::ifstream::binary);
-	// if (!ifs.is_open())
-	// 	error("Error: impossible to open input file", "", 1);												// GERER L ERREUR CORRECTEMENT
 
-	// get pointer to associated buffer object
-	std::filebuf *pbuf = ifs.rdbuf();
+    std::string body;
 
-	// get file size using buffer's members
-	size_t size = pbuf->pubseekoff(0,ifs.end,ifs.in);
-	pbuf->pubseekpos(0,ifs.in);
-	// if (size > FILE_MAX_LEN)
-	// 	error("Error: input file is too large: maximum is 1MO", "", 1);										// GERER L ERREUR CORRECTEMENT
+    std::ifstream f(this->_target);			
+    if(f) {									
+      std::ostringstream ss;				
+      ss << f.rdbuf();
+      body = ss.str();
+   }
+    std::string test = this->_header + "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + body;
 
-	this->_make_final_message(this->_header, NULL, pbuf, size);
-	ifs.close();
-    if (PRINT_HTTP_RESPONSE)
-        std:: cout << *this->_finalMessage << std::endl;
+    this->_finalMessage = const_cast<char *>(test.c_str());
+    this->_finalMessageSize = test.size();
+
+	// std::ifstream ifs(this->_target, std::ifstream::binary);
+	// // if (!ifs.is_open())
+	// // 	error("Error: impossible to open input file", "", 1);												// GERER L ERREUR CORRECTEMENT
+
+	// // get pointer to associated buffer object
+	// std::filebuf *pbuf = ifs.rdbuf();
+
+	// // get file size using buffer's members
+	// size_t size = pbuf->pubseekoff(0,ifs.end,ifs.in);
+	// pbuf->pubseekpos(0,ifs.in);
+	// // if (size > FILE_MAX_LEN)
+	// // 	error("Error: input file is too large: maximum is 1MO", "", 1);										// GERER L ERREUR CORRECTEMENT
+
+	// this->_make_final_message(this->_header, NULL, pbuf, size);
+	// ifs.close();
+    // if (PRINT_HTTP_RESPONSE)
+    //     std:: cout << this->_finalMessage << std::endl;
 } 
 
 // _______________________   GET   _____________________________ //
@@ -150,7 +166,7 @@ void Response::_response_get() {
     char *date;
 
     date = Rfc1123_DateTimeNow();
-    this->_header = this->_version + this->_statusCode + this->_statusMsg[atoi(this->_statusCode.c_str())] + "\r\n" +
+    this->_header = this->_version + " " + this->_statusCode + " " + this->_statusMsg[atoi(this->_statusCode.c_str())] + "\r\n" +
         "Content-Type: " + this->_targetType + "\r\n" +
         "Server: pizzabrownie\r\n" +
         "Date: " + date + "\r\n";

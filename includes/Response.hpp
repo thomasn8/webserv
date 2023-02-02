@@ -45,7 +45,6 @@ class Response {
 		void			_check_target();
 		int				_check_redirections(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
 		void 			_check_methods_in_location(std::deque<Location>::iterator &locationFound);
-		// void			_add_root_to_target(std::string &target, std::deque<Location> &locations);
 		int				_add_root_if_cgi(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
 		int				_is_index_file(std::string &target, std::list<std::string> indexes);
 		void			_check_locations(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
