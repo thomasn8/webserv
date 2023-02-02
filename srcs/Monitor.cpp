@@ -264,26 +264,27 @@ void Monitor::handle_connections()
 	_prepare_master_sockets(); // socket, bind, listen pour chaque port/server + creer les struct pollfd dédiées
 	int i, poll_index = 0, poll_count = 0, server_count = _servers.size();
 	_buf.capacity = 0;
-	std::string responseStr;
-	while (1)													// Main loop
+	char *responseStr;
+	size_t responseSize;
+	while (1)																						// Main loop
 	{
-		poll_count = poll(_pfds, _fd_count, POLL_TIMEOUT);		// bloque tant qu'aucun fd est prêt à read ou write
+		poll_count = poll(_pfds, _fd_count, POLL_TIMEOUT);											// bloque tant qu'aucun fd est prêt à read ou write
         if (poll_count < 0)
 			log(get_time(), " Error: poll failed\n");
 		i = poll_index;
-		while (i < _fd_count)									// cherche parmi tous les fd ouverts
+		while (i < _fd_count)																		// cherche parmi tous les fd ouverts
 		{
-			if (_pfds[i].revents & POLLIN)						// event sur fd[i] si poll a debloqué pour un fd prêt à read
+			if (_pfds[i].revents & POLLIN)															// event sur fd[i] si poll a debloqué pour un fd prêt à read
 			{
 /* START CHRONO */uint64_t ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 				for (int j = 0; j < server_count; j++)
 				{
-					if (_pfds[i].fd == _master_sockets[j])		// si fd correspond a un socket de server en ecoute
+					if (_pfds[i].fd == _master_sockets[j])											// si fd correspond a un socket de server en ecoute
 					{
 						_accept_new_connection(j);
 						break;
 					}
-					if (j == server_count - 1)					// sinon fd correspond a un client qui fait une request
+					if (j == server_count - 1)														// sinon fd correspond a un client qui fait une request
 					{
 						if (_recv_all(_pfds[i].fd, _activeSockets[i]) != -1)
 						{
@@ -291,18 +292,30 @@ void Monitor::handle_connections()
 							{
 								std::string requestStr(_buf.begin, _buf.size);
 								try {
-									Request request(&requestStr, _activeSockets[i].server);					// essaie de constr une requeste depuis les donnees recues
-									Response response(&request, _activeSockets[i].server, &responseStr);	// essaie de constr une response si on a une request
+									Request request(&requestStr, _activeSockets[i].server);			// essaie de constr une requeste depuis les donnees recues
+									Response response(&request, _activeSockets[i].server);			// essaie de constr une response si on a une request
+									responseStr = response._finalMessage;
+									responseSize = response._finalMessageSize;
 								}
 								catch (StatusCodeException & e) {
-									Response response(e.statuscode(), _activeSockets[i].server, &responseStr);	// si request a un probleme, construit une response selon son status code
+									Response response(e.statuscode(), _activeSockets[i].server);	// si request a un probleme, construit une response selon son status code
+									responseStr = response._finalMessage;
+									responseSize = response._finalMessageSize;
 								}
 							}
 							else
-								Response response(HEADERS_TOO_LARGE, _activeSockets[i].server, &responseStr);
+							{
+								Response response(HEADERS_TOO_LARGE, _activeSockets[i].server);
+								responseStr = response._finalMessage;
+								responseSize = response._finalMessageSize;
+							}
 						}
 						else
-							Response response(PAYLOAD_TOO_LARGE, _activeSockets[i].server, &responseStr);	// si recvall a atteint le MBS, constuit une response selon le status code
+						{
+							Response response(PAYLOAD_TOO_LARGE, _activeSockets[i].server);			// si recvall a atteint le MBS, constuit une response selon le status code
+							responseStr = response._finalMessage;
+							responseSize = response._finalMessageSize;
+						}
 						if (_buf.capacity > BUFFER_LIMIT)
 						{
 							free(_buf.begin);
@@ -317,12 +330,12 @@ void Monitor::handle_connections()
 					}
 				}
 			}
-			else if (_pfds[i].revents & POLLOUT) 				// event sur fd[i] si poll a debloquer pour un fd prêt à write
+			else if (_pfds[i].revents & POLLOUT) 													// event sur fd[i] si poll a debloquer pour un fd prêt à write
 			{
-				_send_all(i, responseStr.c_str(), responseStr.size(), _activeSockets[i]);				// send la response construite dans response
+				_send_all(i, responseStr, responseSize, _activeSockets[i]);							// send la response construite dans response
 				poll_index = 0; // reset l'index au debut des fds
 			}
-			else if (_pfds[i].revents & POLLHUP || _pfds[i].revents & POLLERR) 	// event sur fd[i], connection perdue sur le socket en question
+			else if (_pfds[i].revents & POLLHUP || _pfds[i].revents & POLLERR) 						// event sur fd[i], connection perdue sur le socket en question
 			{
 				close(_pfds[i].fd);
 				_del_from_pfds(i);

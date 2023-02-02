@@ -13,12 +13,16 @@
 
 class Response {
 	public:
-		Response(const int code, Server *server, std::string * finalMessage);
-		Response(Request *request, Server *server, std::string * finalMessage);
+		Response(const int code, Server *server);
+		Response(Request *request, Server *server);
 		Response(const Response &instance);
 		virtual ~Response();
 
-		std::string getMessage() const;
+		char	*_finalMessage;
+		size_t	_finalMessageSize;
+
+		char * getFinaleMessage() const;
+		size_t getFinaleMessageSize() const;
 		std::string getStatusCode() const;
 		std::string getReason() const;
 		std::string getVersion() const;
@@ -52,11 +56,11 @@ class Response {
 		void			_decript_img();
 		std::string		_what_kind_of_cgi(std::string &target);
 		std::string		_what_kind_of_extention(std::string &target);
+		void 			_make_final_message(std::string &header, const char *body, std::filebuf *pbuf, size_t len);
 		
 		Request						*_request;
 		Server						*_server;
 		std::map<int, std::string> 	_statusMsg;
-		std::string 				*_finalMessage;
 		std::string 				_version;
 		std::string 				_header;
 		std::string 				_statusCode;
