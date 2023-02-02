@@ -5,13 +5,11 @@
 // constructor for error response
 Response::Response(const int code, Server *server) :
 _server(server), _version(std::string("HTTP/1.1")) {
-    char            *date;
     std::string     body;
 	std::string 	codestr = std::to_string(code);
 
-
     _status_messages();
-    date = Rfc1123_DateTimeNow();
+    std::string date = Rfc1123_DateTimeNow();
     this->_header = "HTTP/1.1 " + std::to_string(code) + (" " + this->_statusMsg[code]) + "\r\n" +
             "Content-Type: text/html, charset=utf-8\r\n" +
             "Server: pizzabrownie\r\n" +
@@ -33,10 +31,7 @@ _server(server), _version(std::string("HTTP/1.1")) {
                 <p>" + this->_statusMsg[code] + "</p> \
             </body> \
             </html>";
-
 		this->_make_final_message(this->_header, body.c_str(), NULL, body.size());
-
-        free(date);
     }
 }
 
@@ -146,15 +141,12 @@ void Response::_make_response() {
 // _______________________   GET   _____________________________ //
 
 void Response::_response_get() {
-    char *date;
-
-    date = Rfc1123_DateTimeNow();
+    std::string date = Rfc1123_DateTimeNow();
     std::cout << this->_targetType << std::endl;
     this->_header = this->_version + " 200 " + "OK\r\n" +
         "Content-Type: " + this->_targetType + ", charset=utf-8\r\n" +
         "Server: pizzabrownie\r\n" +
         "Date: " + date + "\r\n";
-    free(date);
     if (!this->_cgi.empty())
         _make_CGI();
     else

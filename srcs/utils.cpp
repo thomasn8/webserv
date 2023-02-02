@@ -15,21 +15,22 @@ bool is_number(const std::string& s)
     return !s.empty() && it == s.end();
 }
 
-char *Rfc1123_DateTimeNow()
+std::string Rfc1123_DateTimeNow()
 {
     const int RFC1123_TIME_LEN = 29;
     time_t t;
     struct tm tm;
-    char * buf = (char *)malloc(RFC1123_TIME_LEN+1);
+    // char * buf = (char *)malloc(RFC1123_TIME_LEN+1); // enlevê le + 1 car pas utilisé
+    char * buf = (char *)malloc(RFC1123_TIME_LEN); 
 
     time(&t);
     gmtime_r(&t, &tm);
 
-    strftime(buf, RFC1123_TIME_LEN+1, "---, %d --- %Y %H:%M:%S GMT", &tm);
+    strftime(buf, RFC1123_TIME_LEN, "---, %d --- %Y %H:%M:%S GMT", &tm);
     memcpy(buf, DAY_NAMES[tm.tm_wday], 3);
     memcpy(buf+8, MONTH_NAMES[tm.tm_mon], 3);
 
-    return buf;
+    return std::string(buf, RFC1123_TIME_LEN);
 }
 
 void highlight_crlf(const char *block, ssize_t size)
