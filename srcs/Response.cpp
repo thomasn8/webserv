@@ -32,7 +32,7 @@ _server(server), _version(std::string("HTTP/1.1")) {
                 <h1>Error " + codestr + "</h1> \
                 <p>" + this->_statusMsg[code] + "</p> \
             </body> \
-            </html>\0";
+            </html>";
 
 		this->_make_final_message(this->_header, body.c_str(), NULL, body.size());
 
