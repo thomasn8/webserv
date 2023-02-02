@@ -44,6 +44,7 @@ void Monitor::add_server() { _servers.push_back(Server()); }
 */
 void Monitor::_prepare_master_sockets()
 {
+	log(get_time(), " SERVER STARTED\n");
 	it_servers it = _servers.begin();
 	it_servers ite = _servers.end();
 	int socket_fd;
@@ -53,7 +54,7 @@ void Monitor::_prepare_master_sockets()
 	while (it != ite)
 	{
 		socket_fd = (*it).create_socket();
-		log((*it).get_ipv4_port_str(), " listening on socket ", socket_fd, "\n");
+		log("port ", (*it).get_port_str(), " listening on socket ", socket_fd, "\n");
 		_master_sockets[i] = socket_fd;
 		_fd_count++;
 		it++;
@@ -74,10 +75,7 @@ void Monitor::_prepare_master_sockets()
     	_pfds[i].revents = 0;
 		_activeSockets[i].pfd = NULL;
 	}
-	if (_servers.size() == 1)
-		log(get_time(), " SERVER STARTED\n\n");
-	else
-		log(get_time(), " SERVERS STARTED\n\n");
+	log("\n");
 }
 
 struct socket * Monitor::_add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, Server * server)
@@ -246,9 +244,9 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 		total_sent += size_sent;
 	}
 	if (total_sent == size)
-		log(get_time(), " Response to     ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(),  ": socket ", fd, ",	send ", total_sent, " bytes, connection closed\n");
+		log(get_time(), " Response to     ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(),  ": socket ", fd, ",	send ", total_sent, " bytes\n");
 	else
-		log(get_time(), " Response error: partial send to client " , activeSocket.client, " on server port ", activeSocket.server->get_port_str(),  ": socket ", fd, ",	send ", total_sent, "/", size, "bytes, connection closed\n");
+		log(get_time(), " Response error: partial send to client " , activeSocket.client, " on server port ", activeSocket.server->get_port_str(),  ": socket ", fd, ",	send ", total_sent, "/", size, "bytes\n");
 	close(fd);
 	_del_from_pfds(i);
 	return total_sent;
@@ -264,6 +262,7 @@ void Monitor::handle_connections()
 	char *ptr;
 	char **responseStr = &ptr;
 	size_t responseSize;
+	uint64_t chrono_start;
 	while (1)																						// Main loop
 	{
 		poll_count = poll(_pfds, _fd_count, POLL_TIMEOUT);											// bloque tant qu'aucun fd est prêt à read ou write
@@ -274,7 +273,6 @@ void Monitor::handle_connections()
 		{
 			if (_pfds[i].revents & POLLIN)															// event sur fd[i] si poll a debloqué pour un fd prêt à read
 			{
-/* START CHRONO */uint64_t ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 				for (int j = 0; j < server_count; j++)
 				{
 					if (_pfds[i].fd == _master_sockets[j])											// si fd correspond a un socket de server en ecoute
@@ -284,13 +282,14 @@ void Monitor::handle_connections()
 					}
 					if (j == server_count - 1)														// sinon fd correspond a un client qui fait une request
 					{
+						_start_chrono();
 						if (_recv_all(_pfds[i].fd, _activeSockets[i]) != -1)
 						{
 							if (_replace_alone_header_cr() != -1)
 							{
 								std::string requestStr(_buf.begin, _buf.size);
 								try {
-									Request request(&requestStr, _activeSockets[i].server);			// essaie de constr une requeste depuis les donnees recues
+									Request request(&requestStr, _activeSockets[i].server);										// essaie de constr une requeste depuis les donnees recues
 									Response response(&request, _activeSockets[i].server, responseStr, &responseSize);			// essaie de constr une response si on a une request
 								}
 								catch (StatusCodeException & e) {
@@ -310,20 +309,19 @@ void Monitor::handle_connections()
 						_pfds[i].events = POLLOUT;
 						poll_index = i; // permet de revenir dans la main loop avec l'index du pfds à écrire
 						i = _fd_count;  // break la while loop
-/* STOP CHRONO */		uint64_t ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-						uint64_t ms3 = ms2 - ms1;
-						std::cout << ms3 << " ms\n";
 					}
 				}
 			}
 			else if (_pfds[i].revents & POLLOUT) 													// event sur fd[i] si poll a debloquer pour un fd prêt à write
 			{
-				_send_all(i, *responseStr, responseSize, _activeSockets[i]);						// send la response construite dans response
+				_send_all(i, *responseStr, responseSize, _activeSockets[i]);			// send la response construite dans response
+				_stop_chrono(_pfds[i].fd);
 				free(*responseStr);
 				poll_index = 0; // reset l'index au debut des fds
 			}
 			else if (_pfds[i].revents & POLLHUP || _pfds[i].revents & POLLERR) 						// event sur fd[i], connection perdue sur le socket en question
 			{
+				_stop_chrono(_pfds[i].fd);
 				close(_pfds[i].fd);
 				_del_from_pfds(i);
 				poll_index = 0;
@@ -331,6 +329,16 @@ void Monitor::handle_connections()
 			i++;
 		}
 	}
+}
+
+void Monitor::_start_chrono() { _chrono_start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count(); }
+
+void Monitor::_stop_chrono(int fd)
+{
+	_chrono_stop = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	_chrono_stop -= _chrono_start;
+	log("Socket ", fd ,": connection closed, communication time = ", _chrono_stop, " ms\n");
+	// std::cout << chrono_stop << " ms\n";
 }
 
 /* 
@@ -370,6 +378,6 @@ std::string Monitor::get_time()
     struct tm tstruct;
     char buf[80] = {0};
     tstruct = *localtime(&now);
-    strftime(buf, sizeof(buf), "%Y/%m/%d %X", &tstruct);
+    strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
 	return std::string(buf);
 }
