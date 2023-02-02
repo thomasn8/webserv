@@ -237,7 +237,7 @@ void parse(int ac, const char **av, struct request * test) {
 		std::filebuf *pbuf = ifs.rdbuf();
 		// get file size using buffer's members
 		size_t size = pbuf->pubseekoff(0,ifs.end,ifs.in);
-		pbuf->pubseekpos (0,ifs.in);
+		pbuf->pubseekpos(0,ifs.in);
 		if (size > FILE_MAX_LEN)
 			error("Error: input file is too large: maximum is 1MO", "", 1);
 		// allocate memory to contain file data

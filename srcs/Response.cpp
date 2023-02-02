@@ -96,16 +96,25 @@ int Response::_check_error_pages(const int code) {
 // _______________________   Final Response Creation   _____________________________ //
 
 void Response::_make_response() {
-    std::string body;
+	std::ifstream ifs(this->_target, std::ifstream::binary);
+	// if (!ifs.is_open())
+	// 	error("Error: impossible to open input file", "", 1);												// GERER L ERREUR CORRECTEMENT
+	
+	// get pointer to associated buffer object
+	std::filebuf *pbuf = ifs.rdbuf();
+	// get file size using buffer's members
+	size_t size = pbuf->pubseekoff(0,ifs.end,ifs.in);
+	pbuf->pubseekpos(0,ifs.in);
+	// if (size > FILE_MAX_LEN)
+	// 	error("Error: input file is too large: maximum is 1MO", "", 1);										// GERER L ERREUR CORRECTEMENT
 
-    std::ifstream f(this->_target);			// voir aussi dans client.cpp (methode pour passer par 1 copie en moins)
-    if(f) {									// car ici ifstream -> ostringstream -> body 	= 2 copies
-      std::ostringstream ss;				// possible d'en faire qu'une sauf erreur
-      ss << f.rdbuf();
-      body = ss.str();
-   }
-    // *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
-    *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + body;						// enlevé une copie superficielle (possible d'eviter encore une sauf erreur)
+	// allocate memory to contain file data
+	char *body = new char[size];
+	// get file data
+	pbuf->sgetn(body, size);
+	ifs.close();
+
+    *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(size) + "\r\n\r\n" + body;		// moyen d eviter de concat body (donc de le recopier)
     if (PRINT_HTTP_RESPONSE)
         std:: cout << *this->_finalMessage << std::endl;
 }
