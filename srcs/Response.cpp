@@ -341,6 +341,20 @@ std::string Response::_what_kind_of_extention(std::string &target) {
             return "text/javascript";
         else if (target.compare(pos, 4, "html") == 0)
             return "text/html";
+        else if (target.compare(pos, 3, "svg") == 0)
+            return "image/svg+xml";
+        else if (target.compare(pos, 4, "woff") == 0)
+            return "font/woff";
+        else if (target.compare(pos, 4, "woff") == 0)
+            return "font/woff";
+        else if (target.compare(pos, 3, "ttf") == 0)
+            return "font/ttf";
+        else if (target.compare(pos, 3, "otf") == 0)
+            return "font/otf";
+        else if (target.compare(pos, 3, "jpg") == 0)
+            return "image/jpeg";
+        else if (target.compare(pos, 3, "png") == 0)
+            return "image/png";
     }
     return "text/plain";
 }
