@@ -216,7 +216,7 @@ int Response::_make_CGI() {
             std:: cout << "path:" << this->_target << std::endl;
         close(fd[0]);
         if (dup2(fd[1], STDOUT_FILENO) == -1) {exit(EXIT_FAILURE);}
-        execlp("php", "php", this->_target.c_str(), NULL);
+        execlp("php", "php", this->_target.c_str(), NULL);							// ON A VRMT LE DROIT A CETTE FONCTION? C EST PAS EXECVE ?
         std::cerr << "Error launching cgi: " << this->_target << std::endl;
         write(1, "500", 3);
         exit(0);
