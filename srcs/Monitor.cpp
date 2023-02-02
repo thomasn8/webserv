@@ -144,7 +144,7 @@ void Monitor::_accept_new_connection(int master_index)
 	else
 	{
 		struct socket * client_socket = _add_to_pfds(new_fd, &remoteAddr, &_servers[master_index]);
-		log(get_time(), " New connection  ", client_socket->client, " on server port ", _servers[master_index].get_port_str(), " via socket ", new_fd, "\n");
+		log(get_time(), " New connection  ", client_socket->client, " on server port ", _servers[master_index].get_port_str(), ": socket ", new_fd, "\n");
 	}
 }
 
@@ -206,7 +206,7 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 			return -1;
 		if (size_recv < CHUNK_RECV) // toute la request a été read
 		{
-			log(get_time(), " Request from    ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(), ": ", _buf.size, " bytes read via socket ", fd, "\n");
+			log(get_time(), " Request from    ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(), ": socket ", fd, ",	read ", _buf.size, " bytes\n");
 			return _buf.size;
 		}
 	}
@@ -249,9 +249,9 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 		total_sent += size_sent;
 	}
 	if (total_sent == size)
-		log(get_time(), " Response to     ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(),  ": ", total_sent, " bytes sent via socket ", fd, ", connection closed\n");
+		log(get_time(), " Response to     ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(),  ": socket ", fd, ",	send ", total_sent, " bytes, connection closed\n");
 	else
-		log(get_time(), " Response error: partial send to client " , activeSocket.client, " on server port ", activeSocket.server->get_port_str(),  ": ", total_sent, "/", size, "bytes sent via socket ", fd, ", connection closed\n");
+		log(get_time(), " Response error: partial send to client " , activeSocket.client, " on server port ", activeSocket.server->get_port_str(),  ": socket ", fd, ",	send ", total_sent, "/", size, "bytes, connection closed\n");
 	close(fd);
 	_del_from_pfds(i);
 	return total_sent;
