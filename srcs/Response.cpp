@@ -3,7 +3,8 @@
 // ---------Constructor and destructor ------------
 
 // constructor for error response
-Response::Response(const int code, Server *server, std::string * finalMessage) : _server(server), _version(std::string("HTTP/1.1")), _finalMessage(finalMessage) {
+Response::Response(const int code, Server *server) :
+_server(server), _version(std::string("HTTP/1.1")) {
     char            *date;
     std::string     body;
 	std::string 	codestr = std::to_string(code);
@@ -33,17 +34,16 @@ Response::Response(const int code, Server *server, std::string * finalMessage) :
             </body> \
             </html>";
 
-        // *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
-        *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(body.size()) + "\r\n\r\n" + body;						// enlevé une copie superficielle
+		this->_make_final_message(this->_header, body.c_str(), NULL, body.size());
+
         free(date);
     }
 }
 
 // constructor for normal response
-Response::Response(Request *request, Server *server, std::string * finalMessage) : 
+Response::Response(Request *request, Server *server) : 
     _request(request), 
     _server(server),
-	_finalMessage(finalMessage),
     _version(std::string("HTTP/1.1")),
     _autoindex(false),
     _targetFound(false) {
@@ -63,7 +63,7 @@ Response::Response(const Response& instance) : _request(instance._request), _ser
 }
 
 Response::~Response() {
-
+	delete[] this->_finalMessage;
 }
 
 // _______________________   Status code and errors   _____________________________ //
@@ -95,17 +95,50 @@ int Response::_check_error_pages(const int code) {
 
 // _______________________   Final Response Creation   _____________________________ //
 
-void Response::_make_response() {
-    std::string body;
+void Response::_make_final_message(std::string &header, const char *body, std::filebuf *pbuf, size_t len) {
+	size_t header_size = header.size();
+	std::string bodysize = std::to_string(len);
+	int bodysize_len = bodysize.size();
 
-    std::ifstream f(this->_target);			// voir aussi dans client.cpp (methode pour passer par 1 copie en moins)
-    if(f) {									// car ici ifstream -> ostringstream -> body 	= 2 copies
-      std::ostringstream ss;				// possible d'en faire qu'une sauf erreur
-      ss << f.rdbuf();
-      body = ss.str();
-   }
-    // *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(body).length()) + "\r\n\r\n" + body;
-    *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + body;						// enlevé une copie superficielle (possible d'eviter encore une sauf erreur)
+	// calc len + allocate
+	this->_finalMessageSize = header_size;
+	this->_finalMessageSize += 20; // for "Content-Length: \r\n\r\n"
+	this->_finalMessageSize += bodysize_len;
+	this->_finalMessageSize += len;
+	this->_finalMessage = new char[this->_finalMessageSize];
+
+	// set memory
+	char *tmp = this->_finalMessage;
+	memcpy(tmp, header.c_str(), header_size);
+	tmp += header_size;
+	memcpy(tmp, "Content-Length: ", 16);
+	tmp += 16;
+	memcpy(tmp, bodysize.c_str(), bodysize_len);
+	tmp += bodysize_len;
+	memcpy(tmp, "\r\n\r\n", 4);
+	tmp += 4;
+	if (body)
+		memcpy(tmp, body, len);
+	else
+		pbuf->sgetn(tmp, len);
+}
+
+void Response::_make_response() {
+	std::ifstream ifs(this->_target, std::ifstream::binary);
+	// if (!ifs.is_open())
+	// 	error("Error: impossible to open input file", "", 1);												// GERER L ERREUR CORRECTEMENT
+
+	// get pointer to associated buffer object
+	std::filebuf *pbuf = ifs.rdbuf();
+
+	// get file size using buffer's members
+	size_t size = pbuf->pubseekoff(0,ifs.end,ifs.in);
+	pbuf->pubseekpos(0,ifs.in);
+	// if (size > FILE_MAX_LEN)
+	// 	error("Error: input file is too large: maximum is 1MO", "", 1);										// GERER L ERREUR CORRECTEMENT
+
+	this->_make_final_message(this->_header, NULL, pbuf, size);
+	ifs.close();
     if (PRINT_HTTP_RESPONSE)
         std:: cout << *this->_finalMessage << std::endl;
 }
@@ -170,8 +203,10 @@ int Response::_make_CGI() {
 	pid_t       pid;
     int		    status;
     char        *cgi;
+	size_t		cgi_size;
 
-    cgi = (char *)malloc(sizeof(char) * this->_server->get_client_max_body_size());
+	cgi_size = this->_server->get_client_max_body_size();
+    cgi = (char *)malloc(sizeof(char) * cgi_size);
     if (pipe(fd) == -1) {return -1;}
 	pid = fork();
 	if (pid == -1) {exit(EXIT_FAILURE);}
@@ -188,7 +223,7 @@ int Response::_make_CGI() {
 	}
     else {
         close(fd[1]);
-        if (read(fd[0], cgi, this->_server->get_client_max_body_size()) < 0) {
+        if (read(fd[0], cgi, cgi_size) < 0) {
             close(fd[0]);
             return (1);
         }
@@ -196,12 +231,14 @@ int Response::_make_CGI() {
         if (is_number(cgi))
             throw ResponseException(atoi(cgi));
         if (PRINT_CGI_GET)
-            std:: cout << "cgi recieve:" << cgi << std::endl;
-       *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(std::string(cgi).length()) + "\r\n\r\n" + cgi;
-        free(cgi);
+            std:: cout << "cgi recieve:" << std::string(cgi, cgi_size) << std::endl;
+
+		this->_make_final_message(this->_header, cgi, NULL, cgi_size);
+		free(cgi);
         if (PRINT_HTTP_RESPONSE)
-            std:: cout << *this->_finalMessage << std::endl;
+            std:: cout << std::string(this->_finalMessage, this->_finalMessageSize) << std::endl;
         }
+
     return (0);
 }
 
@@ -430,8 +467,12 @@ void Response::_check_target() {
 
 // --------- Fonctions getteur ------------
 
-std::string Response::getMessage() const {
-    return *this->_finalMessage;
+char * Response::getFinaleMessage() const {
+    return this->_finalMessage;
+}
+
+size_t Response::getFinaleMessageSize() const {
+    return this->_finalMessageSize;
 }
 
 std::string Response::getStatusCode() const {
@@ -453,6 +494,7 @@ Response &Response::operator=(const Response &instance) {
     this->_request = instance._request;
     this->_server = instance._server;
     this->_finalMessage = instance._finalMessage;
+    this->_finalMessageSize = instance._finalMessageSize;
     this->_statusCode = instance._statusCode;
     this->_reason = instance._reason;
     this->_version = instance._version;
