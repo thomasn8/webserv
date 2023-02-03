@@ -122,9 +122,10 @@ void Response::_make_final_message(std::string &header, const char *body, std::f
 	tmp += bodysize_len;
 	memcpy(tmp, "\r\n\r\n", 4);
 	tmp += 4;
-	if (body)
-		memcpy(tmp, body, len);
-	else
+
+	if (body)						// AU LIEU DE LE COPIER ICI + DANS LE SEND
+		memcpy(tmp, body, len);		// VOIR POUR RETOURNER UN PTR + LA SIZE AVEC LA PARTIE DU HAUT
+	else							// + COMPARER LES DIFFERENCES DE PERFORMANCE CAR SEND_ALL SERA APPELE 2X (1x header + 1x body)
 		pbuf->sgetn(tmp, len);
 }
 
