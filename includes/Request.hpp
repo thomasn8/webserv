@@ -28,11 +28,11 @@ class Request {
 		Request(const Request &instance);
 		~Request();
 
-		std::string get_method() const;
-		std::string get_target() const;
-		std::map<std::string, std::list<std::string>> &get_fields();
-		std::map<std::string, std::string> &get_defaultDatas();
-		std::list<MultipartData *> &get_multipartDatas();
+		std::string const & get_method();
+		std::string const & get_target();
+		std::map<std::string, std::list<std::string>> const &get_fields();
+		std::map<std::string, std::string> const &get_defaultDatas();
+		std::list<MultipartData *> const &get_multipartDatas();
 
 		class RequestException : public StatusCodeException {
 			public:

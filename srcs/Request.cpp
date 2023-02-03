@@ -33,15 +33,15 @@ Request::~Request()
 
 // --------- Getters/Setters ------------
 
-std::string Request::get_method() const { return _method; }
+std::string const & Request::get_method() { return _method; }
 
-std::string Request::get_target()const { return _target; }
+std::string const & Request::get_target() { return _target; }
 
-std::map<std::string, std::list<std::string>> & Request::get_fields() { return _fields; }
+std::map<std::string, std::list<std::string>> const & Request::get_fields() { return _fields; }
 
-std::map<std::string, std::string> & Request::get_defaultDatas() { return _postNameValue; }
+std::map<std::string, std::string> const & Request::get_defaultDatas() { return _postNameValue; }
 
-std::list<MultipartData *> & Request::get_multipartDatas() { return _postMultipart; }
+std::list<MultipartData *> const & Request::get_multipartDatas() { return _postMultipart; }
 
 // --------- Parse HEADER ------------
 
