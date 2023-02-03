@@ -65,21 +65,21 @@ std::string Response::_status_messages(int code) {
 	switch (code)
 	{
 		case 200:
-			return "HTTP_OK";
+			return "OK";
 		case 400:
-			return "BAD_REQUEST";
+			return "BAD REQUEST";
 		case 403:
 			return "FORBIDDEN";
 		case 404:
-			return "NOT_FOUND";
+			return "NOT FOUND";
 		case 405:
-			return "METHOD_NOT_ALLOWED";
+			return "METHOD NOT ALLOWED";
 		case 500:
-			return "INTERNAL_SERVER_ERROR";
+			return "INTERNAL SERVER ERROR";
 		case 505:
-			return "HTTP_VERSION_UNSUPPORTED";
+			return "HTTP VERSION UNSUPPORTED";
 		default:
-			return "NO_CORRESPONDING_ERROR_MESSAGE";
+			return "NO CORRESPONDING ERROR MESSAGE";
 	}
 }
 
