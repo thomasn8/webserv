@@ -29,7 +29,7 @@ void Monitor::log_server_info()
 			_accessStream << (*it8).second;
 			_accessStream << std::endl;
 		}
-		_accessStream << "	" << "client_mbs: " << (*it).get_client_max_body_size() << std::endl;
+		_accessStream << "	" << "client_mbs: " << (*it).get_max_body_size() << std::endl;
 		std::deque<Location>::iterator it2 = (*it).get_locations().begin();
 		for (; it2 != (*it).get_locations().end(); it2++)
 		{	

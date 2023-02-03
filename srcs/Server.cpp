@@ -12,7 +12,7 @@ _defaultServerNames(true),
 _root(std::string(_webserv_bin_path().append("/").append(DEFAULT_ROOT))),
 _indexFiles(std::list<std::string>(1, std::string(DEFAULT_INDEX))),
 _defaultIndex(true),
-_clientMaxBodySize(MBS),
+_maxBodySize(MBS),
 _maxrecv(MHS + MBS),
 _errorPages(std::list<error_page_pair>()),
 _socket_fd(-1),
@@ -29,7 +29,7 @@ _defaultServerNames(src._defaultServerNames),
 _root(src._root),
 _indexFiles(src._indexFiles),
 _defaultIndex(src._defaultIndex),
-_clientMaxBodySize(src._clientMaxBodySize),
+_maxBodySize(src._maxBodySize),
 _maxrecv(src._maxrecv),
 _errorPages(src._errorPages),
 _socket_fd(src._socket_fd),
@@ -243,7 +243,7 @@ void Server::set_client_max_body_size(std::string & value)
 			else if (unit.compare("MB") == 0 || unit.compare("MO") == 0 || unit.compare("M") == 0)
 				mbs *= 1000 * 1000;
 			else if (unit.compare("GB") == 0 || unit.compare("GO") == 0 || unit.compare("G") == 0)
-				_exit_cerr_msg("Error: client_max_body_size too large: maximum of 500MB\n", 1);
+				_exit_cerr_msg("Error: client_max_body_size too large: maximum of 100MB\n", 1);
 			else
 				_exit_cerr_msg("Error: invalid client_max_body_size format. Examples: 4000, 300KB, 2M\n", 1);
 		}
@@ -252,9 +252,9 @@ void Server::set_client_max_body_size(std::string & value)
 		_exit_cerr_msg("Error: invalid client_max_body_size format. Examples: 4000, 300KB, 2M\n", 1);
 	}
 	if (mbs > MAX_MBS)
-		_exit_cerr_msg("Error: client_max_body_size too large: maximum of 500MB\n", 1);
-	_clientMaxBodySize = mbs;
-	_clientMaxBodySize ? _maxrecv = _clientMaxBodySize + MHS : _maxrecv = 0;
+		_exit_cerr_msg("Error: client_max_body_size too large: maximum of 100MB\n", 1);
+	_maxBodySize = mbs;
+	_maxBodySize ? _maxrecv = _maxBodySize + MHS : _maxrecv = 0;
 }
 
 uint16_t Server::get_port() const { return _port; }
@@ -276,7 +276,7 @@ std::string Server::get_root() const { return _root; }
 std::list<std::string> & Server::get_indexes() { return _indexFiles; }
 
 // max body size
-size_t Server::get_client_max_body_size() const { return _clientMaxBodySize; }
+size_t Server::get_max_body_size() const { return _maxBodySize; }
 
 // max body size + max header size
 size_t Server::get_maxrecv() const { return _maxrecv; }

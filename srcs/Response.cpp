@@ -208,7 +208,7 @@ int Response::_make_CGI() {
     char        *cgi;
 	size_t		cgi_size;
 
-	cgi_size = this->_server->get_client_max_body_size();
+	cgi_size = this->_server->get_max_body_size();
     cgi = (char *)malloc(sizeof(char) * cgi_size);
     if (pipe(fd) == -1) {return -1;}
 	pid = fork();

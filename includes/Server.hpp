@@ -75,7 +75,7 @@ class Server
 		std::string get_root() const;
 		std::list<std::string> & get_indexes();
 		std::list<error_page_pair> & get_errorpages();
-		size_t get_client_max_body_size() const;
+		size_t get_max_body_size() const;
 		size_t get_maxrecv() const;
 		struct sockaddr_in & get_address();
 		std::string _webserv_bin_path() const;
@@ -95,7 +95,7 @@ class Server
 		std::string	_root;
 		bool _defaultIndex;
 		std::list<std::string> _indexFiles;
-		size_t _clientMaxBodySize;
+		size_t _maxBodySize;
 		size_t _maxrecv;
 		std::list<error_page_pair> _errorPages;
 
