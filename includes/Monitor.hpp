@@ -101,6 +101,10 @@ class Monitor
 		int _replace_alone_header_cr(void);
 
 		// LOG
+		uint64_t _chrono_start;
+		uint64_t _chrono_stop;
+		void _start_chrono();
+		void _stop_chrono(int fd);
 		void _create_log_file(std::string const & filename, std::ofstream & stream);
 		const std::string & _accessFile;
 		std::ofstream _accessStream;
