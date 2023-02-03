@@ -44,6 +44,7 @@ Response::Response(char **env, Request *request, Server *server, char **response
     _autoindex(false),
     _targetFound(false),
     _env(env) {
+    _prepare_env(); // enlever ça ici. C'est juste pour tester
     _check_target();
     if (request->get_method() == GET)
         _response_get();
@@ -86,10 +87,9 @@ std::string Response::_status_messages(int code) {
 
 // check if there is an error pages set in conf file
 int Response::_check_error_pages(const int code) {
-    std::list<std::pair<int, std::string>> &errorPages = this->_server->get_errorpages();
-    std::list<std::pair<int, std::string>>::iterator  it;
+    std::list<std::pair<int, std::string>>::const_iterator  it;
 
-    for (it = errorPages.begin(); it != errorPages.end(); it++) {
+    for (it = this->_server->get_errorpages().begin(); it != this->_server->get_errorpages().end(); it++) {
         if ((*it).first == code) {
             if (access( (*it).second.c_str(), F_OK ) != -1) {
                 this->_target = (*it).second;
@@ -142,7 +142,7 @@ void Response::_make_response() {
 	// get file size using buffer's members
 	size_t size = pbuf->pubseekoff(0,ifs.end,ifs.in);
 	pbuf->pubseekpos(0,ifs.in);
-	if (size > this->_server->get_client_max_body_size())
+	if (size > this->_server->get_max_body_size())
 		throw ResponseException(INTERNAL_SERVER_ERROR);										
 
 	this->_make_final_message(this->_header, NULL, pbuf, size);
@@ -242,52 +242,46 @@ void Response::_prepare_env() {
     std::map<std::string, std::list<std::string>> fields = this->_request->get_fields();
     char            **ptr = this->_env;
     int             i = 0;
-    char            *cgiVars[14] = {
-        (char *)"SERVER_NAME",              // 0
-        (char *)"SERVER_PROTOCOL",          // 1
-        (char *)"SERVER_PORT",              // 2
-        (char *)"REQUEST_METHOD",           // 3
-        (char *)"SCRIPT_NAME",              // 4
-        (char *)"QUERY_STRING",             // 5
-        (char *)"GATEWAY_INTERFACE",        // 6
-        (char *)"CONTENT_TYPE",             // 7
-        (char *)"CONTENT_LENGTH",           // 8
-        (char *)"HTTP_ACCEPT",              // 9
-        (char *)"HTTP_ACCEPT_LANGUAGE",     // 10
-        (char *)"HTTP_USER_AGENT",          // 11
-        (char *)"HTTP_COOKIE",              // 12
-        NULL
-    };
+
+    std::list<MultipartData *> const &test = this->_request->get_multipartDatas();
+    if (!test.empty())
+        (*test.begin())->print_data();
+
+    std::map<std::string, std::string> const &test2 = this->_request->get_defaultDatas();
+    if (!test2.empty())
+        std::cout << (*test2.begin()).first << std::endl;;
+    if (!test2.empty())
+        std::cout << (*test2.begin()).second << std::endl;;
 
     while (*ptr != NULL)
         ptr++;
-    while (cgiVars[i] != NULL) {
+    while (i < 13) {
         if (i == 0)
-            *ptr = strdup((cgiVars[i] + std::string("=") + *(fields["Host"]).begin()).c_str());
+            *ptr = strdup((std::string("SERVER_NAME=") + *(fields["Host"]).begin()).c_str());
         else if (i == 1)
-            *ptr = strdup((cgiVars[i] + std::string("=HTTP/1.1")).c_str());
+            *ptr = strdup("SERVER_PROTOCOL=HTTP/1.1");
         else if (i == 2)
-            *ptr = strdup((cgiVars[i] + std::string("=") + this->_server->get_port_str()).c_str());
+            *ptr = strdup((std::string("SERVER_PORT=") + this->_server->get_port_str()).c_str());
         else if (i == 3)
-            *ptr = strdup((cgiVars[i] + std::string("=") + this->_request->get_method()).c_str());
+            *ptr = strdup((std::string("REQUEST_METHOD=") + this->_request->get_method()).c_str());
         else if (i == 4)
-            *ptr = strdup((cgiVars[i] + std::string("=") + this->_request->get_target()).c_str());
+            *ptr = strdup((std::string("SCRIPT_NAME=") + this->_request->get_target()).c_str());
         else if (i == 5)
-            *ptr = strdup((cgiVars[i] + std::string("=QuerystringToDo")).c_str());                        // TO DO
+            *ptr = strdup((std::string("QUERY_STRING=QuerystringToDo")).c_str());                        // TO DO
         else if (i == 6)
-            *ptr = strdup((cgiVars[i] + std::string("=CGI/1.1")).c_str());
+            *ptr = strdup("GATEWAY_INTERFACE=CGI/1.1");
         else if (i == 7) 
-            *ptr = strdup((cgiVars[i] + std::string("=") + (*(fields["Content-Type"]).begin())).c_str());
+            *ptr = strdup((std::string("CONTENT_TYPE=") + (*(fields["Content-Type"]).begin())).c_str());
         else if (i == 8)
-            *ptr = strdup((cgiVars[i] + std::string("=") + (*(fields["Content-Length"]).begin())).c_str());
+            *ptr = strdup((std::string("CONTENT_LENGTH=") + (*(fields["Content-Length"]).begin())).c_str());
         else if (i == 9)
-            *ptr = strdup((cgiVars[i] + std::string("=") + (*(fields["Accept"]).begin())).c_str());
+            *ptr = strdup((std::string("HTTP_ACCEPT=") + (*(fields["Accept"]).begin())).c_str());
         else if (i == 10)
-            *ptr = strdup((cgiVars[i] + std::string("=") + (*(fields["Accept-Language"]).begin())).c_str());
+            *ptr = strdup((std::string("HTTP_ACCEPT_LANGUAGE=") + (*(fields["Accept-Language"]).begin())).c_str());
         else if (i == 11)
-            *ptr = strdup((cgiVars[i] + std::string("=") + (*(fields["User-Agent"]).begin())).c_str());
+            *ptr = strdup((std::string("HTTP_USER_AGENT=") + (*(fields["User-Agent"]).begin())).c_str());
         else if (i == 12)
-            *ptr = strdup((cgiVars[i] + std::string("=") + (*(fields["Cookie"]).begin())).c_str());
+            *ptr = strdup((std::string("HTTP_COOKIE=") + (*(fields["Cookie"]).begin())).c_str());
         i++;
         ptr++;
     }
@@ -305,7 +299,7 @@ void Response::_execute_cgi() {
     _prepare_env();
     pathEnv = std::string(getenv("PATH"));
     cgiType = _what_kind_of_cgi(this->_target);
-	cgi_size = this->_server->get_client_max_body_size();
+	cgi_size = this->_server->get_max_body_size();
     pos = pathEnv.find(":");
     while ( pos != std::string::npos) {
         path = pathEnv.substr(0, pos) + "/" + cgiType;
@@ -339,7 +333,7 @@ int Response::_make_CGI() {
         exit(0);
 	}
     else {
-        cgi_size = this->_server->get_client_max_body_size();
+        cgi_size = this->_server->get_max_body_size();
         cgi = (char *)malloc(sizeof(char) * cgi_size);
         close(fd[1]);
         if (read(fd[0], cgi, cgi_size) < 0) {
@@ -364,14 +358,13 @@ int Response::_make_CGI() {
 // _______________________   ROUTES   _____________________________ //
 
 // loop through Locations container and change target if there is redirections
-int Response::_check_redirections(std::string &target, 
-        std::deque<Location> &locations, std::deque<Location>::iterator &locationFound) {
-    std::deque<Location>::iterator  it;
-    std::list<Trio>::iterator       it2;
+int Response::_check_redirections(std::string &target, std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound) {
+    std::deque<Location>::const_iterator  it;
+    std::list<Trio>::const_iterator       it2;
 
     for (it = locations.begin(); it != locations.end(); it++) {
-        std::list<Trio> &trio = (*it).get_redirections();
-        for (it2 = trio.begin(); it2 != trio.end(); it2++) {
+        std::list<Trio> const &trio = (*it).get_redirections();
+        for (it2 = (*it).get_redirections().begin(); it2 != (*it).get_redirections().end(); it2++) {
             if (target.compare((*it2).first) == 0) {
                 if (!((*it2).second.empty())) {
                     target = (*it2).second;
@@ -391,16 +384,18 @@ int Response::_check_redirections(std::string &target,
     return 0;
 }
 
+
+
 // add the good root before the target when it's a cgi
 // for exemple for /images/medias.php
 // it's a CGI and must go to www/cgi_bin/media/images/medias.php
 // instead of html/media/images/medias.php
 // For js it check if its a cgi and if not it's maybe a js file for html
 int Response::_add_root_if_cgi(std::string &target, 
-        std::deque<Location> &locations, std::deque<Location>::iterator &locationFound) {
-    std::deque<Location>::iterator  it;
-    int                             len;
-    std::string                     tmp;
+        std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound) {
+    std::deque<Location>::const_iterator	it;
+    int                           			len;
+    std::string                   			tmp;
     
     tmp = target;
     for (it = locations.begin(); it != locations.end(); it++) {
@@ -422,8 +417,8 @@ int Response::_add_root_if_cgi(std::string &target,
 }
 
 // check if there is a default index file
-int Response::_is_index_file(std::string &target, std::list<std::string> indexes) {
-    std::list<std::string>::iterator      it;
+int Response::_is_index_file(std::string &target, std::list<std::string> const &indexes) {
+    std::list<std::string>::const_iterator      it;
     
     for (it = indexes.begin(); it != indexes.end(); it++) {
         if (access((target + "/" + *it).c_str(), F_OK) != -1) {
@@ -438,8 +433,8 @@ int Response::_is_index_file(std::string &target, std::list<std::string> indexes
 
 // check if there is a Location corresponding to the target as a directory
 void Response::_check_locations_directory(std::string &target, 
-        std::deque<Location> &locations, std::deque<Location>::iterator &locationFound) {
-    std::deque<Location>::iterator  it;
+        std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound) {
+    std::deque<Location>::const_iterator  it;
 
     for (it = locations.begin(); it != locations.end(); it++) {
         if (target.compare((*it).get_root()) == 0) {
@@ -451,8 +446,8 @@ void Response::_check_locations_directory(std::string &target,
 
 // check if there is a Location corresponding to the target as a file
 void Response::_check_locations(std::string &target, 
-        std::deque<Location> &locations, std::deque<Location>::iterator &locationFound) {
-    std::deque<Location>::iterator  it;
+        std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound) {
+    std::deque<Location>::const_iterator  it;
     size_t pos = 0;
 
     pos = target.find_last_of("/");
@@ -465,8 +460,8 @@ void Response::_check_locations(std::string &target,
 }
 
 // check if the Method used is allowed in a Location
-void Response::_check_methods_in_location(std::deque<Location>::iterator &locationFound) {
-    std::list<std::string>::iterator  it;
+void Response::_check_methods_in_location(std::deque<Location>::const_iterator &locationFound) {
+    std::list<std::string>::const_iterator  it;
     int i = 0;
 
     for (it = locationFound->get_methods().begin(); it != locationFound->get_methods().end(); it++) {
@@ -518,12 +513,12 @@ std::string Response::_what_kind_of_extention(std::string &target) {
 
 // Main function to make de routes
 void Response::_check_target() {
-    std::deque<Location>            &locations = this->_server->get_locations();
-    std::deque<Location>::iterator  locationFound;
+    std::deque<Location> &locations = this->_server->get_locations();
+    std::deque<Location>::const_iterator  locationFound;
 
     this->_target = this->_request->get_target();
     if (PRINT_RECIEVED_TARGET)
-        // std::cout << "Target at begin: " << this->_target << std::endl;
+        std::cout << "Target at begin: " << this->_target << std::endl;
     if (*this->_target.begin() != '/')
         throw  ResponseException(BAD_REQUEST);
     if (this->_target.find('.') == std::string::npos) { // if it's a directory
@@ -576,7 +571,7 @@ void Response::_check_target() {
                 // if (!_what_kind_of_cgi(this->_target).empty())
                 //     this->_cgi = this->_target;
             }
-            else
+            else 
                 throw  ResponseException(NOT_FOUND);
         }
     }
@@ -615,7 +610,6 @@ std::string Response::getStatusCode() const {
 
 std::string Response::getReason() const {
     return this->_reason;
-;
 }
 
 std::string Response::getVersion() const {

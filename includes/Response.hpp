@@ -5,6 +5,8 @@
 #include <streambuf>
 #include <unistd.h>
 #include <dirent.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "Request.hpp"
 #include "Server.hpp"
 #include "Location.hpp"
@@ -43,12 +45,12 @@ class Response {
 		std::string 	_status_messages(int code);
 		int				_check_error_pages(const int code);
 		void			_check_target();
-		int				_check_redirections(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
-		void 			_check_methods_in_location(std::deque<Location>::iterator &locationFound);
-		int				_add_root_if_cgi(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
-		int				_is_index_file(std::string &target, std::list<std::string> indexes);
-		void			_check_locations(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
-		void			_check_locations_directory(std::string &target, std::deque<Location> &locations, std::deque<Location>::iterator &locationFound);
+		int				_check_redirections(std::string &target, std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound);
+		void 			_check_methods_in_location(std::deque<Location>::const_iterator &locationFound);
+		int				_add_root_if_cgi(std::string &target, std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound);
+		int				_is_index_file(std::string &target, std::list<std::string> const &indexes);
+		void			_check_locations(std::string &target, std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound);
+		void			_check_locations_directory(std::string &target, std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound);
 		int				_make_CGI();
 		void			_make_autoindex();
 		void			_make_response();
