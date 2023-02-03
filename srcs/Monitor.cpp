@@ -259,8 +259,7 @@ void Monitor::handle_connections()
 	_prepare_master_sockets(); // socket, bind, listen pour chaque port/server + creer les struct pollfd dédiées
 	int i, poll_index = 0, poll_count = 0, server_count = _servers.size();
 	_buf.capacity = 0;
-	char *ptr;
-	char **responseStr = &ptr;
+	char *responseStr = 0;
 	size_t responseSize;
 	uint64_t chrono_start;
 	while (1)																						// Main loop
@@ -290,17 +289,17 @@ void Monitor::handle_connections()
 								std::string requestStr(_buf.begin, _buf.size);
 								try {
 									Request request(&requestStr, _activeSockets[i].server);										// essaie de constr une requeste depuis les donnees recues
-									Response response(&request, _activeSockets[i].server, responseStr, &responseSize);			// essaie de constr une response si on a une request
+									Response response(&request, _activeSockets[i].server, &responseStr, &responseSize);			// essaie de constr une response si on a une request
 								}
 								catch (StatusCodeException & e) {
-									Response response(e.statuscode(), _activeSockets[i].server, responseStr, &responseSize);	// si request a un probleme, construit une response selon son status code
+									Response response(e.statuscode(), _activeSockets[i].server, &responseStr, &responseSize);	// si request a un probleme, construit une response selon son status code
 								}
 							}
 							else
-								Response response(HEADERS_TOO_LARGE, _activeSockets[i].server, responseStr, &responseSize);
+								Response response(HEADERS_TOO_LARGE, _activeSockets[i].server, &responseStr, &responseSize);
 						}
 						else
-							Response response(PAYLOAD_TOO_LARGE, _activeSockets[i].server, responseStr, &responseSize);			// si recvall a atteint le MBS, constuit une response selon le status code
+							Response response(PAYLOAD_TOO_LARGE, _activeSockets[i].server, &responseStr, &responseSize);			// si recvall a atteint le MBS, constuit une response selon le status code
 						if (_buf.capacity > BUFFER_LIMIT)
 						{
 							free(_buf.begin);
@@ -314,16 +313,17 @@ void Monitor::handle_connections()
 			}
 			else if (_pfds[i].revents & POLLOUT) 													// event sur fd[i] si poll a debloquer pour un fd prêt à write
 			{
-				_send_all(i, *responseStr, responseSize, _activeSockets[i]);			// send la response construite dans response
+				_send_all(i, responseStr, responseSize, _activeSockets[i]);			// send la response construite dans response
 				_stop_chrono(_pfds[i].fd);
-				free(*responseStr);
+				free(responseStr);
 				poll_index = 0; // reset l'index au debut des fds
 			}
 			else if (_pfds[i].revents & POLLHUP || _pfds[i].revents & POLLERR) 						// event sur fd[i], connection perdue sur le socket en question
 			{
-				_stop_chrono(_pfds[i].fd);
 				close(_pfds[i].fd);
 				_del_from_pfds(i);
+				_stop_chrono(_pfds[i].fd);
+				free(responseStr);
 				poll_index = 0;
 			}
 			i++;
@@ -338,7 +338,6 @@ void Monitor::_stop_chrono(int fd)
 	_chrono_stop = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	_chrono_stop -= _chrono_start;
 	log("Socket ", fd ,": connection closed, communication time = ", _chrono_stop, " ms\n");
-	// std::cout << chrono_stop << " ms\n";
 }
 
 /* 
