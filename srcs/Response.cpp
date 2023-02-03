@@ -3,19 +3,16 @@
 // ---------Constructor and destructor ------------
 
 // constructor for error response
-Response::Response(const int code, Server *server) :
-_server(server), _version(std::string("HTTP/1.1")) {
-    char            *date;
+Response::Response(const int code, Server *server, char **responseStr, size_t *responseSize) : 
+_server(server), _version(std::string("HTTP/1.1")), _finalMessage(responseStr), _finalMessageSize(responseSize) {
     std::string     body;
 	std::string 	codestr = std::to_string(code);
+    std::string		date = Rfc1123_DateTimeNow();
 
-
-    _status_messages();
-    date = Rfc1123_DateTimeNow();
-    this->_header = "HTTP/1.1 " + std::to_string(code) + (" " + this->_statusMsg[code]) + "\r\n" +
-            "Content-Type: text/html, charset=utf-8\r\n" +
-            "Server: pizzabrownie\r\n" +
-            "Date: " + date + "\r\n";
+    this->_header = "HTTP/1.1 " + std::to_string(code) + (" " +this->_status_messages(code)) + "\r\n" +
+		"Content-Type: text/html, charset=utf-8\r\n" +
+		"Server: pizzabrownie\r\n" +
+		"Date: " + date + "\r\n";
 
     if (_check_error_pages(code)) {
         _make_response();
@@ -30,24 +27,22 @@ _server(server), _version(std::string("HTTP/1.1")) {
             </head> \
             <body> \
                 <h1>Error " + codestr + "</h1> \
-                <p>" + this->_statusMsg[code] + "</p> \
+                <p>" + this->_status_messages(code) + "</p> \
             </body> \
             </html>";
-
 		this->_make_final_message(this->_header, body.c_str(), NULL, body.size());
-
-        free(date);
     }
 }
 
 // constructor for normal response
-Response::Response(Request *request, Server *server) : 
+Response::Response(Request *request, Server *server, char **responseStr, size_t *responseSize) : 
     _request(request), 
     _server(server),
     _version(std::string("HTTP/1.1")),
+	_finalMessage(responseStr),
+	_finalMessageSize(responseSize),
     _autoindex(false),
     _targetFound(false) {
-    _status_messages();
     _check_target();
     if (request->get_method() == GET)
         _response_get();
@@ -63,20 +58,29 @@ Response::Response(const Response& instance) : _request(instance._request), _ser
     *this = instance;
 }
 
-Response::~Response() {
-	// delete[] this->_finalMessage;
-}
+Response::~Response() {}
 
 // _______________________   Status code and errors   _____________________________ //
-
-void Response::_status_messages() {
-    this->_statusMsg[200] = "OK";
-    this->_statusMsg[400] = "BAD_REQUEST";
-    this->_statusMsg[403] = "FORBIDDEN";
-    this->_statusMsg[404] = "NOT_FOUND";
-    this->_statusMsg[405] = "METHOD_NOT_ALLOWED";
-    this->_statusMsg[500] = "INTERNAL_SERVER_ERROR";
-    this->_statusMsg[505] = "HTTP_VERSION_UNSUPPORTED";
+std::string Response::_status_messages(int code) {
+	switch (code)
+	{
+		case 200:
+			return "HTTP_OK";
+		case 400:
+			return "BAD_REQUEST";
+		case 403:
+			return "FORBIDDEN";
+		case 404:
+			return "NOT_FOUND";
+		case 405:
+			return "METHOD_NOT_ALLOWED";
+		case 500:
+			return "INTERNAL_SERVER_ERROR";
+		case 505:
+			return "HTTP_VERSION_UNSUPPORTED";
+		default:
+			return "NO_CORRESPONDING_ERROR_MESSAGE";
+	}
 }
 
 // check if there is an error pages set in conf file
@@ -103,14 +107,14 @@ void Response::_make_final_message(std::string &header, const char *body, std::f
 	int bodysize_len = bodysize.size();
 
 	// calc len + allocate
-	this->_finalMessageSize = header_size;
-	this->_finalMessageSize += 20; // for "Content-Length: \r\n\r\n"
-	this->_finalMessageSize += bodysize_len;
-	this->_finalMessageSize += len;
-	this->_finalMessage = new char[this->_finalMessageSize];
+	*this->_finalMessageSize = header_size;
+	*this->_finalMessageSize += 20; // for "Content-Length: \r\n\r\n"
+	*this->_finalMessageSize += bodysize_len;
+	*this->_finalMessageSize += len;
+	*this->_finalMessage = (char *)malloc(*this->_finalMessageSize * sizeof(char));
 
 	// set memory
-	char *tmp = this->_finalMessage;
+	char *tmp = *this->_finalMessage;
 	memcpy(tmp, header.c_str(), header_size);
 	tmp += header_size;
 	memcpy(tmp, "Content-Length: ", 16);
@@ -127,50 +131,33 @@ void Response::_make_final_message(std::string &header, const char *body, std::f
 
 
 void Response::_make_response() {
+    std::ifstream ifs(this->_target, std::ifstream::binary);
+	if (!ifs.is_open())
+	    throw ResponseException(INTERNAL_SERVER_ERROR);												
 
-    std::string body;
+	// get pointer to associated buffer object
+	std::filebuf *pbuf = ifs.rdbuf();
 
-    std::ifstream f(this->_target);			
-    if(f) {									
-      std::ostringstream ss;				
-      ss << f.rdbuf();
-      body = ss.str();
-   }
-    std::string test = this->_header + "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + body;
+	// get file size using buffer's members
+	size_t size = pbuf->pubseekoff(0,ifs.end,ifs.in);
+	pbuf->pubseekpos(0,ifs.in);
+	if (size > this->_server->get_client_max_body_size())
+		throw ResponseException(INTERNAL_SERVER_ERROR);										
 
-    this->_finalMessage = const_cast<char *>(test.c_str());
-    this->_finalMessageSize = test.size();
-
-	// std::ifstream ifs(this->_target, std::ifstream::binary);
-	// // if (!ifs.is_open())
-	// // 	error("Error: impossible to open input file", "", 1);												// GERER L ERREUR CORRECTEMENT
-
-	// // get pointer to associated buffer object
-	// std::filebuf *pbuf = ifs.rdbuf();
-
-	// // get file size using buffer's members
-	// size_t size = pbuf->pubseekoff(0,ifs.end,ifs.in);
-	// pbuf->pubseekpos(0,ifs.in);
-	// // if (size > FILE_MAX_LEN)
-	// // 	error("Error: input file is too large: maximum is 1MO", "", 1);										// GERER L ERREUR CORRECTEMENT
-
-	// this->_make_final_message(this->_header, NULL, pbuf, size);
-	// ifs.close();
-    // if (PRINT_HTTP_RESPONSE)
-    //     std:: cout << this->_finalMessage << std::endl;
+	this->_make_final_message(this->_header, NULL, pbuf, size);
+	ifs.close();
+    if (PRINT_HTTP_RESPONSE)
+        std:: cout << *this->_finalMessage << std::endl;
 } 
 
 // _______________________   GET   _____________________________ //
 
 void Response::_response_get() {
-    char *date;
-
-    date = Rfc1123_DateTimeNow();
-    this->_header = this->_version + " " + this->_statusCode + " " + this->_statusMsg[atoi(this->_statusCode.c_str())] + "\r\n" +
+    std::string date = Rfc1123_DateTimeNow();
+    this->_header = this->_version + " " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
         "Content-Type: " + this->_targetType + "\r\n" +
         "Server: pizzabrownie\r\n" +
         "Date: " + date + "\r\n";
-    free(date);
     if (!this->_cgi.empty())
         _make_CGI();
     else if (this->_autoindex)
@@ -206,7 +193,7 @@ void Response::_make_autoindex() {
                 <ul>" + liste + "</ul>\
             </body> \
             </html>";
-    // *this->_finalMessage = this->_header + "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n" + body;
+    this->_make_final_message(this->_header, body.c_str(), NULL, body.size());
     if (PRINT_HTTP_RESPONSE)
         std:: cout << this->_finalMessage << std::endl;
 }
@@ -288,7 +275,7 @@ int Response::_make_CGI() {
 		this->_make_final_message(this->_header, cgi, NULL, cgi_size);
 		free(cgi);
         if (PRINT_HTTP_RESPONSE)
-            std:: cout << std::string(this->_finalMessage, this->_finalMessageSize) << std::endl;
+            std:: cout << std::string(*this->_finalMessage, *this->_finalMessageSize) << std::endl;
         }
 
     return (0);
@@ -423,6 +410,7 @@ std::string Response::_what_kind_of_cgi(std::string &target) {
 std::string Response::_what_kind_of_extention(std::string &target) {
     int pos = target.find_last_of(".") + 1;
 
+    // std::cout << target << std::endl;
     if (pos != 0) {
         if (target.compare(pos, 3, "css") == 0) 
             return "text/css, charset=utf-8";
@@ -455,7 +443,7 @@ void Response::_check_target() {
 
     this->_target = this->_request->get_target();
     if (PRINT_RECIEVED_TARGET)
-        std::cout << "Target at begin: " << this->_target << std::endl;
+        // std::cout << "Target at begin: " << this->_target << std::endl;
     if (*this->_target.begin() != '/')
         throw  ResponseException(BAD_REQUEST);
     if (this->_target.find('.') == std::string::npos) { // if it's a directory
@@ -534,11 +522,11 @@ void Response::_check_target() {
 // --------- Fonctions getteur ------------
 
 char * Response::getFinaleMessage() const {
-    return this->_finalMessage;
+    return *this->_finalMessage;
 }
 
 size_t Response::getFinaleMessageSize() const {
-    return this->_finalMessageSize;
+    return *this->_finalMessageSize;
 }
 
 std::string Response::getStatusCode() const {
@@ -556,7 +544,7 @@ std::string Response::getVersion() const {
 
 // --------- Operator overload ------------
 
-Response &Response::operator=(const Response &instance) {
+Response &Response::operator=(const Response &instance) { 						// PAS A JOUR, copie pas toutes les variables
     this->_request = instance._request;
     this->_server = instance._server;
     this->_finalMessage = instance._finalMessage;
