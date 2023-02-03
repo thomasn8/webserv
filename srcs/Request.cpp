@@ -38,15 +38,15 @@ Request::~Request() { _free_multipartDatas(); }
 */
 const char * Request::get_request() const { return request; }
 
-std::string Request::get_method() const { return _method; }
+std::string const & Request::get_method() const { return _method; }
 
-std::string Request::get_target()const { return _target; }
+std::string const & Request::get_target() const { return _target; }
 
-std::map<std::string, std::list<std::string>> Request::get_fields() const { return _fields; }
+std::map<std::string, std::list<std::string>> const & Request::get_fields() const { return _fields; }
 
-std::map<std::string, std::string> & Request::get_defaultDatas() { return _postNameValue; }
+std::map<std::string, std::string> const & Request::get_defaultDatas() const { return _postNameValue; }
 
-std::list<MultipartData *> & Request::get_multipartDatas() { return _postMultipart; }
+std::list<MultipartData *> const & Request::get_multipartDatas() const { return _postMultipart; }
 
 /* 
 	************ Parse HEADER
@@ -171,7 +171,7 @@ bool Request::_check_filetype(std::string contentType)
 	{
 		if (ext == (*it).get_route())
 		{
-			std::list<std::string>::iterator it2 = (*it).get_contentTypes().begin();
+			std::list<std::string>::const_iterator it2 = (*it).get_contentTypes().begin();
 			for (; it2 != (*it).get_contentTypes().end(); it2++)
 			{
 				if (contentType == (*it2))

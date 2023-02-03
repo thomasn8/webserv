@@ -43,15 +43,15 @@ class Location
 		void set_uploadsdir(std::string & value);
 		void set_redirection(std::string & line);
 		void set_contentType(std::string & value);
-		std::string get_route() const;
-		std::string get_root() const;
-		std::list<std::string> & get_methods();
-		std::list<std::string> & get_indexes();
-		bool get_autoindex() const;
-		std::string get_uploadsdir() const;
-		std::list<Trio> & get_redirections();
-		std::string get_cgi() const;
-		std::list<std::string> & get_contentTypes();
+		std::string const & get_route() const;
+		std::string const & get_root() const;
+		std::list<std::string> const & get_methods() const;
+		std::list<std::string> const & get_indexes() const;
+		bool const & get_autoindex() const;
+		std::string const & get_uploadsdir() const;
+		std::list<Trio> const & get_redirections() const;
+		std::string const & get_cgi() const;
+		std::list<std::string> const & get_contentTypes() const;
 
 	private:
 		Location();

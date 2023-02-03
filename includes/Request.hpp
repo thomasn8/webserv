@@ -32,11 +32,11 @@ class Request
 		
 		// GETTERS/SETTERS
 		const char *get_request() const;
-		std::string get_method() const;
-		std::string get_target() const;
-		std::map<std::string, std::list<std::string>> get_fields() const;
-		std::map<std::string, std::string> &get_defaultDatas();
-		std::list<MultipartData *> &get_multipartDatas();
+		std::string const &get_method() const;
+		std::string const &get_target() const;
+		std::map<std::string, std::list<std::string>> const &get_fields() const;
+		std::map<std::string, std::string> const &get_defaultDatas() const;
+		std::list<MultipartData *> const &get_multipartDatas() const;
 
 		class RequestException : public StatusCodeException {
 			public:

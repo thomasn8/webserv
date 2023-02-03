@@ -81,7 +81,7 @@ void Location::set_route(std::string value)
 
 	// // if route is a cgi, set cgi filename
 	// if (value[0] != '/' )
-	// 	_cgi = _root.append("/").append(get_indexes().front());
+	// 	_cgi = _root.append("/").append(_indexFiles.front());
 	// else if (value.back() != '/')
 	// 	_root.append("/");
 	// if route is a cgi, set cgi filename
@@ -110,7 +110,7 @@ void Location::set_root(std::string & value)
 	if (_route[0] != '/')
 	{
 		_cgi = _root;
-		_cgi.append("/").append(get_indexes().front());
+		_cgi.append("/").append(_indexFiles.front());
 	}
 }
 
@@ -155,7 +155,7 @@ void Location::set_index(std::string & value)
 	if (_route[0] != '/')
 	{
 		_cgi = _root;
-		_cgi.append("/").append(get_indexes().front());
+		_cgi.append("/").append(_indexFiles.front());
 	}
 }
 
@@ -174,7 +174,7 @@ void Location::set_uploadsdir(std::string & value)
 	if (value.empty())
 		return;
 	if (value[0] != '/')
-		_uploadsDir = get_root().append("/").append(value);
+		_uploadsDir = std::string(_root).append("/").append(value);
 	else
 		_uploadsDir = value;
 }
@@ -207,12 +207,12 @@ void Location::set_redirection(std::string & line)
 			{
 				if (word[0] == '/')
 					word.erase(0, 1);
-				trio.first = get_root().append("/").append(word);
+				trio.first = std::string(_root).append("/").append(word);
 			}
 			else
 			{
 				if (word[0] != '/')
-					trio.second = get_root().append("/").append(word);
+					trio.second = std::string(_root).append("/").append(word);
 				else
 					trio.second = word;
 			}
@@ -235,26 +235,26 @@ void Location::set_contentType(std::string & value)
 	_contentType.push_back(value);
 }
 
-std::string Location::get_route() const { return _route; }
+std::string const & Location::get_route() const { return _route; }
 
 // path du directory
-std::string Location::get_root() const { return _root; }
+std::string const & Location::get_root() const { return _root; }
 
-std::list<std::string> & Location::get_methods() { return _methods; }
+std::list<std::string> const & Location::get_methods() const { return _methods; }
 
 // nom du/des fichier(s) d'index
-std::list<std::string> & Location::get_indexes() { return _indexFiles; }
+std::list<std::string> const & Location::get_indexes() const { return _indexFiles; }
 
-bool Location::get_autoindex() const { return _autoindex; }
+bool const & Location::get_autoindex() const { return _autoindex; }
 
 // path du directory
-std::string Location::get_uploadsdir() const { return _uploadsDir; }
+std::string const & Location::get_uploadsdir() const { return _uploadsDir; }
 
-std::list<Trio> & Location::get_redirections() { return _redirections; }
+std::list<Trio> const & Location::get_redirections() const { return _redirections; }
 
-std::string Location::get_cgi() const { return _cgi; }
+std::string const & Location::get_cgi() const { return _cgi; }
 
-std::list<std::string> & Location::get_contentTypes() { return _contentType; }
+std::list<std::string> const & Location::get_contentTypes() const { return _contentType; }
 
 std::string Location::_webserv_bin_path() const
 {

@@ -16,6 +16,6 @@ static const char *MONTH_NAMES[] =
   { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
-char            *Rfc1123_DateTimeNow();
+std::string Rfc1123_DateTimeNow();
 
 #endif

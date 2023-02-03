@@ -11,7 +11,7 @@ _defaultServerNames(true),
 _root(std::string(_webserv_bin_path().append("/").append(DEFAULT_ROOT))),
 _indexFiles(std::list<std::string>(1, std::string(DEFAULT_INDEX))),
 _defaultIndex(true),
-_clientMaxBodySize(MBS),
+_maxBodySize(MBS),
 _maxrecv(MHS + MBS),
 _socket_fd(-1)
 {}
@@ -26,7 +26,7 @@ _defaultServerNames(src._defaultServerNames),
 _root(src._root),
 _indexFiles(src._indexFiles),
 _defaultIndex(src._defaultIndex),
-_clientMaxBodySize(src._clientMaxBodySize),
+_maxBodySize(src._maxBodySize),
 _maxrecv(src._maxrecv),
 _errorPages(src._errorPages),
 _socket_fd(src._socket_fd),
@@ -40,7 +40,7 @@ Server::~Server() {}
 */
 std::deque<Location> & Server::get_locations() { return _locations; }
 
-Location & Server::get_last_location() { return get_locations().back(); }
+Location & Server::get_last_location() { return _locations.back(); }
 
 void Server::add_location(std::string & route) 
 {
@@ -48,15 +48,15 @@ void Server::add_location(std::string & route)
 		route.erase(0,1);
 	else if (route[0] == '*')
 		route.erase(0,2);
-	for (loc_it it = get_locations().begin(); it != get_locations().end(); it++)
+	for (loc_it it = _locations.begin(); it != _locations.end(); it++)
 	{
 		if ((*it).get_route() == route)
 		{
-			*it = Location(get_root(), get_indexes());
+			*it = Location(_root, _indexFiles);
 			return;
 		}
 	}
-	_locations.push_back(Location(get_root(), get_indexes()));
+	_locations.push_back(Location(_root, _indexFiles));
 }
 
 void Server::add_directive(int directiveIndex, std::string value)
@@ -139,6 +139,10 @@ void Server::set_address_port(std::string & value)
 		else
 			_port = _port_check(value);
 	}
+	_port_str = std::to_string(ntohs(_port));
+	_ipv4_str = _ip;
+	_ipv4_port_str = get_ipv4_str();
+	_ipv4_port_str.append(":").append(get_port_str());
 }
 
 void Server::set_servername(std::string & value)
@@ -210,7 +214,7 @@ void Server::set_error_page(std::string & value)
 			{
 				// si relative, on complete la partie qui précède pour uniformiser les path en absolute
 				if (value[0] != '/')
-					(*rit).second = get_root().append("/").append(value);
+					(*rit).second = std::string(_root).append("/").append(value);
 				else
 					(*rit).second = value;
 			}
@@ -242,45 +246,45 @@ void Server::set_client_max_body_size(std::string & value)
 			else if (unit.compare("GB") == 0 || unit.compare("GO") == 0 || unit.compare("G") == 0)
 				mbs *= 1000 * 1000 * 1000;
 			else
-				_exit_cerr_msg("Error: invalid client_max_body_size format. Examples: 4000, 300KB, 2M\n", 1);
+				_exit_cerr_msg("Error: invalid max_body_size format. Examples: 4000, 300KB, 2M\n", 1);
 		}
 	}
 	catch (const std::invalid_argument &ia) {
-		_exit_cerr_msg("Error: invalid client_max_body_size format. Examples: 4000, 300KB, 2M\n", 1);
+		_exit_cerr_msg("Error: invalid max_body_size format. Examples: 4000, 300KB, 2M\n", 1);
 	}
 	if (mbs > MAX_MBS)
-		_exit_cerr_msg("Error: client_max_body_size too large: maximum of 1GB\n", 1);
-	_clientMaxBodySize = mbs;
-	_clientMaxBodySize ? _maxrecv = _clientMaxBodySize + MHS : _maxrecv = 0;
+		_exit_cerr_msg("Error: max_body_size too large: maximum of 1GB\n", 1);
+	_maxBodySize = mbs;
+	_maxBodySize ? _maxrecv = _maxBodySize + MHS : _maxrecv = 0;
 }
 
-uint16_t Server::get_port() const { return _port; }
+uint16_t const &Server::get_port() const { return _port; }
 
-uint32_t Server::get_ipv4() const { return _ipv4; }
+uint32_t const &Server::get_ipv4() const { return _ipv4; }
 
-std::string Server::get_port_str() const { return std::to_string(ntohs(_port)); }
+std::string const &Server::get_port_str() const { return _port_str; }
 
-std::string Server::get_ipv4_str() const { return _ip; }
+std::string const &Server::get_ipv4_str() const { return _ipv4_str; }
 
-std::string Server::get_ipv4_port_str() const { return get_ipv4_str().append(":").append(get_port_str()); }
+std::string const &Server::get_ipv4_port_str() const { return _ipv4_port_str; }
 
-std::string Server::get_servername() const { return _serverNames.front(); }
+std::string const &Server::get_servername() const { return _serverNames.front(); }
 
-std::list<std::string> & Server::get_servernames() { return _serverNames; }
+std::list<std::string> const &Server::get_servernames() const { return _serverNames; }
 
-std::string Server::get_root() const { return _root; }
+std::string const &Server::get_root() const { return _root; }
 
-std::list<std::string> & Server::get_indexes() { return _indexFiles; }
+std::list<std::string> const &Server::get_indexes() const { return _indexFiles; }
 
 // max body size
-size_t Server::get_client_max_body_size() const { return _clientMaxBodySize; }
+size_t const &Server::get_max_body_size() const { return _maxBodySize; }
 
 // max body size + max header size
-size_t Server::get_maxrecv() const { return _maxrecv; }
+size_t const &Server::get_maxrecv() const { return _maxrecv; }
 
-std::list<Server::error_page_pair> & Server::get_errorpages() { return _errorPages; }
+std::list<Server::error_page_pair> const & Server::get_errorpages() const { return _errorPages; }
 
-struct sockaddr_in & Server::get_address() { return _address; }
+struct sockaddr_in const & Server::get_address() const { return _address; }
 
 std::string Server::_webserv_bin_path() const
 {
@@ -302,14 +306,16 @@ int Server::create_socket()
 	fcntl(_socket_fd, F_SETFL, O_NONBLOCK);
 	if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, (void *)&opt, sizeof(opt)) < 0)
 		_exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 1 failed\n", 1);
+	if (setsockopt(_socket_fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&opt, sizeof(opt)) < 0)
+		_exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 2 failed\n", 1);
 	
 	struct timeval timeout;      
     timeout.tv_sec = SEND_TIMEOUT_SEC;
     timeout.tv_usec = SEND_TIMEOUT_USEC;
     if (setsockopt (_socket_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) < 0)
-        _exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 2 failed\n", 1);
-    if (setsockopt (_socket_fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout) < 0)
         _exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 3 failed\n", 1);
+    if (setsockopt (_socket_fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout) < 0)
+        _exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 4 failed\n", 1);
 
 	memset(_address.sin_zero, 0, sizeof(_address.sin_zero));
 	_address.sin_family = AF_INET;
