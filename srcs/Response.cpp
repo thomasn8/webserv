@@ -287,12 +287,9 @@ int Response::_check_redirections(std::string &target, std::deque<Location> cons
     std::deque<Location>::const_iterator  it;
     std::list<Trio>::const_iterator       it2;
 
-    for (it = locations.begin(); it != locations.end(); it++) 
-	{
-        std::list<Trio> trio = (*it).get_redirections();
-
-        for (it2 = trio.begin(); it2 != trio.end(); it2++) 
-		{
+    for (it = locations.begin(); it != locations.end(); it++) {
+        std::list<Trio> const &trio = (*it).get_redirections();
+        for (it2 = (*it).get_redirections().begin(); it2 != (*it).get_redirections().end(); it2++) {
             if (target.compare((*it2).first) == 0) {
                 if (!((*it2).second.empty())) {
                     target = (*it2).second;
@@ -312,6 +309,8 @@ int Response::_check_redirections(std::string &target, std::deque<Location> cons
     return 0;
 }
 
+
+
 // add the good root before the target when it's a cgi
 // for exemple for /images/medias.php
 // it's a CGI and must go to www/cgi_bin/media/images/medias.php
@@ -319,9 +318,9 @@ int Response::_check_redirections(std::string &target, std::deque<Location> cons
 // For js it check if its a cgi and if not it's maybe a js file for html
 int Response::_add_root_if_cgi(std::string &target, 
         std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound) {
-    std::deque<Location>::const_iterator  it;
-    int                             len;
-    std::string                     tmp;
+    std::deque<Location>::const_iterator	it;
+    int                           			len;
+    std::string                   			tmp;
     
     tmp = target;
     for (it = locations.begin(); it != locations.end(); it++) {
@@ -439,7 +438,7 @@ std::string Response::_what_kind_of_extention(std::string &target) {
 
 // Main function to make de routes
 void Response::_check_target() {
-    std::deque<Location>            &locations = this->_server->get_locations();
+    std::deque<Location> &locations = this->_server->get_locations();
     std::deque<Location>::const_iterator  locationFound;
 
     this->_target = this->_request->get_target();
@@ -536,7 +535,6 @@ std::string Response::getStatusCode() const {
 
 std::string Response::getReason() const {
     return this->_reason;
-;
 }
 
 std::string Response::getVersion() const {
