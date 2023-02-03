@@ -37,7 +37,7 @@ std::string Request::get_method() const { return _method; }
 
 std::string Request::get_target()const { return _target; }
 
-std::map<std::string, std::list<std::string>> Request::get_fields() const { return _fields; }
+std::map<std::string, std::list<std::string>> & Request::get_fields() { return _fields; }
 
 std::map<std::string, std::string> & Request::get_defaultDatas() { return _postNameValue; }
 

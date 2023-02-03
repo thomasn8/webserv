@@ -30,7 +30,7 @@ class Request {
 
 		std::string get_method() const;
 		std::string get_target() const;
-		std::map<std::string, std::list<std::string>> get_fields() const;
+		std::map<std::string, std::list<std::string>> &get_fields();
 		std::map<std::string, std::string> &get_defaultDatas();
 		std::list<MultipartData *> &get_multipartDatas();
 
