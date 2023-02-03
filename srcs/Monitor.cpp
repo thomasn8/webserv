@@ -338,7 +338,6 @@ void Monitor::_stop_chrono(int fd)
 	_chrono_stop = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	_chrono_stop -= _chrono_start;
 	log("Socket ", fd ,": connection closed, communication time = ", _chrono_stop, " ms\n");
-	// std::cout << chrono_stop << " ms\n";
 }
 
 /* 
