@@ -247,8 +247,7 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 		log(get_time(), " Response to     ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(),  ": socket ", fd, ",	send ", total_sent, " bytes\n");
 	else
 		log(get_time(), " Response error: partial send to client " , activeSocket.client, " on server port ", activeSocket.server->get_port_str(),  ": socket ", fd, ",	send ", total_sent, "/", size, "bytes\n");
-	close(fd);
-	_del_from_pfds(i);
+	_stop_chrono(fd);
 	return total_sent;
 }
 
@@ -311,18 +310,15 @@ void Monitor::handle_connections()
 					}
 				}
 			}
-			else if (_pfds[i].revents & POLLOUT) 													// event sur fd[i] si poll a debloquer pour un fd prêt à write
+			else if (_pfds[i].revents & POLLOUT || _pfds[i].revents & POLLHUP) 						// event sur fd[i], i poll a debloquer pour un fd prêt à write ou connection perdue sur le socket en question
 			{
-				_send_all(i, responseStr, responseSize, _activeSockets[i]);			// send la response construite dans response
-				_stop_chrono(_pfds[i].fd);
-				free(responseStr);
-				poll_index = 0; // reset l'index au debut des fds
-			}
-			else if (_pfds[i].revents & POLLHUP || _pfds[i].revents & POLLERR) 						// event sur fd[i], connection perdue sur le socket en question
-			{
+				// if (_pfds[i].revents & POLLERR)
+				if (_pfds[i].revents & POLLOUT)
+					_send_all(i, responseStr, responseSize, _activeSockets[i]); // send la response construite dans response
+				else
+					_stop_chrono(_pfds[i].fd); // PAS JUSTE, PAS TOUJOURS LE BON SOCKET QUI EST LOGE
 				close(_pfds[i].fd);
 				_del_from_pfds(i);
-				_stop_chrono(_pfds[i].fd);
 				free(responseStr);
 				poll_index = 0;
 			}
