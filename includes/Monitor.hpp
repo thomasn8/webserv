@@ -49,7 +49,7 @@ class Monitor
 		typedef std::deque<Server>::iterator it_servers;
 
 		// CONST/DESTR
-		Monitor();
+		Monitor(char **env);
 		~Monitor();
 
 		// GETTERS/SETTERS
@@ -99,6 +99,9 @@ class Monitor
 		// RECV
 		struct buffer_read _buf;
 		int _replace_alone_header_cr(void);
+
+		// ENV
+		char **_env;
 
 		// LOG
 		uint64_t _chrono_start;

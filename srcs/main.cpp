@@ -13,7 +13,7 @@ int main(int ac, char **av, char **env)
 		configFile = av[1];
 	else
 		configFile = "conf/default.conf";
-	Monitor monitor;
+	Monitor monitor(env);
 	parse_config(configFile, monitor);
 	monitor.handle_connections();
 	return 0;

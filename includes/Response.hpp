@@ -14,7 +14,7 @@
 class Response {
 	public:
 		Response(const int code, Server *server, char **responseStr, size_t *responseSize);
-		Response(Request *request, Server *server, char **responseStr, size_t *responseSize);
+		Response(char **env, Request *request, Server *server, char **responseStr, size_t *responseSize);
 		Response(const Response &instance);
 		virtual ~Response();
 
@@ -52,6 +52,8 @@ class Response {
 		int				_make_CGI();
 		void			_make_autoindex();
 		void			_make_response();
+		void			_execute_cgi();
+		void			_prepare_env();
 		void			_decript_img();
 		std::string		_what_kind_of_cgi(std::string &target);
 		std::string		_what_kind_of_extention(std::string &target);
@@ -70,6 +72,7 @@ class Response {
 		std::string					_cgi;
 		bool 						_autoindex;
 		bool						_targetFound;
+		char						**_env;
 };
 
 #endif

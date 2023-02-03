@@ -35,14 +35,15 @@ _server(server), _version(std::string("HTTP/1.1")), _finalMessage(responseStr), 
 }
 
 // constructor for normal response
-Response::Response(Request *request, Server *server, char **responseStr, size_t *responseSize) : 
+Response::Response(char **env, Request *request, Server *server, char **responseStr, size_t *responseSize) : 
     _request(request), 
     _server(server),
     _version(std::string("HTTP/1.1")),
 	_finalMessage(responseStr),
 	_finalMessageSize(responseSize),
     _autoindex(false),
-    _targetFound(false) {
+    _targetFound(false),
+    _env(env) {
     _check_target();
     if (request->get_method() == GET)
         _response_get();
@@ -235,17 +236,94 @@ void Response::_response_delete() {
 
 // _______________________   CGI   _____________________________ //
 
+// meta_var["AUTH_TYPE"] = req.getAuthorization();
+
+void Response::_prepare_env() {
+    std::map<std::string, std::list<std::string>> fields = this->_request->get_fields();
+    char            **ptr = this->_env;
+    int             i = 0;
+    char            *cgiVars[14] = {
+        (char *)"SERVER_NAME",              // 0
+        (char *)"SERVER_PROTOCOL",          // 1
+        (char *)"SERVER_PORT",              // 2
+        (char *)"REQUEST_METHOD",           // 3
+        (char *)"SCRIPT_NAME",              // 4
+        (char *)"QUERY_STRING",             // 5
+        (char *)"GATEWAY_INTERFACE",        // 6
+        (char *)"CONTENT_TYPE",             // 7
+        (char *)"CONTENT_LENGTH",           // 8
+        (char *)"HTTP_ACCEPT",              // 9
+        (char *)"HTTP_ACCEPT_LANGUAGE",     // 10
+        (char *)"HTTP_USER_AGENT",          // 11
+        (char *)"HTTP_COOKIE",              // 12
+        NULL
+    };
+
+    while (*ptr != NULL)
+        ptr++;
+    while (cgiVars[i] != NULL) {
+        if (i == 0)
+            *ptr = strdup((cgiVars[i] + std::string("=") + *(fields["Host"]).begin()).c_str());
+        else if (i == 1)
+            *ptr = strdup((cgiVars[i] + std::string("=HTTP/1.1")).c_str());
+        else if (i == 2)
+            *ptr = strdup((cgiVars[i] + std::string("=") + this->_server->get_port_str()).c_str());
+        else if (i == 3)
+            *ptr = strdup((cgiVars[i] + std::string("=") + this->_request->get_method()).c_str());
+        else if (i == 4)
+            *ptr = strdup((cgiVars[i] + std::string("=") + this->_request->get_target()).c_str());
+        else if (i == 5)
+            *ptr = strdup((cgiVars[i] + std::string("=QuerystringToDo")).c_str());                        // TO DO
+        else if (i == 6)
+            *ptr = strdup((cgiVars[i] + std::string("=CGI/1.1")).c_str());
+        else if (i == 7) 
+            *ptr = strdup((cgiVars[i] + std::string("=") + (*(fields["Content-Type"]).begin())).c_str());
+        else if (i == 8)
+            *ptr = strdup((cgiVars[i] + std::string("=") + (*(fields["Content-Length"]).begin())).c_str());
+        else if (i == 9)
+            *ptr = strdup((cgiVars[i] + std::string("=") + (*(fields["Accept"]).begin())).c_str());
+        else if (i == 10)
+            *ptr = strdup((cgiVars[i] + std::string("=") + (*(fields["Accept-Language"]).begin())).c_str());
+        else if (i == 11)
+            *ptr = strdup((cgiVars[i] + std::string("=") + (*(fields["User-Agent"]).begin())).c_str());
+        else if (i == 12)
+            *ptr = strdup((cgiVars[i] + std::string("=") + (*(fields["Cookie"]).begin())).c_str());
+        i++;
+        ptr++;
+    }
+    *ptr = NULL;
+}
+
+void Response::_execute_cgi() {
+	size_t		    cgi_size;
+    std::string     cgiType;
+    char*           env2[3];
+    std::string     path;
+    std::string     pathEnv;
+    int             pos = 0;
+
+    _prepare_env();
+    pathEnv = std::string(getenv("PATH"));
+    cgiType = _what_kind_of_cgi(this->_target);
+	cgi_size = this->_server->get_client_max_body_size();
+    pos = pathEnv.find(":");
+    while ( pos != std::string::npos) {
+        path = pathEnv.substr(0, pos) + "/" + cgiType;
+        execle(path.c_str(), path.c_str(), this->_target.c_str(), NULL, this->_env);
+        // perror("Error");
+        pathEnv.erase(0, pos + 1);
+        pos = pathEnv.find(":");
+    }
+}
+
 int Response::_make_CGI() {
     int         fd[2];
 	pid_t       pid;
     int		    status;
     char        *cgi;
-	size_t		cgi_size;
-    std::string cgiType;
+    size_t		cgi_size;
+    
 
-    cgiType = _what_kind_of_cgi(this->_target);
-	cgi_size = this->_server->get_client_max_body_size();
-    cgi = (char *)malloc(sizeof(char) * cgi_size);
     if (pipe(fd) == -1) {return -1;}
 	pid = fork();
 	if (pid == -1) {exit(EXIT_FAILURE);}
@@ -255,12 +333,14 @@ int Response::_make_CGI() {
             std:: cout << "path:" << this->_target << std::endl;
         close(fd[0]);
         if (dup2(fd[1], STDOUT_FILENO) == -1) {exit(EXIT_FAILURE);}
-        execlp(cgiType.c_str(), cgiType.c_str(), this->_target.c_str(), NULL);
+        _execute_cgi();
         std::cerr << "Error launching cgi: " << this->_target << std::endl;
         write(1, "500", 3);
         exit(0);
 	}
     else {
+        cgi_size = this->_server->get_client_max_body_size();
+        cgi = (char *)malloc(sizeof(char) * cgi_size);
         close(fd[1]);
         if (read(fd[0], cgi, cgi_size) < 0) {
             close(fd[0]);

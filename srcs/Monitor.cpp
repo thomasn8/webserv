@@ -2,7 +2,7 @@
 /* 
 	************ CONST/DESTR
 */
-Monitor::Monitor() :
+Monitor::Monitor(char **env) :
 _servers(std::deque<Server>()),
 _master_sockets(NULL),
 _master_size(0),
@@ -10,7 +10,8 @@ _fd_count(0),
 _fd_capacity(0),
 _pfds(NULL),
 _activeSockets(NULL),
-_accessFile(std::string(LOG_PATH)), _accessStream()
+_accessFile(std::string(LOG_PATH)), _accessStream(),
+_env(env)
 {
 	_create_log_file(_accessFile, _accessStream);
 }
@@ -290,7 +291,7 @@ void Monitor::handle_connections()
 								std::string requestStr(_buf.begin, _buf.size);
 								try {
 									Request request(&requestStr, _activeSockets[i].server);										// essaie de constr une requeste depuis les donnees recues
-									Response response(&request, _activeSockets[i].server, responseStr, &responseSize);			// essaie de constr une response si on a une request
+									Response response(this->_env, &request, _activeSockets[i].server, responseStr, &responseSize);			// essaie de constr une response si on a une request
 								}
 								catch (StatusCodeException & e) {
 									Response response(e.statuscode(), _activeSockets[i].server, responseStr, &responseSize);	// si request a un probleme, construit une response selon son status code
