@@ -42,8 +42,7 @@ Response::Response(Request *request, Server *server, char **responseStr, size_t 
 	_finalMessage(responseStr),
 	_finalMessageSize(responseSize),
     _autoindex(false),
-    _targetFound(false)
-{
+    _targetFound(false) {
     _check_target();
     if (request->get_method() == GET)
         _response_get();
@@ -66,24 +65,25 @@ std::string Response::_status_messages(int code) {
 	switch (code)
 	{
 		case 200:
-			return "HTTP_OK";
+			return "OK";
 		case 400:
-			return "BAD_REQUEST";
+			return "BAD REQUEST";
 		case 403:
 			return "FORBIDDEN";
 		case 404:
-			return "NOT_FOUND";
+			return "NOT FOUND";
 		case 405:
-			return "METHOD_NOT_ALLOWED";
+			return "METHOD NOT ALLOWED";
 		case 500:
-			return "INTERNAL_SERVER_ERROR";
+			return "INTERNAL SERVER ERROR";
 		case 505:
-			return "HTTP_VERSION_UNSUPPORTED";
+			return "HTTP VERSION UNSUPPORTED";
 		default:
-			return "NO_CORRESPONDING_ERROR_MESSAGE";
+			return "NO CORRESPONDING ERROR MESSAGE";
 	}
 }
 
+// check if there is an error pages set in conf file
 int Response::_check_error_pages(const int code) {
     std::list<std::pair<int, std::string>> &errorPages = this->_server->get_errorpages();
     std::list<std::pair<int, std::string>>::iterator  it;
@@ -129,10 +129,11 @@ void Response::_make_final_message(std::string &header, const char *body, std::f
 		pbuf->sgetn(tmp, len);
 }
 
+
 void Response::_make_response() {
-	std::ifstream ifs(this->_target, std::ifstream::binary);
-	// if (!ifs.is_open())
-	// 	error("Error: impossible to open input file", "", 1);												// GERER L ERREUR CORRECTEMENT
+    std::ifstream ifs(this->_target, std::ifstream::binary);
+	if (!ifs.is_open())
+	    throw ResponseException(INTERNAL_SERVER_ERROR);												
 
 	// get pointer to associated buffer object
 	std::filebuf *pbuf = ifs.rdbuf();
@@ -140,28 +141,61 @@ void Response::_make_response() {
 	// get file size using buffer's members
 	size_t size = pbuf->pubseekoff(0,ifs.end,ifs.in);
 	pbuf->pubseekpos(0,ifs.in);
-	// if (size > FILE_MAX_LEN)
-	// 	error("Error: input file is too large: maximum is 1MO", "", 1);										// GERER L ERREUR CORRECTEMENT
+	if (size > this->_server->get_max_body_size())
+		throw ResponseException(INTERNAL_SERVER_ERROR);										
 
 	this->_make_final_message(this->_header, NULL, pbuf, size);
 	ifs.close();
     if (PRINT_HTTP_RESPONSE)
         std:: cout << *this->_finalMessage << std::endl;
-}
+} 
 
 // _______________________   GET   _____________________________ //
 
 void Response::_response_get() {
     std::string date = Rfc1123_DateTimeNow();
-    // std::cout << this->_targetType << std::endl;
-    this->_header = this->_version + " 200 " + "OK\r\n" +
-        "Content-Type: " + this->_targetType + ", charset=utf-8\r\n" +
+    this->_header = this->_version + " " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
+        "Content-Type: " + this->_targetType + "\r\n" +
         "Server: pizzabrownie\r\n" +
         "Date: " + date + "\r\n";
     if (!this->_cgi.empty())
         _make_CGI();
+    else if (this->_autoindex)
+        _make_autoindex();
     else
         _make_response();
+}
+
+void Response::_make_autoindex() {
+    std::string     body;
+    std::string     liste;
+    DIR             *dir;
+    struct dirent   *ent;
+
+    if ((dir = opendir (this->_target.c_str())) != NULL) {
+        /* print all the files and directories within directory */
+        while ((ent = readdir (dir)) != NULL) {
+            if (strcmp(ent->d_name, ".") != 0)
+                liste = liste + "<li style=\"list-style-type: none;\"><a href=\"" + this->_request->get_target() + "/" + ent->d_name + "\">" + ent->d_name + "</a></li>\n";
+        }
+        closedir (dir);
+    }
+    body = "<!DOCTYPE html> \
+            <html lang=\"fr\"> \
+            <head> \
+                <meta charset=\"UTF-8\"> \
+                <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> \
+                <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> \
+                <title>Index</title> \
+            </head> \
+            <body> \
+                <h1>Index of " + this->_request->get_target() + "</h1> \
+                <ul>" + liste + "</ul>\
+            </body> \
+            </html>";
+    this->_make_final_message(this->_header, body.c_str(), NULL, body.size());
+    if (PRINT_HTTP_RESPONSE)
+        std:: cout << this->_finalMessage << std::endl;
 }
 
 // _______________________   POST   _____________________________ //
@@ -207,7 +241,9 @@ int Response::_make_CGI() {
     int		    status;
     char        *cgi;
 	size_t		cgi_size;
+    std::string cgiType;
 
+    cgiType = _what_kind_of_cgi(this->_target);
 	cgi_size = this->_server->get_max_body_size();
     cgi = (char *)malloc(sizeof(char) * cgi_size);
     if (pipe(fd) == -1) {return -1;}
@@ -219,7 +255,7 @@ int Response::_make_CGI() {
             std:: cout << "path:" << this->_target << std::endl;
         close(fd[0]);
         if (dup2(fd[1], STDOUT_FILENO) == -1) {exit(EXIT_FAILURE);}
-        execlp("php", "php", this->_target.c_str(), NULL);							// ON A VRMT LE DROIT A CETTE FONCTION? C EST PAS EXECVE ?
+        execlp(cgiType.c_str(), cgiType.c_str(), this->_target.c_str(), NULL);
         std::cerr << "Error launching cgi: " << this->_target << std::endl;
         write(1, "500", 3);
         exit(0);
@@ -295,6 +331,7 @@ int Response::_add_root_if_cgi(std::string &target,
                 while (_check_redirections(tmp, locations, locationFound)) {};
                 if (access(tmp.c_str(), F_OK) != -1) {
                     target = tmp;
+                    this->_cgi = target;
                     return 1;
                 }
             }
@@ -365,7 +402,7 @@ std::string Response::_what_kind_of_cgi(std::string &target) {
     if (target.find(".php", target.length() - 4) != std::string::npos)
         return "php";
     else if (target.find(".js", target.length() - 3) != std::string::npos)
-        return "js";
+        return "node";
     return "";
 }
 
@@ -376,13 +413,27 @@ std::string Response::_what_kind_of_extention(std::string &target) {
     // std::cout << target << std::endl;
     if (pos != 0) {
         if (target.compare(pos, 3, "css") == 0) 
-            return "text/css";
+            return "text/css, charset=utf-8";
         else if (target.compare(pos, 2, "js") == 0)
-            return "text/javascript";
+            return "text/javascript, charset=utf-8";
         else if (target.compare(pos, 4, "html") == 0)
-            return "text/html";
+            return "text/html, charset=utf-8";
+        else if (target.compare(pos, 3, "svg") == 0)
+            return "image/svg+xml, charset=utf-8";
+        else if (target.compare(pos, 4, "woff") == 0)
+            return "font/woff";
+        else if (target.compare(pos, 4, "woff") == 0)
+            return "font/woff";
+        else if (target.compare(pos, 3, "ttf") == 0)
+            return "font/ttf";
+        else if (target.compare(pos, 3, "otf") == 0)
+            return "font/otf";
+        else if (target.compare(pos, 3, "jpg") == 0)
+            return "image/jpeg";
+        else if (target.compare(pos, 3, "png") == 0)
+            return "image/png";
     }
-    return "text/plain";
+    return "text/html, charset=utf-8";
 }
 
 // Main function to make de routes
@@ -436,14 +487,14 @@ void Response::_check_target() {
             this->_uploadsDir = locationFound->get_uploadsdir();
             if (!locationFound->get_contentTypes().empty())
                 this->_contentType = locationFound->get_contentTypes();
-            if (!locationFound->get_cgi().empty())
-                this->_cgi = this->_target;
+            // if (!locationFound->get_cgi().empty())
+            //     this->_cgi = this->_target;
         }
         else {
             if (access( this->_target.c_str(), F_OK ) != -1) {
                 this->_targetFound = true;
-                if (!_what_kind_of_cgi(this->_target).empty())
-                    this->_cgi = this->_target;
+                // if (!_what_kind_of_cgi(this->_target).empty())
+                //     this->_cgi = this->_target;
             }
             else
                 throw  ResponseException(NOT_FOUND);
