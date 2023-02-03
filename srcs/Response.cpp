@@ -350,7 +350,7 @@ int Response::_make_CGI() {
         if (is_number(cgi))
             throw ResponseException(atoi(cgi));
         if (PRINT_CGI_GET)
-            std:: cout << "cgi recieve:" << std::string(cgi, cgi_size) << std::endl;
+            std::cout << "cgi recieve:" << std::string(cgi, cgi_size) << std::endl;
 
 		this->_make_final_message(this->_header, cgi, NULL, cgi_size);
 		free(cgi);
