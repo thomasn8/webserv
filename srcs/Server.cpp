@@ -217,7 +217,7 @@ void Server::set_error_page(std::string & value)
 			{
 				// si relative, on complete la partie qui précède pour uniformiser les path en absolute
 				if (value[0] != '/')
-					(*rit).second = _root.append("/").append(value);
+					(*rit).second = std::string(_root).append("/").append(value);
 				else
 					(*rit).second = value;
 			}

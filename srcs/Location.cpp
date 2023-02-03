@@ -177,7 +177,7 @@ void Location::set_uploadsdir(std::string & value)
 	if (value.empty())
 		return;
 	if (value[0] != '/')
-		_uploadsDir = _root.append("/").append(value);
+		_uploadsDir = std::string(_root).append("/").append(value);
 	else
 		_uploadsDir = value;
 }
@@ -210,12 +210,12 @@ void Location::set_redirection(std::string & line)
 			{
 				if (word[0] == '/')
 					word.erase(0, 1);
-				trio.first = _root.append("/").append(word);
+				trio.first = std::string(_root).append("/").append(word);
 			}
 			else
 			{
 				if (word[0] != '/')
-					trio.second = _root.append("/").append(word);
+					trio.second = std::string(_root).append("/").append(word);
 				else
 					trio.second = word;
 			}
