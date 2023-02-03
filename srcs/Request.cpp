@@ -162,7 +162,7 @@ bool Request::_check_filetype(std::string contentType)
 	{
 		if (ext == (*it).get_route())
 		{
-			std::list<std::string>::iterator it2 = (*it).get_contentTypes().begin();
+			std::list<std::string>::const_iterator it2 = (*it).get_contentTypes().begin();
 			for (; it2 != (*it).get_contentTypes().end(); it2++)
 			{
 				if (contentType == (*it2))

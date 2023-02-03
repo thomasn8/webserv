@@ -55,8 +55,10 @@ class Server
 		~Server();
 
 		// GETTERS/SETTERS
+		// parse config
 		std::deque<Location> & get_locations();
 		Location & get_last_location();
+		// handle_connection
 		void add_location(std::string & route);
 		void add_directive(int directiveIndex, std::string value);
 		void set_address_port(std::string & value);
@@ -65,19 +67,19 @@ class Server
 		void set_index(std::string & value);
 		void set_error_page(std::string & value);
 		void set_client_max_body_size(std::string & value);
-		uint16_t get_port() const;
-		uint32_t get_ipv4() const;
-		std::string get_port_str() const;
-		std::string get_ipv4_str() const;
-		std::string get_ipv4_port_str() const; 
-		std::string get_servername() const;
-		std::list<std::string> & get_servernames();
-		std::string get_root() const;
-		std::list<std::string> & get_indexes();
-		std::list<error_page_pair> & get_errorpages();
-		size_t get_max_body_size() const;
-		size_t get_maxrecv() const;
-		struct sockaddr_in & get_address();
+		uint16_t const & get_port() const;
+		uint32_t const & get_ipv4() const;
+		std::string const & get_port_str() const;
+		std::string const & get_ipv4_str() const;
+		std::string const & get_ipv4_port_str() const; 
+		std::string const & get_servername() const;
+		std::list<std::string> const & get_servernames() const;
+		std::string const & get_root() const;
+		std::list<std::string> const & get_indexes() const;
+		std::list<error_page_pair> const & get_errorpages() const;
+		size_t const & get_max_body_size() const;
+		size_t const & get_maxrecv() const;
+		struct sockaddr_in const & get_address() const;
 		std::string _webserv_bin_path() const;
 
 		// SOCKET
@@ -89,6 +91,9 @@ class Server
 		uint32_t _ipv4;
 		std::string _ip;
 		uint16_t _port;
+		std::string _port_str;
+		std::string _ipv4_str;
+		std::string _ipv4_port_str;
 		int _port_check(std::string & value);
 		std::list<std::string> _serverNames;
 		bool _defaultServerNames;

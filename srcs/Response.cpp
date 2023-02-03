@@ -286,8 +286,8 @@ int Response::_make_CGI() {
 // loop through Locations container and change target if there is redirections
 int Response::_check_redirections(std::string &target, 
         std::deque<Location> &locations, std::deque<Location>::iterator &locationFound) {
-    std::deque<Location>::iterator  it;
-    std::list<Trio>::iterator       it2;
+    std::deque<Location>::const_iterator  it;
+    std::list<Trio>::const_iterator       it2;
 
     for (it = locations.begin(); it != locations.end(); it++) {
         std::list<Trio> &trio = (*it).get_redirections();
@@ -386,7 +386,7 @@ void Response::_check_locations(std::string &target,
 
 // check if the Method used is allowed in a Location
 void Response::_check_methods_in_location(std::deque<Location>::iterator &locationFound) {
-    std::list<std::string>::iterator  it;
+    std::list<std::string>::const_iterator  it;
     int i = 0;
 
     for (it = locationFound->get_methods().begin(); it != locationFound->get_methods().end(); it++) {
