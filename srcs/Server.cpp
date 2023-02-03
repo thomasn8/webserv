@@ -309,14 +309,16 @@ int Server::create_socket()
 	fcntl(_socket_fd, F_SETFL, O_NONBLOCK);
 	if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, (void *)&opt, sizeof(opt)) < 0)
 		_exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 1 failed\n", 1);
+	if (setsockopt(_socket_fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&opt, sizeof(opt)) < 0)
+		_exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 2 failed\n", 1);
 	
 	struct timeval timeout;      
     timeout.tv_sec = SEND_TIMEOUT_SEC;
     timeout.tv_usec = SEND_TIMEOUT_USEC;
     if (setsockopt (_socket_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) < 0)
-        _exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 2 failed\n", 1);
-    if (setsockopt (_socket_fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout) < 0)
         _exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 3 failed\n", 1);
+    if (setsockopt (_socket_fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout) < 0)
+        _exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 4 failed\n", 1);
 
 	memset(_address.sin_zero, 0, sizeof(_address.sin_zero));
 	_address.sin_family = AF_INET;
