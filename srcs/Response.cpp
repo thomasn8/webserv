@@ -85,10 +85,9 @@ std::string Response::_status_messages(int code) {
 
 // check if there is an error pages set in conf file
 int Response::_check_error_pages(const int code) {
-    std::list<std::pair<int, std::string>> &errorPages = this->_server->get_errorpages();
-    std::list<std::pair<int, std::string>>::iterator  it;
+    std::list<std::pair<int, std::string>>::const_iterator  it;
 
-    for (it = errorPages.begin(); it != errorPages.end(); it++) {
+    for (it = this->_server->get_errorpages().begin(); it != this->_server->get_errorpages().end(); it++) {
         if ((*it).first == code) {
             if (access( (*it).second.c_str(), F_OK ) != -1) {
                 this->_target = (*it).second;
@@ -284,8 +283,7 @@ int Response::_make_CGI() {
 // _______________________   ROUTES   _____________________________ //
 
 // loop through Locations container and change target if there is redirections
-int Response::_check_redirections(std::string &target, 
-        std::deque<Location> &locations, std::deque<Location>::iterator &locationFound) {
+int Response::_check_redirections(std::string const &target, std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound) {
     std::deque<Location>::const_iterator  it;
     std::list<Trio>::const_iterator       it2;
 
@@ -316,9 +314,9 @@ int Response::_check_redirections(std::string &target,
 // it's a CGI and must go to www/cgi_bin/media/images/medias.php
 // instead of html/media/images/medias.php
 // For js it check if its a cgi and if not it's maybe a js file for html
-int Response::_add_root_if_cgi(std::string &target, 
-        std::deque<Location> &locations, std::deque<Location>::iterator &locationFound) {
-    std::deque<Location>::iterator  it;
+int Response::_add_root_if_cgi(std::string const &target, 
+        std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound) {
+    std::deque<Location>::const_iterator  it;
     int                             len;
     std::string                     tmp;
     
@@ -342,8 +340,8 @@ int Response::_add_root_if_cgi(std::string &target,
 }
 
 // check if there is a default index file
-int Response::_is_index_file(std::string &target, std::list<std::string> indexes) {
-    std::list<std::string>::iterator      it;
+int Response::_is_index_file(std::string const &target, std::list<std::string> const &indexes) {
+    std::list<std::string>::const_iterator      it;
     
     for (it = indexes.begin(); it != indexes.end(); it++) {
         if (access((target + "/" + *it).c_str(), F_OK) != -1) {
@@ -357,9 +355,9 @@ int Response::_is_index_file(std::string &target, std::list<std::string> indexes
 }
 
 // check if there is a Location corresponding to the target as a directory
-void Response::_check_locations_directory(std::string &target, 
-        std::deque<Location> &locations, std::deque<Location>::iterator &locationFound) {
-    std::deque<Location>::iterator  it;
+void Response::_check_locations_directory(std::string const &target, 
+        std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound) {
+    std::deque<Location>::const_iterator  it;
 
     for (it = locations.begin(); it != locations.end(); it++) {
         if (target.compare((*it).get_root()) == 0) {
@@ -370,8 +368,8 @@ void Response::_check_locations_directory(std::string &target,
 }
 
 // check if there is a Location corresponding to the target as a file
-void Response::_check_locations(std::string &target, 
-        std::deque<Location> &locations, std::deque<Location>::iterator &locationFound) {
+void Response::_check_locations(std::string const &target, 
+        std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound) {
     std::deque<Location>::iterator  it;
     size_t pos = 0;
 
@@ -385,7 +383,7 @@ void Response::_check_locations(std::string &target,
 }
 
 // check if the Method used is allowed in a Location
-void Response::_check_methods_in_location(std::deque<Location>::iterator &locationFound) {
+void Response::_check_methods_in_location(std::deque<Location>::const_iterator &locationFound) {
     std::list<std::string>::const_iterator  it;
     int i = 0;
 
@@ -439,7 +437,7 @@ std::string Response::_what_kind_of_extention(std::string &target) {
 // Main function to make de routes
 void Response::_check_target() {
     std::deque<Location>            &locations = this->_server->get_locations();
-    std::deque<Location>::iterator  locationFound;
+    std::deque<Location>::const_iterator  locationFound;
 
     this->_target = this->_request->get_target();
     if (PRINT_RECIEVED_TARGET)
