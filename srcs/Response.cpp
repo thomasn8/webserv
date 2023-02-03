@@ -283,13 +283,16 @@ int Response::_make_CGI() {
 // _______________________   ROUTES   _____________________________ //
 
 // loop through Locations container and change target if there is redirections
-int Response::_check_redirections(std::string const &target, std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound) {
+int Response::_check_redirections(std::string &target, std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound) {
     std::deque<Location>::const_iterator  it;
     std::list<Trio>::const_iterator       it2;
 
-    for (it = locations.begin(); it != locations.end(); it++) {
-        std::list<Trio> &trio = (*it).get_redirections();
-        for (it2 = trio.begin(); it2 != trio.end(); it2++) {
+    for (it = locations.begin(); it != locations.end(); it++) 
+	{
+        std::list<Trio> trio = (*it).get_redirections();
+
+        for (it2 = trio.begin(); it2 != trio.end(); it2++) 
+		{
             if (target.compare((*it2).first) == 0) {
                 if (!((*it2).second.empty())) {
                     target = (*it2).second;
@@ -314,7 +317,7 @@ int Response::_check_redirections(std::string const &target, std::deque<Location
 // it's a CGI and must go to www/cgi_bin/media/images/medias.php
 // instead of html/media/images/medias.php
 // For js it check if its a cgi and if not it's maybe a js file for html
-int Response::_add_root_if_cgi(std::string const &target, 
+int Response::_add_root_if_cgi(std::string &target, 
         std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound) {
     std::deque<Location>::const_iterator  it;
     int                             len;
@@ -340,7 +343,7 @@ int Response::_add_root_if_cgi(std::string const &target,
 }
 
 // check if there is a default index file
-int Response::_is_index_file(std::string const &target, std::list<std::string> const &indexes) {
+int Response::_is_index_file(std::string &target, std::list<std::string> const &indexes) {
     std::list<std::string>::const_iterator      it;
     
     for (it = indexes.begin(); it != indexes.end(); it++) {
@@ -355,7 +358,7 @@ int Response::_is_index_file(std::string const &target, std::list<std::string> c
 }
 
 // check if there is a Location corresponding to the target as a directory
-void Response::_check_locations_directory(std::string const &target, 
+void Response::_check_locations_directory(std::string &target, 
         std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound) {
     std::deque<Location>::const_iterator  it;
 
@@ -368,7 +371,7 @@ void Response::_check_locations_directory(std::string const &target,
 }
 
 // check if there is a Location corresponding to the target as a file
-void Response::_check_locations(std::string const &target, 
+void Response::_check_locations(std::string &target, 
         std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound) {
     std::deque<Location>::const_iterator  it;
     size_t pos = 0;
