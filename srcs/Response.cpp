@@ -370,7 +370,7 @@ void Response::_check_locations_directory(std::string const &target,
 // check if there is a Location corresponding to the target as a file
 void Response::_check_locations(std::string const &target, 
         std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound) {
-    std::deque<Location>::iterator  it;
+    std::deque<Location>::const_iterator  it;
     size_t pos = 0;
 
     pos = target.find_last_of("/");
