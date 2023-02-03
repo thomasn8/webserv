@@ -44,7 +44,6 @@ Response::Response(char **env, Request *request, Server *server, char **response
     _autoindex(false),
     _targetFound(false),
     _env(env) {
-    _prepare_env(); // enlever ça ici. C'est juste pour tester
     _check_target();
     if (request->get_method() == GET)
         _response_get();
@@ -238,76 +237,105 @@ void Response::_response_delete() {
 
 // meta_var["AUTH_TYPE"] = req.getAuthorization();
 
-void Response::_prepare_env() {
-    std::map<std::string, std::list<std::string>> fields = this->_request->get_fields();
-    char            **ptr = this->_env;
+char **Response::_prepare_env() {
+    std::map<std::string, std::list<std::string>>           fields = this->_request->get_fields();
+    std::map<std::string, std::string> const                &queryString = this->_request->get_defaultDatas();
+    std::map<std::string, std::string>::const_iterator      it;
+    std::list<std::string>::iterator                        it2;
+
+    std::string     query("");
+    std::string     accept("");
+    std::string     accepLang("");
+    std::string     userAgent("");
+    char            **tmp;
     int             i = 0;
+    int             j = 0;
 
-    std::list<MultipartData *> const &test = this->_request->get_multipartDatas();
-    if (!test.empty())
-        (*test.begin())->print_data();
-
-    std::map<std::string, std::string> const &test2 = this->_request->get_defaultDatas();
-    if (!test2.empty())
-        std::cout << (*test2.begin()).first << std::endl;;
-    if (!test2.empty())
-        std::cout << (*test2.begin()).second << std::endl;;
-
-    while (*ptr != NULL)
-        ptr++;
-    while (i < 13) {
-        if (i == 0)
-            *ptr = strdup((std::string("SERVER_NAME=") + *(fields["Host"]).begin()).c_str());
-        else if (i == 1)
-            *ptr = strdup("SERVER_PROTOCOL=HTTP/1.1");
-        else if (i == 2)
-            *ptr = strdup((std::string("SERVER_PORT=") + this->_server->get_port_str()).c_str());
-        else if (i == 3)
-            *ptr = strdup((std::string("REQUEST_METHOD=") + this->_request->get_method()).c_str());
-        else if (i == 4)
-            *ptr = strdup((std::string("SCRIPT_NAME=") + this->_request->get_target()).c_str());
-        else if (i == 5)
-            *ptr = strdup((std::string("QUERY_STRING=QuerystringToDo")).c_str());                        // TO DO
-        else if (i == 6)
-            *ptr = strdup("GATEWAY_INTERFACE=CGI/1.1");
-        else if (i == 7) 
-            *ptr = strdup((std::string("CONTENT_TYPE=") + (*(fields["Content-Type"]).begin())).c_str());
-        else if (i == 8)
-            *ptr = strdup((std::string("CONTENT_LENGTH=") + (*(fields["Content-Length"]).begin())).c_str());
-        else if (i == 9)
-            *ptr = strdup((std::string("HTTP_ACCEPT=") + (*(fields["Accept"]).begin())).c_str());
-        else if (i == 10)
-            *ptr = strdup((std::string("HTTP_ACCEPT_LANGUAGE=") + (*(fields["Accept-Language"]).begin())).c_str());
-        else if (i == 11)
-            *ptr = strdup((std::string("HTTP_USER_AGENT=") + (*(fields["User-Agent"]).begin())).c_str());
-        else if (i == 12)
-            *ptr = strdup((std::string("HTTP_COOKIE=") + (*(fields["Cookie"]).begin())).c_str());
+    while (this->_env[i] != NULL)
         i++;
-        ptr++;
+    tmp = (char **)malloc(sizeof(char *) * (i)); // + 14
+    i = 0;
+    while (this->_env[i] != NULL) {
+        tmp[i] = strdup(this->_env[i]);
+        i++;
     }
-    *ptr = NULL;
+    // à checker si on ne parse pas dans request
+    for (it = queryString.begin(); it != queryString.end(); it++) {
+        query = query + (*it).first + "=" + (*it).second;
+        if (*it != *queryString.rbegin())
+            query += "&";
+    };
+    for (it2 = (fields["Accept"]).begin(); it2 != (fields["Accept"]).end(); it2++) {
+        accept = accept.append(*it2);
+        if (*it2 != *(fields["Accept"]).rbegin())
+            accept.append(", ");
+    };
+    for (it2 = (fields["Accept-Language"]).begin(); it2 != (fields["Accept-Language"]).end(); it2++) {
+        accepLang = accepLang.append(*it2);
+        if (*it2 != *(fields["Accept-Language"]).rbegin())
+            accepLang.append(", ");
+    };
+    for (it2 = (fields["User-Agent"]).begin(); it2 != (fields["User-Agent"]).end(); it2++) {
+        userAgent = userAgent.append(*it2);
+        if (*it2 != *(fields["User-Agent"]).rbegin())
+            userAgent.append(", ");
+    };
+
+    while (j < 13) {
+        if (j == 0)
+            tmp[i] = strdup((std::string("SERVER_NAME=") + *(fields["Host"]).begin()).c_str());
+        else if (j == 1)
+            tmp[i] = strdup("SERVER_PROTOCOL=HTTP/1.1");
+        else if (j == 2)
+            tmp[i] = strdup((std::string("SERVER_PORT=") + this->_server->get_port_str()).c_str());
+        else if (j == 3)
+            tmp[i] = strdup((std::string("REQUEST_METHOD=") + this->_request->get_method()).c_str());
+        else if (j == 4)
+            tmp[i] = strdup((std::string("SCRIPT_NAME=") + this->_request->get_target()).c_str());
+        else if (j == 5)
+            tmp[i] = strdup((std::string("QUERY_STRING=") + query).c_str());
+        else if (j == 6)
+            tmp[i] = strdup("GATEWAY_INTERFACE=CGI/1.1");
+        else if (j == 7) 
+            tmp[i] = strdup((std::string("CONTENT_TYPE=") + (*(fields["Content-Type"]).begin())).c_str());
+        else if (j == 8)
+            tmp[i] = strdup((std::string("CONTENT_LENGTH=") + (*(fields["Content-Length"]).begin())).c_str());
+        else if (j == 9)
+            tmp[i] = strdup((std::string("HTTP_ACCEPT=") + accept).c_str());
+        else if (j == 10)
+            tmp[i] = strdup((std::string("HTTP_ACCEPT_LANGUAGE=") + accepLang).c_str());
+        else if (j == 11)
+            tmp[i] = strdup((std::string("HTTP_USER_AGENT=") + userAgent).c_str());
+        else if (j == 12)
+            tmp[i] = strdup((std::string("HTTP_COOKIE=") + (*(fields["Cookie"]).begin())).c_str());
+        i++;
+        j++;
+    }
+    tmp[i] = NULL;
+    return (tmp);
 }
 
 void Response::_execute_cgi() {
-	size_t		    cgi_size;
     std::string     cgiType;
-    char*           env2[3];
     std::string     path;
     std::string     pathEnv;
     int             pos = 0;
+    char            **tmpEnv;
 
-    _prepare_env();
+    tmpEnv = _prepare_env();
     pathEnv = std::string(getenv("PATH"));
     cgiType = _what_kind_of_cgi(this->_target);
-	cgi_size = this->_server->get_max_body_size();
     pos = pathEnv.find(":");
     while ( pos != std::string::npos) {
         path = pathEnv.substr(0, pos) + "/" + cgiType;
-        execle(path.c_str(), path.c_str(), this->_target.c_str(), NULL, this->_env);
+        execle(path.c_str(), path.c_str(), this->_target.c_str(), NULL, tmpEnv);
         // perror("Error");
         pathEnv.erase(0, pos + 1);
         pos = pathEnv.find(":");
     }
+    for(int i = 0; tmpEnv[i] != NULL; i++)
+        free(tmpEnv[i]);
+    free(tmpEnv);
 }
 
 int Response::_make_CGI() {
@@ -315,9 +343,10 @@ int Response::_make_CGI() {
 	pid_t       pid;
     int		    status;
     char        *cgi;
-    size_t		cgi_size;
-    
+    size_t		max_size;
+    size_t		len;
 
+    
     if (pipe(fd) == -1) {return -1;}
 	pid = fork();
 	if (pid == -1) {exit(EXIT_FAILURE);}
@@ -333,25 +362,25 @@ int Response::_make_CGI() {
         exit(0);
 	}
     else {
-        cgi_size = this->_server->get_max_body_size();
-        cgi = (char *)malloc(sizeof(char) * cgi_size);
+        max_size = this->_server->get_max_body_size();
+        cgi = (char *)malloc(sizeof(char) * max_size);
+        std::string finalCgi;
         close(fd[1]);
-        if (read(fd[0], cgi, cgi_size) < 0) {
-            close(fd[0]);
-            return (1);
+        waitpid(pid, &status, WUNTRACED | WCONTINUED);
+        len = read(fd[0], cgi, max_size);
+        while ( len > 0) {
+            finalCgi.append(cgi, len);
+            free(cgi);
+            cgi = NULL;
+            len = read(fd[0], cgi, max_size);
         }
-        waitpid(pid, &status, 0);
-        if (is_number(cgi))
-            throw ResponseException(atoi(cgi));
-        if (PRINT_CGI_GET)
-            std::cout << "cgi recieve:" << std::string(cgi, cgi_size) << std::endl;
-
-		this->_make_final_message(this->_header, cgi, NULL, cgi_size);
-		free(cgi);
+        close(fd[0]);
+        if (finalCgi.length() > max_size || is_number(finalCgi))
+            throw ResponseException(INTERNAL_SERVER_ERROR);
+		this->_make_final_message(this->_header, finalCgi.c_str(), NULL, finalCgi.size());
         if (PRINT_HTTP_RESPONSE)
             std:: cout << std::string(*this->_finalMessage, *this->_finalMessageSize) << std::endl;
-        }
-
+    }
     return (0);
 }
 
@@ -383,8 +412,6 @@ int Response::_check_redirections(std::string &target, std::deque<Location> cons
     }
     return 0;
 }
-
-
 
 // add the good root before the target when it's a cgi
 // for exemple for /images/medias.php

@@ -55,7 +55,7 @@ class Response {
 		void			_make_autoindex();
 		void			_make_response();
 		void			_execute_cgi();
-		void			_prepare_env();
+		char**			_prepare_env();
 		void			_decript_img();
 		std::string		_what_kind_of_cgi(std::string &target);
 		std::string		_what_kind_of_extention(std::string &target);
