@@ -5,6 +5,8 @@
 #include <streambuf>
 #include <unistd.h>
 #include <dirent.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "Request.hpp"
 #include "Server.hpp"
 #include "Location.hpp"
