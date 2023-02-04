@@ -284,7 +284,10 @@ void Response::_response_post() {
 // _______________________   DELET   _____________________________ //
 
 void Response::_response_delete() {
-
+    // si le fichier est dans le uploadfile on peut le remove
+    // sinon erreur 403
+	if (remove(this->_target.c_str())) {
+    }
 }
 
 
