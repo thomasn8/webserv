@@ -3,6 +3,7 @@
 	************ CONST/DESTR
 */
 Monitor::Monitor(char **env) :
+_env(env),
 _servers(std::deque<Server>()),
 _master_sockets(NULL),
 _master_size(0),
@@ -10,8 +11,7 @@ _fd_count(0),
 _fd_capacity(0),
 _pfds(NULL),
 _activeSockets(NULL),
-_accessFile(std::string(LOG_PATH)), _accessStream(),
-_env(env)
+_accessFile(std::string(LOG_PATH)), _accessStream()
 {
 	_create_log_file(_accessFile, _accessStream);
 }
@@ -54,7 +54,7 @@ void Monitor::_prepare_master_sockets()
 	_master_sockets = (int *)malloc(_master_size * sizeof(int *));
 	while (it != ite)
 	{
-		socket_fd = (*it).create_socket();
+		socket_fd = (*it).create_socket(_env);
 		log("port ", (*it).get_port_str(), " listening on socket ", socket_fd, "\n");
 		_master_sockets[i] = socket_fd;
 		_fd_count++;
@@ -143,7 +143,7 @@ void Monitor::_accept_new_connection(int master_index)
 	else
 	{
 		struct socket * client_socket = _add_to_pfds(new_fd, &remoteAddr, &_servers[master_index]);
-		log(get_time(), " New connection  ", client_socket->client, " on server port ", _servers[master_index].get_port_str(), ": socket ", new_fd, "\n");
+		// log(get_time(), " New connection  ", client_socket->client, " on server port ", _servers[master_index].get_port_str(), ": socket ", new_fd, "\n");
 	}
 }
 
@@ -248,7 +248,6 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 		log(get_time(), " Response to     ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(),  ": socket ", fd, ",	send ", total_sent, " bytes\n");
 	else
 		log(get_time(), " Response error: partial send to client " , activeSocket.client, " on server port ", activeSocket.server->get_port_str(),  ": socket ", fd, ",	send ", total_sent, "/", size, "bytes\n");
-	_stop_chrono(fd);
 	return total_sent;
 }
 
@@ -261,7 +260,7 @@ void Monitor::handle_connections()
 	_buf.capacity = 0;
 	char *responseStr = 0;
 	size_t responseSize;
-	uint64_t chrono_start;
+	struct responseInfos res;
 	while (1)																						// Main loop
 	{
 		poll_count = poll(_pfds, _fd_count, POLL_TIMEOUT);											// bloque tant qu'aucun fd est prêt à read ou write
@@ -288,18 +287,18 @@ void Monitor::handle_connections()
 							{
 								std::string requestStr(_buf.begin, _buf.size);
 								try {
-									Request request(&requestStr, _activeSockets[i].server);										// essaie de constr une requeste depuis les donnees recues
-									Response response(this->_env, &request, _activeSockets[i].server, &responseStr, &responseSize);			// essaie de constr une response si on a une request
+									Request request(&requestStr, _activeSockets[i].server);					// essaie de constr une requeste depuis les donnees recues
+									Response response(&request, _activeSockets[i].server, &res);			// essaie de constr une response si on a une request
 								}
 								catch (StatusCodeException & e) {
-									Response response(e.statuscode(), _activeSockets[i].server, &responseStr, &responseSize);	// si request a un probleme, construit une response selon son status code
+									Response response(e.statuscode(), _activeSockets[i].server, &res);		// si request a un probleme, construit une response selon son status code
 								}
 							}
 							else
-								Response response(HEADERS_TOO_LARGE, _activeSockets[i].server, &responseStr, &responseSize);
+								Response response(HEADERS_TOO_LARGE, _activeSockets[i].server, &res);
 						}
 						else
-							Response response(PAYLOAD_TOO_LARGE, _activeSockets[i].server, &responseStr, &responseSize);			// si recvall a atteint le MBS, constuit une response selon le status code
+							Response response(PAYLOAD_TOO_LARGE, _activeSockets[i].server, &res);			// si recvall a atteint le MBS, constuit une response selon le status code
 						if (_buf.capacity > BUFFER_LIMIT)
 						{
 							free(_buf.begin);
@@ -313,11 +312,14 @@ void Monitor::handle_connections()
 			}
 			else if (_pfds[i].revents & POLLOUT || _pfds[i].revents & POLLHUP) 						// event sur fd[i], i poll a debloquer pour un fd prêt à write ou connection perdue sur le socket en question
 			{
-				// if (_pfds[i].revents & POLLERR)
 				if (_pfds[i].revents & POLLOUT)
-					_send_all(i, responseStr, responseSize, _activeSockets[i]); // send la response construite dans response
-				else
-					_stop_chrono(_pfds[i].fd); // PAS JUSTE, PAS TOUJOURS LE BON SOCKET QUI EST LOGE
+				{
+					_send_all(i, res.header.c_str(), res.header.size(), _activeSockets[i]); 		// send le header
+					// _send_all(i, res.header, res.header_size, _activeSockets[i]); 					// send le header
+					if (res.body_size)
+						_send_all(i, res.body, res.body_size, _activeSockets[i]); 					// send le body
+				}
+				_stop_chrono(_pfds[i].fd);
 				close(_pfds[i].fd);
 				_del_from_pfds(i);
 				free(responseStr);

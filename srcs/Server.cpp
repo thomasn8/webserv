@@ -81,8 +81,8 @@ void Server::add_directive(int directiveIndex, std::string value)
 		case I_ERROR_PAGE_C:
 			set_error_page(value);
 			break;
-		case I_CLIENT_MAX_BODY_SIZE_C:
-			set_client_max_body_size(value);
+		case I_MAX_BODY_SIZE_C:
+			set_max_body_size(value);
 			break;
 	}
 }
@@ -227,7 +227,7 @@ void Server::set_error_page(std::string & value)
 	_errorPages.push_back(std::pair(statusCode, ""));
 }
 
-void Server::set_client_max_body_size(std::string & value)
+void Server::set_max_body_size(std::string & value)
 {
 	if (value.empty())
 		return;
@@ -247,16 +247,16 @@ void Server::set_client_max_body_size(std::string & value)
 			else if (unit.compare("MB") == 0 || unit.compare("MO") == 0 || unit.compare("M") == 0)
 				mbs *= 1000 * 1000;
 			else if (unit.compare("GB") == 0 || unit.compare("GO") == 0 || unit.compare("G") == 0)
-				_exit_cerr_msg("Error: client_max_body_size too large: maximum of 100MB\n", 1);
+				_exit_cerr_msg("Error: max_body_size too large: maximum of 100MB\n", 1);
 			else
-				_exit_cerr_msg("Error: invalid client_max_body_size format. Examples: 4000, 300KB, 2M\n", 1);
+				_exit_cerr_msg("Error: invalid max_body_size format. Examples: 4000, 300KB, 2M\n", 1);
 		}
 	}
 	catch (const std::invalid_argument &ia) {
-		_exit_cerr_msg("Error: invalid client_max_body_size format. Examples: 4000, 300KB, 2M\n", 1);
+		_exit_cerr_msg("Error: invalid max_body_size format. Examples: 4000, 300KB, 2M\n", 1);
 	}
 	if (mbs > MAX_MBS)
-		_exit_cerr_msg("Error: client_max_body_size too large: maximum of 100MB\n", 1);
+		_exit_cerr_msg("Error: max_body_size too large: maximum of 100MB\n", 1);
 	_maxBodySize = mbs;
 	_maxBodySize ? _maxrecv = _maxBodySize + MHS : _maxrecv = 0;
 }
@@ -289,6 +289,8 @@ std::list<Server::error_page_pair> const & Server::get_errorpages() const { retu
 
 struct sockaddr_in const & Server::get_address() const { return _address; }
 
+char **Server::get_env() const { return _env; }
+
 std::string Server::_webserv_bin_path() const
 {
 	char * bin = getcwd(NULL, 0);
@@ -300,8 +302,9 @@ std::string Server::_webserv_bin_path() const
 /* 
 	************ SOCKET
 */
-int Server::create_socket()
+int Server::create_socket(char **env)
 {
+	_env = env;
 	int opt = 1;
 	_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket_fd < 0)
@@ -309,14 +312,16 @@ int Server::create_socket()
 	fcntl(_socket_fd, F_SETFL, O_NONBLOCK);
 	if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, (void *)&opt, sizeof(opt)) < 0)
 		_exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 1 failed\n", 1);
+	if (setsockopt(_socket_fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&opt, sizeof(opt)) < 0)
+		_exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 2 failed\n", 1);
 	
 	struct timeval timeout;      
     timeout.tv_sec = SEND_TIMEOUT_SEC;
     timeout.tv_usec = SEND_TIMEOUT_USEC;
     if (setsockopt (_socket_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) < 0)
-        _exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 2 failed\n", 1);
-    if (setsockopt (_socket_fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout) < 0)
         _exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 3 failed\n", 1);
+    if (setsockopt (_socket_fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout) < 0)
+        _exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 4 failed\n", 1);
 
 	memset(_address.sin_zero, 0, sizeof(_address.sin_zero));
 	_address.sin_family = AF_INET;
