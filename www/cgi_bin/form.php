@@ -4,7 +4,7 @@
 </head>
 <body>
  
-	<form action="test.php" method="post">
+	<form action="test.php" method="post" enctype="multipart/form-data">
 	<p>
 	<label for="my_upload">Select the file to upload:</label>
 	<input id="my_upload" name="my_upload" type="file">

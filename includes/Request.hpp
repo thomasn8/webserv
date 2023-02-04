@@ -29,6 +29,7 @@ class Request {
 		~Request();
 
 		std::string const & get_method() const;
+		bool const & get_isQueryString() const;
 		std::string const & get_target() const;
 		std::map<std::string, std::list<std::string>> const &get_fields() const;
 		std::map<std::string, std::string> const &get_defaultDatas() const;
@@ -56,6 +57,7 @@ class Request {
 		int _parse_header();
 
 		// PARSE BODY
+		bool _isQueryString;
 		const char *_body;
 		size_t _body_len;
 		void _parse_body();
