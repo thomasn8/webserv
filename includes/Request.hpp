@@ -57,7 +57,7 @@ class Request {
 		int _parse_header();
 
 		// PARSE BODY
-		bool _isQueryString;
+		bool _isQueryString;	// _postNameValue.empty()
 		const char *_body;
 		size_t _body_len;
 		void _parse_body();
