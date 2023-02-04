@@ -3,8 +3,8 @@
 // ---------Constructor and destructor ------------
 
 // constructor for error response
-Response::Response(const int code, Server *server, char **responseStr, size_t *responseSize) : 
-_server(server), _version(std::string("HTTP/1.1")), _finalMessage(responseStr), _finalMessageSize(responseSize) {
+Response::Response(const int code, Server *server, struct responseInfos *res) : 
+_server(server), _version(std::string("HTTP/1.1")), _response(res) {
     std::string     body;
 	std::string 	codestr = std::to_string(code);
     std::string		date = Rfc1123_DateTimeNow();
@@ -35,12 +35,11 @@ _server(server), _version(std::string("HTTP/1.1")), _finalMessage(responseStr), 
 }
 
 // constructor for normal response
-Response::Response(Request *request, Server *server, char **responseStr, size_t *responseSize) : 
+Response::Response(Request *request, Server *server, struct responseInfos *res) : 
     _request(request), 
     _server(server),
     _version(std::string("HTTP/1.1")),
-	_finalMessage(responseStr),
-	_finalMessageSize(responseSize),
+	_response(res),
     _autoindex(false),
     _targetFound(false) {
     _check_target();
@@ -100,32 +99,67 @@ int Response::_check_error_pages(const int code) {
 
 // _______________________   Final Response Creation   _____________________________ //
 
-void Response::_make_final_message(std::string &header, const char *body, std::filebuf *pbuf, size_t len) {
-	size_t header_size = header.size();
+void Response::_make_final_message(std::string const &header, const char *body, std::filebuf *pbuf, size_t len) {
+
+// TEST 1
+	// _response->header = header + "Content-Length: " + std::to_string(len) + "\r\n\r\n";
+	// _response->body = (char *)malloc(len * sizeof(char));
+	// _response->body_size = len;
+	// if (body)
+	// 	memcpy(_response->body, body, len);
+	// else
+	// 	pbuf->sgetn(_response->body, len);
+
+// TEST 2
+	// HEADER
 	std::string bodysize = std::to_string(len);
-	int bodysize_len = bodysize.size();
+	size_t bodysize_len = bodysize.size(), header_len = header.size();
 
-	// calc len + allocate
-	*this->_finalMessageSize = header_size;
-	*this->_finalMessageSize += 20; // for "Content-Length: \r\n\r\n"
-	*this->_finalMessageSize += bodysize_len;
-	*this->_finalMessageSize += len;
-	*this->_finalMessage = (char *)malloc(*this->_finalMessageSize * sizeof(char));
-
-	// set memory
-	char *tmp = *this->_finalMessage;
-	memcpy(tmp, header.c_str(), header_size);
-	tmp += header_size;
+	_response->header_size = header_len + bodysize_len + 20;
+	_response->header = (char *)malloc(_response->header_size * sizeof(char));
+	char *tmp = _response->header;
+	memcpy(tmp, header.c_str(), header_len);
+	tmp += header_len;
 	memcpy(tmp, "Content-Length: ", 16);
 	tmp += 16;
 	memcpy(tmp, bodysize.c_str(), bodysize_len);
 	tmp += bodysize_len;
 	memcpy(tmp, "\r\n\r\n", 4);
-	tmp += 4;
+
+	// BODY
+	_response->body = (char *)malloc(len * sizeof(char));
+	_response->body_size = len;
 	if (body)
-		memcpy(tmp, body, len);
+		memcpy(_response->body, body, len);
 	else
-		pbuf->sgetn(tmp, len);
+		pbuf->sgetn(_response->body, len);
+
+// PREVIOUSLY
+	// size_t header_size = header.size();
+	// std::string bodysize = std::to_string(len);
+	// int bodysize_len = bodysize.size();
+
+	// // calc len + allocate
+	// *this->_finalMessageSize = header_size;
+	// *this->_finalMessageSize += 20; // for "Content-Length: \r\n\r\n"
+	// *this->_finalMessageSize += bodysize_len;
+	// *this->_finalMessageSize += len;
+	// *this->_finalMessage = (char *)malloc(*this->_finalMessageSize * sizeof(char));
+
+	// // set memory
+	// char *tmp = *this->_finalMessage;
+	// memcpy(tmp, header.c_str(), header_size);
+	// tmp += header_size;
+	// memcpy(tmp, "Content-Length: ", 16);
+	// tmp += 16;
+	// memcpy(tmp, bodysize.c_str(), bodysize_len);
+	// tmp += bodysize_len;
+	// memcpy(tmp, "\r\n\r\n", 4);
+	// tmp += 4;
+	// if (body)
+	// 	memcpy(tmp, body, len);
+	// else
+	// 	pbuf->sgetn(tmp, len);
 }
 
 
@@ -145,8 +179,8 @@ void Response::_make_response() {
 
 	this->_make_final_message(this->_header, NULL, pbuf, size);
 	ifs.close();
-    if (PRINT_HTTP_RESPONSE)
-        std:: cout << *this->_finalMessage << std::endl;
+    // if (PRINT_HTTP_RESPONSE)
+    //     std:: cout << *this->_finalMessage << std::endl;
 } 
 
 // _______________________   GET   _____________________________ //
@@ -193,8 +227,8 @@ void Response::_make_autoindex() {
             </body> \
             </html>";
     this->_make_final_message(this->_header, body.c_str(), NULL, body.size());
-    if (PRINT_HTTP_RESPONSE)
-        std:: cout << this->_finalMessage << std::endl;
+    // if (PRINT_HTTP_RESPONSE)
+    //     std:: cout << this->_finalMessage << std::endl;
 }
 
 // _______________________   POST   _____________________________ //
@@ -273,8 +307,8 @@ int Response::_make_CGI() {
 
 		this->_make_final_message(this->_header, cgi, NULL, cgi_size);
 		free(cgi);
-        if (PRINT_HTTP_RESPONSE)
-            std:: cout << std::string(*this->_finalMessage, *this->_finalMessageSize) << std::endl;
+        // if (PRINT_HTTP_RESPONSE)
+        //     std:: cout << std::string(*this->_finalMessage, *this->_finalMessageSize) << std::endl;
         }
 
     return (0);
@@ -521,14 +555,6 @@ void Response::_check_target() {
 
 // --------- Fonctions getteur ------------
 
-char * Response::getFinaleMessage() const {
-    return *this->_finalMessage;
-}
-
-size_t Response::getFinaleMessageSize() const {
-    return *this->_finalMessageSize;
-}
-
 std::string Response::getStatusCode() const {
     return this->_statusCode;
 }
@@ -546,8 +572,7 @@ std::string Response::getVersion() const {
 Response &Response::operator=(const Response &instance) { 						// PAS A JOUR, copie pas toutes les variables
     this->_request = instance._request;
     this->_server = instance._server;
-    this->_finalMessage = instance._finalMessage;
-    this->_finalMessageSize = instance._finalMessageSize;
+    this->_response = instance._response;
     this->_statusCode = instance._statusCode;
     this->_reason = instance._reason;
     this->_version = instance._version;
