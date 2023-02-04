@@ -314,8 +314,8 @@ void Monitor::handle_connections()
 			{
 				if (_pfds[i].revents & POLLOUT)
 				{
-					// _send_all(i, res.header.c_str(), res.header.size(), _activeSockets[i]); 		// send le header
-					_send_all(i, res.header, res.header_size, _activeSockets[i]); 					// send le header
+					_send_all(i, res.header.c_str(), res.header.size(), _activeSockets[i]); 		// send le header
+					// _send_all(i, res.header, res.header_size, _activeSockets[i]); 					// send le header
 					if (res.body_size)
 						_send_all(i, res.body, res.body_size, _activeSockets[i]); 					// send le body
 				}

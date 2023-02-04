@@ -100,39 +100,40 @@ int Response::_check_error_pages(const int code) {
 // _______________________   Final Response Creation   _____________________________ //
 
 void Response::_make_final_message(std::string const &header, const char *body, std::filebuf *pbuf, size_t len) {
+// VALGRIND DETECTE DANS LA PARTIE HEADER: "Syscall param socketcall.sendto(msg) points to uninitialised byte(s)"
 
 // TEST 1
-	// _response->header = header + "Content-Length: " + std::to_string(len) + "\r\n\r\n";
-	// _response->body = (char *)malloc(len * sizeof(char));
-	// _response->body_size = len;
-	// if (body)
-	// 	memcpy(_response->body, body, len);
-	// else
-	// 	pbuf->sgetn(_response->body, len);
-
-// TEST 2
-	// HEADER
-	std::string bodysize = std::to_string(len);
-	size_t bodysize_len = bodysize.size(), header_len = header.size();
-
-	_response->header_size = header_len + bodysize_len + 20;
-	_response->header = (char *)malloc(_response->header_size * sizeof(char));
-	char *tmp = _response->header;
-	memcpy(tmp, header.c_str(), header_len);
-	tmp += header_len;
-	memcpy(tmp, "Content-Length: ", 16);
-	tmp += 16;
-	memcpy(tmp, bodysize.c_str(), bodysize_len);
-	tmp += bodysize_len;
-	memcpy(tmp, "\r\n\r\n", 4);
-
-	// BODY
+	_response->header = header + "Content-Length: " + std::to_string(len) + "\r\n\r\n";
 	_response->body = (char *)malloc(len * sizeof(char));
 	_response->body_size = len;
 	if (body)
 		memcpy(_response->body, body, len);
 	else
 		pbuf->sgetn(_response->body, len);
+
+// TEST 2
+	// // HEADER
+	// std::string bodysize = std::to_string(len);
+	// size_t bodysize_len = bodysize.size(), header_len = header.size();
+
+	// _response->header_size = header_len + bodysize_len + 20;
+	// _response->header = (char *)malloc(_response->header_size * sizeof(char));
+	// char *tmp = _response->header;
+	// memcpy(tmp, header.c_str(), header_len);
+	// tmp += header_len;
+	// memcpy(tmp, "Content-Length: ", 16);
+	// tmp += 16;
+	// memcpy(tmp, bodysize.c_str(), bodysize_len);
+	// tmp += bodysize_len;
+	// memcpy(tmp, "\r\n\r\n", 4);
+
+	// // BODY
+	// _response->body = (char *)malloc(len * sizeof(char));
+	// _response->body_size = len;
+	// if (body)
+	// 	memcpy(_response->body, body, len);
+	// else
+	// 	pbuf->sgetn(_response->body, len);
 
 // PREVIOUSLY
 	// size_t header_size = header.size();
