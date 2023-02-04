@@ -289,6 +289,8 @@ std::list<Server::error_page_pair> const & Server::get_errorpages() const { retu
 
 struct sockaddr_in const & Server::get_address() const { return _address; }
 
+char **Server::get_env() const { return _env; }
+
 std::string Server::_webserv_bin_path() const
 {
 	char * bin = getcwd(NULL, 0);

@@ -20,5 +20,17 @@
     <p><?php echo 'Http accept: ' . $_SERVER['HTTP_ACCEPT']; ?></p>
     <p><?php echo 'Languages: ' . $_SERVER['HTTP_ACCEPT_LANGUAGE']; ?></p>
     <p><?php echo 'User agent: ' . $_SERVER['HTTP_USER_AGENT']; ?></p>
+    <p><?php // echo 'name: ' . $_POST['name']; ?></p>
+
+    <h3><?php echo "Reciev data from formular:" ?></h3>
+    <?php
+    $f = fopen( 'php://stdin', 'r' );
+
+    while( $line = fgets( $f ) ) {
+    echo $line;
+    }
+
+    fclose( $f );
+    ?>
 </body>
 </html>

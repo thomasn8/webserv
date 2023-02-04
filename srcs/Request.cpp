@@ -2,7 +2,7 @@
 
 // ---------Constructor and destructor ------------
 
-Request::Request(std::string *rawMessage, Server *server) : _rawMessage(rawMessage), _server(server)
+Request::Request(std::string *rawMessage, Server *server) : _rawMessage(rawMessage), _server(server), _isQueryString(false)
 {
 	if (PRINT_HTTP_REQUEST)
 		std::cout << *rawMessage << std::endl;
@@ -23,7 +23,8 @@ _body(instance._body),
 _body_len(instance._body_len),
 _fields(instance._fields),
 _postNameValue(instance._postNameValue),
-_postMultipart(instance._postMultipart) 
+_postMultipart(instance._postMultipart),
+_isQueryString(instance._isQueryString) 
 {}
 
 Request::~Request()
@@ -34,6 +35,8 @@ Request::~Request()
 // --------- Getters/Setters ------------
 
 std::string const & Request::get_method() const { return _method; }
+
+bool const & Request::get_isQueryString() const { return _isQueryString; }
 
 std::string const & Request::get_target() const { return _target; }
 
@@ -79,6 +82,7 @@ void Request::_parse_start_line(std::string startLine)
 			throw RequestException(URI_TOO_LONG);
 	}
 	else {
+		_isQueryString = true;
 		_target = startLine.substr(0, query);
 		startLine.erase(0, query + 1); // erase target
 		_parse_defaultDataType(&startLine);

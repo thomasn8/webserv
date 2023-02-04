@@ -80,6 +80,7 @@ class Server
 		size_t const & get_max_body_size() const;
 		size_t const & get_maxrecv() const;
 		struct sockaddr_in const & get_address() const;
+		char **get_env() const;
 		std::string _webserv_bin_path() const;
 
 		// SOCKET

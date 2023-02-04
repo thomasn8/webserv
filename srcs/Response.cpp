@@ -73,6 +73,8 @@ std::string Response::_status_messages(int code) {
 			return "NOT FOUND";
 		case 405:
 			return "METHOD NOT ALLOWED";
+		case 415:
+			return "MEDIA UNSUPPORTED";
 		case 500:
 			return "INTERNAL SERVER ERROR";
 		case 505:
@@ -192,6 +194,7 @@ void Response::_response_get() {
         "Content-Type: " + this->_targetType + "\r\n" +
         "Server: pizzabrownie\r\n" +
         "Date: " + date + "\r\n";
+    _check_body();
     if (!this->_cgi.empty())
         _make_CGI();
     else if (this->_autoindex)
@@ -234,53 +237,242 @@ void Response::_make_autoindex() {
 
 // _______________________   POST   _____________________________ //
 
-void Response::_decript_img() {
-    
+//checker les files extansions
+void Response::_upload_file(MultipartData *data) {
+    //check if content type is accepted in location
+    bool ok = false;
+    int pos = 0;
+    pos = data->get_contentType().find("/") + 1;
+    std::list<std::string>::iterator  it;
+    if (!this->_contentType.empty()) {
+        for (it = this->_contentType.begin(); it != this->_contentType.end(); it++) {
+            if (data->get_contentType().compare(pos, (*it).length(), (*it)) == 0)
+                ok = true;
+        }
+    }
+    if (!ok)
+        throw ResponseException(MEDIA_UNSUPPORTED);
+
+    //check if directory exist
+    struct stat st = {0};
+    if (stat(this->_uploadsDir.c_str(), &st) == -1)
+        mkdir(this->_uploadsDir.c_str(), 0700);
+
+    //upload file
+    std::ofstream file(this->_uploadsDir.c_str() + std::string("/") + data->get_fileName(), std::ofstream::binary | std::ofstream::out);
+    char buffer[data->get_valueLen()];
+    int bodySize = data->get_valueLen();
+    file.write(data->get_value(), bodySize);
+    memset(buffer, 0, data->get_valueLen());
+    file.close();
+}
+
+//check if there is file to upload in body or prepare body for cgi
+void Response::_check_body() {
+    std::string body("");
+    std::map<std::string, std::list<std::string>>   fields = this->_request->get_fields();
+
+
+    if (*((fields["Content-Type"]).begin()) == "application/x-www-form-urlencoded") {
+        std::map<std::string, std::string> const &datas = this->_request->get_defaultDatas();
+        std::map<std::string, std::string>::const_iterator it;
+
+        for (it = datas.begin(); it != datas.end(); it++) {
+            body = body + (*it).first + "=" + (*it).second;
+            if (*it != *datas.rbegin())
+                body.append("&");
+        };
+    }
+    else if (std::string(*((fields["Content-Type"]).begin())).compare(0, 20, "multipart/form-data;") == 0) {
+        std::list<MultipartData *> const &datas = this->_request->get_multipartDatas();
+        std::list<MultipartData *>::const_iterator it;
+        for (it = datas.begin(); it != datas.end(); it++) {
+            if ((*it)->get_file())
+                _upload_file((*it));
+            else {
+                body = body + (*it)->get_name() + "=" + (*it)->get_value();
+                if (*it != *datas.rbegin())
+                    body.append("&");
+            }
+        };
+    }
+    this->_body = body;
+
+    // faire qqch avec ce body
+    // adapter content lenght par rapport ä ça
 }
 
 void Response::_response_post() {
-    // std::string body = this->_request->get_body();
-    // size_t pos = body.find("image/jpeg\r\n") + 14;
-    // std::cout << "pos: " <<pos << std::endl;;
-    // body.erase(0, pos);
-    // pos = body.find("------");
-    // body.erase(pos, body.length());
-    // // std::cout << "body:" << body << std::endl;
-    // // std::cout << "body length: " << body.length() << std::endl;
-    // // std::cout << "content-length: " << *this->_request->get_fields()["Content-Length"].begin() << std::endl;
-
-    // std::ofstream file("text.txt", std::ofstream::binary | std::ofstream::out);
-
-    // char buffer[body.length()];
-    // int bodySize = body.length();
-
-    // file.write(body.c_str(), bodySize);
-    // memset(buffer, 0, body.length());
-    // file.close();
+    std::string date = Rfc1123_DateTimeNow();
+    this->_header = this->_version + " " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
+        "Content-Type: " + this->_targetType + "\r\n" +
+        "Server: pizzabrownie\r\n" +
+        "Date: " + date + "\r\n";
+    _check_body();
+    if (!this->_cgi.empty())
+        _make_CGI();
+    else if (this->_autoindex)
+        _make_autoindex();
+    else
+        _make_response();
 }
-
 
 // _______________________   DELET   _____________________________ //
 
 void Response::_response_delete() {
-
+    
+    if (this->_uploadsDir.empty())
+        throw ResponseException(FORBIDDEN);
+    else
+        remove(this->_target.c_str());
+    std::string date = Rfc1123_DateTimeNow();
+    this->_header = this->_version + " " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
+        "Content-Type: " + this->_targetType + "\r\n" +
+        "Server: pizzabrownie\r\n" +
+        "Date: " + date + "\r\n";
+    std::string body = "<!DOCTYPE html> \
+            <html lang=\"fr\"> \
+            <head> \
+                <meta charset=\"UTF-8\"> \
+                <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> \
+                <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> \
+                <title>Index</title> \
+            </head> \
+            <body> \
+                <h1>File deleted successfully</h1> \
+            </body> \
+            </html>";
+    this->_make_final_message(this->_header, body.c_str(), NULL, body.size());
 }
 
 
 // _______________________   CGI   _____________________________ //
 
+char **Response::_prepare_env() {
+    std::map<std::string, std::list<std::string>>           fields = this->_request->get_fields();
+    std::map<std::string, std::string> const                &queryString = this->_request->get_defaultDatas();
+    std::map<std::string, std::string>::const_iterator      it;
+    std::list<std::string>::iterator                        it2;
+
+    std::string     query("");
+    std::string     accept("");
+    std::string     accepLang("");
+    std::string     userAgent("");
+    std::string     host(*(fields["Host"]).begin());
+    std::string     contentType(*(fields["Content-Type"]).begin());
+    std::string     cookies(*(fields["Cookie"]).begin());
+    std::string     contentLengh(*(fields["Content-Length"]).begin());
+    char            **tmp;
+    int             i = 0;
+    int             j = 0;
+
+    while (this->_server->get_env()[i] != NULL)
+        i++;
+    tmp = (char **)malloc(sizeof(char *) * (i + 14));
+    i = 0;
+    while (this->_server->get_env()[i] != NULL) {
+        tmp[i] = strdup(this->_server->get_env()[i]);
+        i++;
+    }
+    if (!this->_body.empty())
+        contentLengh = std::to_string(this->_body.length());
+    // à checker si on ne parse pas dans request
+    if (this->_request->get_isQueryString()) {
+        for (it = queryString.begin(); it != queryString.end(); it++) {
+            query = query + (*it).first + "=" + (*it).second;
+            if (*it != *queryString.rbegin())
+                query += "&";
+        };
+    }
+    for (it2 = (fields["Accept"]).begin(); it2 != (fields["Accept"]).end(); it2++) {
+        accept = accept.append(*it2);
+        if (*it2 != *(fields["Accept"]).rbegin())
+            accept.append(", ");
+    };
+    for (it2 = (fields["Accept-Language"]).begin(); it2 != (fields["Accept-Language"]).end(); it2++) {
+        accepLang = accepLang.append(*it2);
+        if (*it2 != *(fields["Accept-Language"]).rbegin())
+            accepLang.append(", ");
+    };
+    for (it2 = (fields["User-Agent"]).begin(); it2 != (fields["User-Agent"]).end(); it2++) {
+        userAgent = userAgent.append(*it2);
+        if (*it2 != *(fields["User-Agent"]).rbegin())
+            userAgent.append(", ");
+    };
+
+    while (j < 13) {
+        if (j == 0)
+            tmp[i] = strdup((std::string("SERVER_NAME=") + host).c_str());
+        else if (j == 1)
+            tmp[i] = strdup("SERVER_PROTOCOL=HTTP/1.1");
+        else if (j == 2)
+            tmp[i] = strdup((std::string("SERVER_PORT=") + this->_server->get_port_str()).c_str());
+        else if (j == 3)
+            tmp[i] = strdup((std::string("REQUEST_METHOD=") + this->_request->get_method()).c_str());
+        else if (j == 4)
+            tmp[i] = strdup((std::string("SCRIPT_NAME=") + this->_request->get_target()).c_str());
+        else if (j == 5)
+            tmp[i] = strdup((std::string("QUERY_STRING=") + query).c_str());
+        else if (j == 6)
+            tmp[i] = strdup("GATEWAY_INTERFACE=CGI/1.1");
+        else if (j == 7) 
+            tmp[i] = strdup((std::string("CONTENT_TYPE=") + contentType).c_str());
+        else if (j == 8)
+            tmp[i] = strdup((std::string("CONTENT_LENGTH=") + contentLengh).c_str());
+        else if (j == 9)
+            tmp[i] = strdup((std::string("HTTP_ACCEPT=") + accept).c_str());
+        else if (j == 10)
+            tmp[i] = strdup((std::string("HTTP_ACCEPT_LANGUAGE=") + accepLang).c_str());
+        else if (j == 11)
+            tmp[i] = strdup((std::string("HTTP_USER_AGENT=") + userAgent).c_str());
+        else if (j == 12)
+            tmp[i] = strdup((std::string("HTTP_COOKIE=") + cookies).c_str());
+        i++;
+        j++;
+    }
+    tmp[i] = NULL;
+    return (tmp);
+}
+
+void Response::_execute_cgi() {
+    std::string     cgiType;
+    std::string     path;
+    std::string     pathEnv;
+    int             pos = 0;
+    char            **tmpEnv;
+
+    tmpEnv = _prepare_env();
+    pathEnv = std::string(getenv("PATH"));
+    cgiType = _what_kind_of_cgi(this->_target);
+    pos = pathEnv.find(":");
+    while ( pos != std::string::npos) {
+        path = pathEnv.substr(0, pos) + "/" + cgiType;
+        execle(path.c_str(), path.c_str(), this->_target.c_str(), NULL, tmpEnv);
+        // perror("Error");
+        pathEnv.erase(0, pos + 1);
+        pos = pathEnv.find(":");
+    }
+    for(int i = 0; tmpEnv[i] != NULL; i++)
+        free(tmpEnv[i]);
+    free(tmpEnv);
+}
+
+
 int Response::_make_CGI() {
     int         fd[2];
+    int         in[2];
 	pid_t       pid;
     int		    status;
     char        *cgi;
-	size_t		cgi_size;
-    std::string cgiType;
+    size_t		max_size;
+    size_t		len;
 
-    cgiType = _what_kind_of_cgi(this->_target);
-	cgi_size = this->_server->get_max_body_size();
-    cgi = (char *)malloc(sizeof(char) * cgi_size);
+    
     if (pipe(fd) == -1) {return -1;}
+    if (pipe(in) == -1) {return -1;}
+    if (!this->_body.empty())
+        write(in[1], this->_body.c_str(), this->_body.length());
+	close(in[1]);
 	pid = fork();
 	if (pid == -1) {exit(EXIT_FAILURE);}
 	if (pid == 0)
@@ -288,30 +480,36 @@ int Response::_make_CGI() {
         if (PRINT_CGI_GET)
             std:: cout << "path:" << this->_target << std::endl;
         close(fd[0]);
+        close(in[1]);
         if (dup2(fd[1], STDOUT_FILENO) == -1) {exit(EXIT_FAILURE);}
-        execlp(cgiType.c_str(), cgiType.c_str(), this->_target.c_str(), NULL);
+        if (dup2(in[0], STDIN_FILENO) == -1) {exit(EXIT_FAILURE);}
+        _execute_cgi();
         std::cerr << "Error launching cgi: " << this->_target << std::endl;
         write(1, "500", 3);
         exit(0);
 	}
     else {
+        max_size = this->_server->get_max_body_size();
+        cgi = (char *)malloc(sizeof(char) * max_size);
+        std::string finalCgi;
         close(fd[1]);
-        if (read(fd[0], cgi, cgi_size) < 0) {
-            close(fd[0]);
-            return (1);
+        waitpid(pid, &status, WUNTRACED | WCONTINUED);
+        len = read(fd[0], cgi, max_size);
+        while ( len > 0) {
+            finalCgi.append(cgi, len);
+            free(cgi);
+            cgi = NULL;
+            len = read(fd[0], cgi, max_size);
         }
-        waitpid(pid, &status, 0);
-        if (is_number(cgi))
-            throw ResponseException(atoi(cgi));
-        if (PRINT_CGI_GET)
-            std:: cout << "cgi recieve:" << std::string(cgi, cgi_size) << std::endl;
-
-		this->_make_final_message(this->_header, cgi, NULL, cgi_size);
-		free(cgi);
-        // if (PRINT_HTTP_RESPONSE)
-        //     std:: cout << std::string(*this->_finalMessage, *this->_finalMessageSize) << std::endl;
+        if (cgi != NULL) {
+            free(cgi);
+            cgi = NULL;
         }
-
+        close(fd[0]);
+        if (finalCgi.length() > max_size || is_number(finalCgi))
+            throw ResponseException(INTERNAL_SERVER_ERROR);
+		this->_make_final_message(this->_header, finalCgi.c_str(), NULL, finalCgi.size());
+    }
     return (0);
 }
 
@@ -344,8 +542,6 @@ int Response::_check_redirections(std::string &target, std::deque<Location> cons
     return 0;
 }
 
-
-
 // add the good root before the target when it's a cgi
 // for exemple for /images/medias.php
 // it's a CGI and must go to www/cgi_bin/media/images/medias.php
@@ -367,6 +563,8 @@ int Response::_add_root_if_cgi(std::string &target,
                 if (access(tmp.c_str(), F_OK) != -1) {
                     target = tmp;
                     this->_cgi = target;
+                    this->_targetFound = true;
+                    locationFound = it;
                     return 1;
                 }
             }
@@ -445,7 +643,6 @@ std::string Response::_what_kind_of_cgi(std::string &target) {
 std::string Response::_what_kind_of_extention(std::string &target) {
     int pos = target.find_last_of(".") + 1;
 
-    // std::cout << target << std::endl;
     if (pos != 0) {
         if (target.compare(pos, 3, "css") == 0) 
             return "text/css, charset=utf-8";
@@ -478,7 +675,7 @@ void Response::_check_target() {
 
     this->_target = this->_request->get_target();
     if (PRINT_RECIEVED_TARGET)
-        // std::cout << "Target at begin: " << this->_target << std::endl;
+        std::cout << "Target at begin: " << this->_target << std::endl;
     if (*this->_target.begin() != '/')
         throw  ResponseException(BAD_REQUEST);
     if (this->_target.find('.') == std::string::npos) { // if it's a directory
@@ -518,20 +715,16 @@ void Response::_check_target() {
         if (this->_targetFound) {
             if (access(this->_target.c_str(), F_OK) == -1)
                 throw  ResponseException(NOT_FOUND);
-            _check_methods_in_location(locationFound);
             this->_uploadsDir = locationFound->get_uploadsdir();
+            _check_methods_in_location(locationFound);
             if (!locationFound->get_contentTypes().empty())
                 this->_contentType = locationFound->get_contentTypes();
-            // if (!locationFound->get_cgi().empty())
-            //     this->_cgi = this->_target;
         }
         else {
             if (access( this->_target.c_str(), F_OK ) != -1) {
                 this->_targetFound = true;
-                // if (!_what_kind_of_cgi(this->_target).empty())
-                //     this->_cgi = this->_target;
             }
-            else
+            else 
                 throw  ResponseException(NOT_FOUND);
         }
     }
