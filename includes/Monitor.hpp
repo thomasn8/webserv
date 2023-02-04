@@ -21,6 +21,7 @@
 #include "Response.hpp"
 #include "Request.hpp"
 #include "socket.hpp"
+#include "responseInfos.hpp"
 
 # define LOG_PATH "logs/access.log"
 
@@ -49,7 +50,7 @@ class Monitor
 		typedef std::deque<Server>::iterator it_servers;
 
 		// CONST/DESTR
-		Monitor();
+		Monitor(char **env);
 		~Monitor();
 
 		// GETTERS/SETTERS
@@ -78,6 +79,8 @@ class Monitor
 		}
 
 	private:
+		char **_env;
+
 		// SERVERS
 		std::deque<Server> _servers;
 

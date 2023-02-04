@@ -12,19 +12,15 @@
 #include "Location.hpp"
 #include "debug.hpp"
 #include "StatusCodeException.hpp"
+#include "responseInfos.hpp"
 
 class Response {
 	public:
-		Response(const int code, Server *server, char **responseStr, size_t *responseSize);
-		Response(Request *request, Server *server, char **responseStr, size_t *responseSize);
+		Response(const int code, Server *server, struct responseInfos * res);
+		Response(Request *request, Server *server, struct responseInfos * res);
 		Response(const Response &instance);
-		virtual ~Response();
+		~Response();
 
-		char	**_finalMessage;
-		size_t	*_finalMessageSize;
-
-		char * getFinaleMessage() const;
-		size_t getFinaleMessageSize() const;
 		std::string getStatusCode() const;
 		std::string getReason() const;
 		std::string getVersion() const;
@@ -57,7 +53,7 @@ class Response {
 		void			_decript_img();
 		std::string		_what_kind_of_cgi(std::string &target);
 		std::string		_what_kind_of_extention(std::string &target);
-		void 			_make_final_message(std::string &header, const char *body, std::filebuf *pbuf, size_t len);
+		void 			_make_final_message(std::string const &header, const char *body, std::filebuf *pbuf, size_t len);
 		
 		Request						*_request;
 		Server						*_server;
@@ -72,6 +68,8 @@ class Response {
 		std::string					_cgi;
 		bool 						_autoindex;
 		bool						_targetFound;
+
+		struct responseInfos 		*_response;
 };
 
 #endif

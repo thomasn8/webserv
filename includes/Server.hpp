@@ -30,13 +30,13 @@
 
 // DIRECTIVE INDEX
 // (pour en rajouter/modifier: modifier le tableau + definir une macro pour l'index + modifier le switch-case dans add_directive() et creer les getter/setter)
-const std::string	g_server_directives[] = {"listen", "server_name", "root", "index", "error_page", "client_max_body_size", ""};
+const std::string	g_server_directives[] = {"listen", "server_name", "root", "index", "error_page", "max_body_size", ""};
 # define I_LISTEN_C 0
 # define I_SERVER_NAME_C 1
 # define I_ROOT_C 2
 # define I_INDEX_C 3
 # define I_ERROR_PAGE_C 4
-# define I_CLIENT_MAX_BODY_SIZE_C 5
+# define I_MAX_BODY_SIZE_C 5
 
 // SOCKET
 # define BACKLOG 20
@@ -66,7 +66,7 @@ class Server
 		void set_root(std::string & value);
 		void set_index(std::string & value);
 		void set_error_page(std::string & value);
-		void set_client_max_body_size(std::string & value);
+		void set_max_body_size(std::string & value);
 		uint16_t const & get_port() const;
 		uint32_t const & get_ipv4() const;
 		std::string const & get_port_str() const;
@@ -83,9 +83,11 @@ class Server
 		std::string _webserv_bin_path() const;
 
 		// SOCKET
-		int create_socket();
+		int create_socket(char **env);
 
 	private:
+		char **_env;
+
 		// CONFIG
 		std::deque<Location> _locations;
 		uint32_t _ipv4;
