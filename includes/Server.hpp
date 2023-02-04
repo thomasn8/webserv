@@ -83,9 +83,11 @@ class Server
 		std::string _webserv_bin_path() const;
 
 		// SOCKET
-		int create_socket();
+		int create_socket(char **env);
 
 	private:
+		char **_env;
+
 		// CONFIG
 		std::deque<Location> _locations;
 		uint32_t _ipv4;
