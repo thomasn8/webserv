@@ -316,12 +316,16 @@ char **Response::_prepare_env() {
         tmp[i] = strdup(this->_env[i]);
         i++;
     }
+    if (!this->_body.empty())
+        contentLengh = std::to_string(this->_body.length());
     // à checker si on ne parse pas dans request
-    for (it = queryString.begin(); it != queryString.end(); it++) {
-        query = query + (*it).first + "=" + (*it).second;
-        if (*it != *queryString.rbegin())
-            query += "&";
-    };
+    if (this->_request->get_isQueryString()) {
+        for (it = queryString.begin(); it != queryString.end(); it++) {
+            query = query + (*it).first + "=" + (*it).second;
+            if (*it != *queryString.rbegin())
+                query += "&";
+        };
+    }
     for (it2 = (fields["Accept"]).begin(); it2 != (fields["Accept"]).end(); it2++) {
         accept = accept.append(*it2);
         if (*it2 != *(fields["Accept"]).rbegin())
@@ -408,16 +412,9 @@ int Response::_make_CGI() {
     
     if (pipe(fd) == -1) {return -1;}
     if (pipe(in) == -1) {return -1;}
-
-
-    // test
-
-    write(in[1], "name=truc&machin=chose", 22);
+    if (!this->_body.empty())
+        write(in[1], this->_body.c_str(), this->_body.length());
 	close(in[1]);
-
-    // fin du test
-
-
 	pid = fork();
 	if (pid == -1) {exit(EXIT_FAILURE);}
 	if (pid == 0)
