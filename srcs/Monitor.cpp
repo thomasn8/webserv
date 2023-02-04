@@ -2,7 +2,8 @@
 /* 
 	************ CONST/DESTR
 */
-Monitor::Monitor() :
+Monitor::Monitor(char **env) :
+_env(env),
 _servers(std::deque<Server>()),
 _master_sockets(NULL),
 _master_size(0),
@@ -53,7 +54,7 @@ void Monitor::_prepare_master_sockets()
 	_master_sockets = (int *)malloc(_master_size * sizeof(int *));
 	while (it != ite)
 	{
-		socket_fd = (*it).create_socket();
+		socket_fd = (*it).create_socket(_env);
 		log("port ", (*it).get_port_str(), " listening on socket ", socket_fd, "\n");
 		_master_sockets[i] = socket_fd;
 		_fd_count++;

@@ -55,10 +55,8 @@ class Server
 		~Server();
 
 		// GETTERS/SETTERS
-		// parse config
 		std::deque<Location> & get_locations();
 		Location & get_last_location();
-		// handle_connection
 		void add_location(std::string & route);
 		void add_directive(int directiveIndex, std::string value);
 		void set_address_port(std::string & value);
@@ -83,9 +81,11 @@ class Server
 		std::string _webserv_bin_path() const;
 
 		// SOCKET
-		int create_socket();
+		int create_socket(char **env);
 
 	private:
+		char **_env;
+
 		// CONFIG
 		std::deque<Location> _locations;
 		uint32_t _ipv4;

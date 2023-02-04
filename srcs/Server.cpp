@@ -297,8 +297,9 @@ std::string Server::_webserv_bin_path() const
 /* 
 	************ SOCKET
 */
-int Server::create_socket()
+int Server::create_socket(char **env)
 {
+	_env = env;
 	int opt = 1;
 	_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_socket_fd < 0)
