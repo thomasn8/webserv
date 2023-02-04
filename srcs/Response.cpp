@@ -73,6 +73,8 @@ std::string Response::_status_messages(int code) {
 			return "NOT FOUND";
 		case 405:
 			return "METHOD NOT ALLOWED";
+		case 415:
+			return "MEDIA UNSUPPORTED";
 		case 500:
 			return "INTERNAL SERVER ERROR";
 		case 505:
@@ -318,10 +320,29 @@ void Response::_response_post() {
 // _______________________   DELET   _____________________________ //
 
 void Response::_response_delete() {
-    // si le fichier est dans le uploadfile on peut le remove
-    // sinon erreur 403
-	if (remove(this->_target.c_str())) {
-    }
+    
+    if (this->_uploadsDir.empty())
+        throw ResponseException(FORBIDDEN);
+    else
+        remove(this->_target.c_str());
+    std::string date = Rfc1123_DateTimeNow();
+    this->_header = this->_version + " " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
+        "Content-Type: " + this->_targetType + "\r\n" +
+        "Server: pizzabrownie\r\n" +
+        "Date: " + date + "\r\n";
+    std::string body = "<!DOCTYPE html> \
+            <html lang=\"fr\"> \
+            <head> \
+                <meta charset=\"UTF-8\"> \
+                <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> \
+                <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> \
+                <title>Index</title> \
+            </head> \
+            <body> \
+                <h1>File deleted successfully</h1> \
+            </body> \
+            </html>";
+    this->_make_final_message(this->_header, body.c_str(), NULL, body.size());
 }
 
 
@@ -694,20 +715,14 @@ void Response::_check_target() {
         if (this->_targetFound) {
             if (access(this->_target.c_str(), F_OK) == -1)
                 throw  ResponseException(NOT_FOUND);
-            std::cout << locationFound->get_route() << std::endl;
-            std::cout << locationFound->get_uploadsdir() << std::endl;
             this->_uploadsDir = locationFound->get_uploadsdir();
             _check_methods_in_location(locationFound);
             if (!locationFound->get_contentTypes().empty())
                 this->_contentType = locationFound->get_contentTypes();
-            // if (!locationFound->get_cgi().empty())
-            //     this->_cgi = this->_target;
         }
         else {
             if (access( this->_target.c_str(), F_OK ) != -1) {
                 this->_targetFound = true;
-                // if (!_what_kind_of_cgi(this->_target).empty())
-                //     this->_cgi = this->_target;
             }
             else 
                 throw  ResponseException(NOT_FOUND);

@@ -4,12 +4,9 @@
 </head>
 <body>
  
-	<form action="uploads/test.jpeg" method="delete">
-	<p>
-	<label for="my_upload">Select the file to upload:</label>
-	<input id="my_upload" name="my_upload" type="file">
-	</p>
-	<input type="submit" value="Upload Now">
-	</form>
+<form action=”/uploads/test.jpeg”>
+	<input name="_method" type="hidden" value="delete" />
+	<input type="submit" value="ok">
+</form>
 </body>
 </html>
