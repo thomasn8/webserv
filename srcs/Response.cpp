@@ -4,7 +4,7 @@
 
 // constructor for error response
 Response::Response(const int code, Server *server, struct responseInfos *res) : 
-_server(server), _version(std::string("HTTP/1.1")), _response(res) {
+_server(server), _response(res) {
     std::string     body;
 	std::string 	codestr = std::to_string(code);
     std::string		date = Rfc1123_DateTimeNow();
@@ -38,7 +38,6 @@ _server(server), _version(std::string("HTTP/1.1")), _response(res) {
 Response::Response(Request *request, Server *server, struct responseInfos *res) : 
     _request(request), 
     _server(server),
-    _version(std::string("HTTP/1.1")),
 	_response(res),
     _autoindex(false),
     _targetFound(false) {
@@ -190,7 +189,7 @@ void Response::_make_response() {
 
 void Response::_response_get() {
     std::string date = Rfc1123_DateTimeNow();
-    this->_header = this->_version + " " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
+    this->_header = "HTTP/1.1 " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
         "Content-Type: " + this->_targetType + "\r\n" +
         "Server: pizzabrownie\r\n" +
         "Date: " + date + "\r\n";
@@ -253,10 +252,10 @@ void Response::_upload_file(MultipartData *data) {
     if (!ok)
         throw ResponseException(MEDIA_UNSUPPORTED);
 
-    //check if directory exist						// SURE QU'ON EST CENSE CREER LE DIRECTORY ?
-    struct stat st = {0};							// (a mon avis non, car mkdir pas dans le fonction autorisees et a on avis cest la personne qui met en place le server qui est censee avoir deja cree le dir pour les uploads)
+    //check if directory exist						
+    struct stat st = {0};							
     if (stat(this->_uploadsDir.c_str(), &st) == -1)
-        mkdir(this->_uploadsDir.c_str(), 0700);
+        throw ResponseException(INTERNAL_SERVER_ERROR);
 
     //upload file
     std::ofstream file(this->_uploadsDir.c_str() + std::string("/") + data->get_fileName(), std::ofstream::binary | std::ofstream::out);
@@ -301,7 +300,7 @@ void Response::_check_body() {
 
 void Response::_response_post() {
     std::string date = Rfc1123_DateTimeNow();
-    this->_header = this->_version + " " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
+    this->_header = "HTTP/1.1 " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
         "Content-Type: " + this->_targetType + "\r\n" +
         "Server: pizzabrownie\r\n" +
         "Date: " + date + "\r\n";
@@ -320,7 +319,7 @@ void Response::_response_delete() {
     if (remove(this->_target.c_str()))
         throw ResponseException(FORBIDDEN);
     std::string date = Rfc1123_DateTimeNow();
-    this->_header = this->_version + " " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
+    this->_header = "HTTP/1.1 " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
         "Content-Type: text/html" "\r\n" +
         "Server: pizzabrownie\r\n" +
         "Date: " + date + "\r\n";
@@ -487,7 +486,7 @@ int Response::_make_CGI() {
         cgi = (char *)malloc(sizeof(char) * max_size);
         std::string finalCgi;
         close(fd[1]);
-        waitpid(pid, &status, WUNTRACED | WCONTINUED);
+        waitpid(pid, &status, 0);
         len = read(fd[0], cgi, max_size);
         while ( len > 0) {
             finalCgi.append(cgi, len);
@@ -749,22 +748,23 @@ std::string Response::getStatusCode() const {
     return this->_statusCode;
 }
 
-std::string Response::getReason() const {
-    return this->_reason;
-}
 
-std::string Response::getVersion() const {
-    return this->_version;
-}
 
 // --------- Operator overload ------------
 
-Response &Response::operator=(const Response &instance) { 						// PAS A JOUR, COPIE PAS TOUTES LES VARIABLES
+Response &Response::operator=(const Response &instance) { 						
     this->_request = instance._request;
     this->_server = instance._server;
     this->_response = instance._response;
+    this->_header = instance._header;
     this->_statusCode = instance._statusCode;
-    this->_reason = instance._reason;
-    this->_version = instance._version;
+    this->_target = instance._target;
+    this->_targetType = instance._targetType;
+    this->_uploadsDir = instance._uploadsDir;
+    this->_cgi = instance._cgi;
+    this->_body = instance._body;
+    this->_contentLength = instance._contentLength;
+    this->_targetFound = instance._targetFound;
+
     return *this;
 }

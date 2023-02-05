@@ -24,7 +24,6 @@ class Response {
 
 		std::string getStatusCode() const;
 		std::string getReason() const;
-		std::string getVersion() const;
 
 		Response	&operator=(const Response &instance);
 
@@ -61,7 +60,6 @@ class Response {
 		
 		Request						*_request;
 		Server						*_server;
-		std::string 				_version;
 		std::string 				_header;
 		std::string 				_statusCode;
 		std::string 				_reason;
