@@ -23,7 +23,6 @@ class Response {
 		~Response();
 
 		std::string getStatusCode() const;
-		std::string getReason() const;
 
 		Response	&operator=(const Response &instance);
 
@@ -60,19 +59,18 @@ class Response {
 		
 		Request						*_request;
 		Server						*_server;
+		struct responseInfos 		*_response;
+		std::list<std::string>		_contentType;
 		std::string 				_header;
 		std::string 				_statusCode;
-		std::string 				_reason;
 		std::string 				_target;
 		std::string 				_targetType;
 		std::string 				_uploadsDir;
-		std::list<std::string>		_contentType;
 		std::string					_cgi;
 		std::string					_body;
 		std::string					_contentLength;
 		bool 						_autoindex;
 		bool						_targetFound;
-		struct responseInfos 		*_response;
 };
 
 #endif

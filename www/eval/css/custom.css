@@ -1,0 +1,24 @@
+.magin-bottom-42 {
+    margin-bottom: 42px;
+}
+
+.bg--white {
+    background-color: #fff;
+    min-height: 90vh;
+}
+
+.img-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.p-60 {
+    width: 60%;
+    margin: 0 auto;
+}
+
+.icon {
+    height: 89px;
+}
