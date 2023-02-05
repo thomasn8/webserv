@@ -19,12 +19,12 @@ _rawMessage(instance._rawMessage),
 _server(instance._server),
 _method(instance._method),
 _target(instance._target),
+_fields(instance._fields),
+_isQueryString(instance._isQueryString),
 _body(instance._body),
 _body_len(instance._body_len),
-_fields(instance._fields),
 _postNameValue(instance._postNameValue),
-_postMultipart(instance._postMultipart),
-_isQueryString(instance._isQueryString) 
+_postMultipart(instance._postMultipart)
 {}
 
 Request::~Request()
@@ -82,7 +82,7 @@ void Request::_parse_start_line(std::string startLine)
 			throw RequestException(URI_TOO_LONG);
 	}
 	else {
-		_isQueryString = true;
+		_isQueryString = true;								// ON PEUT UTILISER _postNameValue.empty() pour savoir
 		_target = startLine.substr(0, query);
 		startLine.erase(0, query + 1); // erase target
 		_parse_defaultDataType(&startLine);

@@ -253,8 +253,8 @@ void Response::_upload_file(MultipartData *data) {
     if (!ok)
         throw ResponseException(MEDIA_UNSUPPORTED);
 
-    //check if directory exist
-    struct stat st = {0};
+    //check if directory exist						// SURE QU'ON EST CENSE CREER LE DIRECTORY ?
+    struct stat st = {0};							// (a mon avis non, car mkdir pas dans le fonction autorisees et a on avis cest la personne qui met en place le server qui est censee avoir deja cree le dir pour les uploads)
     if (stat(this->_uploadsDir.c_str(), &st) == -1)
         mkdir(this->_uploadsDir.c_str(), 0700);
 
@@ -273,7 +273,7 @@ void Response::_check_body() {
     std::map<std::string, std::list<std::string>>   fields = this->_request->get_fields();
 
 
-    if (*((fields["Content-Type"]).begin()) == "application/x-www-form-urlencoded") {
+    if (*((fields["Content-Type"]).begin()) == "application/x-www-form-urlencoded") {				// REDIS MOI SI ON RESTE SUR CETTE IDEE, DANS CE CAS JE DECONSTRUIS PAS LA QUERY MAIS TE LA PASSE EN UN MORCEAU COUPE AU ? (et dans ce cas le bool _isQueryString est pertinent)
         std::map<std::string, std::string> const &datas = this->_request->get_defaultDatas();
         std::map<std::string, std::string>::const_iterator it;
 
@@ -290,7 +290,7 @@ void Response::_check_body() {
             if ((*it)->get_file())
                 _upload_file((*it));
             else {
-                body = body + (*it)->get_name() + "=" + (*it)->get_value();
+                body = body + (*it)->get_name() + "=" + (*it)->get_value();							// 1X
                 if (*it != *datas.rbegin())
                     body.append("&");
             }
@@ -370,7 +370,7 @@ char **Response::_prepare_env() {
     }
     if (!this->_body.empty())
         contentLengh = std::to_string(this->_body.length());
-    // à checker si on ne parse pas dans request
+    // à checker si on ne parse pas dans request														// REDIS MOI SI ON RESTE SUR CETTE IDEE, DANS CE CAS JE DECONSTRUIS PAS LA QUERY MAIS TE LA PASSE EN UN MORCEAU COUPE AU ?
     if (this->_request->get_isQueryString()) {
         for (it = queryString.begin(); it != queryString.end(); it++) {
             query = query + (*it).first + "=" + (*it).second;
@@ -441,7 +441,7 @@ void Response::_execute_cgi() {
     pos = pathEnv.find(":");
     while ( pos != std::string::npos) {
         path = pathEnv.substr(0, pos) + "/" + cgiType;
-        execle(path.c_str(), path.c_str(), this->_target.c_str(), NULL, tmpEnv);
+        execle(path.c_str(), path.c_str(), this->_target.c_str(), NULL, tmpEnv);								// METTRE EXECV A LA PLACE
         // perror("Error");
         pathEnv.erase(0, pos + 1);
         pos = pathEnv.find(":");
@@ -759,7 +759,7 @@ std::string Response::getVersion() const {
 
 // --------- Operator overload ------------
 
-Response &Response::operator=(const Response &instance) { 						// PAS A JOUR, copie pas toutes les variables
+Response &Response::operator=(const Response &instance) { 						// PAS A JOUR, COPIE PAS TOUTES LES VARIABLES
     this->_request = instance._request;
     this->_server = instance._server;
     this->_response = instance._response;
