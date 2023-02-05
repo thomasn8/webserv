@@ -297,9 +297,6 @@ void Response::_check_body() {
         };
     }
     this->_body = body;
-
-    // faire qqch avec ce body
-    // adapter content lenght par rapport ä ça
 }
 
 void Response::_response_post() {
@@ -319,15 +316,12 @@ void Response::_response_post() {
 
 // _______________________   DELET   _____________________________ //
 
-void Response::_response_delete() {
-    
-    if (this->_uploadsDir.empty())
+void Response::_response_delete() {  
+    if (remove(this->_target.c_str()))
         throw ResponseException(FORBIDDEN);
-    else
-        remove(this->_target.c_str());
     std::string date = Rfc1123_DateTimeNow();
     this->_header = this->_version + " " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
-        "Content-Type: " + this->_targetType + "\r\n" +
+        "Content-Type: text/html" "\r\n" +
         "Server: pizzabrownie\r\n" +
         "Date: " + date + "\r\n";
     std::string body = "<!DOCTYPE html> \
@@ -701,6 +695,7 @@ void Response::_check_target() {
             if (this->_target.compare(this->_server->get_root()) == 0) {
                 if (!_is_index_file(this->_target, this->_server->get_indexes()))
                     throw  ResponseException(FORBIDDEN);
+                this->_uploadsDir = this->_server->get_root();
             }
             else
                 throw  ResponseException(NOT_FOUND);
@@ -723,6 +718,7 @@ void Response::_check_target() {
         else {
             if (access( this->_target.c_str(), F_OK ) != -1) {
                 this->_targetFound = true;
+                this->_uploadsDir = this->_server->get_root();
             }
             else 
                 throw  ResponseException(NOT_FOUND);
