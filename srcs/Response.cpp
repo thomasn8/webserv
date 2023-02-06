@@ -101,7 +101,7 @@ int Response::_check_error_pages(const int code) {
 // _______________________   Final Response Creation   _____________________________ //
 
 void Response::_make_final_message(std::string const &header, const char *body, std::filebuf *pbuf, size_t len) {
-// VALGRIND DETECTE DANS LA PARTIE HEADER: "Syscall param socketcall.sendto(msg) points to uninitialised byte(s)"
+// VALGRIND DETECTE DANS LA PARTIE HEADER: "Syscall param socketcall.sendto(msg) points to uninitialised byte(s)"			// vient de la partie header, a tester de creer une foncion qui compose les headers differement
 
 // TEST 1
 	_response->header = header + "Content-Length: " + std::to_string(len) + "\r\n\r\n";
@@ -255,7 +255,7 @@ void Response::_upload_file(MultipartData *data) {
     //check if directory exist						
     struct stat st = {0};							
     if (stat(this->_uploadsDir.c_str(), &st) == -1)
-        throw ResponseException(INTERNAL_SERVER_ERROR);
+        throw ResponseException(INTERNAL_SERVER_ERROR);												// Ca serait pas mieux forbidden ? ou autre chose
 
     //upload file
     std::ofstream file(this->_uploadsDir.c_str() + std::string("/") + data->get_fileName(), std::ofstream::binary | std::ofstream::out);
@@ -289,13 +289,13 @@ void Response::_check_body() {
             if ((*it)->get_file())
                 _upload_file((*it));
             else {
-                body = body + (*it)->get_name() + "=" + (*it)->get_value();							// 1X
+                body = body + (*it)->get_name() + "=" + (*it)->get_value();
                 if (*it != *datas.rbegin())
                     body.append("&");
             }
         };
     }
-    this->_body = body;
+    this->_body = body;																			// on peut utiliser directement this->_body dans ta fonction, sans faire de copie
 }
 
 void Response::_response_post() {
@@ -440,7 +440,7 @@ void Response::_execute_cgi() {
     pos = pathEnv.find(":");
     while ( pos != std::string::npos) {
         path = pathEnv.substr(0, pos) + "/" + cgiType;
-        execle(path.c_str(), path.c_str(), this->_target.c_str(), NULL, tmpEnv);								// METTRE EXECV A LA PLACE
+        execle(path.c_str(), path.c_str(), this->_target.c_str(), NULL, tmpEnv);
         // perror("Error");
         pathEnv.erase(0, pos + 1);
         pos = pathEnv.find(":");
