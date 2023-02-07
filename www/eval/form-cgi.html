@@ -35,10 +35,14 @@
             <div class="container">
                 <div class="margin-bottom-42">
                     <iframe class="magin-bottom-42" src="https://embed.lottiefiles.com/animation/135006"></iframe>
-                    <h2 class="mb3 reveal-on-scroll is-revealing">You sucessfully send a POST request with a form!</h2>
-                    <p class="mb1 p-60">Unfortunately i'm juste an html file and can't do anythig with the informations you just sent.</p>
-                    <p class="mb1 p-60">Let's try it again but with a PHP file.</p>
-                    <a href="/form-cgi.html" class="btn btn--outline reveal-on-scroll is-revealing">Ok let's try it!</a>
+                    <h2 class="mb3 reveal-on-scroll is-revealing">Ok here is the new form!</h2>
+                    <form action="form-sucess.php" method="post" enctype="multipart/form-data">
+                        <input type="text" name="firstname" placeholder="First name"><br /><br />
+                        <input type="text" name="lastname" placeholder="Last name"><br /><br />
+                        <textarea type="text" name="story" rows="5" cols="33">It was a dark and stormy night...</textarea><br /><br />
+                        <input type="number" name="age" placeholder="age"><br /><br />
+                        <button type="submit">Submit to PHP</button>
+                      </form>
                 </div>
                 <a href="/" class="btn btn--outline reveal-on-scroll is-revealing">Go back to index</a>
             </div>
