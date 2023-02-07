@@ -22,3 +22,12 @@
 .icon {
     height: 89px;
 }
+
+.story {
+    padding: 20px 0;
+    color: #42A5F6;
+}
+
+.align-left p {
+    text-align: left;
+}

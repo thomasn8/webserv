@@ -12,8 +12,8 @@
         <meta name="description" content="">
 
         <!-- The compiled CSS file -->
-        <link rel="stylesheet" href="css/production.css">
-        <link rel="stylesheet" href="css/custom.css">
+        <link rel="stylesheet" href="../css/production.css">
+        <link rel="stylesheet" href="../css/custom.css">
 
         <!-- Web fonts -->
         <link href="https://fonts.googleapis.com/css?family=Space+Mono:400,700" rel="stylesheet">
@@ -53,27 +53,43 @@
                     // var_dump( $data )
 
                     ?>
-                    <h2 class="mb3 p-60 magin-bottom-42 reveal-on-scroll is-revealing">Hello <?php echo $data['firstname']?>! I'm a PHP file! Thanks for all the data you sent me! I will keep them safe and warm!</h2>
-                    <div>
-                        <p class="">My dear <?php echo $data['firstname']?> <?php echo $data['lastname']?>! You are <?php echo $data['age']?> years old and you tell me this story:</p>
-                        <p class=""><?php echo $data['story']?></p>
-                        <p class="">That was a fantastic story! Did you ever thought about being an Author Like J.K Rowling? You Should!<br></p>
-                    </div>
-                    <div class="magin-bottom-42">
-                        <p class="mb1 p-60">By the way here are some extra data I recieved:</p>
-                        <p><?php echo 'Server name: ' . $_SERVER['SERVER_NAME']; ?></p>
-                        <p><?php echo 'Server protocol: ' . $_SERVER['SERVER_PROTOCOL']; ?></p>
-                        <p><?php echo 'Server port: ' . $_SERVER['SERVER_PORT']; ?></p>
-                        <p><?php echo 'Request method: ' . $_SERVER['REQUEST_METHOD']; ?></p>
-                        <p><?php echo 'scrip name: ' . $_SERVER['SCRIPT_NAME']; ?></p>
-                        <p><?php echo 'query string: ' . $_SERVER['QUERY_STRING']; ?></p>
-                        <p><?php echo 'gateway interface: ' . $_SERVER['GATEWAY_INTERFACE']; ?></p>
-                        <p><?php echo 'Content type: ' . $_SERVER['CONTENT_TYPE']; ?></p>
-                        <p><?php echo 'Content length: ' . $_SERVER['CONTENT_LENGTH']; ?></p>
-                        <p><?php echo 'Http accept: ' . $_SERVER['HTTP_ACCEPT']; ?></p>
-                        <p><?php echo 'Languages: ' . $_SERVER['HTTP_ACCEPT_LANGUAGE']; ?></p>
-                        <p><?php echo 'User agent: ' . $_SERVER['HTTP_USER_AGENT']; ?></p>
-                    </div>
+                    
+                    <?php if (empty($data['firstname']) || empty($data['firstname']) || empty($data['age']) || empty($data['story'])) : ?>
+                        <?php if (empty($data['firstname'])) : ?>
+                            <h2 class="mb3 p-60 magin-bottom-42 reveal-on-scroll is-revealing">You forget to enter your name!</h2>
+                        <?php endif; ?>
+                        <?php if (empty($data['lastname'])) : ?>
+                            <h2 class="mb3 p-60 magin-bottom-42 reveal-on-scroll is-revealing">You forget to enter your lastname!</h2>
+                        <?php endif; ?>
+                        <?php if (empty($data['age'])) : ?>
+                            <h2 class="mb3 p-60 magin-bottom-42 reveal-on-scroll is-revealing">You forget to enter your age!</h2>
+                        <?php endif; ?>
+                        <?php if (empty($data['story'])) : ?>
+                            <h2 class="mb3 p-60 magin-bottom-42 reveal-on-scroll is-revealing">You forget to tell me a story!</h2>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <h2 class="mb3 p-60 magin-bottom-42 reveal-on-scroll is-revealing">Hello <?php echo $data['firstname']?>! I'm a PHP file! Thanks for all the data you sent me! I will keep them safe and warm!</h2>
+                        <div class="magin-bottom-42">
+                            <p class="p-60">My dear <?php echo $data['firstname']?> <?php echo $data['lastname']?>! You are <?php echo $data['age']?> years old and you told me this story:</p>
+                            <p class="story p-60"><?php echo $data['story']?></p>
+                            <p class="p-60">That was a fantastic story! Did you ever thought about being an Author Like J.K Rowling? You Should!<br></p>
+                        </div>
+                        <div class="magin-bottom-42 align-left p-60">
+                            <h3 class="mb1 magin-bottom-42">By the way here are some extra data I recieved:</h3>
+                            <p><strong>Server name: </strong><?php echo $_SERVER['SERVER_NAME']; ?></p>
+                            <p><strong>Server protocol:: </strong><?php echo $_SERVER['SERVER_PROTOCOL']; ?></p>
+                            <p><strong>Server port: </strong><?php echo $_SERVER['SERVER_PORT']; ?></p>
+                            <p><strong>Request method: </strong><?php echo $_SERVER['REQUEST_METHOD']; ?></p>
+                            <p><strong>scrip name: </strong><?php echo $_SERVER['SCRIPT_NAME']; ?></p>
+                            <p><strong>query string: </strong><?php echo $_SERVER['QUERY_STRING']; ?></p>
+                            <p><strong>gateway interface: </strong><?php echo $_SERVER['GATEWAY_INTERFACE']; ?></p>
+                            <p><strong>Content type: </strong><?php echo $_SERVER['CONTENT_TYPE']; ?></p>
+                            <p><strong>Content length: </strong><?php echo $_SERVER['CONTENT_LENGTH']; ?></p>
+                            <p><strong>Http accept: </strong><?php echo $_SERVER['HTTP_ACCEPT']; ?></p>
+                            <p><strong>Languages: </strong><?php echo $_SERVER['HTTP_ACCEPT_LANGUAGE']; ?></p>
+                            <p><strong>User agent: </strong><?php echo $_SERVER['HTTP_USER_AGENT']; ?></p>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 <a href="/" class="btn btn--outline reveal-on-scroll is-revealing">Go back to index</a>
             </div>
@@ -91,7 +107,7 @@
     <script src="https://unpkg.com/scrollreveal@4.0.0/dist/scrollreveal.min.js"></script>
 
     <!-- The compiled JavaScript file -->
-    <script src="js/production.js"></script>
+    <script src="../js/production.js"></script>
 
     </body>
 </html>
