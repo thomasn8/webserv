@@ -258,8 +258,6 @@ void Monitor::handle_connections()
 	_prepare_master_sockets(); // socket, bind, listen pour chaque port/server + creer les struct pollfd dédiées
 	int i, poll_index = 0, poll_count = 0, server_count = _servers.size();
 	_buf.capacity = 0;
-	char *responseStr = 0;
-	size_t responseSize;
 	struct responseInfos res;
 	while (1)																						// Main loop
 	{
@@ -322,7 +320,8 @@ void Monitor::handle_connections()
 				_stop_chrono(_pfds[i].fd);
 				close(_pfds[i].fd);
 				_del_from_pfds(i);
-				free(responseStr);
+				// free(res.header);
+				free(res.body);
 				poll_index = 0;
 			}
 			i++;

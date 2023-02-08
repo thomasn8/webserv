@@ -268,34 +268,24 @@ void Response::_upload_file(MultipartData *data) {
 
 //check if there is file to upload in body or prepare body for cgi
 void Response::_check_body() {
-    std::string body("");
-    std::map<std::string, std::list<std::string>>   fields = this->_request->get_fields();
-
-
-    if (*((fields["Content-Type"]).begin()) == "application/x-www-form-urlencoded") {				// REDIS MOI SI ON RESTE SUR CETTE IDEE, DANS CE CAS JE DECONSTRUIS PAS LA QUERY MAIS TE LA PASSE EN UN MORCEAU COUPE AU ? (et dans ce cas le bool _isQueryString est pertinent)
-        std::map<std::string, std::string> const &datas = this->_request->get_defaultDatas();
-        std::map<std::string, std::string>::const_iterator it;
-
-        for (it = datas.begin(); it != datas.end(); it++) {
-            body = body + (*it).first + "=" + (*it).second;
-            if (*it != *datas.rbegin())
-                body.append("&");
-        };
-    }
-    else if (std::string(*((fields["Content-Type"]).begin())).compare(0, 20, "multipart/form-data;") == 0) {
-        std::list<MultipartData *> const &datas = this->_request->get_multipartDatas();
-        std::list<MultipartData *>::const_iterator it;
-        for (it = datas.begin(); it != datas.end(); it++) {
+	if (this->_request->get_queryString().empty() == false)
+		this->_body = this->_request->get_queryString();
+	else if (this->_request->get_postDefault().empty() == false)
+		this->_body = this->_request->get_postDefault();
+	else if (this->_request->get_multipartDatas().empty() == false)
+	{
+		std::list<MultipartData *> const &datas = this->_request->get_multipartDatas();
+        for (Request::mutlipart_it it = datas.begin(); it != datas.end(); it++) {
             if ((*it)->get_file())
                 _upload_file((*it));
             else {
-                body = body + (*it)->get_name() + "=" + (*it)->get_value();
+                this->_body += (*it)->get_name() + "=" + (*it)->get_value();
                 if (*it != *datas.rbegin())
-                    body.append("&");
+					this->_body += "&";
             }
         };
-    }
-    this->_body = body;																			// on peut utiliser directement this->_body dans ta fonction, sans faire de copie
+	}
+	std::cout << "body:\n" << this->_body << std::endl;
 }
 
 void Response::_response_post() {
@@ -343,7 +333,7 @@ void Response::_response_delete() {
 
 char **Response::_prepare_env() {
     std::map<std::string, std::list<std::string>>           fields = this->_request->get_fields();
-    std::map<std::string, std::string> const                &queryString = this->_request->get_defaultDatas();
+    // std::map<std::string, std::string> const                &queryString = this->_request->get_defaultDatas();
     std::map<std::string, std::string>::const_iterator      it;
     std::list<std::string>::iterator                        it2;
 
@@ -370,13 +360,13 @@ char **Response::_prepare_env() {
     if (!this->_body.empty())
         contentLengh = std::to_string(this->_body.length());
     // à checker si on ne parse pas dans request														// REDIS MOI SI ON RESTE SUR CETTE IDEE, DANS CE CAS JE DECONSTRUIS PAS LA QUERY MAIS TE LA PASSE EN UN MORCEAU COUPE AU ?
-    if (this->_request->get_isQueryString()) {
-        for (it = queryString.begin(); it != queryString.end(); it++) {
-            query = query + (*it).first + "=" + (*it).second;
-            if (*it != *queryString.rbegin())
-                query += "&";
-        };
-    }
+    // if (this->_request->get_isQueryString()) {
+    //     for (it = queryString.begin(); it != queryString.end(); it++) {
+    //         query = query + (*it).first + "=" + (*it).second;
+    //         if (*it != *queryString.rbegin())
+    //             query += "&";
+    //     };
+    // }
     for (it2 = (fields["Accept"]).begin(); it2 != (fields["Accept"]).end(); it2++) {
         accept = accept.append(*it2);
         if (*it2 != *(fields["Accept"]).rbegin())

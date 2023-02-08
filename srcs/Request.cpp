@@ -2,7 +2,8 @@
 
 // ---------Constructor and destructor ------------
 
-Request::Request(std::string *rawMessage, Server *server) : _rawMessage(rawMessage), _server(server), _isQueryString(false)
+Request::Request(std::string *rawMessage, Server *server) :
+_rawMessage(rawMessage), _server(server)
 {
 	if (PRINT_HTTP_REQUEST)
 		std::cout << *rawMessage << std::endl;
@@ -20,29 +21,27 @@ _server(instance._server),
 _method(instance._method),
 _target(instance._target),
 _fields(instance._fields),
-_isQueryString(instance._isQueryString),
 _body(instance._body),
 _body_len(instance._body_len),
-_postNameValue(instance._postNameValue),
+_queryString(instance._queryString),
+_postDefault(instance._postDefault),
+// _postNameValue(instance._postNameValue),
 _postMultipart(instance._postMultipart)
 {}
 
-Request::~Request()
-{
-	_free_multipartDatas();
-}
+Request::~Request() { _free_multipartDatas(); }
 
 // --------- Getters/Setters ------------
 
 std::string const & Request::get_method() const { return _method; }
 
-bool const & Request::get_isQueryString() const { return _isQueryString; }
-
 std::string const & Request::get_target() const { return _target; }
 
 std::map<std::string, std::list<std::string>> const & Request::get_fields() const { return _fields; }
 
-std::map<std::string, std::string> const & Request::get_defaultDatas() const { return _postNameValue; }
+std::string const & Request::get_queryString() const { return _queryString; }
+
+std::string const & Request::get_postDefault() const { return _postDefault; }
 
 std::list<MultipartData *> const & Request::get_multipartDatas() const { return _postMultipart; }
 
@@ -76,16 +75,17 @@ void Request::_parse_start_line(std::string startLine)
 
 	// URL (target + ?query)
 	query = startLine.find('?'); // check if form data in url
-	if (query == std::string::npos) {
+	if (query == std::string::npos)
+	{
 		_target = startLine;
 		if (_target.size() > URL_MAX_LEN)
 			throw RequestException(URI_TOO_LONG);
 	}
-	else {
-		_isQueryString = true;								// ON PEUT UTILISER _postNameValue.empty() pour savoir
+	else
+	{
 		_target = startLine.substr(0, query);
 		startLine.erase(0, query + 1); // erase target
-		_parse_defaultDataType(&startLine);
+		_queryString = startLine;
 	}
 }
 
@@ -186,25 +186,6 @@ std::string Request::_find_value_from_boundry_block(std::string &block, const ch
 	return std::string(block.c_str() + valstart, vallen);
 }
 
-void Request::_parse_defaultDataType(std::string *formDatas)
-{
-	ssize_t i, keylen = 0, vallen = 0;
-	i = formDatas->find('&');
-	while (i != -1)
-	{
-		// firstchar = 0, lastchar (before \n) = i-1, \n = i, len to erase = i+1
-		keylen = formDatas->find('=');
-		vallen = formDatas->find('&') - keylen - 1;
-		_postNameValue.insert(std::make_pair(std::string(formDatas->c_str(), keylen), std::string(formDatas->c_str()+keylen+1, vallen)));
-		formDatas->erase(0, i+1);
-		i = formDatas->find('&');
-	}
-	keylen = formDatas->find('=');
-	vallen = formDatas->size() - keylen - 1;
-	_postNameValue.insert(std::make_pair(std::string(formDatas->c_str(), keylen), std::string(formDatas->c_str()+keylen+1, vallen)));
-	formDatas->clear();
-}
-
 void Request::_parse_multipartDataType(fields_it type)
 {
 	ssize_t pos = (*type).second.front().find_first_of('=');
@@ -286,7 +267,8 @@ void Request::_parse_body()
 	if ((*type).second.front().c_str()[0] == 'm')
 		_parse_multipartDataType(type);
 	else
-		_parse_defaultDataType(_rawMessage);
+		_postDefault = *_rawMessage;
+		// _parse_defaultDataType(_rawMessage);
 }
 
 // delete les Multipart * alloues dans map de _postMultipart
@@ -318,28 +300,12 @@ void Request::_print_fields() const
 	}
 }
 
-void Request::_print_defaultDatas() const
-{
-	std::cout << "\nPOST APPLICATION DATAS" << std::endl;
-	if (_postNameValue.size() > 0)
-	{
-		post_mapit it = _postNameValue.cbegin();
-		for (; it != _postNameValue.cend(); it++)
-		{
-			std::cout << "Data:" << std::endl;
-			std::cout << "	name = |" << (*it).first << "|" << std::endl;
-			std::cout << "	value = |" << (*it).second << "|" << std::endl;
-		}
-		std::cout << std::endl;
-	}
-}
-
 void Request::_print_multipartDatas() const
 {
 	std::cout << "\nPOST MULTIPART DATAS" << std::endl;
 	if (_postMultipart.size() > 0)
 	{
-		post_listit it = _postMultipart.cbegin();
+		mutlipart_it it = _postMultipart.cbegin();
 		for (; it != _postMultipart.cend(); it++)
 		{
 			std::cout << "Data (" << static_cast<const void *>(*it) << "):" << std::endl;
