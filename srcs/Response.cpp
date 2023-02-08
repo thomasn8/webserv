@@ -283,7 +283,7 @@ void Response::_check_body() {
                 if (*it != *datas.rbegin())
 					this->_body += "&";
             }
-        };
+        }
 	}
 	std::cout << "body:\n" << this->_body << std::endl;
 }
