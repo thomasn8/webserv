@@ -25,7 +25,6 @@ _body(instance._body),
 _body_len(instance._body_len),
 _queryString(instance._queryString),
 _postDefault(instance._postDefault),
-// _postNameValue(instance._postNameValue),
 _postMultipart(instance._postMultipart)
 {}
 
