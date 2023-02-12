@@ -4,8 +4,10 @@
 </head>
 <body>
  
-	<form action="test.php" method="post" enctype="multipart/form-data">
+	<form action="post.php" method="post" enctype="multipart/form-data">
 	<p>
+	<input type="text" name="firstname" placeholder="First name"><br /><br />
+	<input type="text" name="lastname" placeholder="Last name"><br /><br />
 	<label for="my_upload">Select the file to upload:</label>
 	<input id="my_upload" name="my_upload" type="file">
 	</p>
@@ -13,7 +15,6 @@
 	</form>
 </body>
 </html>
-
 
 <?php 
 // if ($_SERVER['REQUEST_METHOD'] == 'POST') 

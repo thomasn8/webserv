@@ -72,8 +72,12 @@ std::string Response::_status_messages(int code) {
 			return "NOT FOUND";
 		case 405:
 			return "METHOD NOT ALLOWED";
+		case 413:
+			return "PAYLOAD_TOO_LARGE";
 		case 415:
 			return "MEDIA UNSUPPORTED";
+		case 431:
+			return "HEADERS_TOO_LARGE";
 		case 500:
 			return "INTERNAL SERVER ERROR";
 		case 505:
@@ -268,24 +272,22 @@ void Response::_upload_file(MultipartData *data) {
 
 //check if there is file to upload in body or prepare body for cgi
 void Response::_check_body() {
-	// if (this->_request->get_queryString().empty() == false)
-	// 	this->_body = this->_request->get_queryString();
 	if (this->_request->get_postDefault().empty() == false)
 		this->_body = this->_request->get_postDefault();
 	else if (this->_request->get_multipartDatas().empty() == false)
 	{
 		std::list<MultipartData *> const &datas = this->_request->get_multipartDatas();
         for (Request::mutlipart_it it = datas.begin(); it != datas.end(); it++) {
-            if ((*it)->get_file())
+            if ((*it)->get_file()) {
                 _upload_file((*it));
-            else {
-                this->_body += (*it)->get_name() + "=" + (*it)->get_value();
-                if (*it != *datas.rbegin())
-					this->_body += "&";
+                this->_body += (*it)->get_name() + "=" + (*it)->get_fileName() + "&";
             }
+            else
+                this->_body += (*it)->get_name() + "=" + (*it)->get_value() + "&";
         }
+        if (this->_body.compare(this->_body.length() - 1, 1, "&") == 0)
+            this->_body.pop_back();
 	}
-	// std::cout << "body:\n" << this->_body << std::endl;
 }
 
 void Response::_response_post() {
@@ -333,7 +335,6 @@ void Response::_response_delete() {
 
 char **Response::_prepare_env() {
     std::map<std::string, std::list<std::string>>           fields = this->_request->get_fields();
-    // std::map<std::string, std::string> const                &queryString = this->_request->get_defaultDatas();
     std::map<std::string, std::string>::const_iterator      it;
     std::list<std::string>::iterator                        it2;
 
@@ -342,7 +343,7 @@ char **Response::_prepare_env() {
     std::string     accepLang("");
     std::string     userAgent("");
     std::string     host(*(fields["Host"]).begin());
-    std::string     contentType(*(fields["Content-Type"]).begin());
+    std::string     contentType;
     std::string     cookies(*(fields["Cookie"]).begin());
     std::string     contentLengh(*(fields["Content-Length"]).begin());
     char            **tmp;
@@ -357,16 +358,9 @@ char **Response::_prepare_env() {
         tmp[i] = strdup(this->_server->get_env()[i]);
         i++;
     }
-    if (!this->_body.empty())
-        contentLengh = std::to_string(this->_body.length());
-    // à checker si on ne parse pas dans request														// REDIS MOI SI ON RESTE SUR CETTE IDEE, DANS CE CAS JE DECONSTRUIS PAS LA QUERY MAIS TE LA PASSE EN UN MORCEAU COUPE AU ?
-    // if (this->_request->get_isQueryString()) {
-    //     for (it = queryString.begin(); it != queryString.end(); it++) {
-    //         query = query + (*it).first + "=" + (*it).second;
-    //         if (*it != *queryString.rbegin())
-    //             query += "&";
-    //     };
-    // }
+    if (!(fields["Content-Type"].empty()))
+       contentType = "application/x-www-form-urlencoded";
+    contentLengh = std::to_string(this->_body.length());
     for (it2 = (fields["Accept"]).begin(); it2 != (fields["Accept"]).end(); it2++) {
         accept = accept.append(*it2);
         if (*it2 != *(fields["Accept"]).rbegin())
@@ -684,6 +678,8 @@ void Response::_check_target() {
             if (this->_target.compare(this->_server->get_root()) == 0) {
                 if (!_is_index_file(this->_target, this->_server->get_indexes()))
                     throw  ResponseException(FORBIDDEN);
+                if (this->_request->get_method().compare("DELETE") == 0)
+                    throw  ResponseException(METHOD_NOT_ALLOWED);
                 this->_uploadsDir = this->_server->get_root();
             }
             else
@@ -705,6 +701,8 @@ void Response::_check_target() {
                 this->_contentType = locationFound->get_contentTypes();
         }
         else {
+            if (this->_request->get_method().compare("DELETE") == 0)
+                throw  ResponseException(METHOD_NOT_ALLOWED);
             if (access( this->_target.c_str(), F_OK ) != -1) {
                 this->_targetFound = true;
                 this->_uploadsDir = this->_server->get_root();
