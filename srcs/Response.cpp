@@ -268,9 +268,9 @@ void Response::_upload_file(MultipartData *data) {
 
 //check if there is file to upload in body or prepare body for cgi
 void Response::_check_body() {
-	if (this->_request->get_queryString().empty() == false)
-		this->_body = this->_request->get_queryString();
-	else if (this->_request->get_postDefault().empty() == false)
+	// if (this->_request->get_queryString().empty() == false)
+	// 	this->_body = this->_request->get_queryString();
+	if (this->_request->get_postDefault().empty() == false)
 		this->_body = this->_request->get_postDefault();
 	else if (this->_request->get_multipartDatas().empty() == false)
 	{
@@ -285,7 +285,7 @@ void Response::_check_body() {
             }
         }
 	}
-	std::cout << "body:\n" << this->_body << std::endl;
+	// std::cout << "body:\n" << this->_body << std::endl;
 }
 
 void Response::_response_post() {
@@ -395,7 +395,7 @@ char **Response::_prepare_env() {
         else if (j == 4)
             tmp[i] = strdup((std::string("SCRIPT_NAME=") + this->_request->get_target()).c_str());
         else if (j == 5)
-            tmp[i] = strdup((std::string("QUERY_STRING=") + query).c_str());
+            tmp[i] = strdup((std::string("QUERY_STRING=") + this->_request->get_queryString()).c_str());
         else if (j == 6)
             tmp[i] = strdup("GATEWAY_INTERFACE=CGI/1.1");
         else if (j == 7) 
