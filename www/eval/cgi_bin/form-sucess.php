@@ -11,6 +11,13 @@
         <title>Webserver 42</title>
         <meta name="description" content="">
 
+        <!-- favicon -->
+        <link rel="apple-touch-icon" sizes="180x180" href="/favicon_package/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon_package/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon_package/favicon-16x16.png">
+        <link rel="manifest" href="/favicon_package/site.webmanifest">
+        <link rel="mask-icon" href="/favicon_package/safari-pinned-tab.svg" color="#5bbad5">
+
         <!-- The compiled CSS file -->
         <link rel="stylesheet" href="../css/production.css">
         <link rel="stylesheet" href="../css/custom.css">
@@ -34,7 +41,7 @@
         <header class="align--center pt3 pb2">
             <div class="container">
                 <div class="margin-bottom-42">
-                    <iframe class="magin-bottom-42" src="https://embed.lottiefiles.com/animation/135006"></iframe>
+                    <iframe class="margin-bottom-42" src="https://embed.lottiefiles.com/animation/135006"></iframe>
                     <?php
                     $f = fopen( 'php://stdin', 'r' );
                     $finalLine = "";
@@ -56,26 +63,27 @@
                     
                     <?php if (empty($data['firstname']) || empty($data['firstname']) || empty($data['age']) || empty($data['story'])) : ?>
                         <?php if (empty($data['firstname'])) : ?>
-                            <h2 class="mb3 p-60 magin-bottom-42 reveal-on-scroll is-revealing">You forget to enter your name!</h2>
+                            <h2 class="mb3 p-60 margin-bottom-42 reveal-on-scroll is-revealing">You forget to enter your name!</h2>
                         <?php endif; ?>
                         <?php if (empty($data['lastname'])) : ?>
-                            <h2 class="mb3 p-60 magin-bottom-42 reveal-on-scroll is-revealing">You forget to enter your lastname!</h2>
+                            <h2 class="mb3 p-60 margin-bottom-42 reveal-on-scroll is-revealing">You forget to enter your lastname!</h2>
                         <?php endif; ?>
                         <?php if (empty($data['age'])) : ?>
-                            <h2 class="mb3 p-60 magin-bottom-42 reveal-on-scroll is-revealing">You forget to enter your age!</h2>
+                            <h2 class="mb3 p-60 margin-bottom-42 reveal-on-scroll is-revealing">You forget to enter your age!</h2>
                         <?php endif; ?>
                         <?php if (empty($data['story'])) : ?>
-                            <h2 class="mb3 p-60 magin-bottom-42 reveal-on-scroll is-revealing">You forget to tell me a story!</h2>
+                            <h2 class="mb3 p-60 margin-bottom-42 reveal-on-scroll is-revealing">You forget to tell me a story!</h2>
                         <?php endif; ?>
+                        <a href="/form-cgi.html" class="btn btn--outline reveal-on-scroll is-revealing">Go back to the form</a>
                     <?php else: ?>
-                        <h2 class="mb3 p-60 magin-bottom-42 reveal-on-scroll is-revealing">Hello <?php echo $data['firstname']?>! I'm a PHP file! Thanks for all the data you sent me! I will keep them safe and warm!</h2>
-                        <div class="magin-bottom-42">
+                        <h2 class="mb3 p-60 margin-bottom-42 reveal-on-scroll is-revealing">Hello <?php echo $data['firstname']?>! I'm a PHP file! Thanks for all the data you sent me! I will keep them safe and warm!</h2>
+                        <div class="margin-bottom-42">
                             <p class="p-60">My dear <?php echo $data['firstname']?> <?php echo $data['lastname']?>! You are <?php echo $data['age']?> years old and you told me this story:</p>
                             <p class="story p-60"><?php echo $data['story']?></p>
                             <p class="p-60">That was a fantastic story! Did you ever thought about being an Author Like J.K Rowling? You Should!<br></p>
                         </div>
-                        <div class="magin-bottom-42 align-left p-60">
-                            <h3 class="mb1 magin-bottom-42">By the way here are some extra data I recieved:</h3>
+                        <div class="margin-bottom-42 align-left p-60">
+                            <h3 class="mb1 margin-bottom-42">By the way here are some extra data I recieved:</h3>
                             <p><strong>Server name: </strong><?php echo $_SERVER['SERVER_NAME']; ?></p>
                             <p><strong>Server protocol:: </strong><?php echo $_SERVER['SERVER_PROTOCOL']; ?></p>
                             <p><strong>Server port: </strong><?php echo $_SERVER['SERVER_PORT']; ?></p>

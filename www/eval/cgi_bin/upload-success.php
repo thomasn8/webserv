@@ -11,6 +11,13 @@
         <title>Webserver 42</title>
         <meta name="description" content="">
 
+        <!-- favicon -->
+        <link rel="apple-touch-icon" sizes="180x180" href="/favicon_package/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon_package/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon_package/favicon-16x16.png">
+        <link rel="manifest" href="/favicon_package/site.webmanifest">
+        <link rel="mask-icon" href="/favicon_package/safari-pinned-tab.svg" color="#5bbad5">
+
         <!-- The compiled CSS file -->
         <link rel="stylesheet" href="css/production.css">
         <link rel="stylesheet" href="css/custom.css">
@@ -47,14 +54,24 @@
                         parse_str($finalLine, $data);
                         // var_dump( $data )
                     ?>
-                    <iframe class="magin-bottom-42" src="https://embed.lottiefiles.com/animation/135006"></iframe>
-                    <h2 class="mb3 reveal-on-scroll is-revealing">You sucessfully uploaded a file!</h2>
-                    <p class="mb1 p-60"><strong>file: </strong><?php echo $data['my_upload']?></p>
-                    <p class="mb1 p-60">You can see it in the uploads directory in the server.</p>
-                    <p class="mb1 p-60">Now it's time to delete this file.</p>
-                    <a href="https://web.postman.co/" target="_blank" class="btn btn--outline reveal-on-scroll is-revealing">Oki doki!</a>
+                    <?php if(empty($data)) : ?>
+                        <iframe class="margin-bottom-42" src="https://embed.lottiefiles.com/animation/135006"></iframe>
+                        <h2 class="mb3 reveal-on-scroll is-revealing">Oh oh something goes wrong with this file!</h2>
+                        <a href="/upload.html" class="btn btn--outline reveal-on-scroll is-revealing">Try again!</a>
+                    <?php else : ?> 
+                        <iframe class="margin-bottom-42" src="https://embed.lottiefiles.com/animation/135006"></iframe>
+                        <h2 class="mb3 reveal-on-scroll is-revealing">You sucessfully uploaded a file!</h2>
+                        <p class="mb1 p-60"><strong>file: </strong><?php echo $data['my_upload']?></p>
+                        <p class="mb1 p-60">Your file is stocked in the uploads directory in the server.</p>
+                        <a href="<?php echo $data['my_upload']; ?>">Click here to see it</a>
+                        <p class="mb1 p-60">Now it's time to delete this file.</p>
+                        <a href="https://web.postman.co/" target="_blank" class="btn btn--outline reveal-on-scroll is-revealing">Oki doki!</a>
+                    <?php endif; ?>
+                    
                 </div>
-                <a href="/" class="btn btn--outline reveal-on-scroll is-revealing">Go back to index</a>
+                <div>
+                    <a href="/" class="btn btn--outline reveal-on-scroll is-revealing">Go back to index</a>
+                </div>
             </div>
         </header>
 

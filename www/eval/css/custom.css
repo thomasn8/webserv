@@ -15,7 +15,17 @@
     margin: 0 auto;
 }
 
-.magin-bottom-42 {
+.margin-bottom-42 {
+    margin-bottom: 42px;
+}
+
+.margin-bottom-16 {
+    margin-bottom: 16px;
+}
+
+#my_upload {
+    width: auto;
+    margin: 0 auto;
     margin-bottom: 42px;
 }
 
@@ -30,4 +40,9 @@
 
 .align-left p {
     text-align: left;
+}
+
+a {
+    margin-top: 8px;
+    margin-bottom: 8px;
 }

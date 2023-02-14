@@ -256,13 +256,22 @@ void Response::_upload_file(MultipartData *data) {
     if (!ok)
         throw ResponseException(MEDIA_UNSUPPORTED);
 
+    // replace spaces
+    std::string fileName = data->get_fileName();
+    pos = fileName.find(" ");
+    while (pos != std::string::npos)
+    {
+        fileName.replace(pos, 1, "%20");
+        pos = fileName.find(" ");
+    }
+
     //check if directory exist						
     struct stat st = {0};							
     if (stat(this->_uploadsDir.c_str(), &st) == -1)
-        throw ResponseException(INTERNAL_SERVER_ERROR);												// Ca serait pas mieux forbidden ? ou autre chose
+        throw ResponseException(INTERNAL_SERVER_ERROR);												// Ca serait pas mieux forbidden ? ou autre chose >> Non car Forbidden est une erreur chez le client or ici c'est une erreur de serveur si on a pas de dossier upload
 
     //upload file
-    std::ofstream file(this->_uploadsDir.c_str() + std::string("/") + data->get_fileName(), std::ofstream::binary | std::ofstream::out);
+    std::ofstream file(this->_uploadsDir.c_str() + std::string("/") + fileName, std::ofstream::binary | std::ofstream::out);
     char buffer[data->get_valueLen()];
     int bodySize = data->get_valueLen();
     file.write(data->get_value(), bodySize);
@@ -539,9 +548,10 @@ int Response::_add_root_if_cgi(std::string &target,
                 while (_check_redirections(tmp, locations, locationFound)) {};
                 if (access(tmp.c_str(), F_OK) != -1) {
                     target = tmp;
-                    this->_cgi = target;
                     this->_targetFound = true;
                     locationFound = it;
+                    if (!_what_kind_of_cgi(target).empty())
+                        this->_cgi = target;
                     return 1;
                 }
             }
