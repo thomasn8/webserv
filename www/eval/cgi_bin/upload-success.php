@@ -41,10 +41,37 @@
         <header class="align--center pt3 pb2">
             <div class="container">
                 <div class="margin-bottom-42">
-                    <iframe class="margin-bottom-42" src="https://embed.lottiefiles.com/animation/135006"></iframe>
-                    <h2 class="mb3 reveal-on-scroll is-revealing"><?php echo "Hello i'm a Title made in PHP" ?></h2>   
+                    <?php
+                        $f = fopen( 'php://stdin', 'r' );
+                        $finalLine = "";
+
+                        while( $line = fgets( $f ) ) {
+                            $finalLine .= $line;
+                        }
+                        fclose( $f );
+                        
+                        $data = []; 
+                        parse_str($finalLine, $data);
+                        // var_dump( $data )
+                    ?>
+                    <?php if(empty($data)) : ?>
+                        <iframe class="margin-bottom-42" src="https://embed.lottiefiles.com/animation/135006"></iframe>
+                        <h2 class="mb3 reveal-on-scroll is-revealing">Oh oh something goes wrong with this file!</h2>
+                        <a href="/upload.html" class="btn btn--outline reveal-on-scroll is-revealing">Try again!</a>
+                    <?php else : ?> 
+                        <iframe class="margin-bottom-42" src="https://embed.lottiefiles.com/animation/135006"></iframe>
+                        <h2 class="mb3 reveal-on-scroll is-revealing">You sucessfully uploaded a file!</h2>
+                        <p class="mb1 p-60"><strong>file: </strong><?php echo $data['my_upload']?></p>
+                        <p class="mb1 p-60">Your file is stocked in the uploads directory in the server.</p>
+                        <a href="<?php echo $data['my_upload']; ?>">Click here to see it</a>
+                        <p class="mb1 p-60">Now it's time to delete this file.</p>
+                        <a href="https://web.postman.co/" target="_blank" class="btn btn--outline reveal-on-scroll is-revealing">Oki doki!</a>
+                    <?php endif; ?>
+                    
                 </div>
-                <a href="/" class="btn btn--outline reveal-on-scroll is-revealing">Go back to index</a>
+                <div>
+                    <a href="/" class="btn btn--outline reveal-on-scroll is-revealing">Go back to index</a>
+                </div>
             </div>
         </header>
 

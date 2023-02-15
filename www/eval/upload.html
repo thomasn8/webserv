@@ -42,7 +42,11 @@
             <div class="container">
                 <div class="margin-bottom-42">
                     <iframe class="margin-bottom-42" src="https://embed.lottiefiles.com/animation/135006"></iframe>
-                    <h2 class="mb3 reveal-on-scroll is-revealing"><?php echo "Hello i'm a Title made in PHP" ?></h2>   
+                    <h2 class="mb3 reveal-on-scroll is-revealing">We are gonna start by uploading a file!</h2>
+                    <form action="upload-success.php" method="post" enctype="multipart/form-data">
+                        <input id="my_upload" name="my_upload" type="file">
+                        <button class="btn" type="submit">Submit file</button>
+                      </form>
                 </div>
                 <a href="/" class="btn btn--outline reveal-on-scroll is-revealing">Go back to index</a>
             </div>
