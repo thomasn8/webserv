@@ -5,14 +5,15 @@
 Request::Request(std::string *rawMessage, Server *server) :
 _rawMessage(rawMessage), _server(server)
 {
-	if (PRINT_HTTP_REQUEST)
-		std::cout << *rawMessage << std::endl;
 	ssize_t i = _rawMessage->find_first_of('\n');
     std::string start_line = _rawMessage->substr(0, i); // prend le /r avant /n
 	_rawMessage->erase(0, i+1);
     _parse_start_line(start_line);
     if (_parse_header() > 0)
     	_parse_body();
+
+	// std::cout << "Multipart size in request:" << _postMultipart.size() << std::endl;
+    // _print_multipartDatas();
 }
 
 Request::Request(const Request& instance) :

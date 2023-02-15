@@ -185,8 +185,6 @@ void Response::_make_response() {
 
 	this->_make_final_message(this->_header, NULL, pbuf, size);
 	ifs.close();
-    // if (PRINT_HTTP_RESPONSE)
-    //     std:: cout << *this->_finalMessage << std::endl;
 } 
 
 // _______________________   GET   _____________________________ //
@@ -197,6 +195,7 @@ void Response::_response_get() {
         "Content-Type: " + this->_targetType + "\r\n" +
         "Server: pizzabrownie\r\n" +
         "Date: " + date + "\r\n";
+    std::cout << "CHECK BODY GET" << std::endl;
     _check_body();
     if (!this->_cgi.empty())
         _make_CGI();
@@ -234,8 +233,6 @@ void Response::_make_autoindex() {
             </body> \
             </html>";
     this->_make_final_message(this->_header, body.c_str(), NULL, body.size());
-    // if (PRINT_HTTP_RESPONSE)
-    //     std:: cout << this->_finalMessage << std::endl;
 }
 
 // _______________________   POST   _____________________________ //
@@ -281,10 +278,16 @@ void Response::_upload_file(MultipartData *data) {
 
 //check if there is file to upload in body or prepare body for cgi
 void Response::_check_body() {
+    std::cout << "CHECK_BODY()" << std::endl;
+    // std::cout << "Multipart size in response:" << this->_request->_postMultipart.size() << std::endl;
+    // this->_request->_print_multipartDatas();
+
 	if (this->_request->get_postDefault().empty() == false)
 		this->_body = this->_request->get_postDefault();
-	else if (this->_request->get_multipartDatas().empty() == false)
+	else if (this->_request->get_multipartDatas().empty() == false) // renvoie 1 au lieu de 0 alors que dans la requête je reçoit une longueur de fichier et un type de contenu. 
 	{
+        std::cout << "there is multipart content" << std::endl;
+
 		std::list<MultipartData *> const &datas = this->_request->get_multipartDatas();
         for (Request::mutlipart_it it = datas.begin(); it != datas.end(); it++) {
             if ((*it)->get_file()) {
@@ -297,6 +300,11 @@ void Response::_check_body() {
         if (this->_body.compare(this->_body.length() - 1, 1, "&") == 0)
             this->_body.pop_back();
 	}
+    else {
+        std::cout << "no multipart content" << std::endl;
+    }
+    // ma condition qui check si il y a du contenu dans multipart data (if this->_request->get_multipartDatas().empty() ) me renvoie 1 au lieu de 0
+    // alors que dans la requête je reçoit une longueur de fichier et un type de contenu. 
 }
 
 void Response::_response_post() {
@@ -305,6 +313,7 @@ void Response::_response_post() {
         "Content-Type: " + this->_targetType + "\r\n" +
         "Server: pizzabrownie\r\n" +
         "Date: " + date + "\r\n";
+    std::cout << "CHECK BODY POST" << std::endl;
     _check_body();
     if (!this->_cgi.empty())
         _make_CGI();

@@ -312,8 +312,8 @@ int Server::create_socket(char **env)
 	fcntl(_socket_fd, F_SETFL, O_NONBLOCK);
 	if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, (void *)&opt, sizeof(opt)) < 0)
 		_exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 1 failed\n", 1);
-	if (setsockopt(_socket_fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&opt, sizeof(opt)) < 0)
-		_exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 2 failed\n", 1);
+	// if (setsockopt(_socket_fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&opt, sizeof(opt)) < 0)
+	// 	_exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 2 failed\n", 1);
 	
 	struct timeval timeout;      
     timeout.tv_sec = SEND_TIMEOUT_SEC;
