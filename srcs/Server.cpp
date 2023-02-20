@@ -78,8 +78,8 @@ void Server::add_directive(int directiveIndex, std::string value)
 		case I_ERROR_PAGE_C:
 			set_error_page(value);
 			break;
-		case I_CLIENT_MAX_BODY_SIZE_C:
-			set_client_max_body_size(value);
+		case I_MAX_BODY_SIZE_C:
+			set_max_body_size(value);
 			break;
 	}
 }
@@ -224,7 +224,7 @@ void Server::set_error_page(std::string & value)
 	_errorPages.push_back(std::pair(statusCode, ""));
 }
 
-void Server::set_client_max_body_size(std::string & value)
+void Server::set_max_body_size(std::string & value)
 {
 	if (value.empty())
 		return;
@@ -286,6 +286,8 @@ std::list<Server::error_page_pair> const & Server::get_errorpages() const { retu
 
 struct sockaddr_in const & Server::get_address() const { return _address; }
 
+char **Server::get_env() const { return _env; }
+
 std::string Server::_webserv_bin_path() const
 {
 	char * bin = getcwd(NULL, 0);
@@ -307,8 +309,8 @@ int Server::create_socket(char **env)
 	fcntl(_socket_fd, F_SETFL, O_NONBLOCK);
 	if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, (void *)&opt, sizeof(opt)) < 0)
 		_exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 1 failed\n", 1);
-	if (setsockopt(_socket_fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&opt, sizeof(opt)) < 0)
-		_exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 2 failed\n", 1);
+	// if (setsockopt(_socket_fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&opt, sizeof(opt)) < 0)
+	// 	_exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 2 failed\n", 1);
 	
 	struct timeval timeout;      
     timeout.tv_sec = SEND_TIMEOUT_SEC;

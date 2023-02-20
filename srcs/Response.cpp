@@ -3,8 +3,8 @@
 // ---------Constructor and destructor ------------
 
 // constructor for error response
-Response::Response(const int code, Server *server, char **responseStr, size_t *responseSize) : 
-_server(server), _version(std::string("HTTP/1.1")), _finalMessage(responseStr), _finalMessageSize(responseSize) {
+Response::Response(const int code, Server *server, struct responseInfos *res) : 
+_server(server), _response(res) {
     std::string     body;
 	std::string 	codestr = std::to_string(code);
     std::string		date = Rfc1123_DateTimeNow();
@@ -35,12 +35,10 @@ _server(server), _version(std::string("HTTP/1.1")), _finalMessage(responseStr), 
 }
 
 // constructor for normal response
-Response::Response(Request *request, Server *server, char **responseStr, size_t *responseSize) : 
+Response::Response(Request *request, Server *server, struct responseInfos *res) : 
     _request(request), 
     _server(server),
-    _version(std::string("HTTP/1.1")),
-	_finalMessage(responseStr),
-	_finalMessageSize(responseSize),
+	_response(res),
     _autoindex(false),
     _targetFound(false) {
     _check_target();
@@ -74,6 +72,12 @@ std::string Response::_status_messages(int code) {
 			return "NOT FOUND";
 		case 405:
 			return "METHOD NOT ALLOWED";
+		case 413:
+			return "PAYLOAD_TOO_LARGE";
+		case 415:
+			return "MEDIA UNSUPPORTED";
+		case 431:
+			return "HEADERS_TOO_LARGE";
 		case 500:
 			return "INTERNAL SERVER ERROR";
 		case 505:
@@ -100,33 +104,15 @@ int Response::_check_error_pages(const int code) {
 
 // _______________________   Final Response Creation   _____________________________ //
 
-void Response::_make_final_message(std::string &header, const char *body, std::filebuf *pbuf, size_t len) {
-	size_t header_size = header.size();
-	std::string bodysize = std::to_string(len);
-	int bodysize_len = bodysize.size();
+void Response::_make_final_message(std::string const &header, const char *body, std::filebuf *pbuf, size_t len) {
+	_response->header = header + "Content-Length: " + std::to_string(len) + "\r\n\r\n";
 
-	// calc len + allocate
-	*this->_finalMessageSize = header_size;
-	*this->_finalMessageSize += 20; // for "Content-Length: \r\n\r\n"
-	*this->_finalMessageSize += bodysize_len;
-	*this->_finalMessageSize += len;
-	*this->_finalMessage = (char *)malloc(*this->_finalMessageSize * sizeof(char));
-
-	// set memory
-	char *tmp = *this->_finalMessage;
-	memcpy(tmp, header.c_str(), header_size);
-	tmp += header_size;
-	memcpy(tmp, "Content-Length: ", 16);
-	tmp += 16;
-	memcpy(tmp, bodysize.c_str(), bodysize_len);
-	tmp += bodysize_len;
-	memcpy(tmp, "\r\n\r\n", 4);
-	tmp += 4;
-
-	if (body)						// AU LIEU DE LE COPIER ICI + DANS LE SEND
-		memcpy(tmp, body, len);		// VOIR POUR RETOURNER UN PTR + LA SIZE AVEC LA PARTIE DU HAUT
-	else							// + COMPARER LES DIFFERENCES DE PERFORMANCE CAR SEND_ALL SERA APPELE 2X (1x header + 1x body)
-		pbuf->sgetn(tmp, len);
+	_response->body = (char *)malloc(len * sizeof(char));
+	_response->body_size = len;
+	if (body)
+		memcpy(_response->body, body, len);
+	else
+		pbuf->sgetn(_response->body, len);
 }
 
 
@@ -135,10 +121,7 @@ void Response::_make_response() {
 	if (!ifs.is_open())
 	    throw ResponseException(INTERNAL_SERVER_ERROR);												
 
-	// get pointer to associated buffer object
 	std::filebuf *pbuf = ifs.rdbuf();
-
-	// get file size using buffer's members
 	size_t size = pbuf->pubseekoff(0,ifs.end,ifs.in);
 	pbuf->pubseekpos(0,ifs.in);
 	if (size > this->_server->get_max_body_size())
@@ -146,18 +129,17 @@ void Response::_make_response() {
 
 	this->_make_final_message(this->_header, NULL, pbuf, size);
 	ifs.close();
-    if (PRINT_HTTP_RESPONSE)
-        std:: cout << *this->_finalMessage << std::endl;
 } 
 
 // _______________________   GET   _____________________________ //
 
 void Response::_response_get() {
     std::string date = Rfc1123_DateTimeNow();
-    this->_header = this->_version + " " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
+    this->_header = "HTTP/1.1 " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
         "Content-Type: " + this->_targetType + "\r\n" +
         "Server: pizzabrownie\r\n" +
         "Date: " + date + "\r\n";
+    _check_body();
     if (!this->_cgi.empty())
         _make_CGI();
     else if (this->_autoindex)
@@ -194,59 +176,232 @@ void Response::_make_autoindex() {
             </body> \
             </html>";
     this->_make_final_message(this->_header, body.c_str(), NULL, body.size());
-    if (PRINT_HTTP_RESPONSE)
-        std:: cout << this->_finalMessage << std::endl;
 }
 
 // _______________________   POST   _____________________________ //
 
-void Response::_decript_img() {
-    
+//checker les files extansions
+void Response::_upload_file(MultipartData *data) {
+    //check if content type is accepted in location
+    bool ok = false;
+    int pos = 0;
+    pos = data->get_contentType().find("/") + 1;
+    std::list<std::string>::iterator  it;
+    if (!this->_contentType.empty()) {
+        for (it = this->_contentType.begin(); it != this->_contentType.end(); it++) {
+            if (data->get_contentType().compare(pos, (*it).length(), (*it)) == 0)
+                ok = true;
+        }
+    }
+    if (!ok)
+        throw ResponseException(MEDIA_UNSUPPORTED);
+
+    // replace spaces
+    std::string fileName = data->get_fileName();
+    pos = fileName.find(" ");
+    while (pos != std::string::npos)
+    {
+        fileName.replace(pos, 1, "%20");
+        pos = fileName.find(" ");
+    }
+
+    //check if directory exist						
+    struct stat st = {0};							
+    if (stat(this->_uploadsDir.c_str(), &st) == -1)
+        throw ResponseException(INTERNAL_SERVER_ERROR);
+
+    //upload file
+    std::ofstream file(this->_uploadsDir.c_str() + std::string("/") + fileName, std::ofstream::binary | std::ofstream::out);
+    char buffer[data->get_valueLen()];
+    int bodySize = data->get_valueLen();
+    file.write(data->get_value(), bodySize);
+    memset(buffer, 0, data->get_valueLen());
+    file.close();
+}
+
+//check if there is file to upload in body or prepare body for cgi
+void Response::_check_body() {
+	if (this->_request->get_postDefault().empty() == false)
+		this->_body = this->_request->get_postDefault();
+	else if (this->_request->get_multipartDatas().empty() == false)
+	{
+		std::cout << "_check_body(mulitipart)" << std::endl;
+		std::list<MultipartData *> const &datas = this->_request->get_multipartDatas();
+        for (Request::mutlipart_it it = datas.begin(); it != datas.end(); it++) {
+            if ((*it)->get_file()) {
+                _upload_file((*it));
+                this->_body += (*it)->get_name() + "=" + (*it)->get_fileName() + "&";
+            }
+            else
+                this->_body += (*it)->get_name() + "=" + (*it)->get_value() + "&";
+        }
+        if (this->_body.compare(this->_body.length() - 1, 1, "&") == 0)
+            this->_body.pop_back();
+	}
+	// else
+	// 	std::cout << "no body" << std::endl;
 }
 
 void Response::_response_post() {
-    // std::string body = this->_request->get_body();
-    // size_t pos = body.find("image/jpeg\r\n") + 14;
-    // std::cout << "pos: " <<pos << std::endl;;
-    // body.erase(0, pos);
-    // pos = body.find("------");
-    // body.erase(pos, body.length());
-    // // std::cout << "body:" << body << std::endl;
-    // // std::cout << "body length: " << body.length() << std::endl;
-    // // std::cout << "content-length: " << *this->_request->get_fields()["Content-Length"].begin() << std::endl;
-
-    // std::ofstream file("text.txt", std::ofstream::binary | std::ofstream::out);
-
-    // char buffer[body.length()];
-    // int bodySize = body.length();
-
-    // file.write(body.c_str(), bodySize);
-    // memset(buffer, 0, body.length());
-    // file.close();
+    std::string date = Rfc1123_DateTimeNow();
+    this->_header = "HTTP/1.1 " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
+        "Content-Type: " + this->_targetType + "\r\n" +
+        "Server: pizzabrownie\r\n" +
+        "Date: " + date + "\r\n";
+    _check_body();
+    if (!this->_cgi.empty())
+        _make_CGI();
+    else if (this->_autoindex)
+        _make_autoindex();
+    else
+        _make_response();
 }
-
 
 // _______________________   DELET   _____________________________ //
 
-void Response::_response_delete() {
-
+void Response::_response_delete() {  
+    if (remove(this->_target.c_str()))
+        throw ResponseException(FORBIDDEN);
+    std::string date = Rfc1123_DateTimeNow();
+    this->_header = "HTTP/1.1 " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
+        "Content-Type: text/html" "\r\n" +
+        "Server: pizzabrownie\r\n" +
+        "Date: " + date + "\r\n";
+    std::string body = "<!DOCTYPE html> \
+            <html lang=\"fr\"> \
+            <head> \
+                <meta charset=\"UTF-8\"> \
+                <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"> \
+                <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> \
+                <title>Index</title> \
+            </head> \
+            <body> \
+                <h1>File deleted successfully</h1> \
+            </body> \
+            </html>";
+    this->_make_final_message(this->_header, body.c_str(), NULL, body.size());
 }
 
 
 // _______________________   CGI   _____________________________ //
 
+char **Response::_prepare_env() {
+    std::map<std::string, std::list<std::string>>           fields = this->_request->get_fields();
+    std::map<std::string, std::string>::const_iterator      it;
+    std::list<std::string>::iterator                        it2;
+
+    std::string     query("");
+    std::string     accept("");
+    std::string     accepLang("");
+    std::string     userAgent("");
+    std::string     host(*(fields["Host"]).begin());
+    std::string     contentType;
+    std::string     cookies(*(fields["Cookie"]).begin());
+    std::string     contentLengh(*(fields["Content-Length"]).begin());
+    char            **tmp;
+    int             i = 0;
+    int             j = 0;
+
+    while (this->_server->get_env()[i] != NULL)
+        i++;
+    tmp = (char **)malloc(sizeof(char *) * (i + 14));
+    i = 0;
+    while (this->_server->get_env()[i] != NULL) {
+        tmp[i] = strdup(this->_server->get_env()[i]);
+        i++;
+    }
+    if (!(fields["Content-Type"].empty()))
+       contentType = "application/x-www-form-urlencoded";
+    contentLengh = std::to_string(this->_body.length());
+    for (it2 = (fields["Accept"]).begin(); it2 != (fields["Accept"]).end(); it2++) {
+        accept = accept.append(*it2);
+        if (*it2 != *(fields["Accept"]).rbegin())
+            accept.append(", ");
+    };
+    for (it2 = (fields["Accept-Language"]).begin(); it2 != (fields["Accept-Language"]).end(); it2++) {
+        accepLang = accepLang.append(*it2);
+        if (*it2 != *(fields["Accept-Language"]).rbegin())
+            accepLang.append(", ");
+    };
+    for (it2 = (fields["User-Agent"]).begin(); it2 != (fields["User-Agent"]).end(); it2++) {
+        userAgent = userAgent.append(*it2);
+        if (*it2 != *(fields["User-Agent"]).rbegin())
+            userAgent.append(", ");
+    };
+
+    while (j < 13) {
+        if (j == 0)
+            tmp[i] = strdup((std::string("SERVER_NAME=") + host).c_str());
+        else if (j == 1)
+            tmp[i] = strdup("SERVER_PROTOCOL=HTTP/1.1");
+        else if (j == 2)
+            tmp[i] = strdup((std::string("SERVER_PORT=") + this->_server->get_port_str()).c_str());
+        else if (j == 3)
+            tmp[i] = strdup((std::string("REQUEST_METHOD=") + this->_request->get_method()).c_str());
+        else if (j == 4)
+            tmp[i] = strdup((std::string("SCRIPT_NAME=") + this->_request->get_target()).c_str());
+        else if (j == 5)
+            tmp[i] = strdup((std::string("QUERY_STRING=") + this->_request->get_queryString()).c_str());
+        else if (j == 6)
+            tmp[i] = strdup("GATEWAY_INTERFACE=CGI/1.1");
+        else if (j == 7) 
+            tmp[i] = strdup((std::string("CONTENT_TYPE=") + contentType).c_str());
+        else if (j == 8)
+            tmp[i] = strdup((std::string("CONTENT_LENGTH=") + contentLengh).c_str());
+        else if (j == 9)
+            tmp[i] = strdup((std::string("HTTP_ACCEPT=") + accept).c_str());
+        else if (j == 10)
+            tmp[i] = strdup((std::string("HTTP_ACCEPT_LANGUAGE=") + accepLang).c_str());
+        else if (j == 11)
+            tmp[i] = strdup((std::string("HTTP_USER_AGENT=") + userAgent).c_str());
+        else if (j == 12)
+            tmp[i] = strdup((std::string("HTTP_COOKIE=") + cookies).c_str());
+        i++;
+        j++;
+    }
+    tmp[i] = NULL;
+    return (tmp);
+}
+
+void Response::_execute_cgi() {
+    std::string     cgiType;
+    std::string     path;
+    std::string     pathEnv;
+    int             pos = 0;
+    char            **tmpEnv;
+
+    tmpEnv = _prepare_env();
+    pathEnv = std::string(getenv("PATH"));
+    cgiType = _what_kind_of_cgi(this->_target);
+    pos = pathEnv.find(":");
+    while ( pos != std::string::npos) {
+        path = pathEnv.substr(0, pos) + "/" + cgiType;
+        execle(path.c_str(), path.c_str(), this->_target.c_str(), NULL, tmpEnv);
+        // perror("Error");
+        pathEnv.erase(0, pos + 1);
+        pos = pathEnv.find(":");
+    }
+    for(int i = 0; tmpEnv[i] != NULL; i++)
+        free(tmpEnv[i]);
+    free(tmpEnv);
+}
+
+
 int Response::_make_CGI() {
     int         fd[2];
+    int         in[2];
 	pid_t       pid;
     int		    status;
     char        *cgi;
-	size_t		cgi_size;
-    std::string cgiType;
+    size_t		max_size;
+    size_t		len;
 
-    cgiType = _what_kind_of_cgi(this->_target);
-	cgi_size = this->_server->get_max_body_size();
-    cgi = (char *)malloc(sizeof(char) * cgi_size);
+    
     if (pipe(fd) == -1) {return -1;}
+    if (pipe(in) == -1) {return -1;}
+    if (!this->_body.empty())
+        write(in[1], this->_body.c_str(), this->_body.length());
+	close(in[1]);
 	pid = fork();
 	if (pid == -1) {exit(EXIT_FAILURE);}
 	if (pid == 0)
@@ -254,30 +409,36 @@ int Response::_make_CGI() {
         if (PRINT_CGI_GET)
             std:: cout << "path:" << this->_target << std::endl;
         close(fd[0]);
+        close(in[1]);
         if (dup2(fd[1], STDOUT_FILENO) == -1) {exit(EXIT_FAILURE);}
-        execlp(cgiType.c_str(), cgiType.c_str(), this->_target.c_str(), NULL);
+        if (dup2(in[0], STDIN_FILENO) == -1) {exit(EXIT_FAILURE);}
+        _execute_cgi();
         std::cerr << "Error launching cgi: " << this->_target << std::endl;
         write(1, "500", 3);
         exit(0);
 	}
     else {
+        max_size = this->_server->get_max_body_size();
+        cgi = (char *)malloc(sizeof(char) * max_size);
+        std::string finalCgi;
         close(fd[1]);
-        if (read(fd[0], cgi, cgi_size) < 0) {
-            close(fd[0]);
-            return (1);
-        }
         waitpid(pid, &status, 0);
-        if (is_number(cgi))
-            throw ResponseException(atoi(cgi));
-        if (PRINT_CGI_GET)
-            std:: cout << "cgi recieve:" << std::string(cgi, cgi_size) << std::endl;
-
-		this->_make_final_message(this->_header, cgi, NULL, cgi_size);
-		free(cgi);
-        if (PRINT_HTTP_RESPONSE)
-            std:: cout << std::string(*this->_finalMessage, *this->_finalMessageSize) << std::endl;
+        len = read(fd[0], cgi, max_size);
+        while ( len > 0) {
+            finalCgi.append(cgi, len);
+            free(cgi);
+            cgi = NULL;
+            len = read(fd[0], cgi, max_size);
         }
-
+        if (cgi != NULL) {
+            free(cgi);
+            cgi = NULL;
+        }
+        close(fd[0]);
+        if (finalCgi.length() > max_size || is_number(finalCgi))
+            throw ResponseException(INTERNAL_SERVER_ERROR);
+		this->_make_final_message(this->_header, finalCgi.c_str(), NULL, finalCgi.size());
+    }
     return (0);
 }
 
@@ -310,8 +471,6 @@ int Response::_check_redirections(std::string &target, std::deque<Location> cons
     return 0;
 }
 
-
-
 // add the good root before the target when it's a cgi
 // for exemple for /images/medias.php
 // it's a CGI and must go to www/cgi_bin/media/images/medias.php
@@ -332,7 +491,10 @@ int Response::_add_root_if_cgi(std::string &target,
                 while (_check_redirections(tmp, locations, locationFound)) {};
                 if (access(tmp.c_str(), F_OK) != -1) {
                     target = tmp;
-                    this->_cgi = target;
+                    this->_targetFound = true;
+                    locationFound = it;
+                    if (!_what_kind_of_cgi(target).empty())
+                        this->_cgi = target;
                     return 1;
                 }
             }
@@ -411,7 +573,6 @@ std::string Response::_what_kind_of_cgi(std::string &target) {
 std::string Response::_what_kind_of_extention(std::string &target) {
     int pos = target.find_last_of(".") + 1;
 
-    // std::cout << target << std::endl;
     if (pos != 0) {
         if (target.compare(pos, 3, "css") == 0) 
             return "text/css, charset=utf-8";
@@ -444,7 +605,7 @@ void Response::_check_target() {
 
     this->_target = this->_request->get_target();
     if (PRINT_RECIEVED_TARGET)
-        // std::cout << "Target at begin: " << this->_target << std::endl;
+        std::cout << "Target at begin: " << this->_target << std::endl;
     if (*this->_target.begin() != '/')
         throw  ResponseException(BAD_REQUEST);
     if (this->_target.find('.') == std::string::npos) { // if it's a directory
@@ -470,6 +631,9 @@ void Response::_check_target() {
             if (this->_target.compare(this->_server->get_root()) == 0) {
                 if (!_is_index_file(this->_target, this->_server->get_indexes()))
                     throw  ResponseException(FORBIDDEN);
+                if (this->_request->get_method().compare("DELETE") == 0)
+                    throw  ResponseException(METHOD_NOT_ALLOWED);
+                this->_uploadsDir = this->_server->get_root();
             }
             else
                 throw  ResponseException(NOT_FOUND);
@@ -484,20 +648,19 @@ void Response::_check_target() {
         if (this->_targetFound) {
             if (access(this->_target.c_str(), F_OK) == -1)
                 throw  ResponseException(NOT_FOUND);
-            _check_methods_in_location(locationFound);
             this->_uploadsDir = locationFound->get_uploadsdir();
+            _check_methods_in_location(locationFound);
             if (!locationFound->get_contentTypes().empty())
                 this->_contentType = locationFound->get_contentTypes();
-            // if (!locationFound->get_cgi().empty())
-            //     this->_cgi = this->_target;
         }
         else {
+            if (this->_request->get_method().compare("DELETE") == 0)
+                throw  ResponseException(METHOD_NOT_ALLOWED);
             if (access( this->_target.c_str(), F_OK ) != -1) {
                 this->_targetFound = true;
-                // if (!_what_kind_of_cgi(this->_target).empty())
-                //     this->_cgi = this->_target;
+                this->_uploadsDir = this->_server->get_root();
             }
-            else
+            else 
                 throw  ResponseException(NOT_FOUND);
         }
     }
@@ -522,35 +685,27 @@ void Response::_check_target() {
 
 // --------- Fonctions getteur ------------
 
-char * Response::getFinaleMessage() const {
-    return *this->_finalMessage;
-}
-
-size_t Response::getFinaleMessageSize() const {
-    return *this->_finalMessageSize;
-}
-
 std::string Response::getStatusCode() const {
     return this->_statusCode;
 }
 
-std::string Response::getReason() const {
-    return this->_reason;
-}
 
-std::string Response::getVersion() const {
-    return this->_version;
-}
 
 // --------- Operator overload ------------
 
-Response &Response::operator=(const Response &instance) { 						// PAS A JOUR, copie pas toutes les variables
+Response &Response::operator=(const Response &instance) { 						
     this->_request = instance._request;
     this->_server = instance._server;
-    this->_finalMessage = instance._finalMessage;
-    this->_finalMessageSize = instance._finalMessageSize;
+    this->_response = instance._response;
+    this->_header = instance._header;
     this->_statusCode = instance._statusCode;
-    this->_reason = instance._reason;
-    this->_version = instance._version;
+    this->_target = instance._target;
+    this->_targetType = instance._targetType;
+    this->_uploadsDir = instance._uploadsDir;
+    this->_cgi = instance._cgi;
+    this->_body = instance._body;
+    this->_contentLength = instance._contentLength;
+    this->_targetFound = instance._targetFound;
+
     return *this;
 }

@@ -24,11 +24,12 @@ _request(instance._request),
 _server(instance._server),
 _method(instance._method),
 _target(instance._target),
+_fields(instance._fields),
 _body(instance._body),
 _body_len(instance._body_len),
-_fields(instance._fields),
-_postNameValue(instance._postNameValue),
-_postMultipart(instance._postMultipart) 
+_queryString(instance._queryString),
+_postDefault(instance._postDefault),
+_postMultipart(instance._postMultipart)
 {}
 
 Request::~Request() { _free_multipartDatas(); }
@@ -44,7 +45,9 @@ std::string const & Request::get_target() const { return _target; }
 
 std::map<std::string, std::list<std::string>> const & Request::get_fields() const { return _fields; }
 
-std::map<std::string, std::string> const & Request::get_defaultDatas() const { return _postNameValue; }
+std::string const & Request::get_queryString() const { return _queryString; }
+
+std::string const & Request::get_postDefault() const { return _postDefault; }
 
 std::list<MultipartData *> const & Request::get_multipartDatas() const { return _postMultipart; }
 
@@ -80,16 +83,17 @@ void Request::_parse_start_line(std::string startLine)
 
 	// URL (target + ?query)
 	query = startLine.find('?'); // check if form data in url
-	if (query == std::string::npos) {
+	if (query == std::string::npos)
+	{
 		_target = startLine;
 		if (_target.size() > URL_MAX_LEN)
 			throw RequestException(URI_TOO_LONG);
 	}
-	else {
+	else
+	{
 		_target = startLine.substr(0, query);
 		startLine.erase(0, query + 1); // erase target
-		std::string_view datas = std::string_view(startLine.c_str(), startLine.size());
-		_parse_defaultDataType(datas);
+		_queryString = startLine;
 	}
 }
 
@@ -191,25 +195,7 @@ std::string Request::_find_value_from_boundry_block(std::string_view &block, con
 	return std::string(block.data() + valstart, vallen);
 }
 
-void Request::_parse_defaultDataType(std::string_view &formDatas) 
-{
-	ssize_t i, keylen = 0, vallen = 0;
-	i = formDatas.find('&');
-	while (i != -1)
-	{
-		// firstchar = 0, lastchar (before \n) = i-1, \n = i, len to erase = i+1
-		keylen = formDatas.find('=');
-		vallen = formDatas.find('&') - keylen - 1;
-		_postNameValue.insert(std::make_pair(std::string(formDatas.data(), keylen), std::string(formDatas.data()+keylen+1, vallen)));
-		formDatas.remove_prefix(i+1);
-		i = formDatas.find('&');
-	}
-	keylen = formDatas.find('=');
-	vallen = formDatas.size() - keylen - 1;
-	_postNameValue.insert(std::make_pair(std::string(formDatas.data(), keylen), std::string(formDatas.data()+keylen+1, vallen)));
-}
-
-void Request::_parse_multipartDataType(fields_it type) 
+void Request::_parse_multipartDataType(fields_it type)
 {
 	ssize_t pos = (*type).second.front().find_first_of('=');
 	if (pos == -1)
@@ -281,6 +267,8 @@ void Request::_parse_body()
 	_body = _request.data();
 	_body_len = contentLength;
 
+	std::cout << "body len = " << _body_len << std::endl;
+
 	// choper le type de donner et parser en fonction
 	fields_it type = _fields.find("Content-Type");
 	if ((*type).second.size() > 1)
@@ -288,7 +276,9 @@ void Request::_parse_body()
 	if ((*type).second.front().c_str()[0] == 'm')
 		_parse_multipartDataType(type);
 	else
-		_parse_defaultDataType(_request);
+		_postDefault = std::string(_request.data(), _request.size());	// A TESTER
+
+	std::cout << "BODY OKAY" << std::endl << std::endl;
 }
 
 // delete les Multipart * alloues dans map de _postMultipart
@@ -321,47 +311,32 @@ void Request::_print_fields() const
 	}
 }
 
-void Request::_print_defaultDatas() const 
+void Request::_print_multipartDatas() const
 {
-	std::cout << "\nPOST APPLICATION DATAS" << std::endl;
-	if (_postNameValue.size() > 0)
-	{
-		post_mapit it = _postNameValue.cbegin();
-		for (; it != _postNameValue.cend(); it++)
-		{
-			std::cout << "Data:" << std::endl;
-			std::cout << "	name = |" << (*it).first << "|" << std::endl;
-			std::cout << "	value = |" << (*it).second << "|" << std::endl;
-		}
-		std::cout << std::endl;
-	}
-}
-
-void Request::_print_multipartDatas() const 
-{
-	std::cout << "\nPOST MULTIPART DATAS" << std::endl;
+	// std::cout << "\nPOST MULTIPART DATAS" << std::endl;
 	if (_postMultipart.size() > 0)
 	{
-		post_listit it = _postMultipart.cbegin();
+		mutlipart_it it = _postMultipart.cbegin();
 		for (; it != _postMultipart.cend(); it++)
 		{
-			std::cout << "Data (" << static_cast<const void *>(*it) << "):" << std::endl;
-			std::cout << "	name = |" << (*it)->get_name() << "|" << std::endl;
+			// std::cout << "Data (" << static_cast<const void *>(*it) << "):" << std::endl;
+			// std::cout << "	name = |" << (*it)->get_name() << "|" << std::endl;
 			if ((*it)->get_file() == true)
 			{
 				std::cout << "	filename = |" << (*it)->get_fileName() << "|" << std::endl;
 				std::cout << "	content type = |" << (*it)->get_contentType() << "|" << std::endl;
+				std::cout << "	value len = |" << (*it)->get_valueLen() << "|" << std::endl;
 			}
-			if ((*it)->get_value() != NULL)
-			{
-				size_t len = (*it)->get_valueLen();
-				const char * ptr = (*it)->get_value();
-				std::cout << "	value = |";
-				for (int i = 0; i < len; i++)
-					std::cout << ptr[i];
-				std::cout << "|" << std::endl;
-			}
+			// if ((*it)->get_value() != NULL)
+			// {
+			// 	size_t len = (*it)->get_valueLen();
+			// 	const char * ptr = (*it)->get_value();
+			// 	std::cout << "	value = |";
+			// 	for (int i = 0; i < len; i++)
+			// 		std::cout << ptr[i];
+			// 	std::cout << "|" << std::endl;
+			// }
 		}
-		std::cout << std::endl;
+		// std::cout << std::endl;
 	}
 }

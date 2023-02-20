@@ -1,0 +1,48 @@
+.bg--white {
+    background-color: #fff;
+    min-height: 90vh;
+}
+
+.img-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.p-60 {
+    width: 60%;
+    margin: 0 auto;
+}
+
+.margin-bottom-42 {
+    margin-bottom: 42px;
+}
+
+.margin-bottom-16 {
+    margin-bottom: 16px;
+}
+
+#my_upload {
+    width: auto;
+    margin: 0 auto;
+    margin-bottom: 42px;
+}
+
+.icon {
+    height: 89px;
+}
+
+.story {
+    padding: 20px 0;
+    color: #42A5F6;
+}
+
+.align-left p {
+    text-align: left;
+}
+
+a {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}

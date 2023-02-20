@@ -22,8 +22,7 @@ class Request
 	public:
 		typedef std::map<std::string, std::list<std::string>>::const_iterator	fields_it;
 		typedef std::list<std::string>::const_iterator 							fields_values_it;
-		typedef std::map<std::string, std::string>::const_iterator				post_mapit;
-		typedef std::list<MultipartData *>::const_iterator						post_listit;
+		typedef std::list<MultipartData *>::const_iterator						mutlipart_it;
 
 		// CONST/DESTR
 		Request(const char *request, size_t size, Server *server);
@@ -35,7 +34,8 @@ class Request
 		std::string const &get_method() const;
 		std::string const &get_target() const;
 		std::map<std::string, std::list<std::string>> const &get_fields() const;
-		std::map<std::string, std::string> const &get_defaultDatas() const;
+		std::string const & get_queryString() const;
+		std::string const & get_postDefault() const;
 		std::list<MultipartData *> const &get_multipartDatas() const;
 
 		class RequestException : public StatusCodeException {
@@ -65,10 +65,11 @@ class Request
 		const char *_body;
 		size_t _body_len;
 		void _parse_body();
-		// parse default type
-		std::map<std::string, std::string> _postNameValue;
-		void _parse_defaultDataType(std::string_view &formDatas);
-		// parse multipart type
+		// get
+		std::string _queryString;
+		// post default
+		std::string _postDefault;
+		// parse post multipart type
 		std::list<MultipartData *> _postMultipart;
 		void _parse_multipartDataType(fields_it type);
 		std::string _find_value_from_boundry_block(std::string_view &block, const char *strtofind, const char *strtolen, char stop);
@@ -77,7 +78,6 @@ class Request
 
 		// PRINT DATAS
 		void _print_fields() const;
-		void _print_defaultDatas() const;
 		void _print_multipartDatas() const;
 };
 
