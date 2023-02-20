@@ -11,9 +11,7 @@ _rawMessage(rawMessage), _server(server)
     _parse_start_line(start_line);
     if (_parse_header() > 0)
     	_parse_body();
-
-	// std::cout << "Multipart size in request:" << _postMultipart.size() << std::endl;
-    // _print_multipartDatas();
+	_print_multipartDatas();
 }
 
 Request::Request(const Request& instance) :
@@ -260,6 +258,8 @@ void Request::_parse_body()
 	_body = _rawMessage->c_str();
 	_body_len = contentLength;
 
+	std::cout << "body len = " << _body_len << std::endl;
+
 	// choper le type de donner et parser en fonction
 	fields_it type = _fields.find("Content-Type");
 	if ((*type).second.size() > 1)
@@ -268,7 +268,8 @@ void Request::_parse_body()
 		_parse_multipartDataType(type);
 	else
 		_postDefault = *_rawMessage;
-		// _parse_defaultDataType(_rawMessage);
+
+	std::cout << "BODY OKAY" << std::endl << std::endl;
 }
 
 // delete les Multipart * alloues dans map de _postMultipart
@@ -302,29 +303,30 @@ void Request::_print_fields() const
 
 void Request::_print_multipartDatas() const
 {
-	std::cout << "\nPOST MULTIPART DATAS" << std::endl;
+	// std::cout << "\nPOST MULTIPART DATAS" << std::endl;
 	if (_postMultipart.size() > 0)
 	{
 		mutlipart_it it = _postMultipart.cbegin();
 		for (; it != _postMultipart.cend(); it++)
 		{
-			std::cout << "Data (" << static_cast<const void *>(*it) << "):" << std::endl;
-			std::cout << "	name = |" << (*it)->get_name() << "|" << std::endl;
+			// std::cout << "Data (" << static_cast<const void *>(*it) << "):" << std::endl;
+			// std::cout << "	name = |" << (*it)->get_name() << "|" << std::endl;
 			if ((*it)->get_file() == true)
 			{
 				std::cout << "	filename = |" << (*it)->get_fileName() << "|" << std::endl;
 				std::cout << "	content type = |" << (*it)->get_contentType() << "|" << std::endl;
+				std::cout << "	value len = |" << (*it)->get_valueLen() << "|" << std::endl;
 			}
-			if ((*it)->get_value() != NULL)
-			{
-				size_t len = (*it)->get_valueLen();
-				const char * ptr = (*it)->get_value();
-				std::cout << "	value = |";
-				for (int i = 0; i < len; i++)
-					std::cout << ptr[i];
-				std::cout << "|" << std::endl;
-			}
+			// if ((*it)->get_value() != NULL)
+			// {
+			// 	size_t len = (*it)->get_valueLen();
+			// 	const char * ptr = (*it)->get_value();
+			// 	std::cout << "	value = |";
+			// 	for (int i = 0; i < len; i++)
+			// 		std::cout << ptr[i];
+			// 	std::cout << "|" << std::endl;
+			// }
 		}
-		std::cout << std::endl;
+		// std::cout << std::endl;
 	}
 }
