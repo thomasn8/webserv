@@ -237,6 +237,8 @@ void Response::_check_body() {
         }
         if (this->_body.compare(this->_body.length() - 1, 1, "&") == 0)
             this->_body.pop_back();
+
+		std::cout << std::endl;
 	}
 	// else
 	// 	std::cout << "no body" << std::endl;

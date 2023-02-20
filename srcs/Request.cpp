@@ -11,6 +11,7 @@ _rawMessage(rawMessage), _server(server)
     _parse_start_line(start_line);
     if (_parse_header() > 0)
     	_parse_body();
+
 	_print_multipartDatas();
 }
 
@@ -268,8 +269,6 @@ void Request::_parse_body()
 		_parse_multipartDataType(type);
 	else
 		_postDefault = *_rawMessage;
-
-	std::cout << "BODY OKAY" << std::endl << std::endl;
 }
 
 // delete les Multipart * alloues dans map de _postMultipart
@@ -317,15 +316,16 @@ void Request::_print_multipartDatas() const
 				std::cout << "	content type = |" << (*it)->get_contentType() << "|" << std::endl;
 				std::cout << "	value len = |" << (*it)->get_valueLen() << "|" << std::endl;
 			}
-			// if ((*it)->get_value() != NULL)
-			// {
-			// 	size_t len = (*it)->get_valueLen();
-			// 	const char * ptr = (*it)->get_value();
-			// 	std::cout << "	value = |";
-			// 	for (int i = 0; i < len; i++)
-			// 		std::cout << ptr[i];
-			// 	std::cout << "|" << std::endl;
-			// }
+			if ((*it)->get_value() != NULL)
+			{
+				size_t len = (*it)->get_valueLen();
+				const char * ptr = (*it)->get_value();
+				std::cout << "	value = |";
+				// for (int i = 0; i < len; i++)
+				for (int i = 0; i < 1000; i++)
+					std::cout << ptr[i];
+				std::cout << "|" << std::endl;
+			}
 		}
 		// std::cout << std::endl;
 	}
