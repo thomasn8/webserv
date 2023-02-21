@@ -259,7 +259,7 @@ void Request::_parse_body()
 	_body = _rawMessage->c_str();
 	_body_len = contentLength;
 
-	std::cout << "body len = " << _body_len << std::endl;
+	std::cout << std::endl << "body len = " << _body_len << std::endl;					// = la len du body complet avec les boundry seperators (enleves lors du parsing)
 
 	// choper le type de donner et parser en fonction
 	fields_it type = _fields.find("Content-Type");
@@ -322,7 +322,7 @@ void Request::_print_multipartDatas() const
 				const char * ptr = (*it)->get_value();
 				std::cout << "	value = |";
 				// for (int i = 0; i < len; i++)
-				for (int i = 0; i < 1000; i++)
+				for (int i = 0; i < 100; i++)
 					std::cout << ptr[i];
 				std::cout << "|" << std::endl;
 			}
