@@ -318,7 +318,10 @@ char **Response::_prepare_env() {
     }
     if (!(fields["Content-Type"].empty()))
        contentType = "application/x-www-form-urlencoded";
-    contentLengh = std::to_string(this->_body.length());
+    if (!this->_body.empty())
+        contentLengh = std::to_string(this->_body.length());
+    else
+        contentLengh = "0";
     for (it2 = (fields["Accept"]).begin(); it2 != (fields["Accept"]).end(); it2++) {
         accept = accept.append(*it2);
         if (*it2 != *(fields["Accept"]).rbegin())
