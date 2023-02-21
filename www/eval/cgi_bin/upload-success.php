@@ -64,8 +64,12 @@
                         <p class="mb1 p-60"><strong>file: </strong><?php echo $data['my_upload']?></p>
                         <p class="mb1 p-60">Your file is stocked in the uploads directory in the server.</p>
                         <a href="<?php echo $data['my_upload']; ?>">Click here to see it</a>
-                        <p class="mb1 p-60">Now it's time to delete this file.</p>
-                        <a href="https://web.postman.co/" target="_blank" class="btn btn--outline reveal-on-scroll is-revealing">Oki doki!</a>
+                        <p class="mb1 p-60">Now it's time to delete this file. Just enter the filename here. ('%20' instead of spaces)</p>
+                        <form action="ajax-del.php" method="post">
+                            <input type="test" name="filename"><br /><br />
+                            <button class="btn btn--outline reveal-on-scroll is-revealing" type="submit">Let's delete it!</button>
+                        </form>
+                        <!-- <a href="https://web.postman.co/" target="_blank" class="btn btn--outline reveal-on-scroll is-revealing">Delete the file</a> -->
                     <?php endif; ?>
                     
                 </div>

@@ -7,8 +7,9 @@ Response::Response(const int code, Server *server, struct responseInfos *res) :
 _server(server), _response(res) {
     std::string     body;
 	std::string 	codestr = std::to_string(code);
-    std::string		date = Rfc1123_DateTimeNow();
+    std::string		date;
 
+    Rfc1123_DateTimeNow(date);
     this->_header = "HTTP/1.1 " + std::to_string(code) + (" " +this->_status_messages(code)) + "\r\n" +
 		"Content-Type: text/html, charset=utf-8\r\n" +
 		"Server: pizzabrownie\r\n" +
@@ -134,7 +135,9 @@ void Response::_make_response() {
 // _______________________   GET   _____________________________ //
 
 void Response::_response_get() {
-    std::string date = Rfc1123_DateTimeNow();
+    std::string		date;
+
+    Rfc1123_DateTimeNow(date);
     this->_header = "HTTP/1.1 " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
         "Content-Type: " + this->_targetType + "\r\n" +
         "Server: pizzabrownie\r\n" +
@@ -221,6 +224,7 @@ void Response::_upload_file(MultipartData *data) {
 
 //check if there is file to upload in body or prepare body for cgi
 void Response::_check_body() {
+    // std::cout << this->_request->get_target() << ": " << this->_request->get_multipartDatas().empty() << std::endl;
 	if (this->_request->get_postDefault().empty() == false)
 		this->_body = this->_request->get_postDefault();
 	else if (this->_request->get_multipartDatas().empty() == false)
@@ -241,7 +245,9 @@ void Response::_check_body() {
 }
 
 void Response::_response_post() {
-    std::string date = Rfc1123_DateTimeNow();
+    std::string		date;
+
+    Rfc1123_DateTimeNow(date);
     this->_header = "HTTP/1.1 " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
         "Content-Type: " + this->_targetType + "\r\n" +
         "Server: pizzabrownie\r\n" +
@@ -260,7 +266,9 @@ void Response::_response_post() {
 void Response::_response_delete() {  
     if (remove(this->_target.c_str()))
         throw ResponseException(FORBIDDEN);
-    std::string date = Rfc1123_DateTimeNow();
+    std::string		date;
+
+    Rfc1123_DateTimeNow(date);
     this->_header = "HTTP/1.1 " + this->_statusCode + " " + _status_messages(atoi(this->_statusCode.c_str())) + "\r\n" +
         "Content-Type: text/html" "\r\n" +
         "Server: pizzabrownie\r\n" +
@@ -310,7 +318,10 @@ char **Response::_prepare_env() {
     }
     if (!(fields["Content-Type"].empty()))
        contentType = "application/x-www-form-urlencoded";
-    contentLengh = std::to_string(this->_body.length());
+    if (!this->_body.empty())
+        contentLengh = std::to_string(this->_body.length());
+    else
+        contentLengh = "0";
     for (it2 = (fields["Accept"]).begin(); it2 != (fields["Accept"]).end(); it2++) {
         accept = accept.append(*it2);
         if (*it2 != *(fields["Accept"]).rbegin())
@@ -686,8 +697,6 @@ void Response::_check_target() {
 std::string Response::getStatusCode() const {
     return this->_statusCode;
 }
-
-
 
 // --------- Operator overload ------------
 

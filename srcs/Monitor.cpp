@@ -261,7 +261,7 @@ void Monitor::handle_connections()
 	struct responseInfos res;
 	while (1)																						// Main loop
 	{
-		poll_count = poll(_pfds, _fd_count, POLL_TIMEOUT);											// bloque tant qu'aucun fd est prêt à read ou write
+		poll_count = poll(_pfds, _fd_count, POLL_TIMEOUT);										// bloque tant qu'aucun fd est prêt à read ou write
         if (poll_count < 0)
 			log(get_time(), " Error: poll failed\n");
 		i = poll_index;
