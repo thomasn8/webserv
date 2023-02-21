@@ -5,6 +5,8 @@
 Request::Request(std::string *rawMessage, Server *server) :
 _rawMessage(rawMessage), _server(server)
 {
+	std::cout << *_rawMessage << std::endl; 
+	std::cout << "_______________________________" << std::endl; 
 	if (PRINT_HTTP_REQUEST)
 		std::cout << *rawMessage << std::endl;
 	ssize_t i = _rawMessage->find_first_of('\n');

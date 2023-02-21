@@ -281,6 +281,7 @@ void Response::_upload_file(MultipartData *data) {
 
 //check if there is file to upload in body or prepare body for cgi
 void Response::_check_body() {
+    // std::cout << this->_request->get_target() << ": " << this->_request->get_multipartDatas().empty() << std::endl;
 	if (this->_request->get_postDefault().empty() == false)
 		this->_body = this->_request->get_postDefault();
 	else if (this->_request->get_multipartDatas().empty() == false)
@@ -745,8 +746,6 @@ void Response::_check_target() {
 std::string Response::getStatusCode() const {
     return this->_statusCode;
 }
-
-
 
 // --------- Operator overload ------------
 
