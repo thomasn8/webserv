@@ -5,8 +5,8 @@
 Request::Request(std::string *rawMessage, Server *server) :
 _rawMessage(rawMessage), _server(server)
 {
-	std::cout << *_rawMessage << std::endl; 
-	std::cout << "_______________________________" << std::endl; 
+	// std::cout << *_rawMessage << std::endl; 
+	// std::cout << "_______________________________" << std::endl; 
 	if (PRINT_HTTP_REQUEST)
 		std::cout << *rawMessage << std::endl;
 	ssize_t i = _rawMessage->find_first_of('\n');
@@ -15,6 +15,7 @@ _rawMessage(rawMessage), _server(server)
     _parse_start_line(start_line);
     if (_parse_header() > 0)
     	_parse_body();
+	this->_print_multipartDatas();
 }
 
 Request::Request(const Request& instance) :
@@ -321,7 +322,7 @@ void Request::_print_multipartDatas() const
 				size_t len = (*it)->get_valueLen();
 				const char * ptr = (*it)->get_value();
 				std::cout << "	value = |";
-				for (int i = 0; i < len; i++)
+				for (int i = 0; i < 100; i++)
 					std::cout << ptr[i];
 				std::cout << "|" << std::endl;
 			}
