@@ -105,67 +105,14 @@ int Response::_check_error_pages(const int code) {
 // _______________________   Final Response Creation   _____________________________ //
 
 void Response::_make_final_message(std::string const &header, const char *body, std::filebuf *pbuf, size_t len) {
-// VALGRIND DETECTE DANS LA PARTIE HEADER: "Syscall param socketcall.sendto(msg) points to uninitialised byte(s)"			// vient de la partie header, a tester de creer une foncion qui compose les headers differement
-
-// TEST 1
 	_response->header = header + "Content-Length: " + std::to_string(len) + "\r\n\r\n";
+
 	_response->body = (char *)malloc(len * sizeof(char));
 	_response->body_size = len;
 	if (body)
 		memcpy(_response->body, body, len);
 	else
 		pbuf->sgetn(_response->body, len);
-
-// TEST 2
-	// // HEADER
-	// std::string bodysize = std::to_string(len);
-	// size_t bodysize_len = bodysize.size(), header_len = header.size();
-
-	// _response->header_size = header_len + bodysize_len + 20;
-	// _response->header = (char *)malloc(_response->header_size * sizeof(char));
-	// char *tmp = _response->header;
-	// memcpy(tmp, header.c_str(), header_len);
-	// tmp += header_len;
-	// memcpy(tmp, "Content-Length: ", 16);
-	// tmp += 16;
-	// memcpy(tmp, bodysize.c_str(), bodysize_len);
-	// tmp += bodysize_len;
-	// memcpy(tmp, "\r\n\r\n", 4);
-
-	// // BODY
-	// _response->body = (char *)malloc(len * sizeof(char));
-	// _response->body_size = len;
-	// if (body)
-	// 	memcpy(_response->body, body, len);
-	// else
-	// 	pbuf->sgetn(_response->body, len);
-
-// PREVIOUSLY
-	// size_t header_size = header.size();
-	// std::string bodysize = std::to_string(len);
-	// int bodysize_len = bodysize.size();
-
-	// // calc len + allocate
-	// *this->_finalMessageSize = header_size;
-	// *this->_finalMessageSize += 20; // for "Content-Length: \r\n\r\n"
-	// *this->_finalMessageSize += bodysize_len;
-	// *this->_finalMessageSize += len;
-	// *this->_finalMessage = (char *)malloc(*this->_finalMessageSize * sizeof(char));
-
-	// // set memory
-	// char *tmp = *this->_finalMessage;
-	// memcpy(tmp, header.c_str(), header_size);
-	// tmp += header_size;
-	// memcpy(tmp, "Content-Length: ", 16);
-	// tmp += 16;
-	// memcpy(tmp, bodysize.c_str(), bodysize_len);
-	// tmp += bodysize_len;
-	// memcpy(tmp, "\r\n\r\n", 4);
-	// tmp += 4;
-	// if (body)
-	// 	memcpy(tmp, body, len);
-	// else
-	// 	pbuf->sgetn(tmp, len);
 }
 
 
@@ -174,10 +121,7 @@ void Response::_make_response() {
 	if (!ifs.is_open())
 	    throw ResponseException(INTERNAL_SERVER_ERROR);												
 
-	// get pointer to associated buffer object
 	std::filebuf *pbuf = ifs.rdbuf();
-
-	// get file size using buffer's members
 	size_t size = pbuf->pubseekoff(0,ifs.end,ifs.in);
 	pbuf->pubseekpos(0,ifs.in);
 	if (size > this->_server->get_max_body_size())
@@ -185,8 +129,6 @@ void Response::_make_response() {
 
 	this->_make_final_message(this->_header, NULL, pbuf, size);
 	ifs.close();
-    // if (PRINT_HTTP_RESPONSE)
-    //     std:: cout << *this->_finalMessage << std::endl;
 } 
 
 // _______________________   GET   _____________________________ //
@@ -234,8 +176,6 @@ void Response::_make_autoindex() {
             </body> \
             </html>";
     this->_make_final_message(this->_header, body.c_str(), NULL, body.size());
-    // if (PRINT_HTTP_RESPONSE)
-    //     std:: cout << this->_finalMessage << std::endl;
 }
 
 // _______________________   POST   _____________________________ //
@@ -268,7 +208,7 @@ void Response::_upload_file(MultipartData *data) {
     //check if directory exist						
     struct stat st = {0};							
     if (stat(this->_uploadsDir.c_str(), &st) == -1)
-        throw ResponseException(INTERNAL_SERVER_ERROR);												// Ca serait pas mieux forbidden ? ou autre chose >> Non car Forbidden est une erreur chez le client or ici c'est une erreur de serveur si on a pas de dossier upload
+        throw ResponseException(INTERNAL_SERVER_ERROR);
 
     //upload file
     std::ofstream file(this->_uploadsDir.c_str() + std::string("/") + fileName, std::ofstream::binary | std::ofstream::out);
@@ -286,6 +226,7 @@ void Response::_check_body() {
 		this->_body = this->_request->get_postDefault();
 	else if (this->_request->get_multipartDatas().empty() == false)
 	{
+		std::cout << "_check_body(mulitipart)" << std::endl;
 		std::list<MultipartData *> const &datas = this->_request->get_multipartDatas();
         for (Request::mutlipart_it it = datas.begin(); it != datas.end(); it++) {
             if ((*it)->get_file()) {
