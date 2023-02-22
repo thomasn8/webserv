@@ -212,7 +212,7 @@ void Server::set_error_page(std::string & value)
 		}
 		return;
 	}
-	_errorPages.push_back(std::pair(statusCode, ""));
+	_errorPages.push_back(std::pair<int, std::string>(statusCode, ""));
 }
 
 void Server::set_max_body_size(std::string & value)
