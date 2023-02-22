@@ -34,7 +34,7 @@ std::string const & Request::get_method() const { return _method; }
 
 std::string const & Request::get_target() const { return _target; }
 
-std::map<std::string, std::list<std::string>> const & Request::get_fields() const { return _fields; }
+std::map<std::string, std::list<std::string> > const & Request::get_fields() const { return _fields; }
 
 std::string const & Request::get_queryString() const { return _queryString; }
 
