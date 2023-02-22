@@ -4,6 +4,9 @@
 logs/access.log
 webserv
 client
+*uploads/*.jpg
+*uploads/*.jpeg
+*uploads/*.png
 
 # Prerequisites
 *.d
