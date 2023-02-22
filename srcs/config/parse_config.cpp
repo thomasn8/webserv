@@ -83,7 +83,7 @@ void parse_config(std::string & configFile, Monitor & monitor)
 				// DETECTE LES BLOCK SERVER
 				for (int i = 0; compare == false && location_context == false && i < s_b; i++)
 				{
-					if (word.compare(0, std::string::npos, server_block[i].c_str(), word.length()) == EQUAL)
+					if (word == server_block[i])
 					{
 						if (f_server_block[i](line, &server_context, &server_count) == INVALID)
 							p_exit_cerr_msg(ERROR_MSG, line, 1);
@@ -97,7 +97,7 @@ void parse_config(std::string & configFile, Monitor & monitor)
 				// DETECTE LES BLOCK LOCATION			
 				for (int i = 0; compare == false && i < l_b; i++)
 				{
-					if (word.compare(0, std::string::npos, location_block[i].c_str(), word.length()) == EQUAL)
+					if (word == location_block[i])
 					{
 						if ((ret = f_location_block[i](line, route, &location_context, &location_count)) >= INVALID)
 						{
@@ -121,7 +121,7 @@ void parse_config(std::string & configFile, Monitor & monitor)
 				{
 					if (server_context == false)
 						p_exit_cerr_msg(ERROR_MSG, line, 1);
-					if (word.compare(0, std::string::npos, g_server_directives[i].c_str(), word.length()) == EQUAL)
+					if (word == g_server_directives[i])
 					{
 						server_directive_index = i;
 						compare = true;
@@ -132,7 +132,7 @@ void parse_config(std::string & configFile, Monitor & monitor)
 				{
 					if (server_context == false || location_context != 2)
 						p_exit_cerr_msg(ERROR_MSG, line, 1);
-					if (word.compare(0, std::string::npos, g_location_directives[i].c_str(), word.length()) == EQUAL)
+					if (word == g_location_directives[i])
 					{
 						location_directive_index = i;
 						compare = true;

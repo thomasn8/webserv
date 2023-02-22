@@ -9,7 +9,7 @@ int open_server_block(std::string & line, bool *server_context, int *server_coun
 		return INVALID;
 	}
 	int pos = line.find("server");
-	std::string::iterator it(&line[pos + 5]);
+	std::string::iterator it = line.begin() + pos + 5;
 	std::string::iterator ite = line.end();
 	while (++it != ite)
 	{
@@ -28,7 +28,7 @@ int open_server_block_2(std::string & line, bool *server_context, int *server_co
 		return INVALID;
 	}
 	int pos = line.find("{");
-	std::string::iterator it(&line[pos]);
+	std::string::iterator it = line.begin() + pos;
 	std::string::iterator ite = line.end();
 	while (++it != ite)
 	{
@@ -44,7 +44,7 @@ int close_server_block(std::string & line, bool *server_context, int *server_cou
 	if (*server_context == false)
 		return INVALID;
 	int pos = line.find("}");
-	std::string::iterator it(&line[pos]);
+	std::string::iterator it = line.begin() + pos;
 	std::string::iterator ite = line.end();
 	while (++it != ite)
 	{
@@ -85,7 +85,7 @@ int open_location_block_2(std::string & line, std::string & route, int *location
 		return INVALID;
 	}
 	int pos = line.find("{");
-	std::string::iterator it(&line[pos]);
+	std::string::iterator it = line.begin() + pos;
 	std::string::iterator ite = line.end();
 	while (++it != ite)
 	{
@@ -102,7 +102,7 @@ int close_location_block(std::string & line, std::string & route, int *location_
 	if (*location_context == 0)
 		return INVALID;
 	int pos = line.find("}");
-	std::string::iterator it(&line[pos]);
+	std::string::iterator it = line.begin() + pos;
 	std::string::iterator ite = line.end();
 	while (++it != ite)
 	{
