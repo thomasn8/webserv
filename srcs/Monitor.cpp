@@ -195,10 +195,12 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 		size_recv = recv(fd, _buf.current, CHUNK_RECV, 0); // recv la request jusqu'au bout du client_fd
 		_buf.size += size_recv;
 		_buf.current += size_recv;
-		if (maxrecv && _buf.size > maxrecv) // erreur max body size 413
-			return -1;
+		// if (maxrecv && _buf.size > maxrecv) // erreur max body size 413
+		// 	return -1;
 		if (size_recv < CHUNK_RECV) // toute la request a été read
 		{
+			if (maxrecv && _buf.size > maxrecv) // erreur max body size 413
+				return -1;
 			_log << get_time() << " Request from    " << activeSocket.client << " on server port " << activeSocket.server->get_port_str() << ": socket " << fd << ",	read " << _buf.size << " bytes" << std::endl;
 			return _buf.size;
 		}
