@@ -95,7 +95,7 @@ class Monitor
 		void _start_chrono();
 		void _stop_chrono(int fd);
 		void _create_log_file(std::string const & filename, std::ofstream & stream);
-		const std::string & _logFile;
+		std::string _logFile;
 		std::ofstream _log;
 		void _exit_cerr_msg(std::string message, int code);
 };
