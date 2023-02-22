@@ -90,7 +90,7 @@ std::string Response::_status_messages(int code) {
 
 // check if there is an error pages set in conf file
 int Response::_check_error_pages(const int code) {
-    std::list<std::pair<int, std::string>>::const_iterator  it;
+    std::list<std::pair<int, std::string> >::const_iterator  it;
 
     for (it = this->_server->get_errorpages().begin(); it != this->_server->get_errorpages().end(); it++) {
         if ((*it).first == code) {
@@ -289,7 +289,7 @@ void Response::_response_delete() {
 // _______________________   CGI   _____________________________ //
 
 char **Response::_prepare_env() {
-    std::map<std::string, std::list<std::string>>           fields = this->_request->get_fields();
+    std::map<std::string, std::list<std::string> >           fields = this->_request->get_fields();
     std::map<std::string, std::string>::const_iterator      it;
     std::list<std::string>::iterator                        it2;
 
