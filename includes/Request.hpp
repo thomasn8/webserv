@@ -19,7 +19,7 @@
 
 class Request {
 	public:
-		typedef std::map<std::string, std::list<std::string>>::const_iterator	fields_it;
+		typedef std::map<std::string, std::list<std::string> >::const_iterator	fields_it;
 		typedef std::list<std::string>::const_iterator 							fields_values_it;
 		typedef std::list<MultipartData *>::const_iterator						mutlipart_it;
 
@@ -29,7 +29,7 @@ class Request {
 
 		std::string const & get_method() const;
 		std::string const & get_target() const;
-		std::map<std::string, std::list<std::string>> const &get_fields() const;
+		std::map<std::string, std::list<std::string> > const &get_fields() const;
 		std::string const & get_queryString() const;
 		std::string const & get_postDefault() const;
 		std::list<MultipartData *> const &get_multipartDatas() const;
