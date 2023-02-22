@@ -11,7 +11,8 @@ _fd_count(0),
 _fd_capacity(0),
 _pfds(NULL),
 _activeSockets(NULL),
-_logFile(std::string(LOG_PATH)), _log()
+_logFile(std::string(LOG_PATH)),
+_log()
 {
 	_create_log_file(_logFile, _log);
 }
