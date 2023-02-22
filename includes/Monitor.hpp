@@ -81,6 +81,7 @@ class Monitor
 	private:
 		// SERVERS
 		std::deque<Server> _servers;
+		char **_env;
 
 		// SOCKETS
 		int * _master_sockets;
@@ -100,9 +101,6 @@ class Monitor
 		// RECV
 		struct buffer_read _buf;
 		int _replace_alone_header_cr(void);
-
-		// ENV
-		char **_env;
 
 		// LOG
 		uint64_t _chrono_start;

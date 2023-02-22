@@ -118,13 +118,7 @@ void Server::set_address_port(std::string & value)
 		std::string before = value.substr(0, pos);
 		std::string after  = value.substr(pos+1);
 		if (!before.empty())
-		{
 			_ipv4 = INADDR_ANY;
-			// if (before.compare("localhost") == 0)
-			// 	_ipv4 = inet_addr("127.0.0.1");
-			// else
-			// 	_ipv4 = inet_addr(before.c_str());
-		}
 		if (!after.empty())
 			_port = _port_check(after);
 	}
@@ -132,13 +126,7 @@ void Server::set_address_port(std::string & value)
 	{
 		pos = value.find('.');
 		if (pos > 0)
-		{
 			_ipv4 = INADDR_ANY;
-			// if (value.compare("localhost") == 0)
-			// 	_ipv4 = inet_addr("127.0.0.1");
-			// else
-			// 	_ipv4 = inet_addr(value.c_str());
-		}
 		else
 			_port = _port_check(value);
 	}
