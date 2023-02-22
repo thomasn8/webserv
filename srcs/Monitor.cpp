@@ -11,9 +11,9 @@ _fd_count(0),
 _fd_capacity(0),
 _pfds(NULL),
 _activeSockets(NULL),
-_accessFile(std::string(LOG_PATH)), _accessStream()
+_logFile(std::string(LOG_PATH)), _log()
 {
-	_create_log_file(_accessFile, _accessStream);
+	_create_log_file(_logFile, _log);
 }
 
 Monitor::~Monitor()
@@ -28,9 +28,9 @@ Monitor::~Monitor()
 		free(_master_sockets);
 	if (_buf.capacity > 0)
 		free(_buf.begin);
-	_accessStream.close();
-	log(get_time(), " Server shut down\n");
+	_log << get_time() << " Server shut down" << std::endl;
 	std::cout << "Server shut down" << std::endl;
+	_log.close();
 }
 
 /* 
@@ -45,7 +45,7 @@ void Monitor::add_server() { _servers.push_back(Server()); }
 */
 void Monitor::_prepare_master_sockets()
 {
-	log(get_time(), " SERVER STARTED\n");
+	_log << get_time() << " SERVER STARTED" << std::endl;
 	it_servers it = _servers.begin();
 	it_servers ite = _servers.end();
 	int socket_fd;
@@ -55,7 +55,7 @@ void Monitor::_prepare_master_sockets()
 	while (it != ite)
 	{
 		socket_fd = (*it).create_socket(_env);
-		log("port ", (*it).get_port_str(), " listening on socket ", socket_fd, "\n");
+		_log << "port " << (*it).get_port_str() << " listening on socket " << socket_fd << std::endl;
 		_master_sockets[i] = socket_fd;
 		_fd_count++;
 		it++;
@@ -66,7 +66,7 @@ void Monitor::_prepare_master_sockets()
 	_activeSockets = (struct socket *)malloc(sizeof(struct socket) * _fd_capacity);
 	if (_pfds == NULL)
 	{
-		log("Error: impossible to allocate", _fd_capacity ," pollfd structs\n");
+		_log << "Error: impossible to allocate" << _fd_capacity << " pollfd structs" << std::endl;
 		_exit_cerr_msg("Fatal error: allocation\n", 1);
 	}
 	for (int i = 0; i < _fd_count; i++)
@@ -76,7 +76,7 @@ void Monitor::_prepare_master_sockets()
     	_pfds[i].revents = 0;
 		_activeSockets[i].pfd = NULL;
 	}
-	log("\n");
+	_log << std::endl;
 }
 
 struct socket * Monitor::_add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, Server * server)
@@ -88,7 +88,7 @@ struct socket * Monitor::_add_to_pfds(int new_fd, struct sockaddr_in * remoteAdd
 		_activeSockets = (struct socket *)realloc(_activeSockets, sizeof(*_activeSockets) * (_fd_capacity));
 		if (_pfds == NULL)
 		{
-			log("Error: impossible to allocate", _fd_capacity ," pollfd structs\n");
+			_log << "Error: impossible to allocate" << _fd_capacity << " pollfd structs" << std::endl;
 			_exit_cerr_msg("Fatal error: allocation\n", 1);
 		}
 	}
@@ -139,12 +139,9 @@ void Monitor::_accept_new_connection(int master_index)
 	socklen_t remoteAddr_size = sizeof(remoteAddr);
 	int new_fd = accept(_master_sockets[master_index], (struct sockaddr *)&remoteAddr, &remoteAddr_size);
 	if (new_fd < 0)
-		log(get_time(), " Error: accept: new connexion on port ", _servers[master_index].get_port_str(), " failed\n");
+		_log << get_time() << " Error: accept: new connexion on port " << _servers[master_index].get_port_str() << " failed" << std::endl;
 	else
-	{
 		struct socket * client_socket = _add_to_pfds(new_fd, &remoteAddr, &_servers[master_index]);
-		// log(get_time(), " New connection  ", client_socket->client, " on server port ", _servers[master_index].get_port_str(), ": socket ", new_fd, "\n");
-	}
 }
 
 int Monitor::_replace_alone_header_cr() 
@@ -176,7 +173,7 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 	while (1)
 	{
 		_recv_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-		if (_recv_timeout[1] - _recv_timeout[0] > RECV_TIEMOUT_MS)
+		if (_recv_timeout[1] - _recv_timeout[0] > RECV_TIMEOUT_MS)
 			return -1;	// A VOIR SI ON VEUT PAS RETOURNER UNE AUTRE VALEUR POUR ADAPTER LE CODE D'ERREUR RETRANSMIS DANS LE MONITOR
 		if (_buf.size + CHUNK_RECV > _buf.capacity)
 		{
@@ -191,21 +188,17 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 				_buf.capacity *= 2;
 			}
 			if (_buf.begin == NULL)
-			{
-				log("Error: allocation for read buffer failed\n");
 				return -1;
-			}
 			_buf.current = _buf.begin + _buf.size;
 		}
 		size_recv = recv(fd, _buf.current, CHUNK_RECV, 0); // recv la request jusqu'au bout du client_fd
 		_buf.size += size_recv;
 		_buf.current += size_recv;
-		// std::cout << size_recv << " bytes read on socket " << fd << std::endl;
 		if (maxrecv && _buf.size > maxrecv) // erreur max body size 413
 			return -1;
 		if (size_recv < CHUNK_RECV) // toute la request a été read
 		{
-			log(get_time(), " Request from    ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(), ": socket ", fd, ",	read ", _buf.size, " bytes\n");
+			_log << get_time() << " Request from    " << activeSocket.client << " on server port " << activeSocket.server->get_port_str() << ": socket " << fd << ",	read " << _buf.size << " bytes" << std::endl;
 			return _buf.size;
 		}
 	}
@@ -227,7 +220,7 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 	while (response_size > CHUNK_SEND && size_sent != -1) // cas où response initiale > CHUNK_SEND
 	{
 		_sent_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-		if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIEMOUT_MS)
+		if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIMEOUT_MS)
 			break;
 		size_sent = send(fd, chunk_send, CHUNK_SEND, MSG_NOSIGNAL);
 		response_size -= size_sent;
@@ -237,7 +230,7 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 	while (response_size > 0 && size_sent != -1) // envoie les derniers bytes lorsque response initiale était > CHUNK_SEND bytes ou lorsque send a pas fonctionné comme prévu
 	{
 		_sent_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-		if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIEMOUT_MS)
+		if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIMEOUT_MS)
 			break;
 		size_sent = send(fd, chunk_send, response_size, MSG_NOSIGNAL);
 		response_size -= size_sent;
@@ -245,9 +238,9 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 		total_sent += size_sent;
 	}
 	if (total_sent == size)
-		log(get_time(), " Response to     ", activeSocket.client, " on server port ", activeSocket.server->get_port_str(),  ": socket ", fd, ",	send ", total_sent, " bytes\n");
+		_log << get_time() << " Response to     " << activeSocket.client << " on server port " << activeSocket.server->get_port_str() << ": socket " << fd << ",	send " << total_sent << " bytes" << std::endl;
 	else
-		log(get_time(), " Response error: partial send to client " , activeSocket.client, " on server port ", activeSocket.server->get_port_str(),  ": socket ", fd, ",	send ", total_sent, "/", size, "bytes\n");
+		_log << get_time() << " Response error: partial send to client " << activeSocket.client << " on server port " << activeSocket.server->get_port_str() << ": socket " << fd << ",	send " << total_sent << "/" << size << "bytes" << std::endl;
 	return total_sent;
 }
 
@@ -263,7 +256,7 @@ void Monitor::handle_connections()
 	{
 		poll_count = poll(_pfds, _fd_count, POLL_TIMEOUT);											// bloque tant qu'aucun fd est prêt à read ou write
         if (poll_count < 0)
-			log(get_time(), " Error: poll failed\n");
+			_log << get_time() << " Error: poll failed" << std::endl;
 		i = poll_index;
 		while (i < _fd_count)																		// cherche parmi tous les fd ouverts
 		{
@@ -333,7 +326,7 @@ void Monitor::_stop_chrono(int fd)
 {
 	_chrono_stop = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	_chrono_stop -= _chrono_start;
-	log("Socket ", fd ,": connection closed, communication time = ", _chrono_stop, " ms\n");
+	_log << "Socket " << fd << ": connection closed, communication time = " << _chrono_stop << " ms" << std::endl;
 }
 
 /* 
@@ -351,7 +344,7 @@ void Monitor::_create_log_file(std::string const & filename, std::ofstream & str
 
 void Monitor::_exit_cerr_msg(const std::string message, int code)
 {
-	log(get_time(), " Exit: ", message, "\n");
+	_log << get_time() << " Exit: " << message << std::endl;
 	std::cerr << "Exit: " << message;
 	for (int i = 0; i < _fd_count; i++)
 		close(_pfds[i].fd);
@@ -363,7 +356,7 @@ void Monitor::_exit_cerr_msg(const std::string message, int code)
 		free(_master_sockets);
 	if (_buf.capacity > 0)
 		free(_buf.begin);
-	_accessStream.close();
+	_log.close();
 	exit(code);
 }
 
