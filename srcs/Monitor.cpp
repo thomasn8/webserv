@@ -104,8 +104,30 @@ struct socket * Monitor::_add_to_pfds(int new_fd, struct sockaddr_in * remoteAdd
 
 	// renseigne l'adresse du client pour eviter de multiplier les appels à inet_ntoa() et ntohs() dans les logs
 	int i = 0;
-	// std::string ip = std::to_string(inet_ntoa(activeSocket->remoteAddr.sin_addr));
-	// std::string port = std::to_string(ntohs(activeSocket->remoteAddr.sin_port)).c_str();
+	std::string ip = inet_ntoa(activeSocket->remoteAddr.sin_addr);
+	std::string port = std::to_string(ntohs(activeSocket->remoteAddr.sin_port)).c_str();
+	while (ip.c_str()[i])
+	{
+		activeSocket->client[i]  = ip.c_str()[i];
+		i++;
+	}
+	activeSocket->client[i++] = ':';
+	int j = 0;
+	while (port.c_str()[j])
+	{
+		activeSocket->client[i] = port.c_str()[j];
+		i++;
+		j++;
+	}
+	while (i < 21)
+	{
+		activeSocket->client[i] = 0;
+		i++;
+	}
+	return activeSocket;
+
+	// const char * ip = inet_ntoa(activeSocket->remoteAddr.sin_addr);
+	// const char * port = std::to_string(ntohs(activeSocket->remoteAddr.sin_port)).c_str();
 	// while (ip[i])
 	// {
 	// 	activeSocket->client[i]  = ip[i];
@@ -125,28 +147,6 @@ struct socket * Monitor::_add_to_pfds(int new_fd, struct sockaddr_in * remoteAdd
 	// 	i++;
 	// }
 	// return activeSocket;
-
-	const char * ip = inet_ntoa(activeSocket->remoteAddr.sin_addr);
-	const char * port = std::to_string(ntohs(activeSocket->remoteAddr.sin_port)).c_str();
-	while (ip[i])
-	{
-		activeSocket->client[i]  = ip[i];
-		i++;
-	}
-	activeSocket->client[i++] = ':';
-	int j = 0;
-	while (port[j])
-	{
-		activeSocket->client[i] = port[j];
-		i++;
-		j++;
-	}
-	while (i < 21)
-	{
-		activeSocket->client[i] = 0;
-		i++;
-	}
-	return activeSocket;
 }
 
 void Monitor::_del_from_pfds(int i)
