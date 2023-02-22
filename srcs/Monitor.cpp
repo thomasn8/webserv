@@ -125,28 +125,6 @@ struct socket * Monitor::_add_to_pfds(int new_fd, struct sockaddr_in * remoteAdd
 		i++;
 	}
 	return activeSocket;
-
-	// const char * ip = inet_ntoa(activeSocket->remoteAddr.sin_addr);
-	// const char * port = std::to_string(ntohs(activeSocket->remoteAddr.sin_port)).c_str();
-	// while (ip[i])
-	// {
-	// 	activeSocket->client[i]  = ip[i];
-	// 	i++;
-	// }
-	// activeSocket->client[i++] = ':';
-	// int j = 0;
-	// while (port[j])
-	// {
-	// 	activeSocket->client[i] = port[j];
-	// 	i++;
-	// 	j++;
-	// }
-	// while (i < 21)
-	// {
-	// 	activeSocket->client[i] = 0;
-	// 	i++;
-	// }
-	// return activeSocket;
 }
 
 void Monitor::_del_from_pfds(int i)
@@ -271,7 +249,7 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 // Pareil pour le read() de recv() (comme quand on veut écrire dans un pipe et que l'autre process est bloqué par le read tant que rien est write dans le pipe)
 void Monitor::handle_connections()
 {
-	_prepare_master_sockets(); // socket, bind, listen pour chaque port/server + creer les struct pollfd dédiées
+	_prepare_master_sockets();
 	int i, poll_index = 0, poll_count = 0, server_count = _servers.size();
 	_buf.capacity = 0;
 	struct responseInfos res;
@@ -319,7 +297,7 @@ void Monitor::handle_connections()
 							_buf.capacity = 0;
 						}
 						_pfds[i].events = POLLOUT;
-						poll_index = i; // permet de revenir dans la main loop avec l'index du pfds à écrire
+						poll_index = i; // permet de revenir dans la main loop avec l'index du pfds à write
 						i = _fd_count;  // break la while loop
 					}
 				}
@@ -343,7 +321,10 @@ void Monitor::handle_connections()
 	}
 }
 
-void Monitor::_start_chrono() { _chrono_start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count(); }
+void Monitor::_start_chrono()
+{
+	_chrono_start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+}
 
 void Monitor::_stop_chrono(int fd)
 {
