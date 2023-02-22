@@ -32,7 +32,7 @@
 // read
 # define CHUNK_RECV 1024
 # define BUFFER_LIMIT 200000 // 200KO
-# define RECV_TIEMOUT_MS 2000
+# define RECV_TIMEOUT_MS 2000
 struct buffer_read {
 	char *begin;
 	char *current;
@@ -42,7 +42,7 @@ struct buffer_read {
 
 // write
 # define CHUNK_SEND 1024
-# define SEND_TIEMOUT_MS 2000
+# define SEND_TIMEOUT_MS 2000
 
 class Monitor
 {
@@ -64,19 +64,6 @@ class Monitor
 		// LOG
 		std::string get_time();
 		void log_server_info();
-		template <typename T>
-		void log(T message)
-		{
-			_accessStream << message;
-			_accessStream.flush();
-		}
-		template<typename T, typename... Args>
-		void log(T message, Args... args)
-		{ 
-			_accessStream << message;
-			log(args...);
-			_accessStream.flush();
-		}
 
 	private:
 		// SERVERS
@@ -108,8 +95,8 @@ class Monitor
 		void _start_chrono();
 		void _stop_chrono(int fd);
 		void _create_log_file(std::string const & filename, std::ofstream & stream);
-		const std::string & _accessFile;
-		std::ofstream _accessStream;
+		const std::string & _logFile;
+		std::ofstream _log;
 		void _exit_cerr_msg(std::string message, int code);
 };
 
