@@ -5,16 +5,13 @@
 Request::Request(std::string *rawMessage, Server *server) :
 _rawMessage(rawMessage), _server(server)
 {
-	// for (int i = 0; i < 10; i++) // to remove
-		std::cout << rawMessage->substr(0, 1000);
+	std::cout << rawMessage->substr(0, 1000); // to remove
 	ssize_t i = _rawMessage->find_first_of('\n');
     std::string start_line = _rawMessage->substr(0, i); // prend le /r avant /n
 	_rawMessage->erase(0, i+1);
     _parse_start_line(start_line);
     if (_parse_header() > 0)
     	_parse_body();
-	// std::cout << "__________________" << std::endl; // to remove
-	// _print_multipartDatas(); // to remove
 }
 
 Request::Request(const Request& instance) :
