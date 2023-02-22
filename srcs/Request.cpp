@@ -5,17 +5,12 @@
 Request::Request(std::string *rawMessage, Server *server) :
 _rawMessage(rawMessage), _server(server)
 {
-	// std::cout << *_rawMessage << std::endl; 
-	// std::cout << "_______________________________" << std::endl; 
-	// if (PRINT_HTTP_REQUEST)
-	// 	std::cout << *rawMessage << std::endl;
 	ssize_t i = _rawMessage->find_first_of('\n');
     std::string start_line = _rawMessage->substr(0, i); // prend le /r avant /n
 	_rawMessage->erase(0, i+1);
     _parse_start_line(start_line);
     if (_parse_header() > 0)
     	_parse_body();
-	this->_print_multipartDatas();
 }
 
 Request::Request(const Request& instance) :
@@ -261,8 +256,6 @@ void Request::_parse_body()
 		throw RequestException(BAD_REQUEST);
 	_body = _rawMessage->c_str();
 	_body_len = contentLength;
-
-	std::cout << std::endl << "body len = " << _body_len << std::endl;					// = la len du body complet avec les boundry seperators (enleves lors du parsing)
 
 	// choper le type de donner et parser en fonction
 	fields_it type = _fields.find("Content-Type");

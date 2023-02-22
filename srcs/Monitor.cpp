@@ -261,7 +261,7 @@ void Monitor::handle_connections()
 	struct responseInfos res;
 	while (1)																						// Main loop
 	{
-		poll_count = poll(_pfds, _fd_count, POLL_TIMEOUT);										// bloque tant qu'aucun fd est prêt à read ou write
+		poll_count = poll(_pfds, _fd_count, POLL_TIMEOUT);											// bloque tant qu'aucun fd est prêt à read ou write
         if (poll_count < 0)
 			log(get_time(), " Error: poll failed\n");
 		i = poll_index;
@@ -313,14 +313,12 @@ void Monitor::handle_connections()
 				if (_pfds[i].revents & POLLOUT)
 				{
 					_send_all(i, res.header.c_str(), res.header.size(), _activeSockets[i]); 		// send le header
-					// _send_all(i, res.header, res.header_size, _activeSockets[i]); 					// send le header
 					if (res.body_size)
 						_send_all(i, res.body, res.body_size, _activeSockets[i]); 					// send le body
 				}
 				_stop_chrono(_pfds[i].fd);
 				close(_pfds[i].fd);
 				_del_from_pfds(i);
-				// free(res.header);
 				free(res.body);
 				poll_index = 0;
 			}

@@ -82,13 +82,6 @@ void Location::set_route(std::string value)
 		return;
 	_route = value;
 
-	// // if route is a cgi, set cgi filename
-	// if (value[0] != '/' )
-	// 	_cgi = _root.append("/").append(_indexFiles.front());
-	// else if (value.back() != '/')
-	// 	_root.append("/");
-	// if route is a cgi, set cgi filename
-
 	if (value[0] == '/' && value.back() != '/')
 		_route.append("/");
 }
