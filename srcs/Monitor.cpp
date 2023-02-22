@@ -212,7 +212,7 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 	_sent_timeout[0] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	if (response_size < CHUNK_SEND)	// cas où response initiale fait < CHUNK_SEND
 	{
-		size_sent = send(fd, chunk_send, response_size, MSG_NOSIGNAL);
+		size_sent = send(fd, chunk_send, response_size, 0);
 		response_size -= size_sent;
 		chunk_send += size_sent;
 		total_sent += size_sent;
@@ -222,7 +222,7 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 		_sent_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIMEOUT_MS)
 			break;
-		size_sent = send(fd, chunk_send, CHUNK_SEND, MSG_NOSIGNAL);
+		size_sent = send(fd, chunk_send, CHUNK_SEND, 0);
 		response_size -= size_sent;
 		chunk_send += size_sent;
 		total_sent += size_sent;
@@ -232,7 +232,7 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 		_sent_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIMEOUT_MS)
 			break;
-		size_sent = send(fd, chunk_send, response_size, MSG_NOSIGNAL);
+		size_sent = send(fd, chunk_send, response_size, 0);
 		response_size -= size_sent;
 		chunk_send += size_sent;
 		total_sent += size_sent;
