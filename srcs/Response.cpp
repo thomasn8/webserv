@@ -227,7 +227,6 @@ void Response::_check_body() {
 		this->_body = this->_request->get_postDefault();
 	else if (this->_request->get_multipartDatas().empty() == false)
 	{
-		std::cout << "_check_body(mulitipart)" << std::endl;
 		std::list<MultipartData *> const &datas = this->_request->get_multipartDatas();
         for (Request::mutlipart_it it = datas.begin(); it != datas.end(); it++) {
             if ((*it)->get_file()) {
