@@ -4,12 +4,9 @@
 logs/access.log
 webserv
 client
-www/cgi_bin/uploads/*.jpg
-www/cgi_bin/uploads/*.jpg
-www/cgi_bin/uploads/*.jpeg
-www/eval/cgi_bin/uploads/*.jpeg
-www/eval/cgi_bin/uploads/*.png
-www/eval/cgi_bin/uploads/*.png
+*/uploads/*.jpg
+*/uploads/*.jpeg
+*/uploads/*.png
 
 # Prerequisites
 *.d
