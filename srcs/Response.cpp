@@ -696,18 +696,18 @@ void Response::_check_target() {
     if (this->_statusCode.empty())
         this->_statusCode = std::to_string(HTTP_OK);
     // if (PRINT_FINAL_TARGET) {
-    //     std::cout << "final target: " << this->_target << std::endl;
-    //     std::cout << "autoindex: " << this->_autoindex << std::endl;
-    //     std::cout << "cgi: " << this->_cgi << std::endl;
-    //     std::cout << "upload dir: " << this->_uploadsDir << std::endl;
-    //     std::cout << "status code: " << this->_statusCode << std::endl;
-    //     std::cout << "content types: ";
-    //     std::list<std::string>::iterator  it;
-    //     if (!this->_contentType.empty()) {
-    //         for (it = this->_contentType.begin(); it != this->_contentType.end(); it++) {
-    //             std::cout << *it << " \n";
-    //         }
-    //     }
+        // std::cout << "final target: " << this->_target << std::endl;
+        // std::cout << "autoindex: " << this->_autoindex << std::endl;
+        // std::cout << "cgi: " << this->_cgi << std::endl;
+        // std::cout << "upload dir: " << this->_uploadsDir << std::endl;
+        // std::cout << "status code: " << this->_statusCode << std::endl;
+        // std::cout << "content types: ";
+        // std::list<std::string>::iterator  it;
+        // if (!this->_contentType.empty()) {
+        //     for (it = this->_contentType.begin(); it != this->_contentType.end(); it++) {
+        //         std::cout << *it << " \n";
+        //     }
+        // }
     // }
 }
 
