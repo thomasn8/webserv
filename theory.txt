@@ -1,0 +1,8 @@
+Explain the basics of an HTTP server.
+
+Ask which function they used for I/O Multiplexing.
+
+Ask to get an explanation of how select (or equivalent) is working.
+
+Ask if they use only one select (or equivalent) and how they've managed the server accept and the clientread/write.
+	
