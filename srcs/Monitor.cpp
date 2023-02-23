@@ -175,7 +175,7 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 	{
 		_recv_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		if (_recv_timeout[1] - _recv_timeout[0] > RECV_TIMEOUT_MS)
-			return -1;	// A VOIR SI ON VEUT PAS RETOURNER UNE AUTRE VALEUR POUR ADAPTER LE CODE D'ERREUR RETRANSMIS DANS LE MONITOR
+			return -1;	// A VOIR SI ON VEUT PAS RETOURNER UNE AUTRE VALEUR POUR ADAPTER LE CODE D'ERREUR RETRANSMIS DANS LE MONITOR ggbgggg
 		if (_buf.size + CHUNK_RECV > _buf.capacity)
 		{
 			if (_buf.capacity == 0)

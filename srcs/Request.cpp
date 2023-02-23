@@ -5,7 +5,7 @@
 Request::Request(std::string *rawMessage, Server *server) :
 _rawMessage(rawMessage), _server(server)
 {
-	std::cout << rawMessage->substr(0, 1000); // to remove
+	std::cout << rawMessage->substr(0, 1500); // to remove
 	ssize_t i = _rawMessage->find_first_of('\n');
     std::string start_line = _rawMessage->substr(0, i); // prend le /r avant /n
 	_rawMessage->erase(0, i+1);
