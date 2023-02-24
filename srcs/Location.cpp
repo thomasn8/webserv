@@ -81,9 +81,6 @@ void Location::set_route(std::string value)
 	if (value.empty())
 		return;
 	_route = value;
-
-	if (value[0] == '/' && value.back() != '/')
-		_route.append("/");
 }
 
 void Location::set_root(std::string & value)
