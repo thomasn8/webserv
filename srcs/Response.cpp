@@ -489,6 +489,7 @@ int Response::_add_root_if_cgi(std::string &target,
     
     tmp = target;
     for (it = locations.begin(); it != locations.end(); it++) {
+        // std::cout << "location:" << (*it).get_route() << std::endl;
         len = (*it).get_route().length();
         if (!(*(*it).get_route().begin() == '/')) {
             if (tmp.compare(tmp.length() - len, tmp.length(),(*it).get_route()) == 0) {
@@ -508,6 +509,7 @@ int Response::_add_root_if_cgi(std::string &target,
             if (tmp.compare(0, len, (*it).get_route()) == 0) {
                 tmp.erase(0, len - 1);
                 tmp = (*it).get_root() + tmp;
+                // std::cout << "la:" << tmp << std::endl;
                 while (_check_redirections(tmp, locations, locationFound)) {};
                 if (access(tmp.c_str(), F_OK) != -1) {
                     target = tmp;
@@ -534,6 +536,8 @@ int Response::_add_root_dir(std::string &target,
     for (it = locations.begin(); it != locations.end(); it++) {
         len = (*it).get_route().length();
         if ((*(*it).get_route().begin() == '/')) {
+            std::cout << "route: " << (*it).get_route() << std::endl;
+            std::cout << "tmp: " << tmp << std::endl;
             if (tmp.compare(0, len, (*it).get_route()) == 0) {
                 tmp.erase(0, len - 1);
                 tmp = (*it).get_root() + tmp;
@@ -574,6 +578,7 @@ void Response::_check_locations_directory(std::string &target,
     std::deque<Location>::const_iterator  it;
 
     for (it = locations.begin(); it != locations.end(); it++) {
+        // std::cout << "here: " << (*it).get_root() << std::endl;
         if (target.compare((*it).get_root()) == 0) {
             this->_targetFound = true;
             locationFound = it;
@@ -652,15 +657,16 @@ void Response::_check_target() {
     std::deque<Location>::const_iterator  locationFound;
 
     this->_target = this->_request->get_target();
+    std::cout << "target at begin:" << this->_target << std::endl;
     if (*this->_target.begin() != '/')
         throw  ResponseException(BAD_REQUEST);
     if (this->_target.find('.') == std::string::npos) { // if it's a directory
-        while (this->_target.back() == '/')
-            this->_target.pop_back();
+        while (this->_target.back() != '/')
+            this->_target.push_back('/');
         if (!_add_root_dir(this->_target, locations, locationFound)) {
             while (_check_redirections(this->_target, locations, locationFound)) {};
             if (!this->_targetFound)
-                _check_locations(this->_target, locations, locationFound);
+                _check_locations_directory(this->_target, locations, locationFound);
         } 
         // this->_target = this->_server->get_root() + this->_target;
         // while (_check_redirections(this->_target, locations, locationFound)) {};
@@ -713,6 +719,19 @@ void Response::_check_target() {
             }
             else 
                 throw  ResponseException(NOT_FOUND);
+        }
+    }
+    // std::cout << "ici: " << this->_target << std::endl;
+    std::cout << "final target: " << this->_target << std::endl;
+    std::cout << "autoindex: " << this->_autoindex << std::endl;
+    std::cout << "cgi: " << this->_cgi << std::endl;
+    std::cout << "upload dir: " << this->_uploadsDir << std::endl;
+    std::cout << "status code: " << this->_statusCode << std::endl;
+    std::cout << "content types: ";
+    std::list<std::string>::iterator  it;
+    if (!this->_contentType.empty()) {
+        for (it = this->_contentType.begin(); it != this->_contentType.end(); it++) {
+            std::cout << *it << " \n";
         }
     }
     this->_targetType = _what_kind_of_extention(this->_target);
