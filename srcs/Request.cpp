@@ -5,13 +5,15 @@
 Request::Request(std::string *rawMessage, Server *server) :
 _rawMessage(rawMessage), _server(server)
 {
-	std::cout << rawMessage->substr(0, 1000); // to remove
 	ssize_t i = _rawMessage->find_first_of('\n');
     std::string start_line = _rawMessage->substr(0, i); // prend le /r avant /n
 	_rawMessage->erase(0, i+1);
     _parse_start_line(start_line);
     if (_parse_header() > 0)
+	{
+		std::cout << "TEST3" << std::endl;
     	_parse_body();
+	}
 }
 
 Request::Request(const Request& instance) :
@@ -142,12 +144,18 @@ int Request::_parse_header()
 		_rawMessage->erase(0, i+1);
 		i = _rawMessage->find_first_of('\n');
 	}
+	// if ((*_rawMessage).c_str()[0] == '\r')
+	// 	_rawMessage->erase(0, i+1); // efface la derniere ligne vide du header
+	// else
+	// 	throw RequestException(BAD_REQUEST);
+	std::cout << "TEST1" << std::endl;
 	if ((*_rawMessage).c_str()[0] == '\r')
-		_rawMessage->erase(0, i+1); // efface la derniere ligne vide du header
-	else
-		throw RequestException(BAD_REQUEST);
+		_rawMessage->pop_back();
+	if ((*_rawMessage).c_str()[0] == '\n')
+		_rawMessage->pop_back();
 	if (_fields.find("Host") == _fields.end() || (*_fields.find("Host")).second.size() > 1)
 		throw RequestException(BAD_REQUEST);
+	std::cout << "TEST2" << std::endl;
 	return _rawMessage->size(); // retourne la size du body
 }
 

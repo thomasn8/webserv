@@ -195,10 +195,13 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 		size_recv = recv(fd, _buf.current, CHUNK_RECV, 0); // recv la request jusqu'au bout du client_fd
 		_buf.size += size_recv;
 		_buf.current += size_recv;
-		// if (maxrecv && _buf.size > maxrecv) // erreur max body size 413
-		// 	return -1;
-		if (size_recv < CHUNK_RECV) // toute la request a été read
+		if (size_recv)
+			std::cout << std::string(_buf.begin, _buf.size) << std::endl;
+		// if (size_recv < CHUNK_RECV) // toute la request a été read
+		if (size_recv == 0 || size_recv == -1)
 		{
+			std::cout << "recv: " << size_recv << std::endl;
+			highlight_crlf(_buf.begin, _buf.size);
 			_log << get_time() << " Request from    " << activeSocket.client << " on server port " << activeSocket.server->get_port_str() << ": socket " << fd << ",	read " << _buf.size << " bytes" << std::endl;
 			if (maxrecv && _buf.size > maxrecv) // erreur max body size 413
 				return -1;
@@ -213,24 +216,24 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 	const char * chunk_send = response;
 	ssize_t response_size = size, size_sent = 0, total_sent = 0;
 	_sent_timeout[0] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-	if (response_size < CHUNK_SEND)	// cas où response initiale fait < CHUNK_SEND
-	{
+	// if (response_size < CHUNK_SEND)	// cas où response initiale fait < CHUNK_SEND
+	// {
 		size_sent = send(fd, chunk_send, response_size, 0);
 		response_size -= size_sent;
 		chunk_send += size_sent;
 		total_sent += size_sent;
-	}
-	while (response_size > CHUNK_SEND && size_sent != -1) // cas où response initiale > CHUNK_SEND
-	{
-		_sent_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-		if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIMEOUT_MS)
-			break;
-		size_sent = send(fd, chunk_send, CHUNK_SEND, 0);
-		response_size -= size_sent;
-		chunk_send += size_sent;
-		total_sent += size_sent;
-	}
-	while (response_size > 0 && size_sent != -1) // envoie les derniers bytes lorsque response initiale était > CHUNK_SEND bytes ou lorsque send a pas fonctionné comme prévu
+	// }
+	// while (response_size > CHUNK_SEND && size_sent != -1) // cas où response initiale > CHUNK_SEND
+	// {
+	// 	_sent_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	// 	if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIMEOUT_MS)
+	// 		break;
+	// 	size_sent = send(fd, chunk_send, CHUNK_SEND, 0);
+	// 	response_size -= size_sent;
+	// 	chunk_send += size_sent;
+	// 	total_sent += size_sent;
+	// }
+	while (size_sent != 0 && size_sent != -1) // envoie les derniers bytes
 	{
 		_sent_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIMEOUT_MS)

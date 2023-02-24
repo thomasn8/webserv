@@ -22,6 +22,7 @@
 #include "Request.hpp"
 #include "socket.hpp"
 #include "responseInfos.hpp"
+#include "utils.hpp"
 
 # define LOG_PATH "logs/access.log"
 
