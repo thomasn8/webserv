@@ -2,7 +2,7 @@
 
 static void open_file(std::string & configFile, std::ifstream & configStream)
 {
-	configStream.open(configFile, std::ifstream::in);
+	configStream.open(configFile.c_str(), std::ifstream::in);
 	if (configStream.fail() == true)
 		p_exit_cerr_msg("Error while opening configuration file", "" ,1);
 	if (configStream.peek() == EOF)
@@ -38,7 +38,8 @@ static void clean_config(std::string & buffer, std::ifstream & configStream)
 		if (p_isnotblank(line))
 		{
 			buffer += line;
-			if (line.back() != '\n')
+			std::string::const_reverse_iterator it = line.rbegin();
+			if (*it != '\n')
 				buffer += '\n';
 		}
 		if (configStream.peek() == EOF)

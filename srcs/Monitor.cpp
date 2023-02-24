@@ -3,8 +3,8 @@
 	************ CONST/DESTR
 */
 Monitor::Monitor(char **env) :
-_env(env),
 _servers(std::deque<Server>()),
+_env(env),
 _master_sockets(NULL),
 _master_size(0),
 _fd_count(0),
@@ -105,7 +105,11 @@ struct socket * Monitor::_add_to_pfds(int new_fd, struct sockaddr_in * remoteAdd
 	// renseigne l'adresse du client pour eviter de multiplier les appels à inet_ntoa() et ntohs() dans les logs
 	int i = 0;
 	std::string ip = inet_ntoa(activeSocket->remoteAddr.sin_addr);
-	std::string port = std::to_string(ntohs(activeSocket->remoteAddr.sin_port)).c_str();
+	int p = static_cast<int>(ntohs(activeSocket->remoteAddr.sin_port));
+	std::ostringstream convert;
+	convert << p;
+	std::string port = convert.str();
+
 	while (ip.c_str()[i])
 	{
 		activeSocket->client[i]  = ip.c_str()[i];
@@ -142,7 +146,7 @@ void Monitor::_accept_new_connection(int master_index)
 	if (new_fd < 0)
 		_log << get_time() << " Error: accept: new connexion on port " << _servers[master_index].get_port_str() << " failed" << std::endl;
 	else
-		struct socket * client_socket = _add_to_pfds(new_fd, &remoteAddr, &_servers[master_index]);
+		_add_to_pfds(new_fd, &remoteAddr, &_servers[master_index]);
 }
 
 int Monitor::_replace_alone_header_cr() 
@@ -187,15 +191,16 @@ void Monitor::_check_buffer_capacity()
 
 ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 {
-	ssize_t size_recv = 0, maxrecv = activeSocket.server->get_maxrecv();
+	ssize_t size_recv = 0;
+	size_t maxrecv = activeSocket.server->get_maxrecv();
 	_buf.size = 0;
 	_buf.current = _buf.begin;
-	_recv_timeout[0] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	// _recv_timeout[0] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	while (1)
 	{
-		_recv_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-		if (_recv_timeout[1] - _recv_timeout[0] > RECV_TIMEOUT_MS)
-			return -2;
+		// _recv_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+		// if (_recv_timeout[1] - _recv_timeout[0] > RECV_TIMEOUT_MS)
+		// 	return -2;
 		_check_buffer_capacity();
 		size_recv = recv(fd, _buf.current, CHUNK_RECV, 0); // read la request sur client_fd
 		_buf.size += size_recv;
@@ -217,16 +222,16 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 	int fd = _pfds[i].fd;
 	const char * chunk_send = response;
 	ssize_t response_size = size, size_sent = 0, total_sent = 0;
-	_sent_timeout[0] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	// _sent_timeout[0] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	size_sent = send(fd, chunk_send, response_size, 0);
 	response_size -= size_sent;
 	chunk_send += size_sent;
 	total_sent += size_sent;
 	while (size_sent != 0 && size_sent != -1) // envoie les derniers bytes
 	{
-		_sent_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-		if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIMEOUT_MS)
-			break;
+		// _sent_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+		// if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIMEOUT_MS)
+		// 	break;
 		size_sent = send(fd, chunk_send, response_size, 0);
 		response_size -= size_sent;
 		chunk_send += size_sent;
@@ -264,7 +269,7 @@ void Monitor::handle_connections()
 					}
 					if (j == server_count - 1)														// sinon fd correspond a un client qui fait une request
 					{
-						_start_chrono();
+						// _start_chrono();
 						int ret = _recv_all(_pfds[i].fd, _activeSockets[i]);
 						if (ret > 0)
 						{
@@ -305,7 +310,8 @@ void Monitor::handle_connections()
 					if (res.body_size)
 						_send_all(i, res.body, res.body_size, _activeSockets[i]); 					// send le body
 				}
-				_stop_chrono(_pfds[i].fd);
+				// _stop_chrono(_pfds[i].fd);
+				_log << "Socket " << _pfds[i].fd << ": connection closed" << std::endl;
 				close(_pfds[i].fd);
 				_del_from_pfds(i);
 				free(res.body);
@@ -316,24 +322,24 @@ void Monitor::handle_connections()
 	}
 }
 
-void Monitor::_start_chrono()
-{
-	_chrono_start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-}
+// void Monitor::_start_chrono()
+// {
+// 	_chrono_start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+// }
 
-void Monitor::_stop_chrono(int fd)
-{
-	_chrono_stop = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-	_chrono_stop -= _chrono_start;
-	_log << "Socket " << fd << ": connection closed, communication time = " << _chrono_stop << " ms" << std::endl;
-}
+// void Monitor::_stop_chrono(int fd)
+// {
+// 	_chrono_stop = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+// 	_chrono_stop -= _chrono_start;
+// 	_log << "Socket " << fd << ": connection closed, communication time = " << _chrono_stop << " ms" << std::endl;
+// }
 
 /* 
 	************ LOG
 */
 void Monitor::_create_log_file(std::string const & filename, std::ofstream & stream)
 {
-	stream.open(filename, std::ofstream::out | std::ofstream::app);
+	stream.open(filename.c_str(), std::ofstream::out | std::ofstream::app);
 	if (stream.fail() == true)
 	{
 		std::cerr << "Error while creating access log file" << std::endl;

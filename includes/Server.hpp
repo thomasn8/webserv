@@ -3,9 +3,13 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <cstring>
 #include <string>
+#include <stdlib.h>
 #include <time.h>
+#include <algorithm>
+#include <cctype>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>

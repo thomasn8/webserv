@@ -20,6 +20,9 @@ NAME		= webserv
 
 all:		${NAME}
 
+.cpp.o:
+			${CC} ${CFLAGS} -c $< -o ${<:.cpp=.o}
+
 ${NAME}:	${OBJS}
 			$(CC) $(CFLAGS) -o $(NAME) ${OBJS}
 
