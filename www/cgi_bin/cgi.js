@@ -1,1 +1,0 @@
-console.log("je suis le cgi js coucou!");

@@ -1,4 +1,2 @@
-POST /cgi_bin/index.php HTTP/1.1
+POST /index.php HTTP/1.1
 Host: localhost
-
-firstname=Thomas&lastname=Nanchen&story=nothing+to+say.&age=7

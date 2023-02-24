@@ -1,5 +1,0 @@
-CREATE TABLE utilisateursProfiles (
-pseudo VARCHAR(40) NOT NULL,
-text VARCHAR(4096) NULL,
-UNIQUE(pseudo(40)))
-ENGINE INNODB;
