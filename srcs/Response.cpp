@@ -504,6 +504,50 @@ int Response::_add_root_if_cgi(std::string &target,
                 }
             }
         }
+        else {
+            if (tmp.compare(0, len, (*it).get_route()) == 0) {
+                tmp.erase(0, len - 1);
+                tmp = (*it).get_root() + tmp;
+                while (_check_redirections(tmp, locations, locationFound)) {};
+                if (access(tmp.c_str(), F_OK) != -1) {
+                    target = tmp;
+                    this->_targetFound = true;
+                    locationFound = it;
+                    if (!_what_kind_of_cgi(target).empty())
+                        this->_cgi = target;
+                    return 1;
+                }
+            }
+        }
+    }
+    target = this->_server->get_root() + target;
+    return 0;
+}
+
+int Response::_add_root_dir(std::string &target, 
+        std::deque<Location> const &locations, std::deque<Location>::const_iterator &locationFound) {
+    std::deque<Location>::const_iterator	it;
+    int                           			len;
+    std::string                   			tmp;
+    
+    tmp = target;
+    for (it = locations.begin(); it != locations.end(); it++) {
+        len = (*it).get_route().length();
+        if ((*(*it).get_route().begin() == '/')) {
+            if (tmp.compare(0, len, (*it).get_route()) == 0) {
+                tmp.erase(0, len - 1);
+                tmp = (*it).get_root() + tmp;
+                while (_check_redirections(tmp, locations, locationFound)) {};
+                if (access(tmp.c_str(), F_OK) != -1) {
+                    target = tmp;
+                    this->_targetFound = true;
+                    locationFound = it;
+                    if (!_what_kind_of_cgi(target).empty())
+                        this->_cgi = target;
+                    return 1;
+                }
+            }
+        }
     }
     target = this->_server->get_root() + target;
     return 0;
@@ -613,8 +657,13 @@ void Response::_check_target() {
     if (this->_target.find('.') == std::string::npos) { // if it's a directory
         while (this->_target.back() == '/')
             this->_target.pop_back();
-        this->_target = this->_server->get_root() + this->_target;
-        while (_check_redirections(this->_target, locations, locationFound)) {};
+        if (!_add_root_dir(this->_target, locations, locationFound)) {
+            while (_check_redirections(this->_target, locations, locationFound)) {};
+            if (!this->_targetFound)
+                _check_locations(this->_target, locations, locationFound);
+        } 
+        // this->_target = this->_server->get_root() + this->_target;
+        // while (_check_redirections(this->_target, locations, locationFound)) {};
         if (!this->_targetFound)
             _check_locations_directory(this->_target, locations, locationFound);
         if (this->_targetFound) {
