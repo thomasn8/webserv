@@ -153,10 +153,17 @@ int Monitor::_replace_alone_header_cr()
 	{
 		if (ptr[i] == '\r')
 		{
+			// if (i+3 < len && ptr[i+1] == '\n' && ptr[i+2] == '\r' && ptr[i+3] == '\n')
+			if (i+2 < len && ptr[i+1] == '\n' && ptr[i+2] == '\r')
+			{
+				// std::cout << "YES: \\r\\n\\r" << std::endl;
+				return 0;
+			}
 			if ((i+1 < len && ptr[i+1] != '\n') || (i+1 == len))
 				ptr[i] = ' ';
-			else if (i+3 < len && ptr[i+1] == '\n' && ptr[i+2] == '\r' && ptr[i+3] == '\n')
-				return 0;
+			// else if (i+3 < len && ptr[i+1] == '\n' && ptr[i+2] == '\r' && ptr[i+3] == '\n')
+			// else if (i+3 < len && ptr[i+1] == '\n' && ptr[i+2] == '\r')
+			// 	return 0;
 		}
 		i++;
 	}
@@ -195,13 +202,13 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 		size_recv = recv(fd, _buf.current, CHUNK_RECV, 0); // recv la request jusqu'au bout du client_fd
 		_buf.size += size_recv;
 		_buf.current += size_recv;
-		if (size_recv)
-			std::cout << std::string(_buf.begin, _buf.size) << std::endl;
+		// if (size_recv)
+		// 	std::cout << std::string(_buf.begin, _buf.size) << std::endl;
 		// if (size_recv < CHUNK_RECV) // toute la request a été read
 		if (size_recv == 0 || size_recv == -1)
 		{
 			std::cout << "recv: " << size_recv << std::endl;
-			highlight_crlf(_buf.begin, _buf.size);
+			// highlight_crlf(_buf.begin, _buf.size);
 			_log << get_time() << " Request from    " << activeSocket.client << " on server port " << activeSocket.server->get_port_str() << ": socket " << fd << ",	read " << _buf.size << " bytes" << std::endl;
 			if (maxrecv && _buf.size > maxrecv) // erreur max body size 413
 				return -1;
@@ -285,11 +292,9 @@ void Monitor::handle_connections()
 								std::string requestStr(_buf.begin, _buf.size);
 								try {
 									Request request(&requestStr, _activeSockets[i].server);					// essaie de constr une requeste depuis les donnees recues
-									std::cout << "TEST4.1" << std::endl;
 									Response response(&request, _activeSockets[i].server, &res);			// essaie de constr une response si on a une request
 								}
 								catch (StatusCodeException & e) {
-									std::cout << "TEST4.2: " << e.statuscode() << std::endl;
 									Response response(e.statuscode(), _activeSockets[i].server, &res);		// si request a un probleme, construit une response selon son status code
 								}
 							}

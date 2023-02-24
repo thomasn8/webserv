@@ -10,10 +10,7 @@ _rawMessage(rawMessage), _server(server)
 	_rawMessage->erase(0, i+1);
     _parse_start_line(start_line);
     if (_parse_header() > 0)
-	{
-		std::cout << "TEST3" << std::endl;
     	_parse_body();
-	}
 }
 
 Request::Request(const Request& instance) :
@@ -148,14 +145,15 @@ int Request::_parse_header()
 	// 	_rawMessage->erase(0, i+1); // efface la derniere ligne vide du header
 	// else
 	// 	throw RequestException(BAD_REQUEST);
-	std::cout << "TEST1" << std::endl;
+	// highlight_crlf(_rawMessage->c_str(), _rawMessage->size());
 	if ((*_rawMessage).c_str()[0] == '\r')
 		_rawMessage->pop_back();
 	if ((*_rawMessage).c_str()[0] == '\n')
 		_rawMessage->pop_back();
 	if (_fields.find("Host") == _fields.end() || (*_fields.find("Host")).second.size() > 1)
 		throw RequestException(BAD_REQUEST);
-	std::cout << "TEST2" << std::endl;
+
+	// highlight_crlf(_rawMessage->c_str(), _rawMessage->size());
 	return _rawMessage->size(); // retourne la size du body
 }
 

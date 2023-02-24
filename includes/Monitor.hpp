@@ -31,7 +31,7 @@
 # define POLL_TIMEOUT -1
 
 // read
-# define CHUNK_RECV 1024
+# define CHUNK_RECV 512
 # define BUFFER_LIMIT 200000 // 200KO
 # define RECV_TIMEOUT_MS 2000
 struct buffer_read {
