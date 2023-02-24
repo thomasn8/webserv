@@ -141,19 +141,12 @@ int Request::_parse_header()
 		_rawMessage->erase(0, i+1);
 		i = _rawMessage->find_first_of('\n');
 	}
-	// if ((*_rawMessage).c_str()[0] == '\r')
-	// 	_rawMessage->erase(0, i+1); // efface la derniere ligne vide du header
-	// else
-	// 	throw RequestException(BAD_REQUEST);
-	// highlight_crlf(_rawMessage->c_str(), _rawMessage->size());
 	if ((*_rawMessage).c_str()[0] == '\r')
-		_rawMessage->pop_back();
-	if ((*_rawMessage).c_str()[0] == '\n')
-		_rawMessage->pop_back();
+		_rawMessage->erase(0, i+1); // efface la derniere ligne vide du header
+	else
+		throw RequestException(BAD_REQUEST);
 	if (_fields.find("Host") == _fields.end() || (*_fields.find("Host")).second.size() > 1)
 		throw RequestException(BAD_REQUEST);
-
-	// highlight_crlf(_rawMessage->c_str(), _rawMessage->size());
 	return _rawMessage->size(); // retourne la size du body
 }
 
