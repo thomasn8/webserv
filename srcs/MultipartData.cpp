@@ -65,7 +65,7 @@ void MultipartData::print_data() const
 	std::cout << "value len = " << get_valueLen() << std::endl;
 	const char * ptr = get_value();
 	std::cout << "value = ";
-	for (int i = 0; i < get_valueLen(); i++)
+	for (size_t i = 0; i < get_valueLen(); i++)
 		std::cout << ptr[i];
 	std::cout << std::endl;
 }

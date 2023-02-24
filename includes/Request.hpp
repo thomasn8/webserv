@@ -71,8 +71,8 @@ class Request {
 		void _free_multipartDatas();
 
 		// PRINT DATAS
-		void _print_fields() const;
-		void _print_multipartDatas() const;
+		// void _print_fields() const;
+		// void _print_multipartDatas() const;
 };
 
 #endif

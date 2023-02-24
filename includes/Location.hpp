@@ -5,6 +5,7 @@
 #include <sstream>
 #include <list>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "Trio.hpp"
 

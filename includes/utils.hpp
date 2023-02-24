@@ -5,6 +5,7 @@
 #include <cstring>
 #include <ctime>
 #include <iostream>
+#include <cstdlib>
 
 std::string     trim_sides(std::string str);
 bool            is_number(const std::string& s);
