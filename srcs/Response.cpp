@@ -534,12 +534,10 @@ int Response::_add_root_dir(std::string &target,
     
     tmp = target;
     for (it = locations.begin(); it != locations.end(); it++) {
-        len = (*it).get_route().length();
+        len = (*it).get_route().length() - 1;
         if ((*(*it).get_route().begin() == '/')) {
-            std::cout << "route: " << (*it).get_route() << std::endl;
-            std::cout << "tmp: " << tmp << std::endl;
-            if (tmp.compare(0, len, (*it).get_route()) == 0) {
-                tmp.erase(0, len - 1);
+            if ((*it).get_route().compare(0, len, tmp) == 0) {
+                tmp.erase(0, len);
                 tmp = (*it).get_root() + tmp;
                 while (_check_redirections(tmp, locations, locationFound)) {};
                 if (access(tmp.c_str(), F_OK) != -1) {
@@ -661,8 +659,8 @@ void Response::_check_target() {
     if (*this->_target.begin() != '/')
         throw  ResponseException(BAD_REQUEST);
     if (this->_target.find('.') == std::string::npos) { // if it's a directory
-        while (this->_target.back() != '/')
-            this->_target.push_back('/');
+        while (this->_target.back() == '/')
+            this->_target.pop_back();
         if (!_add_root_dir(this->_target, locations, locationFound)) {
             while (_check_redirections(this->_target, locations, locationFound)) {};
             if (!this->_targetFound)
@@ -723,17 +721,17 @@ void Response::_check_target() {
     }
     // std::cout << "ici: " << this->_target << std::endl;
     std::cout << "final target: " << this->_target << std::endl;
-    std::cout << "autoindex: " << this->_autoindex << std::endl;
-    std::cout << "cgi: " << this->_cgi << std::endl;
-    std::cout << "upload dir: " << this->_uploadsDir << std::endl;
-    std::cout << "status code: " << this->_statusCode << std::endl;
-    std::cout << "content types: ";
-    std::list<std::string>::iterator  it;
-    if (!this->_contentType.empty()) {
-        for (it = this->_contentType.begin(); it != this->_contentType.end(); it++) {
-            std::cout << *it << " \n";
-        }
-    }
+    // std::cout << "autoindex: " << this->_autoindex << std::endl;
+    // std::cout << "cgi: " << this->_cgi << std::endl;
+    // std::cout << "upload dir: " << this->_uploadsDir << std::endl;
+    // std::cout << "status code: " << this->_statusCode << std::endl;
+    // std::cout << "content types: ";
+    // std::list<std::string>::iterator  it;
+    // if (!this->_contentType.empty()) {
+    //     for (it = this->_contentType.begin(); it != this->_contentType.end(); it++) {
+    //         std::cout << *it << " \n";
+    //     }
+    // }
     this->_targetType = _what_kind_of_extention(this->_target);
     if (this->_statusCode.empty())
         this->_statusCode = std::to_string(HTTP_OK);
