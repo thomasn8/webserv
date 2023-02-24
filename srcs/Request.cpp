@@ -5,10 +5,6 @@
 Request::Request(std::string *rawMessage, Server *server) :
 _rawMessage(rawMessage), _server(server)
 {
-<<<<<<< HEAD
-	// std::cout << rawMessage->substr(0, 1500); // to remove
-=======
->>>>>>> b7d5716c675708bfc53cec250ac3c12c7d896032
 	ssize_t i = _rawMessage->find_first_of('\n');
     std::string start_line = _rawMessage->substr(0, i); // prend le /r avant /n
 	_rawMessage->erase(0, i+1);
