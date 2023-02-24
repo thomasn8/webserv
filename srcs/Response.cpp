@@ -413,8 +413,6 @@ int Response::_make_CGI() {
 	if (pid == -1) {exit(EXIT_FAILURE);}
 	if (pid == 0)
 	{
-        // if (PRINT_CGI_GET)
-        //     std:: cout << "path:" << this->_target << std::endl;
         close(fd[0]);
         close(in[1]);
         if (dup2(fd[1], STDOUT_FILENO) == -1) {exit(EXIT_FAILURE);}
@@ -602,30 +600,6 @@ std::string Response::_what_kind_of_extention(std::string &target) {
 			return corresponding[i];
 	}
 	return "text/html, charset=utf-8";
-
-    // if (pos != 0) {
-    //     if (target.compare(pos, 3, "css") == 0) 
-    //         return "text/css, charset=utf-8";
-    //     else if (target.compare(pos, 2, "js") == 0)
-    //         return "text/javascript, charset=utf-8";
-    //     else if (target.compare(pos, 4, "html") == 0)
-    //         return "text/html, charset=utf-8";
-    //     else if (target.compare(pos, 3, "svg") == 0)
-    //         return "image/svg+xml, charset=utf-8";
-    //     else if (target.compare(pos, 4, "woff") == 0)
-    //         return "font/woff";
-    //     else if (target.compare(pos, 3, "ttf") == 0)
-    //         return "font/ttf";
-    //     else if (target.compare(pos, 3, "otf") == 0)
-    //         return "font/otf";
-    //     else if (target.compare(pos, 3, "jpg") == 0)
-    //         return "image/jpeg";
-    //     else if (target.compare(pos, 3, "jpeg") == 0)
-    //         return "image/jpeg";
-    //     else if (target.compare(pos, 3, "png") == 0)
-    //         return "image/png";
-    // }
-    // return "text/html, charset=utf-8";
 }
 
 // Main function to make de routes
@@ -634,8 +608,6 @@ void Response::_check_target() {
     std::deque<Location>::const_iterator  locationFound;
 
     this->_target = this->_request->get_target();
-    // if (PRINT_RECIEVED_TARGET)
-    //     std::cout << "Target at begin: " << this->_target << std::endl;
     if (*this->_target.begin() != '/')
         throw  ResponseException(BAD_REQUEST);
     if (this->_target.find('.') == std::string::npos) { // if it's a directory
@@ -697,20 +669,6 @@ void Response::_check_target() {
     this->_targetType = _what_kind_of_extention(this->_target);
     if (this->_statusCode.empty())
         this->_statusCode = std::to_string(HTTP_OK);
-    // if (PRINT_FINAL_TARGET) {
-        // std::cout << "final target: " << this->_target << std::endl;
-        // std::cout << "autoindex: " << this->_autoindex << std::endl;
-        // std::cout << "cgi: " << this->_cgi << std::endl;
-        // std::cout << "upload dir: " << this->_uploadsDir << std::endl;
-        // std::cout << "status code: " << this->_statusCode << std::endl;
-        // std::cout << "content types: ";
-        // std::list<std::string>::iterator  it;
-        // if (!this->_contentType.empty()) {
-        //     for (it = this->_contentType.begin(); it != this->_contentType.end(); it++) {
-        //         std::cout << *it << " \n";
-        //     }
-        // }
-    // }
 }
 
 // --------- Fonctions getteur ------------
