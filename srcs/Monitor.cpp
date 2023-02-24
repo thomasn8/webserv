@@ -165,6 +165,26 @@ int Monitor::_replace_alone_header_cr()
 	return 0;
 }
 
+void Monitor::_check_buffer_capacity()
+{
+	if (_buf.size + CHUNK_RECV > _buf.capacity)
+	{
+		if (_buf.capacity == 0)
+		{
+			_buf.begin = (char *)malloc(CHUNK_RECV);
+			_buf.capacity = CHUNK_RECV;
+		}
+		else
+		{
+			_buf.begin = (char *)realloc(_buf.begin, _buf.capacity * 2);
+			_buf.capacity *= 2;
+		}
+		if (_buf.begin == NULL)
+			_log << get_time() << " allocation error" << std::endl;
+		_buf.current = _buf.begin + _buf.size; // resitue le current par rapport a la nouvelle memoire allouee
+	}
+}
+
 ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 {
 	ssize_t size_recv = 0, maxrecv = activeSocket.server->get_maxrecv();
@@ -175,30 +195,15 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 	{
 		_recv_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		if (_recv_timeout[1] - _recv_timeout[0] > RECV_TIMEOUT_MS)
-			return -1;	// A VOIR SI ON VEUT PAS RETOURNER UNE AUTRE VALEUR POUR ADAPTER LE CODE D'ERREUR RETRANSMIS DANS LE MONITOR
-		if (_buf.size + CHUNK_RECV > _buf.capacity)
-		{
-			if (_buf.capacity == 0)
-			{
-				_buf.begin = (char *)malloc(CHUNK_RECV);
-				_buf.capacity = CHUNK_RECV;
-			}
-			else
-			{
-				_buf.begin = (char *)realloc(_buf.begin, _buf.capacity * 2);
-				_buf.capacity *= 2;
-			}
-			if (_buf.begin == NULL)
-				return -1;
-			_buf.current = _buf.begin + _buf.size;
-		}
-		size_recv = recv(fd, _buf.current, CHUNK_RECV, 0); // recv la request jusqu'au bout du client_fd
+			return -2;
+		_check_buffer_capacity();
+		size_recv = recv(fd, _buf.current, CHUNK_RECV, 0); // read la request sur client_fd
 		_buf.size += size_recv;
 		_buf.current += size_recv;
-		// if (maxrecv && _buf.size > maxrecv) // erreur max body size 413
-		// 	return -1;
-		if (size_recv < CHUNK_RECV) // toute la request a été read
+		if (size_recv < 1) // toute la request a été read
 		{
+			if (size_recv == -1)
+				_buf.size += 1;
 			_log << get_time() << " Request from    " << activeSocket.client << " on server port " << activeSocket.server->get_port_str() << ": socket " << fd << ",	read " << _buf.size << " bytes" << std::endl;
 			if (maxrecv && _buf.size > maxrecv) // erreur max body size 413
 				return -1;
@@ -213,24 +218,11 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 	const char * chunk_send = response;
 	ssize_t response_size = size, size_sent = 0, total_sent = 0;
 	_sent_timeout[0] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-	if (response_size < CHUNK_SEND)	// cas où response initiale fait < CHUNK_SEND
-	{
-		size_sent = send(fd, chunk_send, response_size, 0);
-		response_size -= size_sent;
-		chunk_send += size_sent;
-		total_sent += size_sent;
-	}
-	while (response_size > CHUNK_SEND && size_sent != -1) // cas où response initiale > CHUNK_SEND
-	{
-		_sent_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-		if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIMEOUT_MS)
-			break;
-		size_sent = send(fd, chunk_send, CHUNK_SEND, 0);
-		response_size -= size_sent;
-		chunk_send += size_sent;
-		total_sent += size_sent;
-	}
-	while (response_size > 0 && size_sent != -1) // envoie les derniers bytes lorsque response initiale était > CHUNK_SEND bytes ou lorsque send a pas fonctionné comme prévu
+	size_sent = send(fd, chunk_send, response_size, 0);
+	response_size -= size_sent;
+	chunk_send += size_sent;
+	total_sent += size_sent;
+	while (size_sent != 0 && size_sent != -1) // envoie les derniers bytes
 	{
 		_sent_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIMEOUT_MS)
@@ -247,8 +239,6 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 	return total_sent;
 }
 
-// si on était pas en NON-BLOCKING mode, accept() bloquerait le server et le server pourrait gérer qu'1 seule connection simultanée.
-// Pareil pour le read() de recv() (comme quand on veut écrire dans un pipe et que l'autre process est bloqué par le read tant que rien est write dans le pipe)
 void Monitor::handle_connections()
 {
 	_prepare_master_sockets();
@@ -275,7 +265,8 @@ void Monitor::handle_connections()
 					if (j == server_count - 1)														// sinon fd correspond a un client qui fait une request
 					{
 						_start_chrono();
-						if (_recv_all(_pfds[i].fd, _activeSockets[i]) != -1)
+						int ret = _recv_all(_pfds[i].fd, _activeSockets[i]);
+						if (ret > 0)
 						{
 							if (_replace_alone_header_cr() != -1)
 							{
@@ -291,8 +282,10 @@ void Monitor::handle_connections()
 							else
 								Response response(HEADERS_TOO_LARGE, _activeSockets[i].server, &res);
 						}
-						else
+						else if (ret == -1)
 							Response response(PAYLOAD_TOO_LARGE, _activeSockets[i].server, &res);			// si recvall a atteint le MBS, constuit une response selon le status code
+						else
+							Response response(REQUEST_TIMEOUT, _activeSockets[i].server, &res);				// si recvall a timeout, constuit une response selon le status code
 						if (_buf.capacity > BUFFER_LIMIT)
 						{
 							free(_buf.begin);

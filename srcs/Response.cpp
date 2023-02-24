@@ -73,12 +73,14 @@ std::string Response::_status_messages(int code) {
 			return "NOT FOUND";
 		case 405:
 			return "METHOD NOT ALLOWED";
+		case 408:
+			return "REQUEST TIMEOUT";
 		case 413:
-			return "PAYLOAD_TOO_LARGE";
+			return "PAYLOAD TOO LARGE";
 		case 415:
 			return "MEDIA UNSUPPORTED";
 		case 431:
-			return "HEADERS_TOO_LARGE";
+			return "HEADERS TOO LARGE";
 		case 500:
 			return "INTERNAL SERVER ERROR";
 		case 505:

@@ -22,6 +22,7 @@
 #include "Request.hpp"
 #include "socket.hpp"
 #include "responseInfos.hpp"
+#include "utils.hpp"
 
 # define LOG_PATH "logs/access.log"
 
@@ -80,14 +81,13 @@ class Monitor
 		struct socket * _add_to_pfds(int new_fd, struct sockaddr_in * remoteAddr, Server * server);
 		void _del_from_pfds(int i);
 		void _accept_new_connection(int master_index);
+		int _replace_alone_header_cr(void);
+		struct buffer_read _buf;
+		void _check_buffer_capacity();
 		ssize_t _recv_all(int fd, struct socket & activeSocket);
 		int _send_all(int i, const char * response, int size, struct socket & activeSocket);
 		uint64_t _recv_timeout[2];
 		uint64_t _sent_timeout[2];
-
-		// RECV
-		struct buffer_read _buf;
-		int _replace_alone_header_cr(void);
 
 		// LOG
 		uint64_t _chrono_start;
