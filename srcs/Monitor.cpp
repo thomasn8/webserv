@@ -285,9 +285,11 @@ void Monitor::handle_connections()
 								std::string requestStr(_buf.begin, _buf.size);
 								try {
 									Request request(&requestStr, _activeSockets[i].server);					// essaie de constr une requeste depuis les donnees recues
+									std::cout << "TEST4.1" << std::endl;
 									Response response(&request, _activeSockets[i].server, &res);			// essaie de constr une response si on a une request
 								}
 								catch (StatusCodeException & e) {
+									std::cout << "TEST4.2: " << e.statuscode() << std::endl;
 									Response response(e.statuscode(), _activeSockets[i].server, &res);		// si request a un probleme, construit une response selon son status code
 								}
 							}
