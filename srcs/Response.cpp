@@ -507,9 +507,16 @@ int Response::_add_root_if_cgi(std::string &target,
         }
         else {
             if (tmp.compare(0, len, (*it).get_route()) == 0) {
-                tmp.erase(0, len - 1);
+                std::cout << "route: " << (*it).get_route() << std::endl;
+                if ((*it).get_route().find('.') != std::string::npos) {
+                   size_t pos = (*it).get_route().find_last_of("/");
+                   tmp.erase(0, pos);
+                }
+                else
+                    tmp.erase(0, len - 1);
+                std::cout << "tmp1:" << tmp << std::endl;
                 tmp = (*it).get_root() + tmp;
-                // std::cout << "la:" << tmp << std::endl;
+                std::cout << "tmp2:" << tmp << std::endl;
                 while (_check_redirections(tmp, locations, locationFound)) {};
                 if (access(tmp.c_str(), F_OK) != -1) {
                     target = tmp;
