@@ -562,7 +562,7 @@ int Response::_add_root_dir(std::string &target,
     for (it = locations.begin(); it != locations.end(); it++) {
         len = (*it).get_route().length() - 1;
         if ((*(*it).get_route().begin() == '/')) {
-            if ((*it).get_route().compare(0, len, tmp) == 0) {
+            if (target.find((*it).get_route()) == 0) {
                 tmp.erase(0, len);
                 tmp = (*it).get_root() + tmp;
                 while (_check_redirections(tmp, locations, locationFound)) {};
@@ -748,7 +748,6 @@ void Response::_check_target() {
                 throw  ResponseException(NOT_FOUND);
         }
     }
-    // std::cout << "ici: " << this->_target << std::endl;
     // std::cout << "final target: " << this->_target << std::endl;
     // std::cout << "autoindex: " << this->_autoindex << std::endl;
     // std::cout << "cgi: " << this->_cgi << std::endl;
