@@ -324,14 +324,14 @@ char **Response::_prepare_env() {
     }
     if (!(fields["Content-Type"].empty()))
        contentType = "application/x-www-form-urlencoded";
-    else 
-        contentLengh = "0";
     if (!this->_body.empty())
 	{
 		std::ostringstream convert;
 		convert << this->_body.length();
 		contentLengh = convert.str();
 	}
+    else if (!(fields["Content-Length"].empty()))
+        contentLengh = *(fields["Content-Length"]).begin();
     else
         contentLengh = "0";
     for (it2 = (fields["Accept"]).begin(); it2 != (fields["Accept"]).end(); it2++) {
