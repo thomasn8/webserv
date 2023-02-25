@@ -298,7 +298,7 @@ void Response::_response_delete() {
 // _______________________   CGI   _____________________________ //
 
 char **Response::_prepare_env() {
-    std::map<std::string, std::list<std::string> >           fields = this->_request->get_fields();
+    std::map<std::string, std::list<std::string> >          fields = this->_request->get_fields();
     std::map<std::string, std::string>::const_iterator      it;
     std::list<std::string>::iterator                        it2;
 
@@ -308,8 +308,8 @@ char **Response::_prepare_env() {
     std::string     userAgent("");
     std::string     host(*(fields["Host"]).begin());
     std::string     contentType;
+    std::string     contentLengh;
     std::string     cookies(*(fields["Cookie"]).begin());
-    std::string     contentLengh(*(fields["Content-Length"]).begin());
     char            **tmp;
     int             i = 0;
     int             j = 0;
@@ -330,6 +330,8 @@ char **Response::_prepare_env() {
 		convert << this->_body.length();
 		contentLengh = convert.str();
 	}
+    else if (!(fields["Content-Length"].empty()))
+        contentLengh = *(fields["Content-Length"]).begin();
     else
         contentLengh = "0";
     for (it2 = (fields["Accept"]).begin(); it2 != (fields["Accept"]).end(); it2++) {
@@ -399,9 +401,12 @@ void Response::_execute_cgi() {
         pathEnv.erase(0, pos + 1);
         pos = pathEnv.find(":");
     }
-    for(int i = 0; tmpEnv[i] != NULL; i++)
-        free(tmpEnv[i]);
-    free(tmpEnv);
+    if (tmpEnv != NULL) {
+        for(int i = 0; tmpEnv[i] != NULL; i++)
+            free(tmpEnv[i]);
+        free(tmpEnv);
+        tmpEnv = NULL;
+    }
 }
 
 
@@ -413,6 +418,7 @@ int Response::_make_CGI() {
     char        *cgi;
     size_t		max_size;
     size_t		len;
+    size_t      size = 0;
 
     
     if (pipe(fd) == -1) {return -1;}
@@ -434,7 +440,7 @@ int Response::_make_CGI() {
         exit(0);
 	}
     else {
-        max_size = this->_server->get_max_body_size();
+        max_size = this->_server->get_max_body_size(); 
         cgi = (char *)malloc(sizeof(char) * max_size);
         std::string finalCgi;
         close(fd[1]);
@@ -451,9 +457,11 @@ int Response::_make_CGI() {
             cgi = NULL;
         }
         close(fd[0]);
-        if (finalCgi.length() > max_size || is_number(finalCgi))
+        if (!finalCgi.empty())
+            size = finalCgi.size();
+        if (size > max_size || is_number(finalCgi))
             throw ResponseException(INTERNAL_SERVER_ERROR);
-		this->_make_final_message(this->_header, finalCgi.c_str(), NULL, finalCgi.size());
+		this->_make_final_message(this->_header, finalCgi.c_str(), NULL, size);
     }
     return (0);
 }
@@ -562,7 +570,7 @@ int Response::_add_root_dir(std::string &target,
     for (it = locations.begin(); it != locations.end(); it++) {
         len = (*it).get_route().length() - 1;
         if ((*(*it).get_route().begin() == '/')) {
-            if ((*it).get_route().compare(0, len, tmp) == 0) {
+            if (target.find((*it).get_route()) == 0) {
                 tmp.erase(0, len);
                 tmp = (*it).get_root() + tmp;
                 while (_check_redirections(tmp, locations, locationFound)) {};
@@ -748,7 +756,6 @@ void Response::_check_target() {
                 throw  ResponseException(NOT_FOUND);
         }
     }
-    // std::cout << "ici: " << this->_target << std::endl;
     // std::cout << "final target: " << this->_target << std::endl;
     // std::cout << "autoindex: " << this->_autoindex << std::endl;
     // std::cout << "cgi: " << this->_cgi << std::endl;
