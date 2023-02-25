@@ -218,17 +218,19 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 {
 	int fd = _pfds[i].fd;
 	const char * chunk_send = response;
-	ssize_t response_size = size, size_sent = 0, total_sent = 0;
+	ssize_t remainder = size, size_sent = 0, total_sent = 0;
+	size_t chunk_size;
 	// _sent_timeout[0] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	while (1)
 	{
 		// _sent_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		// if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIMEOUT_MS)
 		// 	break;
-		size_sent = send(fd, chunk_send, response_size, 0);
+		remainder > CHUNK_SEND ? chunk_size = CHUNK_SEND : chunk_size = remainder;
+		size_sent = send(fd, chunk_send, chunk_size, 0);
 		if (size_sent < 1)
 			break;
-		response_size -= size_sent;
+		remainder -= size_sent;
 		chunk_send += size_sent;
 		total_sent += size_sent;
 	}
