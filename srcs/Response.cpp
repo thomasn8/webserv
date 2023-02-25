@@ -245,7 +245,7 @@ void Response::_check_body() {
             else
                 this->_body += (*it)->get_name() + "=" + (*it)->get_value() + "&";
         }
-        if (this->_body.compare(this->_body.length() - 1, 1, "&") == 0)
+        if (!this->_body.empty() && this->_body.compare(this->_body.length() - 1, 1, "&") == 0)
             this->_body.erase(_body.size() - 1, 1);
 	}
 }
@@ -293,7 +293,6 @@ void Response::_response_delete() {
             </html>";
     this->_make_final_message(this->_header, body.c_str(), NULL, body.size());
 }
-
 
 // _______________________   CGI   _____________________________ //
 
@@ -408,7 +407,6 @@ void Response::_execute_cgi() {
         tmpEnv = NULL;
     }
 }
-
 
 int Response::_make_CGI() {
     int         fd[2];
