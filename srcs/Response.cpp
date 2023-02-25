@@ -405,6 +405,7 @@ void Response::_execute_cgi() {
         for(int i = 0; tmpEnv[i] != NULL; i++)
             free(tmpEnv[i]);
         free(tmpEnv);
+        tmpEnv = NULL;
     }
 }
 
