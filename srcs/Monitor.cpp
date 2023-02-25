@@ -203,18 +203,15 @@ ssize_t Monitor::_recv_all(int fd, struct socket & activeSocket)
 		// 	return -2;
 		_check_buffer_capacity();
 		size_recv = recv(fd, _buf.current, CHUNK_RECV, 0); // read la request sur client_fd
+		if (size_recv < 1)
+			break;
 		_buf.size += size_recv;
 		_buf.current += size_recv;
-		if (size_recv < 1) // toute la request a été read
-		{
-			if (size_recv == -1)
-				_buf.size += 1;
-			_log << get_time() << " Request from    " << activeSocket.client << " on server port " << activeSocket.server->get_port_str() << ": socket " << fd << ",	read " << _buf.size << " bytes" << std::endl;
-			if (maxrecv && _buf.size > maxrecv) // erreur max body size 413
-				return -1;
-			return _buf.size;
-		}
 	}
+	_log << get_time() << " Request from    " << activeSocket.client << " on server port " << activeSocket.server->get_port_str() << ": socket " << fd << ",	read " << _buf.size << " bytes" << std::endl;
+	if (maxrecv && _buf.size > maxrecv) // erreur max body size 413
+		return -1;
+	return _buf.size;
 }
 
 int Monitor::_send_all(int i, const char * response, int size, struct socket & activeSocket)
@@ -223,16 +220,14 @@ int Monitor::_send_all(int i, const char * response, int size, struct socket & a
 	const char * chunk_send = response;
 	ssize_t response_size = size, size_sent = 0, total_sent = 0;
 	// _sent_timeout[0] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-	size_sent = send(fd, chunk_send, response_size, 0);
-	response_size -= size_sent;
-	chunk_send += size_sent;
-	total_sent += size_sent;
-	while (size_sent != 0 && size_sent != -1) // envoie les derniers bytes
+	while (1)
 	{
 		// _sent_timeout[1] = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 		// if (_sent_timeout[1] - _sent_timeout[0] > SEND_TIMEOUT_MS)
 		// 	break;
 		size_sent = send(fd, chunk_send, response_size, 0);
+		if (size_sent < 1)
+			break;
 		response_size -= size_sent;
 		chunk_send += size_sent;
 		total_sent += size_sent;
@@ -287,10 +282,10 @@ void Monitor::handle_connections()
 							else
 								Response response(HEADERS_TOO_LARGE, _activeSockets[i].server, &res);
 						}
-						else if (ret == -1)
-							Response response(PAYLOAD_TOO_LARGE, _activeSockets[i].server, &res);			// si recvall a atteint le MBS, constuit une response selon le status code
+						// else if (ret == -2)
+						// 	Response response(REQUEST_TIMEOUT, _activeSockets[i].server, &res);				// si recvall a timeout, constuit une response selon le status code
 						else
-							Response response(REQUEST_TIMEOUT, _activeSockets[i].server, &res);				// si recvall a timeout, constuit une response selon le status code
+							Response response(PAYLOAD_TOO_LARGE, _activeSockets[i].server, &res);			// si recvall a atteint le MBS, constuit une response selon le status code
 						if (_buf.capacity > BUFFER_LIMIT)
 						{
 							free(_buf.begin);
