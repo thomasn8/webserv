@@ -1,5 +1,11 @@
 #include "../includes/utils.hpp"
 
+const char *DAY_NAMES[] =
+  { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+const char *MONTH_NAMES[] =
+  { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+
 std::string trim_sides(std::string str)
 {
 	const char* typeOfWhitespaces = " \t\n\r\f\v";

@@ -216,8 +216,6 @@ void Server::set_max_body_size(std::string & value)
 
 	std::string::iterator it = std::find_if(value.begin(), value.end(), isalpha);
 	std::string unit = std::string(it, value.end());
-	std::cout << "TEST:" << unit << std::endl;
-	// convertir la parti litteraire 
 	for (size_t i = 0; i < unit.size(); i++)
 		unit[i] = toupper(unit[i]);
 	if (unit.size() != 0)

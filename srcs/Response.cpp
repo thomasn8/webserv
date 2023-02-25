@@ -6,11 +6,14 @@
 Response::Response(const int code, Server *server, struct responseInfos *res) : 
 _server(server), _response(res) {
     std::string     body;
-	std::string 	codestr = std::to_string(code);
+	std::string 	codestr;
+	std::ostringstream convert;
     std::string		date;
 
+	convert << code;
+	codestr = convert.str();
     Rfc1123_DateTimeNow(date);
-    this->_header = "HTTP/1.1 " + std::to_string(code) + (" " +this->_status_messages(code)) + "\r\n" +
+    this->_header = "HTTP/1.1 " + codestr + (" " +this->_status_messages(code)) + "\r\n" +
 		"Content-Type: text/html, charset=utf-8\r\n" +
 		"Server: pizzabrownie\r\n" +
 		"Date: " + date + "\r\n";
@@ -108,7 +111,11 @@ int Response::_check_error_pages(const int code) {
 // _______________________   Final Response Creation   _____________________________ //
 
 void Response::_make_final_message(std::string const &header, const char *body, std::filebuf *pbuf, size_t len) {
-	_response->header = header + "Content-Length: " + std::to_string(len) + "\r\n\r\n";
+	std::ostringstream convert;
+	convert << len;
+	std::string lenStr = convert.str();
+
+	_response->header = header + "Content-Length: " + lenStr + "\r\n\r\n";
 	_response->body = (char *)malloc(len * sizeof(char));
 	_response->body_size = len;
 	if (body)
@@ -119,7 +126,7 @@ void Response::_make_final_message(std::string const &header, const char *body, 
 
 
 void Response::_make_response() {
-    std::ifstream ifs(this->_target, std::ifstream::binary);
+    std::ifstream ifs(this->_target.c_str(), std::ifstream::binary);
 	if (!ifs.is_open())
 	    throw ResponseException(INTERNAL_SERVER_ERROR);												
 
@@ -203,19 +210,19 @@ void Response::_upload_file(MultipartData *data) {
     // replace spaces
     std::string fileName = data->get_fileName();
     pos = fileName.find(" ");
-    while (pos != std::string::npos)
+    while (pos != -1)
     {
         fileName.replace(pos, 1, "%20");
         pos = fileName.find(" ");
     }
 
-    //check if directory exist						
-    struct stat st = {0};							
-    if (stat(this->_uploadsDir.c_str(), &st) == -1)
+    //check if directory exist
+	if (access(this->_uploadsDir.c_str(), F_OK | R_OK | W_OK ) == -1)
         throw ResponseException(INTERNAL_SERVER_ERROR);
 
     //upload file
-    std::ofstream file(this->_uploadsDir.c_str() + std::string("/") + fileName, std::ofstream::binary | std::ofstream::out);
+	std::string f = this->_uploadsDir + std::string("/") + fileName;
+    std::ofstream file(f.c_str(), std::ofstream::binary | std::ofstream::out);
     char buffer[data->get_valueLen()];
     int bodySize = data->get_valueLen();
     file.write(data->get_value(), bodySize);
@@ -239,7 +246,7 @@ void Response::_check_body() {
                 this->_body += (*it)->get_name() + "=" + (*it)->get_value() + "&";
         }
         if (this->_body.compare(this->_body.length() - 1, 1, "&") == 0)
-            this->_body.pop_back();
+            this->_body.erase(_body.size() - 1, 1);
 	}
 }
 
@@ -318,7 +325,11 @@ char **Response::_prepare_env() {
     if (!(fields["Content-Type"].empty()))
        contentType = "application/x-www-form-urlencoded";
     if (!this->_body.empty())
-        contentLengh = std::to_string(this->_body.length());
+	{
+		std::ostringstream convert;
+		convert << this->_body.length();
+		contentLengh = convert.str();
+	}
     else
         contentLengh = "0";
     for (it2 = (fields["Accept"]).begin(); it2 != (fields["Accept"]).end(); it2++) {
@@ -382,7 +393,7 @@ void Response::_execute_cgi() {
     pathEnv = std::string(getenv("PATH"));
     cgiType = _what_kind_of_cgi(this->_target);
     pos = pathEnv.find(":");
-    while ( pos != std::string::npos) {
+    while (pos != -1) {
         path = pathEnv.substr(0, pos) + "/" + cgiType;
         execle(path.c_str(), path.c_str(), this->_target.c_str(), NULL, tmpEnv);
         pathEnv.erase(0, pos + 1);
@@ -406,8 +417,8 @@ int Response::_make_CGI() {
     
     if (pipe(fd) == -1) {return -1;}
     if (pipe(in) == -1) {return -1;}
-    if (!this->_body.empty())
-        write(in[1], this->_body.c_str(), this->_body.length());
+	if (!this->_body.empty())
+		write(in[1], this->_body.c_str(), this->_body.length());
 	close(in[1]);
 	pid = fork();
 	if (pid == -1) {exit(EXIT_FAILURE);}
@@ -456,16 +467,20 @@ int Response::_check_redirections(std::string &target, std::deque<Location> cons
 
     for (it = locations.begin(); it != locations.end(); it++) {
         std::list<Trio> const &trio = (*it).get_redirections();
-        for (it2 = (*it).get_redirections().begin(); it2 != (*it).get_redirections().end(); it2++) {
+        for (it2 = trio.begin(); it2 != trio.end(); it2++) {
             if (target.compare((*it2).first) == 0) {
                 if (!((*it2).second.empty())) {
                     target = (*it2).second;
-                    this->_statusCode = std::to_string((*it2).third);
+					std::ostringstream convert;
+					convert << (*it2).third;
+					this->_statusCode = convert.str();
                 }
                 else {
-                    target = std::to_string((*it2).third);
+					std::ostringstream convert;
+					convert << (*it2).third;
+					target = convert.str();
                     if (is_number(target))
-                        throw ResponseException(stoi(target));
+                        throw ResponseException(atoi(target.c_str()));
                 }
                 this->_targetFound = true;
                 locationFound = it;
@@ -655,8 +670,8 @@ void Response::_check_target() {
     if (*this->_target.begin() != '/')
         throw  ResponseException(BAD_REQUEST);
     if (this->_target.find('.') == std::string::npos) { // if it's a directory
-        while (this->_target.back() == '/')
-            this->_target.pop_back();
+        while (*(this->_target.rbegin()) == '/')
+            this->_target.erase(this->_target.size() - 1, 1);
         if (!_add_root_dir(this->_target, locations, locationFound)) {
             while (_check_redirections(this->_target, locations, locationFound)) {};
             if (!this->_targetFound)
@@ -717,7 +732,7 @@ void Response::_check_target() {
     }
     this->_targetType = _what_kind_of_extention(this->_target);
     if (this->_statusCode.empty())
-        this->_statusCode = std::to_string(HTTP_OK);
+        this->_statusCode = "200";
 }
 
 // --------- Fonctions getteur ------------
