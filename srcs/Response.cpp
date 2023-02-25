@@ -294,7 +294,6 @@ void Response::_response_delete() {
     this->_make_final_message(this->_header, body.c_str(), NULL, body.size());
 }
 
-
 // _______________________   CGI   _____________________________ //
 
 char **Response::_prepare_env() {
