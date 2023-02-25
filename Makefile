@@ -9,8 +9,8 @@ SRCS		=	srcs/main.cpp							\
 			  	srcs/Request.cpp						\
 			  	srcs/MultipartData.cpp					\
 			  	srcs/Location.cpp						\
-			  	srcs/Response.cpp						\
 				srcs/utils.cpp							\
+			  	srcs/Response.cpp						\
 
 OBJS		= ${SRCS:.cpp=.o}
 CC			= c++
@@ -19,6 +19,9 @@ RM			= rm -f
 NAME		= webserv
 
 all:		${NAME}
+
+.cpp.o:
+			${CC} ${CFLAGS} -c $< -o ${<:.cpp=.o}
 
 ${NAME}:	${OBJS}
 			$(CC) $(CFLAGS) -o $(NAME) ${OBJS}

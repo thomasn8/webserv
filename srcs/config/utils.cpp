@@ -83,17 +83,10 @@ bool p_error_page_syntax(std::string line)
 		if (iss.peek() == EOF)
 			break;
 		iss >> word;
-		try {
-			size_t idx;
-			std::stoi(word, &idx);
-			if (word.substr(idx).size() == 0)
-				code++;
-			else
-				file++;
-		}
-		catch (const std::invalid_argument &ia) {
+		if (atoi(word.c_str()) == 0)
 			file++;
-		}
+		else
+			code++;
 	}
 	prev = line;
 	if (code < 1 || file != 1)
@@ -123,12 +116,8 @@ bool p_redirect_syntax(std::string line)
 		if (iss.peek() == EOF)
 			break;
 		iss >> word;
-		try {
-			std::stoi(word);
-		}
-		catch (const std::invalid_argument &ia) {
+		if (atoi(word.c_str()) == 0)
 			str++;
-		}
 		words++;
 	}
 	prev = line;

@@ -6,11 +6,11 @@
 Location::Location(std::string const & server_root, std::list<std::string> const & server_indexes) :
 _route(),
 _root(server_root),
-_autoindex(false),
-_indexFiles(std::list<std::string>(server_indexes)),
-_defaultIndex(true),
 _methods(std::list<std::string>(1, std::string(GET))),
 _defaultMethods(true),
+_defaultIndex(true),
+_indexFiles(std::list<std::string>(server_indexes)),
+_autoindex(false),
 _uploadsDir(_root),
 _redirections(std::list<Trio>()),
 _contentType(std::list<std::string>())
@@ -19,11 +19,11 @@ _contentType(std::list<std::string>())
 Location::Location() :
 _route(),
 _root(std::string(_webserv_bin_path().append("/").append(DEFAULT_ROOT))),
-_autoindex(false),
-_indexFiles(std::list<std::string>()),
-_defaultIndex(true),
 _methods(std::list<std::string>(1, std::string(GET))),
 _defaultMethods(true),
+_defaultIndex(true),
+_indexFiles(std::list<std::string>()),
+_autoindex(false),
 _uploadsDir(_root),
 _redirections(std::list<Trio>()),
 _contentType(std::list<std::string>())
@@ -32,11 +32,11 @@ _contentType(std::list<std::string>())
 Location::Location(const Location & src) :
 _route(src._route),
 _root(src._root),
-_autoindex(src._autoindex), 
-_indexFiles(std::list<std::string>(src._indexFiles)),
-_defaultIndex(src._defaultIndex),
 _methods(src._methods),
 _defaultMethods(src._defaultMethods),
+_defaultIndex(src._defaultIndex),
+_indexFiles(std::list<std::string>(src._indexFiles)),
+_autoindex(src._autoindex), 
 _uploadsDir(src._uploadsDir),
 _redirections(src._redirections),
 _cgi(src._cgi) 
@@ -190,12 +190,11 @@ void Location::set_redirection(std::string & line)
 		if (iss.peek() == EOF)
 			break;
 		iss >> word;
-		try {
-			code = std::stoi(word);
-			if (code > -1)
-				trio.third = code;
-		}
-		catch (const std::invalid_argument &ia) {
+		code = atoi(word.c_str());
+		if (code != 0)
+			trio.third = code;
+		else
+		{
 			if (trio.first.empty())
 			{
 				if (word[0] == '/')

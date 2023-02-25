@@ -10,8 +10,8 @@ _port(htons(DEFAULT_PORT)),
 _serverNames(std::list<std::string>(1, std::string(DEFAULT_SERVERNAME))),
 _defaultServerNames(true),
 _root(std::string(_webserv_bin_path().append("/").append(DEFAULT_ROOT))),
-_indexFiles(std::list<std::string>(1, std::string(DEFAULT_INDEX))),
 _defaultIndex(true),
+_indexFiles(std::list<std::string>(1, std::string(DEFAULT_INDEX))),
 _maxBodySize(MBS),
 _maxrecv(MHS + MBS),
 _errorPages(std::list<error_page_pair>()),
@@ -27,8 +27,8 @@ _port(src._port),
 _serverNames(src._serverNames),
 _defaultServerNames(src._defaultServerNames),
 _root(src._root),
-_indexFiles(src._indexFiles),
 _defaultIndex(src._defaultIndex),
+_indexFiles(src._indexFiles),
 _maxBodySize(src._maxBodySize),
 _maxrecv(src._maxrecv),
 _errorPages(src._errorPages),
@@ -89,16 +89,9 @@ void Server::add_directive(int directiveIndex, std::string value)
 
 int Server::_port_check(std::string & value)
 {
-	int port = DEFAULT_PORT;
-	try {
-		size_t idx;
-		port = std::stoi(value, &idx);
-		if (value.substr(idx).size() != 0)
-			_exit_cerr_msg("Error: invalid port", 1);
-	}
-	catch (const std::invalid_argument &ia) {
+	int port = atoi(value.c_str());
+	if (port == 0)
 		_exit_cerr_msg("Error: invalid port", 1);
-	}
 	if (port != 80 && port < MIN_PORT_NO)
 		_exit_cerr_msg("Error: invalid port: port number below 1024 (except default port 80) are not available\n", 1);
 	if (port > MAX_PORT_NO)
@@ -130,7 +123,10 @@ void Server::set_address_port(std::string & value)
 		else
 			_port = _port_check(value);
 	}
-	_port_str = std::to_string(ntohs(_port));
+	int p = static_cast<int>(ntohs(_port));
+	std::ostringstream convert;
+	convert << p;
+	_port_str = convert.str();
 	_ipv4_str = _ip;
 	_ipv4_port_str = get_ipv4_str();
 	_ipv4_port_str.append(":").append(get_port_str());
@@ -187,14 +183,9 @@ void Server::set_error_page(std::string & value)
 	if (value.empty())
 		return;
 
-	int statusCode = 0;	
-	try {
-		size_t idx;
-		statusCode = std::stoi(value, &idx);
-		if (value.substr(idx).size() != 0)
-			throw std::invalid_argument("asdf");
-	}
-	catch (const std::invalid_argument &ia) {
+	int statusCode = atoi(value.c_str());
+	if (statusCode == 0)
+	{
 		// itere sur tous les statusCode-errorFile pair depuis la fin
 		// et ajoute le errorFile aux pairs qui ont que le statusCode
 		std::list< error_page_pair >::reverse_iterator rit = _errorPages.rbegin();
@@ -219,29 +210,26 @@ void Server::set_max_body_size(std::string & value)
 {
 	if (value.empty())
 		return;
-	size_t mbs = MBS;
-	try {
-		size_t idx;
-		mbs = std::stoi(value, &idx);
-		std::string unit = value.substr(idx);
-		for (int i = 0; i < unit.size(); i++)
-			unit[i] = toupper(unit[i]);
-		if (unit.size() != 0)
-		{
-			if (unit.compare("B") == 0)
-				mbs *= 1;
-			else if (unit.compare("KB") == 0 || unit.compare("KO") == 0 || unit.compare("K") == 0)
-				mbs *= 1000;
-			else if (unit.compare("MB") == 0 || unit.compare("MO") == 0 || unit.compare("M") == 0)
-				mbs *= 1000 * 1000;
-			else if (unit.compare("GB") == 0 || unit.compare("GO") == 0 || unit.compare("G") == 0)
-				_exit_cerr_msg("Error: max_body_size too large: maximum of 100MB\n", 1);
-			else
-				_exit_cerr_msg("Error: invalid max_body_size format. Examples: 4000, 300KB, 2M\n", 1);
-		}
-	}
-	catch (const std::invalid_argument &ia) {
+	size_t mbs = atoi(value.c_str());
+	if (mbs == 0)
 		_exit_cerr_msg("Error: invalid max_body_size format. Examples: 4000, 300KB, 2M\n", 1);
+
+	std::string::iterator it = std::find_if(value.begin(), value.end(), isalpha);
+	std::string unit = std::string(it, value.end());
+	for (size_t i = 0; i < unit.size(); i++)
+		unit[i] = toupper(unit[i]);
+	if (unit.size() != 0)
+	{
+		if (unit.compare("B") == 0)
+			mbs *= 1;
+		else if (unit.compare("KB") == 0 || unit.compare("KO") == 0 || unit.compare("K") == 0)
+			mbs *= 1000;
+		else if (unit.compare("MB") == 0 || unit.compare("MO") == 0 || unit.compare("M") == 0)
+			mbs *= 1000 * 1000;
+		else if (unit.compare("GB") == 0 || unit.compare("GO") == 0 || unit.compare("G") == 0)
+			_exit_cerr_msg("Error: max_body_size too large: maximum of 100MB\n", 1);
+		else
+			_exit_cerr_msg("Error: invalid max_body_size format. Examples: 4000, 300KB, 2M\n", 1);
 	}
 	if (mbs > MAX_MBS)
 		_exit_cerr_msg("Error: max_body_size too large: maximum of 100MB\n", 1);
@@ -308,10 +296,10 @@ int Server::create_socket(char **env)
 	struct timeval timeout;      
     timeout.tv_sec = SEND_TIMEOUT_SEC;
     timeout.tv_usec = SEND_TIMEOUT_USEC;
-    if (setsockopt (_socket_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) < 0)
-        _exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 3 failed\n", 1);
-    if (setsockopt (_socket_fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout) < 0)
-        _exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 4 failed\n", 1);
+	if (setsockopt(_socket_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) < 0)
+		_exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 3 failed\n", 1);
+	if (setsockopt(_socket_fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout) < 0)
+		_exit_cerr_msg("Error: impossible to run server(s): setsockopt() no 4 failed\n", 1);
 
 	memset(_address.sin_zero, 0, sizeof(_address.sin_zero));
 	_address.sin_family = AF_INET;

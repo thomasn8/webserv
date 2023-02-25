@@ -13,7 +13,6 @@ void Monitor::log_server_info()
 		i++;
 		_log << "SERVER #" << i << std::endl;
 		_log << "	" << "port: " << (*it).get_port_str() << std::endl;
-		char ip4[INET_ADDRSTRLEN];
 		_log << "	" << "ip: " << (*it).get_ipv4_str() << std::endl;
 		std::list<std::string>::const_iterator it7 = (*it).get_servernames().begin();
 		for (; it7 != (*it).get_servernames().end(); it7++)

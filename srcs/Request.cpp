@@ -46,15 +46,15 @@ std::list<MultipartData *> const & Request::get_multipartDatas() const { return 
 
 void Request::_parse_start_line(std::string startLine)
 {
-	if (startLine.back() != '\r')
+	if (*(startLine.rbegin()) != '\r')
 		 throw RequestException(BAD_REQUEST);
-	startLine.pop_back();
+	startLine.erase(startLine.size() - 1, 1);
 
 	ssize_t space1, space2, space3, query;
 	space1 = startLine.find(' ');
 	space2 = startLine.find(' ', space1 + 1);
 	space3 = startLine.find(' ', space2 + 1);
-	if (space1 == std::string::npos || space2 == std::string::npos || space3 > -1)
+	if (space1 == -1 || space2 == -1 || space3 > -1)
 		throw RequestException(BAD_REQUEST);
 	
 	// METHOD
@@ -72,7 +72,7 @@ void Request::_parse_start_line(std::string startLine)
 
 	// URL (target + ?query)
 	query = startLine.find('?'); // check if form data in url
-	if (query == std::string::npos)
+	if (query == -1)
 	{
 		_target = startLine;
 		if (_target.size() > URL_MAX_LEN)
@@ -129,13 +129,13 @@ int Request::_parse_header()
 {
 	ssize_t pos = 0, i;
 	i = _rawMessage->find_first_of('\n');
-	while (i != std::string::npos && (*_rawMessage).c_str()[0] != '\r')
+	while (i != -1 && (*_rawMessage).c_str()[0] != '\r')
 	{
 		// firstchar = 0, lastchar (before \n) = i-1, \n = i, len to erase = i+1
 		if (_rawMessage->c_str()[i-1] != '\r')
             throw RequestException(BAD_REQUEST);
 		pos = _rawMessage->find(':');
-		if (pos == std::string::npos)
+		if (pos == -1)
             throw RequestException(BAD_REQUEST);
 		_split_field(pos, i-1);	// prend pas le /r
 		_rawMessage->erase(0, i+1);
@@ -155,7 +155,7 @@ int Request::_parse_header()
 // regarde dans le location correspondant a l'extension de la target si le type de fichier uploade est accepte
 bool Request::_check_filetype(std::string contentType)
 {
-	size_t slash = contentType.rfind('/');
+	int slash = contentType.rfind('/');
 	if (slash != -1)
 		contentType.erase(0, slash + 1);
 	std::string ext = _target.substr(_target.find_last_of('.')+1, std::string::npos);
@@ -211,7 +211,8 @@ void Request::_parse_multipartDataType(fields_it type)
 		std::string first_line = _rawMessage->substr(2, start_secondline - 4);
 		std::string name = _find_value_from_boundry_block(first_line, "name=", "name=\"", '"');
 		MultipartData *multi = new MultipartData(name);
-		if (first_line.find("filename=") != -1)	// FILE SPECIFIC
+		int f = first_line.find("filename=");
+		if (f != -1)	// FILE SPECIFIC
 		{
 			multi->set_fileName(_find_value_from_boundry_block(first_line, "filename=", "filename=\"", '"'));
 			if (multi->get_fileName().size())
@@ -280,49 +281,49 @@ void Request::_free_multipartDatas()
 
 // --------- Print datas ------------
 
-void Request::_print_fields() const
-{
-	fields_it it;
-	fields_values_it it2;
-	for (it = _fields.begin(); it != _fields.end(); it++) {
-		std::cout << it->first;
-		std::cout << ": |";
-		for (it2 = it->second.begin(); it2 != it->second.end(); it2++) {
-			std::cout << *it2 << "|";
-			if (it2 != std::prev(it->second.end()))
-				std::cout << ", ";
-		}
-		std::cout << ";" << std::endl;
-	}
-}
+// void Request::_print_fields() const
+// {
+// 	fields_it it;
+// 	fields_values_it it2;
+// 	for (it = _fields.begin(); it != _fields.end(); it++) {
+// 		std::cout << it->first;
+// 		std::cout << ": |";
+// 		for (it2 = it->second.begin(); it2 != it->second.end(); it2++) {
+// 			std::cout << *it2 << "|";
+// 			if (it2 != std::prev(it->second.end()))
+// 				std::cout << ", ";
+// 		}
+// 		std::cout << ";" << std::endl;
+// 	}
+// }
 
-void Request::_print_multipartDatas() const
-{
-	// std::cout << "\nPOST MULTIPART DATAS" << std::endl;
-	if (_postMultipart.size() > 0)
-	{
-		mutlipart_it it = _postMultipart.cbegin();
-		for (; it != _postMultipart.cend(); it++)
-		{
-			// std::cout << "Data (" << static_cast<const void *>(*it) << "):" << std::endl;
-			// std::cout << "	name = |" << (*it)->get_name() << "|" << std::endl;
-			if ((*it)->get_file() == true)
-			{
-				std::cout << "	filename = |" << (*it)->get_fileName() << "|" << std::endl;
-				std::cout << "	content type = |" << (*it)->get_contentType() << "|" << std::endl;
-				std::cout << "	value len = |" << (*it)->get_valueLen() << "|" << std::endl;
-			}
-			if ((*it)->get_value() != NULL)
-			{
-				size_t len = (*it)->get_valueLen();
-				const char * ptr = (*it)->get_value();
-				std::cout << "	value = |";
-				// for (int i = 0; i < len; i++)
-				for (int i = 0; i < 100; i++)
-					std::cout << ptr[i];
-				std::cout << "|" << std::endl;
-			}
-		}
-		// std::cout << std::endl;
-	}
-}
+// void Request::_print_multipartDatas() const
+// {
+// 	// std::cout << "\nPOST MULTIPART DATAS" << std::endl;
+// 	if (_postMultipart.size() > 0)
+// 	{
+// 		mutlipart_it it = _postMultipart.cbegin();
+// 		for (; it != _postMultipart.cend(); it++)
+// 		{
+// 			// std::cout << "Data (" << static_cast<const void *>(*it) << "):" << std::endl;
+// 			// std::cout << "	name = |" << (*it)->get_name() << "|" << std::endl;
+// 			if ((*it)->get_file() == true)
+// 			{
+// 				std::cout << "	filename = |" << (*it)->get_fileName() << "|" << std::endl;
+// 				std::cout << "	content type = |" << (*it)->get_contentType() << "|" << std::endl;
+// 				std::cout << "	value len = |" << (*it)->get_valueLen() << "|" << std::endl;
+// 			}
+// 			if ((*it)->get_value() != NULL)
+// 			{
+// 				size_t len = (*it)->get_valueLen();
+// 				const char * ptr = (*it)->get_value();
+// 				std::cout << "	value = |";
+// 				// for (int i = 0; i < len; i++)
+// 				for (int i = 0; i < 100; i++)
+// 					std::cout << ptr[i];
+// 				std::cout << "|" << std::endl;
+// 			}
+// 		}
+// 		// std::cout << std::endl;
+// 	}
+// }

@@ -59,7 +59,6 @@ int close_server_block(std::string & line, bool *server_context, int *server_cou
 int open_location_block(std::string & line, std::string & route, int *location_context, int *location_count)
 {
 	(void) location_count;
-	int route_count = 0;
 	if (*location_context == 1 || *location_context == 2)
 	{
 		line = ERROR_LOCATION_BLOCK;

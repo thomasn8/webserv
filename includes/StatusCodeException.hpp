@@ -7,7 +7,7 @@ class StatusCodeException : public std::exception {
 	public:
 		StatusCodeException(const int code) : _code(code) {}
 
-		virtual const int statuscode() const throw() {
+		virtual int statuscode() const throw() {
 			return _code;	
 		}
 
