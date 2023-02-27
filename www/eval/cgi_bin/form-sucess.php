@@ -60,7 +60,6 @@
                     // var_dump( $data )
 
                     ?>
-                    
                     <?php if (empty($data['firstname']) || empty($data['firstname']) || empty($data['age']) || empty($data['story'])) : ?>
                         <?php if (empty($data['firstname'])) : ?>
                             <h2 class="mb3 p-60 margin-bottom-42 reveal-on-scroll is-revealing">You forget to enter your name!</h2>
