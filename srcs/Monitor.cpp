@@ -275,8 +275,6 @@ void Monitor::handle_connections()
 							else
 								Response response(HEADERS_TOO_LARGE, _activeSockets[i].server, &res);
 						}
-						// else if (ret == -2)
-						// 	Response response(REQUEST_TIMEOUT, _activeSockets[i].server, &res);				// si recvall a timeout, constuit une response selon le status code
 						else
 							Response response(PAYLOAD_TOO_LARGE, _activeSockets[i].server, &res);			// si recvall a atteint le MBS, constuit une response selon le status code
 						if (_buf.capacity > BUFFER_LIMIT)

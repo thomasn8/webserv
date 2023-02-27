@@ -91,10 +91,6 @@ class Monitor
 		uint64_t _sent_timeout[2];
 
 		// LOG
-		// uint64_t _chrono_start;
-		// uint64_t _chrono_stop;
-		// void _start_chrono();
-		// void _stop_chrono(int fd);
 		void _create_log_file(std::string const & filename, std::ofstream & stream);
 		std::string _logFile;
 		std::ofstream _log;
