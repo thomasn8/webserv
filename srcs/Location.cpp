@@ -42,6 +42,22 @@ _redirections(src._redirections),
 _cgi(src._cgi) 
 {}
 
+Location & Location::operator=(const Location & src) 
+{
+	_route = src._route;
+	_root = src._root;
+	_methods = src._methods;
+	_defaultMethods = src._defaultMethods;
+	_defaultIndex = src._defaultIndex;
+	_indexFiles = src._indexFiles;
+	_autoindex = src._autoindex;
+	_uploadsDir = src._uploadsDir;
+	_redirections = src._redirections;
+	_cgi = src._cgi;
+	_contentType = src._contentType;
+	return *this;
+}
+
 Location::~Location() {}
 
 /* 

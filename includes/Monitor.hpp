@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <sstream>
 #include <time.h>
-// #include <chrono>
+#include <chrono>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
@@ -91,10 +91,10 @@ class Monitor
 		uint64_t _sent_timeout[2];
 
 		// LOG
-		// uint64_t _chrono_start;
-		// uint64_t _chrono_stop;
-		// void _start_chrono();
-		// void _stop_chrono(int fd);
+		uint64_t _chrono_start;
+		uint64_t _chrono_stop;
+		void _start_chrono();
+		void _stop_chrono(int fd);
 		void _create_log_file(std::string const & filename, std::ofstream & stream);
 		std::string _logFile;
 		std::ofstream _log;

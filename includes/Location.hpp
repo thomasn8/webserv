@@ -32,6 +32,7 @@ class Location
 		// CONST/DESTR
 		Location(std::string const & server_root, std::list<std::string> const & server_indexes);
 		Location(const Location & src);
+		Location & operator=(const Location & src);
 		~Location();
 		
 		// GETTERS/SETTERS
